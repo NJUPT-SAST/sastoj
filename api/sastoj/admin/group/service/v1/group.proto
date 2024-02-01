@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package api.sastoj.admin.group.service.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "sastoj/api/sastoj/admin/group/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.admin.group.service.v1";
+
+service Group {
+  rpc CreateGroup (CreateGroupRequest) returns (CreateGroupReply) {
+    option (google.api.http) = {
+      put: "/group",
+      body: "*"
+    };
+  };
+  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupReply);
+  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupReply);
+  rpc GetGroup (GetGroupRequest) returns (GetGroupReply) {
+    option (google.api.http) = {
+      get: "/group/{id}"
+    };
+  };
+  rpc ListGroup (ListGroupRequest) returns (ListGroupReply);
+}
+
+message CreateGroupRequest {
+  string name = 1;
+}
+message CreateGroupReply {
+  int64 id = 1;
+}
+
+message UpdateGroupRequest {
+  int64 id = 1;
+  string name = 2;
+}
+message UpdateGroupReply {
+  string success = 1;
+}
+
+message DeleteGroupRequest {
+  int64 id = 1;
+}
+message DeleteGroupReply {
+  string success = 1;
+}
+
+message GetGroupRequest {
+  int64 id = 1;
+}
+message GetGroupReply {
+  int64 id = 1;
+  string name = 2;
+}
+
+message ListGroupRequest {}
+message ListGroupReply {
+  message Group {
+    int64 id = 1;
+    string name = 2;
+  }
+  repeated Group groups = 1;
+}

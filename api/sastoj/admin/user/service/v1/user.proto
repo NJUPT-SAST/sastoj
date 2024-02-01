@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package api.sastoj.admin.user.service.v1;
+
+option go_package = "sastoj/api/sastoj/admin/user/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.admin.user.service.v1";
+
+service User {
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
+	rpc GetUser (GetUserRequest) returns (GetUserReply);
+	rpc ListUser (ListUserRequest) returns (ListUserReply);
+}
+
+message CreateUserRequest {
+	string username = 1;
+}
+message CreateUserReply {
+	string id = 1;
+}
+
+message UpdateUserRequest {
+	string id = 1;
+	string username = 2;
+}
+message UpdateUserReply {
+	string success = 1;
+}
+
+message DeleteUserRequest {
+	string id = 1;
+}
+message DeleteUserReply {
+	string success = 1;
+}
+
+message GetUserRequest {
+	string id = 1;
+}
+message GetUserReply {
+	string id = 1;
+	string username = 2;
+}
+
+message ListUserRequest {
+	string size = 1;
+	string page = 2;
+}
+message ListUserReply {
+	message User {
+		string id = 1;
+		string username = 2;
+	}
+	repeated User users = 1;
+}
