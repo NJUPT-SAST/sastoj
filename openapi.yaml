@@ -3,19 +3,19 @@
 
 openapi: 3.0.3
 info:
-    title: Group API
+    title: User API
     version: 0.0.1
 paths:
-    /group:
-        put:
+    /v1/user:
+        post:
             tags:
-                - Group
-            operationId: Group_CreateGroup
+                - User
+            operationId: User_CreateUser
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateGroupRequest'
+                            $ref: '#/components/schemas/CreateUserRequest'
                 required: true
             responses:
                 "200":
@@ -23,31 +23,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateGroupReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /group/{id}:
-        get:
-            tags:
-                - Group
-            operationId: Group_GetGroup
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetGroupReply'
+                                $ref: '#/components/schemas/CreateUserReply'
                 default:
                     description: Default error response
                     content:
@@ -56,22 +32,19 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        CreateGroupReply:
+        CreateUserReply:
             type: object
             properties:
                 id:
                     type: string
-        CreateGroupRequest:
+        CreateUserRequest:
             type: object
             properties:
-                name:
+                username:
                     type: string
-        GetGroupReply:
-            type: object
-            properties:
-                id:
+                password:
                     type: string
-                name:
+                groupId:
                     type: string
         GoogleProtobufAny:
             type: object
@@ -98,4 +71,4 @@ components:
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
-    - name: Group
+    - name: User

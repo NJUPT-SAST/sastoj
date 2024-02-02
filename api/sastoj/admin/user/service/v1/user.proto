@@ -2,12 +2,19 @@ syntax = "proto3";
 
 package api.sastoj.admin.user.service.v1;
 
+import "google/api/annotations.proto";
+
 option go_package = "sastoj/api/sastoj/admin/user/service/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.user.service.v1";
 
 service User {
-	rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
+		option (google.api.http) = {
+			post: "/v1/user"
+			body: "*"
+		};
+	};
 	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
 	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
 	rpc GetUser (GetUserRequest) returns (GetUserReply);
@@ -16,6 +23,8 @@ service User {
 
 message CreateUserRequest {
 	string username = 1;
+	string password = 2;
+	int64 group_id = 3;
 }
 message CreateUserReply {
 	string id = 1;
@@ -24,6 +33,8 @@ message CreateUserReply {
 message UpdateUserRequest {
 	string id = 1;
 	string username = 2;
+	string password = 3;
+	int64 state = 4;
 }
 message UpdateUserReply {
 	string success = 1;
