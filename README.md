@@ -17,7 +17,6 @@ kratos version: v2.7
 
 ```
 go mod download
-
 ```
 
 ### Run a Service
