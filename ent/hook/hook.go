@@ -8,6 +8,30 @@ import (
 	"sastoj/ent"
 )
 
+// The ContestFunc type is an adapter to allow the use of ordinary
+// function as Contest mutator.
+type ContestFunc func(context.Context, *ent.ContestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ContestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContestMutation", m)
+}
+
+// The ContestGroupFunc type is an adapter to allow the use of ordinary
+// function as ContestGroup mutator.
+type ContestGroupFunc func(context.Context, *ent.ContestGroupMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestGroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ContestGroupMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContestGroupMutation", m)
+}
+
 // The GroupFunc type is an adapter to allow the use of ordinary
 // function as Group mutator.
 type GroupFunc func(context.Context, *ent.GroupMutation) (ent.Value, error)
@@ -18,6 +42,90 @@ func (f GroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GroupMutation", m)
+}
+
+// The LoginSessionFunc type is an adapter to allow the use of ordinary
+// function as LoginSession mutator.
+type LoginSessionFunc func(context.Context, *ent.LoginSessionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoginSessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LoginSessionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LoginSessionMutation", m)
+}
+
+// The ProblemFunc type is an adapter to allow the use of ordinary
+// function as Problem mutator.
+type ProblemFunc func(context.Context, *ent.ProblemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProblemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProblemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemMutation", m)
+}
+
+// The ProblemCaseFunc type is an adapter to allow the use of ordinary
+// function as ProblemCase mutator.
+type ProblemCaseFunc func(context.Context, *ent.ProblemCaseMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProblemCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProblemCaseMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemCaseMutation", m)
+}
+
+// The ProblemJudgeFunc type is an adapter to allow the use of ordinary
+// function as ProblemJudge mutator.
+type ProblemJudgeFunc func(context.Context, *ent.ProblemJudgeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProblemJudgeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProblemJudgeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemJudgeMutation", m)
+}
+
+// The SubmitFunc type is an adapter to allow the use of ordinary
+// function as Submit mutator.
+type SubmitFunc func(context.Context, *ent.SubmitMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmitMutation", m)
+}
+
+// The SubmitCaseFunc type is an adapter to allow the use of ordinary
+// function as SubmitCase mutator.
+type SubmitCaseFunc func(context.Context, *ent.SubmitCaseMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmitCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmitCaseMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmitCaseMutation", m)
+}
+
+// The SubmitJudgeFunc type is an adapter to allow the use of ordinary
+// function as SubmitJudge mutator.
+type SubmitJudgeFunc func(context.Context, *ent.SubmitJudgeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmitJudgeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmitJudgeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmitJudgeMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

@@ -4,6 +4,7 @@ package user
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -21,8 +22,42 @@ const (
 	FieldState = "state"
 	// FieldGroupID holds the string denoting the group_id field in the database.
 	FieldGroupID = "group_id"
+	// EdgeSubmitJudge holds the string denoting the submit_judge edge name in mutations.
+	EdgeSubmitJudge = "submit_judge"
+	// EdgeGroups holds the string denoting the groups edge name in mutations.
+	EdgeGroups = "groups"
+	// EdgeSubmission holds the string denoting the submission edge name in mutations.
+	EdgeSubmission = "submission"
+	// EdgeLoginSession holds the string denoting the login_session edge name in mutations.
+	EdgeLoginSession = "login_session"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// SubmitJudgeTable is the table that holds the submit_judge relation/edge.
+	SubmitJudgeTable = "submit_judge"
+	// SubmitJudgeInverseTable is the table name for the SubmitJudge entity.
+	// It exists in this package in order to avoid circular dependency with the "submitjudge" package.
+	SubmitJudgeInverseTable = "submit_judge"
+	// SubmitJudgeColumn is the table column denoting the submit_judge relation/edge.
+	SubmitJudgeColumn = "user_submit_judge"
+	// GroupsTable is the table that holds the groups relation/edge.
+	GroupsTable = "users"
+	// GroupsInverseTable is the table name for the Group entity.
+	// It exists in this package in order to avoid circular dependency with the "group" package.
+	GroupsInverseTable = "groups"
+	// GroupsColumn is the table column denoting the groups relation/edge.
+	GroupsColumn = "group_users"
+	// SubmissionTable is the table that holds the submission relation/edge.
+	SubmissionTable = "submit"
+	// SubmissionInverseTable is the table name for the Submit entity.
+	// It exists in this package in order to avoid circular dependency with the "submit" package.
+	SubmissionInverseTable = "submit"
+	// SubmissionColumn is the table column denoting the submission relation/edge.
+	SubmissionColumn = "user_submission"
+	// LoginSessionTable is the table that holds the login_session relation/edge. The primary key declared below.
+	LoginSessionTable = "user_login_session"
+	// LoginSessionInverseTable is the table name for the LoginSession entity.
+	// It exists in this package in order to avoid circular dependency with the "loginsession" package.
+	LoginSessionInverseTable = "login_session"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -40,6 +75,12 @@ var Columns = []string{
 var ForeignKeys = []string{
 	"group_users",
 }
+
+var (
+	// LoginSessionPrimaryKey and LoginSessionColumn2 are the table columns denoting the
+	// primary key for the login_session relation (M2M).
+	LoginSessionPrimaryKey = []string{"user_id", "login_session_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -96,4 +137,81 @@ func ByState(opts ...sql.OrderTermOption) OrderOption {
 // ByGroupID orders the results by the group_id field.
 func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
+}
+
+// BySubmitJudgeCount orders the results by submit_judge count.
+func BySubmitJudgeCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmitJudgeStep(), opts...)
+	}
+}
+
+// BySubmitJudge orders the results by submit_judge terms.
+func BySubmitJudge(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmitJudgeStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGroupsField orders the results by groups field.
+func ByGroupsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// BySubmissionCount orders the results by submission count.
+func BySubmissionCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmissionStep(), opts...)
+	}
+}
+
+// BySubmission orders the results by submission terms.
+func BySubmission(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmissionStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByLoginSessionCount orders the results by login_session count.
+func ByLoginSessionCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newLoginSessionStep(), opts...)
+	}
+}
+
+// ByLoginSession orders the results by login_session terms.
+func ByLoginSession(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLoginSessionStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newSubmitJudgeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmitJudgeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmitJudgeTable, SubmitJudgeColumn),
+	)
+}
+func newGroupsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
+	)
+}
+func newSubmissionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmissionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionTable, SubmissionColumn),
+	)
+}
+func newLoginSessionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LoginSessionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, LoginSessionTable, LoginSessionPrimaryKey...),
+	)
 }

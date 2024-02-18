@@ -6,6 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/group"
+	"sastoj/ent/loginsession"
+	"sastoj/ent/submit"
+	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -61,6 +65,70 @@ func (uc *UserCreate) SetGroupID(i int) *UserCreate {
 func (uc *UserCreate) SetID(i int) *UserCreate {
 	uc.mutation.SetID(i)
 	return uc
+}
+
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (uc *UserCreate) AddSubmitJudgeIDs(ids ...int) *UserCreate {
+	uc.mutation.AddSubmitJudgeIDs(ids...)
+	return uc
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (uc *UserCreate) AddSubmitJudge(s ...*SubmitJudge) *UserCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uc.AddSubmitJudgeIDs(ids...)
+}
+
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (uc *UserCreate) SetGroupsID(id int) *UserCreate {
+	uc.mutation.SetGroupsID(id)
+	return uc
+}
+
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableGroupsID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetGroupsID(*id)
+	}
+	return uc
+}
+
+// SetGroups sets the "groups" edge to the Group entity.
+func (uc *UserCreate) SetGroups(g *Group) *UserCreate {
+	return uc.SetGroupsID(g.ID)
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+func (uc *UserCreate) AddSubmissionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddSubmissionIDs(ids...)
+	return uc
+}
+
+// AddSubmission adds the "submission" edges to the Submit entity.
+func (uc *UserCreate) AddSubmission(s ...*Submit) *UserCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uc.AddSubmissionIDs(ids...)
+}
+
+// AddLoginSessionIDs adds the "login_session" edge to the LoginSession entity by IDs.
+func (uc *UserCreate) AddLoginSessionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddLoginSessionIDs(ids...)
+	return uc
+}
+
+// AddLoginSession adds the "login_session" edges to the LoginSession entity.
+func (uc *UserCreate) AddLoginSession(l ...*LoginSession) *UserCreate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uc.AddLoginSessionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -182,6 +250,71 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.GroupID(); ok {
 		_spec.SetField(user.FieldGroupID, field.TypeInt, value)
 		_node.GroupID = value
+	}
+	if nodes := uc.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.GroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupsTable,
+			Columns: []string{user.GroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.group_users = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.LoginSessionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

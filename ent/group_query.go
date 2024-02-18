@@ -7,8 +7,10 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"sastoj/ent/contestgroup"
 	"sastoj/ent/group"
 	"sastoj/ent/predicate"
+	"sastoj/ent/problemjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -19,11 +21,13 @@ import (
 // GroupQuery is the builder for querying Group entities.
 type GroupQuery struct {
 	config
-	ctx        *QueryContext
-	order      []group.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Group
-	withUsers  *UserQuery
+	ctx               *QueryContext
+	order             []group.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.Group
+	withUsers         *UserQuery
+	withContestGroup  *ContestGroupQuery
+	withProblemJudges *ProblemJudgeQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +79,50 @@ func (gq *GroupQuery) QueryUsers() *UserQuery {
 			sqlgraph.From(group.Table, group.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, group.UsersTable, group.UsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestGroup chains the current query on the "contest_group" edge.
+func (gq *GroupQuery) QueryContestGroup() *ContestGroupQuery {
+	query := (&ContestGroupClient{config: gq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, selector),
+			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, group.ContestGroupTable, group.ContestGroupColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProblemJudges chains the current query on the "problem_judges" edge.
+func (gq *GroupQuery) QueryProblemJudges() *ProblemJudgeQuery {
+	query := (&ProblemJudgeClient{config: gq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, selector),
+			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, group.ProblemJudgesTable, group.ProblemJudgesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -269,12 +317,14 @@ func (gq *GroupQuery) Clone() *GroupQuery {
 		return nil
 	}
 	return &GroupQuery{
-		config:     gq.config,
-		ctx:        gq.ctx.Clone(),
-		order:      append([]group.OrderOption{}, gq.order...),
-		inters:     append([]Interceptor{}, gq.inters...),
-		predicates: append([]predicate.Group{}, gq.predicates...),
-		withUsers:  gq.withUsers.Clone(),
+		config:            gq.config,
+		ctx:               gq.ctx.Clone(),
+		order:             append([]group.OrderOption{}, gq.order...),
+		inters:            append([]Interceptor{}, gq.inters...),
+		predicates:        append([]predicate.Group{}, gq.predicates...),
+		withUsers:         gq.withUsers.Clone(),
+		withContestGroup:  gq.withContestGroup.Clone(),
+		withProblemJudges: gq.withProblemJudges.Clone(),
 		// clone intermediate query.
 		sql:  gq.sql.Clone(),
 		path: gq.path,
@@ -289,6 +339,28 @@ func (gq *GroupQuery) WithUsers(opts ...func(*UserQuery)) *GroupQuery {
 		opt(query)
 	}
 	gq.withUsers = query
+	return gq
+}
+
+// WithContestGroup tells the query-builder to eager-load the nodes that are connected to
+// the "contest_group" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GroupQuery) WithContestGroup(opts ...func(*ContestGroupQuery)) *GroupQuery {
+	query := (&ContestGroupClient{config: gq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withContestGroup = query
+	return gq
+}
+
+// WithProblemJudges tells the query-builder to eager-load the nodes that are connected to
+// the "problem_judges" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GroupQuery) WithProblemJudges(opts ...func(*ProblemJudgeQuery)) *GroupQuery {
+	query := (&ProblemJudgeClient{config: gq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withProblemJudges = query
 	return gq
 }
 
@@ -370,8 +442,10 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 	var (
 		nodes       = []*Group{}
 		_spec       = gq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [3]bool{
 			gq.withUsers != nil,
+			gq.withContestGroup != nil,
+			gq.withProblemJudges != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -396,6 +470,20 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 		if err := gq.loadUsers(ctx, query, nodes,
 			func(n *Group) { n.Edges.Users = []*User{} },
 			func(n *Group, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := gq.withContestGroup; query != nil {
+		if err := gq.loadContestGroup(ctx, query, nodes,
+			func(n *Group) { n.Edges.ContestGroup = []*ContestGroup{} },
+			func(n *Group, e *ContestGroup) { n.Edges.ContestGroup = append(n.Edges.ContestGroup, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := gq.withProblemJudges; query != nil {
+		if err := gq.loadProblemJudges(ctx, query, nodes,
+			func(n *Group) { n.Edges.ProblemJudges = []*ProblemJudge{} },
+			func(n *Group, e *ProblemJudge) { n.Edges.ProblemJudges = append(n.Edges.ProblemJudges, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -428,6 +516,68 @@ func (gq *GroupQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "group_users" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (gq *GroupQuery) loadContestGroup(ctx context.Context, query *ContestGroupQuery, nodes []*Group, init func(*Group), assign func(*Group, *ContestGroup)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Group)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.ContestGroup(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(group.ContestGroupColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.group_contest_group
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "group_contest_group" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "group_contest_group" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (gq *GroupQuery) loadProblemJudges(ctx context.Context, query *ProblemJudgeQuery, nodes []*Group, init func(*Group), assign func(*Group, *ProblemJudge)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Group)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.ProblemJudge(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(group.ProblemJudgesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.group_problem_judges
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "group_problem_judges" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "group_problem_judges" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

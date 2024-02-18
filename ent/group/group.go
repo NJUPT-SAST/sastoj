@@ -16,6 +16,10 @@ const (
 	FieldGroupName = "group_name"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
+	// EdgeContestGroup holds the string denoting the contest_group edge name in mutations.
+	EdgeContestGroup = "contest_group"
+	// EdgeProblemJudges holds the string denoting the problem_judges edge name in mutations.
+	EdgeProblemJudges = "problem_judges"
 	// Table holds the table name of the group in the database.
 	Table = "groups"
 	// UsersTable is the table that holds the users relation/edge.
@@ -25,6 +29,20 @@ const (
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
 	UsersColumn = "group_users"
+	// ContestGroupTable is the table that holds the contest_group relation/edge.
+	ContestGroupTable = "contest_group"
+	// ContestGroupInverseTable is the table name for the ContestGroup entity.
+	// It exists in this package in order to avoid circular dependency with the "contestgroup" package.
+	ContestGroupInverseTable = "contest_group"
+	// ContestGroupColumn is the table column denoting the contest_group relation/edge.
+	ContestGroupColumn = "group_contest_group"
+	// ProblemJudgesTable is the table that holds the problem_judges relation/edge.
+	ProblemJudgesTable = "problem_judges"
+	// ProblemJudgesInverseTable is the table name for the ProblemJudge entity.
+	// It exists in this package in order to avoid circular dependency with the "problemjudge" package.
+	ProblemJudgesInverseTable = "problem_judges"
+	// ProblemJudgesColumn is the table column denoting the problem_judges relation/edge.
+	ProblemJudgesColumn = "group_problem_judges"
 )
 
 // Columns holds all SQL columns for group fields.
@@ -74,10 +92,52 @@ func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByContestGroupCount orders the results by contest_group count.
+func ByContestGroupCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestGroupStep(), opts...)
+	}
+}
+
+// ByContestGroup orders the results by contest_group terms.
+func ByContestGroup(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestGroupStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProblemJudgesCount orders the results by problem_judges count.
+func ByProblemJudgesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProblemJudgesStep(), opts...)
+	}
+}
+
+// ByProblemJudges orders the results by problem_judges terms.
+func ByProblemJudges(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProblemJudgesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UsersTable, UsersColumn),
+	)
+}
+func newContestGroupStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestGroupInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
+	)
+}
+func newProblemJudgesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProblemJudgesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProblemJudgesTable, ProblemJudgesColumn),
 	)
 }

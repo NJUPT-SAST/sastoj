@@ -23,5 +23,7 @@ func (Group) Fields() []ent.Field {
 func (Group) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("users", User.Type),
+		edge.To("contest_group", ContestGroup.Type),
+		edge.To("problem_judges", ProblemJudge.Type),
 	}
 }
