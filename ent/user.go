@@ -25,9 +25,10 @@ type User struct {
 	// State holds the value of the "state" field.
 	State int `json:"state,omitempty"`
 	// GroupID holds the value of the "group_id" field.
-	GroupID      int `json:"group_id,omitempty"`
-	group_users  *int
-	selectValues sql.SelectValues
+	GroupID            int `json:"group_id,omitempty"`
+	group_users        *int
+	login_session_user *int
+	selectValues       sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -40,6 +41,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		case user.FieldUsername, user.FieldPassword, user.FieldSalt:
 			values[i] = new(sql.NullString)
 		case user.ForeignKeys[0]: // group_users
+			values[i] = new(sql.NullInt64)
+		case user.ForeignKeys[1]: // login_session_user
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -98,6 +101,13 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.group_users = new(int)
 				*u.group_users = int(value.Int64)
+			}
+		case user.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field login_session_user", value)
+			} else if value.Valid {
+				u.login_session_user = new(int)
+				*u.login_session_user = int(value.Int64)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])

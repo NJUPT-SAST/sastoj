@@ -3,11 +3,59 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
+	// ContestsColumns holds the columns for the "contests" table.
+	ContestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "state", Type: field.TypeInt},
+		{Name: "type", Type: field.TypeInt},
+		{Name: "start_time", Type: field.TypeTime},
+		{Name: "end_time", Type: field.TypeTime},
+		{Name: "language", Type: field.TypeString},
+		{Name: "extra_time", Type: field.TypeInt},
+		{Name: "create_time", Type: field.TypeTime},
+	}
+	// ContestsTable holds the schema information for the "contests" table.
+	ContestsTable = &schema.Table{
+		Name:       "contests",
+		Columns:    ContestsColumns,
+		PrimaryKey: []*schema.Column{ContestsColumns[0]},
+	}
+	// ContestGroupColumns holds the columns for the "contest_group" table.
+	ContestGroupColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "group_id", Type: field.TypeInt},
+		{Name: "contest_group_contest", Type: field.TypeInt, Nullable: true},
+		{Name: "contest_group_group", Type: field.TypeInt, Nullable: true},
+	}
+	// ContestGroupTable holds the schema information for the "contest_group" table.
+	ContestGroupTable = &schema.Table{
+		Name:       "contest_group",
+		Columns:    ContestGroupColumns,
+		PrimaryKey: []*schema.Column{ContestGroupColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_group_contests_contest",
+				Columns:    []*schema.Column{ContestGroupColumns[3]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "contest_group_groups_group",
+				Columns:    []*schema.Column{ContestGroupColumns[4]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -19,6 +67,194 @@ var (
 		Columns:    GroupsColumns,
 		PrimaryKey: []*schema.Column{GroupsColumns[0]},
 	}
+	// LoginSessionsColumns holds the columns for the "login_sessions" table.
+	LoginSessionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "create_time", Type: field.TypeTime},
+	}
+	// LoginSessionsTable holds the schema information for the "login_sessions" table.
+	LoginSessionsTable = &schema.Table{
+		Name:       "login_sessions",
+		Columns:    LoginSessionsColumns,
+		PrimaryKey: []*schema.Column{LoginSessionsColumns[0]},
+	}
+	// ProblemsColumns holds the columns for the "problems" table.
+	ProblemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "content", Type: field.TypeString},
+		{Name: "point", Type: field.TypeInt},
+		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "case_version", Type: field.TypeInt},
+		{Name: "index", Type: field.TypeInt},
+		{Name: "is_deleted", Type: field.TypeBool, Default: false},
+		{Name: "config", Type: field.TypeString},
+		{Name: "problem_contest", Type: field.TypeInt, Nullable: true},
+	}
+	// ProblemsTable holds the schema information for the "problems" table.
+	ProblemsTable = &schema.Table{
+		Name:       "problems",
+		Columns:    ProblemsColumns,
+		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problems_contests_contest",
+				Columns:    []*schema.Column{ProblemsColumns[9]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// ProblemCasesColumns holds the columns for the "problem_cases" table.
+	ProblemCasesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "point", Type: field.TypeInt},
+		{Name: "index", Type: field.TypeInt},
+		{Name: "is_auto", Type: field.TypeBool, Default: false},
+		{Name: "is_deleted", Type: field.TypeBool, Default: false},
+		{Name: "problem_case_problem", Type: field.TypeInt, Nullable: true},
+	}
+	// ProblemCasesTable holds the schema information for the "problem_cases" table.
+	ProblemCasesTable = &schema.Table{
+		Name:       "problem_cases",
+		Columns:    ProblemCasesColumns,
+		PrimaryKey: []*schema.Column{ProblemCasesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problem_cases_problems_problem",
+				Columns:    []*schema.Column{ProblemCasesColumns[6]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// ProblemJudgesColumns holds the columns for the "problem_judges" table.
+	ProblemJudgesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "group_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "problem_judge_group", Type: field.TypeInt, Nullable: true},
+		{Name: "problem_judge_problem", Type: field.TypeInt, Nullable: true},
+	}
+	// ProblemJudgesTable holds the schema information for the "problem_judges" table.
+	ProblemJudgesTable = &schema.Table{
+		Name:       "problem_judges",
+		Columns:    ProblemJudgesColumns,
+		PrimaryKey: []*schema.Column{ProblemJudgesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problem_judges_groups_group",
+				Columns:    []*schema.Column{ProblemJudgesColumns[3]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "problem_judges_problems_problem",
+				Columns:    []*schema.Column{ProblemJudgesColumns[4]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// SubmitColumns holds the columns for the "submit" table.
+	SubmitColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "code", Type: field.TypeString, Size: 2147483647},
+		{Name: "state", Type: field.TypeInt},
+		{Name: "point", Type: field.TypeInt},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "total_time", Type: field.TypeTime},
+		{Name: "max_memory", Type: field.TypeInt},
+		{Name: "language", Type: field.TypeString},
+		{Name: "case_version", Type: field.TypeInt},
+		{Name: "submit_user", Type: field.TypeInt, Nullable: true},
+		{Name: "submit_problem", Type: field.TypeInt, Nullable: true},
+	}
+	// SubmitTable holds the schema information for the "submit" table.
+	SubmitTable = &schema.Table{
+		Name:       "submit",
+		Columns:    SubmitColumns,
+		PrimaryKey: []*schema.Column{SubmitColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submit_users_user",
+				Columns:    []*schema.Column{SubmitColumns[11]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "submit_problems_problem",
+				Columns:    []*schema.Column{SubmitColumns[12]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// SubmitCasesColumns holds the columns for the "submit_cases" table.
+	SubmitCasesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "submit_id", Type: field.TypeInt},
+		{Name: "case_id", Type: field.TypeInt},
+		{Name: "state", Type: field.TypeInt},
+		{Name: "point", Type: field.TypeInt},
+		{Name: "message", Type: field.TypeString, Size: 2147483647},
+		{Name: "time", Type: field.TypeInt},
+		{Name: "memory", Type: field.TypeInt},
+		{Name: "submit_case_submit", Type: field.TypeInt, Nullable: true},
+		{Name: "submit_case_problem_case", Type: field.TypeInt, Nullable: true},
+	}
+	// SubmitCasesTable holds the schema information for the "submit_cases" table.
+	SubmitCasesTable = &schema.Table{
+		Name:       "submit_cases",
+		Columns:    SubmitCasesColumns,
+		PrimaryKey: []*schema.Column{SubmitCasesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submit_cases_submit_submit",
+				Columns:    []*schema.Column{SubmitCasesColumns[8]},
+				RefColumns: []*schema.Column{SubmitColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "submit_cases_problem_cases_problem_case",
+				Columns:    []*schema.Column{SubmitCasesColumns[9]},
+				RefColumns: []*schema.Column{ProblemCasesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// SubmitJudgeColumns holds the columns for the "submit_judge" table.
+	SubmitJudgeColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "submit_id", Type: field.TypeInt},
+		{Name: "submit_judge_submit", Type: field.TypeInt, Nullable: true},
+		{Name: "submit_judge_user", Type: field.TypeInt, Nullable: true},
+	}
+	// SubmitJudgeTable holds the schema information for the "submit_judge" table.
+	SubmitJudgeTable = &schema.Table{
+		Name:       "submit_judge",
+		Columns:    SubmitJudgeColumns,
+		PrimaryKey: []*schema.Column{SubmitJudgeColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submit_judge_submit_submit",
+				Columns:    []*schema.Column{SubmitJudgeColumns[3]},
+				RefColumns: []*schema.Column{SubmitColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "submit_judge_users_user",
+				Columns:    []*schema.Column{SubmitJudgeColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -28,6 +264,7 @@ var (
 		{Name: "state", Type: field.TypeInt},
 		{Name: "group_id", Type: field.TypeInt},
 		{Name: "group_users", Type: field.TypeInt, Nullable: true},
+		{Name: "login_session_user", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -41,15 +278,52 @@ var (
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
+			{
+				Symbol:     "users_login_sessions_user",
+				Columns:    []*schema.Column{UsersColumns[7]},
+				RefColumns: []*schema.Column{LoginSessionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ContestsTable,
+		ContestGroupTable,
 		GroupsTable,
+		LoginSessionsTable,
+		ProblemsTable,
+		ProblemCasesTable,
+		ProblemJudgesTable,
+		SubmitTable,
+		SubmitCasesTable,
+		SubmitJudgeTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	ContestGroupTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestGroupTable.ForeignKeys[1].RefTable = GroupsTable
+	ContestGroupTable.Annotation = &entsql.Annotation{
+		Table: "contest_group",
+	}
+	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
+	ProblemJudgesTable.ForeignKeys[0].RefTable = GroupsTable
+	ProblemJudgesTable.ForeignKeys[1].RefTable = ProblemsTable
+	SubmitTable.ForeignKeys[0].RefTable = UsersTable
+	SubmitTable.ForeignKeys[1].RefTable = ProblemsTable
+	SubmitTable.Annotation = &entsql.Annotation{
+		Table: "submit",
+	}
+	SubmitCasesTable.ForeignKeys[0].RefTable = SubmitTable
+	SubmitCasesTable.ForeignKeys[1].RefTable = ProblemCasesTable
+	SubmitJudgeTable.ForeignKeys[0].RefTable = SubmitTable
+	SubmitJudgeTable.ForeignKeys[1].RefTable = UsersTable
+	SubmitJudgeTable.Annotation = &entsql.Annotation{
+		Table: "submit_judge",
+	}
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
+	UsersTable.ForeignKeys[1].RefTable = LoginSessionsTable
 }

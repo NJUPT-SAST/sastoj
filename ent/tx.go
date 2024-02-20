@@ -12,8 +12,26 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Contest is the client for interacting with the Contest builders.
+	Contest *ContestClient
+	// ContestGroup is the client for interacting with the ContestGroup builders.
+	ContestGroup *ContestGroupClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
+	// LoginSession is the client for interacting with the LoginSession builders.
+	LoginSession *LoginSessionClient
+	// Problem is the client for interacting with the Problem builders.
+	Problem *ProblemClient
+	// ProblemCase is the client for interacting with the ProblemCase builders.
+	ProblemCase *ProblemCaseClient
+	// ProblemJudge is the client for interacting with the ProblemJudge builders.
+	ProblemJudge *ProblemJudgeClient
+	// Submit is the client for interacting with the Submit builders.
+	Submit *SubmitClient
+	// SubmitCase is the client for interacting with the SubmitCase builders.
+	SubmitCase *SubmitCaseClient
+	// SubmitJudge is the client for interacting with the SubmitJudge builders.
+	SubmitJudge *SubmitJudgeClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -147,7 +165,16 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Contest = NewContestClient(tx.config)
+	tx.ContestGroup = NewContestGroupClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
+	tx.LoginSession = NewLoginSessionClient(tx.config)
+	tx.Problem = NewProblemClient(tx.config)
+	tx.ProblemCase = NewProblemCaseClient(tx.config)
+	tx.ProblemJudge = NewProblemJudgeClient(tx.config)
+	tx.Submit = NewSubmitClient(tx.config)
+	tx.SubmitCase = NewSubmitCaseClient(tx.config)
+	tx.SubmitJudge = NewSubmitJudgeClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
@@ -158,7 +185,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Group.QueryXXX(), the query will be executed
+// applies a query, for example: Contest.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
