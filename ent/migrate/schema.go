@@ -72,12 +72,21 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "create_time", Type: field.TypeTime},
+		{Name: "user_login_session", Type: field.TypeInt, Nullable: true},
 	}
 	// LoginSessionTable holds the schema information for the "login_session" table.
 	LoginSessionTable = &schema.Table{
 		Name:       "login_session",
 		Columns:    LoginSessionColumns,
 		PrimaryKey: []*schema.Column{LoginSessionColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "login_session_users_login_session",
+				Columns:    []*schema.Column{LoginSessionColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// ProblemsColumns holds the columns for the "problems" table.
 	ProblemsColumns = []*schema.Column{
@@ -279,31 +288,6 @@ var (
 			},
 		},
 	}
-	// UserLoginSessionColumns holds the columns for the "user_login_session" table.
-	UserLoginSessionColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "login_session_id", Type: field.TypeInt},
-	}
-	// UserLoginSessionTable holds the schema information for the "user_login_session" table.
-	UserLoginSessionTable = &schema.Table{
-		Name:       "user_login_session",
-		Columns:    UserLoginSessionColumns,
-		PrimaryKey: []*schema.Column{UserLoginSessionColumns[0], UserLoginSessionColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_login_session_user_id",
-				Columns:    []*schema.Column{UserLoginSessionColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_login_session_login_session_id",
-				Columns:    []*schema.Column{UserLoginSessionColumns[1]},
-				RefColumns: []*schema.Column{LoginSessionColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ContestsTable,
@@ -317,7 +301,6 @@ var (
 		SubmitCasesTable,
 		SubmitJudgeTable,
 		UsersTable,
-		UserLoginSessionTable,
 	}
 )
 
@@ -327,6 +310,7 @@ func init() {
 	ContestGroupTable.Annotation = &entsql.Annotation{
 		Table: "contest_group",
 	}
+	LoginSessionTable.ForeignKeys[0].RefTable = UsersTable
 	LoginSessionTable.Annotation = &entsql.Annotation{
 		Table: "login_session",
 	}
@@ -347,6 +331,4 @@ func init() {
 		Table: "submit_judge",
 	}
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
-	UserLoginSessionTable.ForeignKeys[0].RefTable = UsersTable
-	UserLoginSessionTable.ForeignKeys[1].RefTable = LoginSessionTable
 }

@@ -31,6 +31,6 @@ func (LoginSession) Fields() []ent.Field {
 // Edges of the LoginSession.
 func (LoginSession) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("users", User.Type).Ref("login_session"),
+		edge.From("users", User.Type).Ref("login_session").Unique(),
 	}
 }
