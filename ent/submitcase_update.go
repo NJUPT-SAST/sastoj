@@ -169,42 +169,42 @@ func (scu *SubmitCaseUpdate) AddMemory(i int) *SubmitCaseUpdate {
 	return scu
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (scu *SubmitCaseUpdate) SetSubmitID(id int) *SubmitCaseUpdate {
-	scu.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (scu *SubmitCaseUpdate) SetSubmissionID(id int) *SubmitCaseUpdate {
+	scu.mutation.SetSubmissionID(id)
 	return scu
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableSubmitID(id *int) *SubmitCaseUpdate {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (scu *SubmitCaseUpdate) SetNillableSubmissionID(id *int) *SubmitCaseUpdate {
 	if id != nil {
-		scu = scu.SetSubmitID(*id)
+		scu = scu.SetSubmissionID(*id)
 	}
 	return scu
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (scu *SubmitCaseUpdate) SetSubmit(s *Submit) *SubmitCaseUpdate {
-	return scu.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (scu *SubmitCaseUpdate) SetSubmission(s *Submit) *SubmitCaseUpdate {
+	return scu.SetSubmissionID(s.ID)
 }
 
-// SetProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID.
-func (scu *SubmitCaseUpdate) SetProblemCaseID(id int) *SubmitCaseUpdate {
-	scu.mutation.SetProblemCaseID(id)
+// SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
+func (scu *SubmitCaseUpdate) SetProblemCasesID(id int) *SubmitCaseUpdate {
+	scu.mutation.SetProblemCasesID(id)
 	return scu
 }
 
-// SetNillableProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableProblemCaseID(id *int) *SubmitCaseUpdate {
+// SetNillableProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID if the given value is not nil.
+func (scu *SubmitCaseUpdate) SetNillableProblemCasesID(id *int) *SubmitCaseUpdate {
 	if id != nil {
-		scu = scu.SetProblemCaseID(*id)
+		scu = scu.SetProblemCasesID(*id)
 	}
 	return scu
 }
 
-// SetProblemCase sets the "problem_case" edge to the ProblemCase entity.
-func (scu *SubmitCaseUpdate) SetProblemCase(p *ProblemCase) *SubmitCaseUpdate {
-	return scu.SetProblemCaseID(p.ID)
+// SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
+func (scu *SubmitCaseUpdate) SetProblemCases(p *ProblemCase) *SubmitCaseUpdate {
+	return scu.SetProblemCasesID(p.ID)
 }
 
 // Mutation returns the SubmitCaseMutation object of the builder.
@@ -212,15 +212,15 @@ func (scu *SubmitCaseUpdate) Mutation() *SubmitCaseMutation {
 	return scu.mutation
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (scu *SubmitCaseUpdate) ClearSubmit() *SubmitCaseUpdate {
-	scu.mutation.ClearSubmit()
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (scu *SubmitCaseUpdate) ClearSubmission() *SubmitCaseUpdate {
+	scu.mutation.ClearSubmission()
 	return scu
 }
 
-// ClearProblemCase clears the "problem_case" edge to the ProblemCase entity.
-func (scu *SubmitCaseUpdate) ClearProblemCase() *SubmitCaseUpdate {
-	scu.mutation.ClearProblemCase()
+// ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
+func (scu *SubmitCaseUpdate) ClearProblemCases() *SubmitCaseUpdate {
+	scu.mutation.ClearProblemCases()
 	return scu
 }
 
@@ -322,12 +322,12 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := scu.mutation.AddedMemory(); ok {
 		_spec.AddField(submitcase.FieldMemory, field.TypeInt, value)
 	}
-	if scu.mutation.SubmitCleared() {
+	if scu.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.SubmitTable,
-			Columns: []string{submitcase.SubmitColumn},
+			Inverse: true,
+			Table:   submitcase.SubmissionTable,
+			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -335,12 +335,12 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := scu.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := scu.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.SubmitTable,
-			Columns: []string{submitcase.SubmitColumn},
+			Inverse: true,
+			Table:   submitcase.SubmissionTable,
+			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -351,12 +351,12 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if scu.mutation.ProblemCaseCleared() {
+	if scu.mutation.ProblemCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.ProblemCaseTable,
-			Columns: []string{submitcase.ProblemCaseColumn},
+			Inverse: true,
+			Table:   submitcase.ProblemCasesTable,
+			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
@@ -364,12 +364,12 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := scu.mutation.ProblemCaseIDs(); len(nodes) > 0 {
+	if nodes := scu.mutation.ProblemCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.ProblemCaseTable,
-			Columns: []string{submitcase.ProblemCaseColumn},
+			Inverse: true,
+			Table:   submitcase.ProblemCasesTable,
+			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
@@ -540,42 +540,42 @@ func (scuo *SubmitCaseUpdateOne) AddMemory(i int) *SubmitCaseUpdateOne {
 	return scuo
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetSubmitID(id int) *SubmitCaseUpdateOne {
-	scuo.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (scuo *SubmitCaseUpdateOne) SetSubmissionID(id int) *SubmitCaseUpdateOne {
+	scuo.mutation.SetSubmissionID(id)
 	return scuo
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(id *int) *SubmitCaseUpdateOne {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (scuo *SubmitCaseUpdateOne) SetNillableSubmissionID(id *int) *SubmitCaseUpdateOne {
 	if id != nil {
-		scuo = scuo.SetSubmitID(*id)
+		scuo = scuo.SetSubmissionID(*id)
 	}
 	return scuo
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (scuo *SubmitCaseUpdateOne) SetSubmit(s *Submit) *SubmitCaseUpdateOne {
-	return scuo.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (scuo *SubmitCaseUpdateOne) SetSubmission(s *Submit) *SubmitCaseUpdateOne {
+	return scuo.SetSubmissionID(s.ID)
 }
 
-// SetProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetProblemCaseID(id int) *SubmitCaseUpdateOne {
-	scuo.mutation.SetProblemCaseID(id)
+// SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
+func (scuo *SubmitCaseUpdateOne) SetProblemCasesID(id int) *SubmitCaseUpdateOne {
+	scuo.mutation.SetProblemCasesID(id)
 	return scuo
 }
 
-// SetNillableProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableProblemCaseID(id *int) *SubmitCaseUpdateOne {
+// SetNillableProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID if the given value is not nil.
+func (scuo *SubmitCaseUpdateOne) SetNillableProblemCasesID(id *int) *SubmitCaseUpdateOne {
 	if id != nil {
-		scuo = scuo.SetProblemCaseID(*id)
+		scuo = scuo.SetProblemCasesID(*id)
 	}
 	return scuo
 }
 
-// SetProblemCase sets the "problem_case" edge to the ProblemCase entity.
-func (scuo *SubmitCaseUpdateOne) SetProblemCase(p *ProblemCase) *SubmitCaseUpdateOne {
-	return scuo.SetProblemCaseID(p.ID)
+// SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
+func (scuo *SubmitCaseUpdateOne) SetProblemCases(p *ProblemCase) *SubmitCaseUpdateOne {
+	return scuo.SetProblemCasesID(p.ID)
 }
 
 // Mutation returns the SubmitCaseMutation object of the builder.
@@ -583,15 +583,15 @@ func (scuo *SubmitCaseUpdateOne) Mutation() *SubmitCaseMutation {
 	return scuo.mutation
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (scuo *SubmitCaseUpdateOne) ClearSubmit() *SubmitCaseUpdateOne {
-	scuo.mutation.ClearSubmit()
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (scuo *SubmitCaseUpdateOne) ClearSubmission() *SubmitCaseUpdateOne {
+	scuo.mutation.ClearSubmission()
 	return scuo
 }
 
-// ClearProblemCase clears the "problem_case" edge to the ProblemCase entity.
-func (scuo *SubmitCaseUpdateOne) ClearProblemCase() *SubmitCaseUpdateOne {
-	scuo.mutation.ClearProblemCase()
+// ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
+func (scuo *SubmitCaseUpdateOne) ClearProblemCases() *SubmitCaseUpdateOne {
+	scuo.mutation.ClearProblemCases()
 	return scuo
 }
 
@@ -723,12 +723,12 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 	if value, ok := scuo.mutation.AddedMemory(); ok {
 		_spec.AddField(submitcase.FieldMemory, field.TypeInt, value)
 	}
-	if scuo.mutation.SubmitCleared() {
+	if scuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.SubmitTable,
-			Columns: []string{submitcase.SubmitColumn},
+			Inverse: true,
+			Table:   submitcase.SubmissionTable,
+			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -736,12 +736,12 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := scuo.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := scuo.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.SubmitTable,
-			Columns: []string{submitcase.SubmitColumn},
+			Inverse: true,
+			Table:   submitcase.SubmissionTable,
+			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -752,12 +752,12 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if scuo.mutation.ProblemCaseCleared() {
+	if scuo.mutation.ProblemCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.ProblemCaseTable,
-			Columns: []string{submitcase.ProblemCaseColumn},
+			Inverse: true,
+			Table:   submitcase.ProblemCasesTable,
+			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
@@ -765,12 +765,12 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := scuo.mutation.ProblemCaseIDs(); len(nodes) > 0 {
+	if nodes := scuo.mutation.ProblemCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.ProblemCaseTable,
-			Columns: []string{submitcase.ProblemCaseColumn},
+			Inverse: true,
+			Table:   submitcase.ProblemCasesTable,
+			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),

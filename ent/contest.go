@@ -34,8 +34,40 @@ type Contest struct {
 	// ExtraTime holds the value of the "extra_time" field.
 	ExtraTime int `json:"extra_time,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
-	CreateTime   time.Time `json:"create_time,omitempty"`
+	CreateTime time.Time `json:"create_time,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ContestQuery when eager-loading is set.
+	Edges        ContestEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ContestEdges holds the relations/edges for other nodes in the graph.
+type ContestEdges struct {
+	// ContestGroup holds the value of the contest_group edge.
+	ContestGroup []*ContestGroup `json:"contest_group,omitempty"`
+	// Problems holds the value of the problems edge.
+	Problems []*Problem `json:"problems,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// ContestGroupOrErr returns the ContestGroup value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ContestGroupOrErr() ([]*ContestGroup, error) {
+	if e.loadedTypes[0] {
+		return e.ContestGroup, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_group"}
+}
+
+// ProblemsOrErr returns the Problems value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ProblemsOrErr() ([]*Problem, error) {
+	if e.loadedTypes[1] {
+		return e.Problems, nil
+	}
+	return nil, &NotLoadedError{edge: "problems"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -135,6 +167,16 @@ func (c *Contest) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (c *Contest) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
+}
+
+// QueryContestGroup queries the "contest_group" edge of the Contest entity.
+func (c *Contest) QueryContestGroup() *ContestGroupQuery {
+	return NewContestClient(c.config).QueryContestGroup(c)
+}
+
+// QueryProblems queries the "problems" edge of the Contest entity.
+func (c *Contest) QueryProblems() *ProblemQuery {
+	return NewContestClient(c.config).QueryProblems(c)
 }
 
 // Update returns a builder for updating this Contest.

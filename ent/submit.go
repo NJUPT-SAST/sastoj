@@ -41,47 +41,69 @@ type Submit struct {
 	CaseVersion int `json:"case_version,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitQuery when eager-loading is set.
-	Edges          SubmitEdges `json:"edges"`
-	submit_user    *int
-	submit_problem *int
-	selectValues   sql.SelectValues
+	Edges              SubmitEdges `json:"edges"`
+	problem_submission *int
+	user_submission    *int
+	selectValues       sql.SelectValues
 }
 
 // SubmitEdges holds the relations/edges for other nodes in the graph.
 type SubmitEdges struct {
-	// User holds the value of the user edge.
-	User *User `json:"user,omitempty"`
-	// Problem holds the value of the problem edge.
-	Problem *Problem `json:"problem,omitempty"`
+	// Users holds the value of the users edge.
+	Users *User `json:"users,omitempty"`
+	// Problems holds the value of the problems edge.
+	Problems *Problem `json:"problems,omitempty"`
+	// SubmitJudge holds the value of the submit_judge edge.
+	SubmitJudge []*SubmitJudge `json:"submit_judge,omitempty"`
+	// SubmitCases holds the value of the submit_cases edge.
+	SubmitCases []*SubmitCase `json:"submit_cases,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
-// UserOrErr returns the User value or an error if the edge
+// UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SubmitEdges) UserOrErr() (*User, error) {
+func (e SubmitEdges) UsersOrErr() (*User, error) {
 	if e.loadedTypes[0] {
-		if e.User == nil {
+		if e.Users == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: user.Label}
 		}
-		return e.User, nil
+		return e.Users, nil
 	}
-	return nil, &NotLoadedError{edge: "user"}
+	return nil, &NotLoadedError{edge: "users"}
 }
 
-// ProblemOrErr returns the Problem value or an error if the edge
+// ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SubmitEdges) ProblemOrErr() (*Problem, error) {
+func (e SubmitEdges) ProblemsOrErr() (*Problem, error) {
 	if e.loadedTypes[1] {
-		if e.Problem == nil {
+		if e.Problems == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: problem.Label}
 		}
-		return e.Problem, nil
+		return e.Problems, nil
 	}
-	return nil, &NotLoadedError{edge: "problem"}
+	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// SubmitJudgeOrErr returns the SubmitJudge value or an error if the edge
+// was not loaded in eager-loading.
+func (e SubmitEdges) SubmitJudgeOrErr() ([]*SubmitJudge, error) {
+	if e.loadedTypes[2] {
+		return e.SubmitJudge, nil
+	}
+	return nil, &NotLoadedError{edge: "submit_judge"}
+}
+
+// SubmitCasesOrErr returns the SubmitCases value or an error if the edge
+// was not loaded in eager-loading.
+func (e SubmitEdges) SubmitCasesOrErr() ([]*SubmitCase, error) {
+	if e.loadedTypes[3] {
+		return e.SubmitCases, nil
+	}
+	return nil, &NotLoadedError{edge: "submit_cases"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -95,9 +117,9 @@ func (*Submit) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case submit.FieldCreateTime, submit.FieldTotalTime:
 			values[i] = new(sql.NullTime)
-		case submit.ForeignKeys[0]: // submit_user
+		case submit.ForeignKeys[0]: // problem_submission
 			values[i] = new(sql.NullInt64)
-		case submit.ForeignKeys[1]: // submit_problem
+		case submit.ForeignKeys[1]: // user_submission
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -182,17 +204,17 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			}
 		case submit.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field submit_user", value)
+				return fmt.Errorf("unexpected type %T for edge-field problem_submission", value)
 			} else if value.Valid {
-				s.submit_user = new(int)
-				*s.submit_user = int(value.Int64)
+				s.problem_submission = new(int)
+				*s.problem_submission = int(value.Int64)
 			}
 		case submit.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field submit_problem", value)
+				return fmt.Errorf("unexpected type %T for edge-field user_submission", value)
 			} else if value.Valid {
-				s.submit_problem = new(int)
-				*s.submit_problem = int(value.Int64)
+				s.user_submission = new(int)
+				*s.user_submission = int(value.Int64)
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -207,14 +229,24 @@ func (s *Submit) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QueryUser queries the "user" edge of the Submit entity.
-func (s *Submit) QueryUser() *UserQuery {
-	return NewSubmitClient(s.config).QueryUser(s)
+// QueryUsers queries the "users" edge of the Submit entity.
+func (s *Submit) QueryUsers() *UserQuery {
+	return NewSubmitClient(s.config).QueryUsers(s)
 }
 
-// QueryProblem queries the "problem" edge of the Submit entity.
-func (s *Submit) QueryProblem() *ProblemQuery {
-	return NewSubmitClient(s.config).QueryProblem(s)
+// QueryProblems queries the "problems" edge of the Submit entity.
+func (s *Submit) QueryProblems() *ProblemQuery {
+	return NewSubmitClient(s.config).QueryProblems(s)
+}
+
+// QuerySubmitJudge queries the "submit_judge" edge of the Submit entity.
+func (s *Submit) QuerySubmitJudge() *SubmitJudgeQuery {
+	return NewSubmitClient(s.config).QuerySubmitJudge(s)
+}
+
+// QuerySubmitCases queries the "submit_cases" edge of the Submit entity.
+func (s *Submit) QuerySubmitCases() *SubmitCaseQuery {
+	return NewSubmitClient(s.config).QuerySubmitCases(s)
 }
 
 // Update returns a builder for updating this Submit.

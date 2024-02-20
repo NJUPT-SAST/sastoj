@@ -22,17 +22,26 @@ const (
 	FieldIsAuto = "is_auto"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
-	// EdgeProblem holds the string denoting the problem edge name in mutations.
-	EdgeProblem = "problem"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
+	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
+	EdgeSubmitCases = "submit_cases"
 	// Table holds the table name of the problemcase in the database.
 	Table = "problem_cases"
-	// ProblemTable is the table that holds the problem relation/edge.
-	ProblemTable = "problem_cases"
-	// ProblemInverseTable is the table name for the Problem entity.
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "problem_cases"
+	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemInverseTable = "problems"
-	// ProblemColumn is the table column denoting the problem relation/edge.
-	ProblemColumn = "problem_case_problem"
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "problem_problem_cases"
+	// SubmitCasesTable is the table that holds the submit_cases relation/edge.
+	SubmitCasesTable = "submit_cases"
+	// SubmitCasesInverseTable is the table name for the SubmitCase entity.
+	// It exists in this package in order to avoid circular dependency with the "submitcase" package.
+	SubmitCasesInverseTable = "submit_cases"
+	// SubmitCasesColumn is the table column denoting the submit_cases relation/edge.
+	SubmitCasesColumn = "problem_case_submit_cases"
 )
 
 // Columns holds all SQL columns for problemcase fields.
@@ -48,7 +57,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "problem_cases"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"problem_case_problem",
+	"problem_problem_cases",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -110,16 +119,37 @@ func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDeleted, opts...).ToFunc()
 }
 
-// ByProblemField orders the results by problem field.
-func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByProblemsField orders the results by problems field.
+func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newProblemStep() *sqlgraph.Step {
+
+// BySubmitCasesCount orders the results by submit_cases count.
+func BySubmitCasesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmitCasesStep(), opts...)
+	}
+}
+
+// BySubmitCases orders the results by submit_cases terms.
+func BySubmitCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmitCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, ProblemTable, ProblemColumn),
+		sqlgraph.To(ProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
+	)
+}
+func newSubmitCasesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmitCasesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
 	)
 }

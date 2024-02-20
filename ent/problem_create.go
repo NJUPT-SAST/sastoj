@@ -8,6 +8,9 @@ import (
 	"fmt"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/problemcase"
+	"sastoj/ent/problemjudge"
+	"sastoj/ent/submit"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -82,23 +85,68 @@ func (pc *ProblemCreate) SetID(i int) *ProblemCreate {
 	return pc
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by ID.
-func (pc *ProblemCreate) SetContestID(id int) *ProblemCreate {
-	pc.mutation.SetContestID(id)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (pc *ProblemCreate) SetContestsID(id int) *ProblemCreate {
+	pc.mutation.SetContestsID(id)
 	return pc
 }
 
-// SetNillableContestID sets the "contest" edge to the Contest entity by ID if the given value is not nil.
-func (pc *ProblemCreate) SetNillableContestID(id *int) *ProblemCreate {
+// SetNillableContestsID sets the "contests" edge to the Contest entity by ID if the given value is not nil.
+func (pc *ProblemCreate) SetNillableContestsID(id *int) *ProblemCreate {
 	if id != nil {
-		pc = pc.SetContestID(*id)
+		pc = pc.SetContestsID(*id)
 	}
 	return pc
 }
 
-// SetContest sets the "contest" edge to the Contest entity.
-func (pc *ProblemCreate) SetContest(c *Contest) *ProblemCreate {
-	return pc.SetContestID(c.ID)
+// SetContests sets the "contests" edge to the Contest entity.
+func (pc *ProblemCreate) SetContests(c *Contest) *ProblemCreate {
+	return pc.SetContestsID(c.ID)
+}
+
+// AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
+func (pc *ProblemCreate) AddProblemCaseIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddProblemCaseIDs(ids...)
+	return pc
+}
+
+// AddProblemCases adds the "problem_cases" edges to the ProblemCase entity.
+func (pc *ProblemCreate) AddProblemCases(p ...*ProblemCase) *ProblemCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pc.AddProblemCaseIDs(ids...)
+}
+
+// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by IDs.
+func (pc *ProblemCreate) AddProblemJudgeIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddProblemJudgeIDs(ids...)
+	return pc
+}
+
+// AddProblemJudges adds the "problem_judges" edges to the ProblemJudge entity.
+func (pc *ProblemCreate) AddProblemJudges(p ...*ProblemJudge) *ProblemCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return pc.AddProblemJudgeIDs(ids...)
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+func (pc *ProblemCreate) AddSubmissionIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddSubmissionIDs(ids...)
+	return pc
+}
+
+// AddSubmission adds the "submission" edges to the Submit entity.
+func (pc *ProblemCreate) AddSubmission(s ...*Submit) *ProblemCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return pc.AddSubmissionIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -232,12 +280,12 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldConfig, field.TypeString, value)
 		_node.Config = value
 	}
-	if nodes := pc.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problem.ContestTable,
-			Columns: []string{problem.ContestColumn},
+			Inverse: true,
+			Table:   problem.ContestsTable,
+			Columns: []string{problem.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -246,7 +294,55 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.problem_contest = &nodes[0]
+		_node.contest_problems = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ProblemCasesTable,
+			Columns: []string{problem.ProblemCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.ProblemJudgesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.ProblemJudgesTable,
+			Columns: []string{problem.ProblemJudgesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.SubmissionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   problem.SubmissionTable,
+			Columns: []string{problem.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

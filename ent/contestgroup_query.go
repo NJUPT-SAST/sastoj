@@ -19,13 +19,13 @@ import (
 // ContestGroupQuery is the builder for querying ContestGroup entities.
 type ContestGroupQuery struct {
 	config
-	ctx         *QueryContext
-	order       []contestgroup.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.ContestGroup
-	withContest *ContestQuery
-	withGroup   *GroupQuery
-	withFKs     bool
+	ctx          *QueryContext
+	order        []contestgroup.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.ContestGroup
+	withContests *ContestQuery
+	withGroups   *GroupQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +62,8 @@ func (cgq *ContestGroupQuery) Order(o ...contestgroup.OrderOption) *ContestGroup
 	return cgq
 }
 
-// QueryContest chains the current query on the "contest" edge.
-func (cgq *ContestGroupQuery) QueryContest() *ContestQuery {
+// QueryContests chains the current query on the "contests" edge.
+func (cgq *ContestGroupQuery) QueryContests() *ContestQuery {
 	query := (&ContestClient{config: cgq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := cgq.prepareQuery(ctx); err != nil {
@@ -76,7 +76,7 @@ func (cgq *ContestGroupQuery) QueryContest() *ContestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, selector),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, contestgroup.ContestTable, contestgroup.ContestColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.ContestsTable, contestgroup.ContestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cgq.driver.Dialect(), step)
 		return fromU, nil
@@ -84,8 +84,8 @@ func (cgq *ContestGroupQuery) QueryContest() *ContestQuery {
 	return query
 }
 
-// QueryGroup chains the current query on the "group" edge.
-func (cgq *ContestGroupQuery) QueryGroup() *GroupQuery {
+// QueryGroups chains the current query on the "groups" edge.
+func (cgq *ContestGroupQuery) QueryGroups() *GroupQuery {
 	query := (&GroupClient{config: cgq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := cgq.prepareQuery(ctx); err != nil {
@@ -98,7 +98,7 @@ func (cgq *ContestGroupQuery) QueryGroup() *GroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, contestgroup.GroupTable, contestgroup.GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.GroupsTable, contestgroup.GroupsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cgq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,38 +293,38 @@ func (cgq *ContestGroupQuery) Clone() *ContestGroupQuery {
 		return nil
 	}
 	return &ContestGroupQuery{
-		config:      cgq.config,
-		ctx:         cgq.ctx.Clone(),
-		order:       append([]contestgroup.OrderOption{}, cgq.order...),
-		inters:      append([]Interceptor{}, cgq.inters...),
-		predicates:  append([]predicate.ContestGroup{}, cgq.predicates...),
-		withContest: cgq.withContest.Clone(),
-		withGroup:   cgq.withGroup.Clone(),
+		config:       cgq.config,
+		ctx:          cgq.ctx.Clone(),
+		order:        append([]contestgroup.OrderOption{}, cgq.order...),
+		inters:       append([]Interceptor{}, cgq.inters...),
+		predicates:   append([]predicate.ContestGroup{}, cgq.predicates...),
+		withContests: cgq.withContests.Clone(),
+		withGroups:   cgq.withGroups.Clone(),
 		// clone intermediate query.
 		sql:  cgq.sql.Clone(),
 		path: cgq.path,
 	}
 }
 
-// WithContest tells the query-builder to eager-load the nodes that are connected to
-// the "contest" edge. The optional arguments are used to configure the query builder of the edge.
-func (cgq *ContestGroupQuery) WithContest(opts ...func(*ContestQuery)) *ContestGroupQuery {
+// WithContests tells the query-builder to eager-load the nodes that are connected to
+// the "contests" edge. The optional arguments are used to configure the query builder of the edge.
+func (cgq *ContestGroupQuery) WithContests(opts ...func(*ContestQuery)) *ContestGroupQuery {
 	query := (&ContestClient{config: cgq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	cgq.withContest = query
+	cgq.withContests = query
 	return cgq
 }
 
-// WithGroup tells the query-builder to eager-load the nodes that are connected to
-// the "group" edge. The optional arguments are used to configure the query builder of the edge.
-func (cgq *ContestGroupQuery) WithGroup(opts ...func(*GroupQuery)) *ContestGroupQuery {
+// WithGroups tells the query-builder to eager-load the nodes that are connected to
+// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (cgq *ContestGroupQuery) WithGroups(opts ...func(*GroupQuery)) *ContestGroupQuery {
 	query := (&GroupClient{config: cgq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	cgq.withGroup = query
+	cgq.withGroups = query
 	return cgq
 }
 
@@ -408,11 +408,11 @@ func (cgq *ContestGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		withFKs     = cgq.withFKs
 		_spec       = cgq.querySpec()
 		loadedTypes = [2]bool{
-			cgq.withContest != nil,
-			cgq.withGroup != nil,
+			cgq.withContests != nil,
+			cgq.withGroups != nil,
 		}
 	)
-	if cgq.withContest != nil || cgq.withGroup != nil {
+	if cgq.withContests != nil || cgq.withGroups != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -436,29 +436,29 @@ func (cgq *ContestGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := cgq.withContest; query != nil {
-		if err := cgq.loadContest(ctx, query, nodes, nil,
-			func(n *ContestGroup, e *Contest) { n.Edges.Contest = e }); err != nil {
+	if query := cgq.withContests; query != nil {
+		if err := cgq.loadContests(ctx, query, nodes, nil,
+			func(n *ContestGroup, e *Contest) { n.Edges.Contests = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := cgq.withGroup; query != nil {
-		if err := cgq.loadGroup(ctx, query, nodes, nil,
-			func(n *ContestGroup, e *Group) { n.Edges.Group = e }); err != nil {
+	if query := cgq.withGroups; query != nil {
+		if err := cgq.loadGroups(ctx, query, nodes, nil,
+			func(n *ContestGroup, e *Group) { n.Edges.Groups = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (cgq *ContestGroupQuery) loadContest(ctx context.Context, query *ContestQuery, nodes []*ContestGroup, init func(*ContestGroup), assign func(*ContestGroup, *Contest)) error {
+func (cgq *ContestGroupQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*ContestGroup, init func(*ContestGroup), assign func(*ContestGroup, *Contest)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*ContestGroup)
 	for i := range nodes {
-		if nodes[i].contest_group_contest == nil {
+		if nodes[i].contest_contest_group == nil {
 			continue
 		}
-		fk := *nodes[i].contest_group_contest
+		fk := *nodes[i].contest_contest_group
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +475,7 @@ func (cgq *ContestGroupQuery) loadContest(ctx context.Context, query *ContestQue
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "contest_group_contest" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "contest_contest_group" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -483,14 +483,14 @@ func (cgq *ContestGroupQuery) loadContest(ctx context.Context, query *ContestQue
 	}
 	return nil
 }
-func (cgq *ContestGroupQuery) loadGroup(ctx context.Context, query *GroupQuery, nodes []*ContestGroup, init func(*ContestGroup), assign func(*ContestGroup, *Group)) error {
+func (cgq *ContestGroupQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*ContestGroup, init func(*ContestGroup), assign func(*ContestGroup, *Group)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*ContestGroup)
 	for i := range nodes {
-		if nodes[i].contest_group_group == nil {
+		if nodes[i].group_contest_group == nil {
 			continue
 		}
-		fk := *nodes[i].contest_group_group
+		fk := *nodes[i].group_contest_group
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +507,7 @@ func (cgq *ContestGroupQuery) loadGroup(ctx context.Context, query *GroupQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "contest_group_group" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "group_contest_group" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

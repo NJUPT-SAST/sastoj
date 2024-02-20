@@ -29,20 +29,20 @@ type LoginSession struct {
 
 // LoginSessionEdges holds the relations/edges for other nodes in the graph.
 type LoginSessionEdges struct {
-	// User holds the value of the user edge.
-	User []*User `json:"user,omitempty"`
+	// Users holds the value of the users edge.
+	Users []*User `json:"users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// UserOrErr returns the User value or an error if the edge
+// UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading.
-func (e LoginSessionEdges) UserOrErr() ([]*User, error) {
+func (e LoginSessionEdges) UsersOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.User, nil
+		return e.Users, nil
 	}
-	return nil, &NotLoadedError{edge: "user"}
+	return nil, &NotLoadedError{edge: "users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -100,9 +100,9 @@ func (ls *LoginSession) Value(name string) (ent.Value, error) {
 	return ls.selectValues.Get(name)
 }
 
-// QueryUser queries the "user" edge of the LoginSession entity.
-func (ls *LoginSession) QueryUser() *UserQuery {
-	return NewLoginSessionClient(ls.config).QueryUser(ls)
+// QueryUsers queries the "users" edge of the LoginSession entity.
+func (ls *LoginSession) QueryUsers() *UserQuery {
+	return NewLoginSessionClient(ls.config).QueryUsers(ls)
 }
 
 // Update returns a builder for updating this LoginSession.

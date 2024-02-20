@@ -4,10 +4,13 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestgroup"
 	"sastoj/ent/predicate"
+	"sastoj/ent/problem"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -17,10 +20,12 @@ import (
 // ContestQuery is the builder for querying Contest entities.
 type ContestQuery struct {
 	config
-	ctx        *QueryContext
-	order      []contest.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Contest
+	ctx              *QueryContext
+	order            []contest.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Contest
+	withContestGroup *ContestGroupQuery
+	withProblems     *ProblemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +60,50 @@ func (cq *ContestQuery) Unique(unique bool) *ContestQuery {
 func (cq *ContestQuery) Order(o ...contest.OrderOption) *ContestQuery {
 	cq.order = append(cq.order, o...)
 	return cq
+}
+
+// QueryContestGroup chains the current query on the "contest_group" edge.
+func (cq *ContestQuery) QueryContestGroup() *ContestGroupQuery {
+	query := (&ContestGroupClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestGroupTable, contest.ContestGroupColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProblems chains the current query on the "problems" edge.
+func (cq *ContestQuery) QueryProblems() *ProblemQuery {
+	query := (&ProblemClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Contest entity from the query.
@@ -244,15 +293,39 @@ func (cq *ContestQuery) Clone() *ContestQuery {
 		return nil
 	}
 	return &ContestQuery{
-		config:     cq.config,
-		ctx:        cq.ctx.Clone(),
-		order:      append([]contest.OrderOption{}, cq.order...),
-		inters:     append([]Interceptor{}, cq.inters...),
-		predicates: append([]predicate.Contest{}, cq.predicates...),
+		config:           cq.config,
+		ctx:              cq.ctx.Clone(),
+		order:            append([]contest.OrderOption{}, cq.order...),
+		inters:           append([]Interceptor{}, cq.inters...),
+		predicates:       append([]predicate.Contest{}, cq.predicates...),
+		withContestGroup: cq.withContestGroup.Clone(),
+		withProblems:     cq.withProblems.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
+}
+
+// WithContestGroup tells the query-builder to eager-load the nodes that are connected to
+// the "contest_group" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *ContestQuery) WithContestGroup(opts ...func(*ContestGroupQuery)) *ContestQuery {
+	query := (&ContestGroupClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withContestGroup = query
+	return cq
+}
+
+// WithProblems tells the query-builder to eager-load the nodes that are connected to
+// the "problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *ContestQuery) WithProblems(opts ...func(*ProblemQuery)) *ContestQuery {
+	query := (&ProblemClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withProblems = query
+	return cq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +404,12 @@ func (cq *ContestQuery) prepareQuery(ctx context.Context) error {
 
 func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Contest, error) {
 	var (
-		nodes = []*Contest{}
-		_spec = cq.querySpec()
+		nodes       = []*Contest{}
+		_spec       = cq.querySpec()
+		loadedTypes = [2]bool{
+			cq.withContestGroup != nil,
+			cq.withProblems != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Contest).scanValues(nil, columns)
@@ -340,6 +417,7 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Contest{config: cq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +429,84 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := cq.withContestGroup; query != nil {
+		if err := cq.loadContestGroup(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ContestGroup = []*ContestGroup{} },
+			func(n *Contest, e *ContestGroup) { n.Edges.ContestGroup = append(n.Edges.ContestGroup, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withProblems; query != nil {
+		if err := cq.loadProblems(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Problems = []*Problem{} },
+			func(n *Contest, e *Problem) { n.Edges.Problems = append(n.Edges.Problems, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (cq *ContestQuery) loadContestGroup(ctx context.Context, query *ContestGroupQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestGroup)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.ContestGroup(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ContestGroupColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.contest_contest_group
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "contest_contest_group" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_contest_group" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Problem)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Problem(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ProblemsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.contest_problems
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "contest_problems" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_problems" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (cq *ContestQuery) sqlCount(ctx context.Context) (int, error) {

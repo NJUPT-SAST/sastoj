@@ -71,42 +71,42 @@ func (sju *SubmitJudgeUpdate) AddSubmitID(i int) *SubmitJudgeUpdate {
 	return sju
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (sju *SubmitJudgeUpdate) SetSubmitID(id int) *SubmitJudgeUpdate {
-	sju.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (sju *SubmitJudgeUpdate) SetSubmissionID(id int) *SubmitJudgeUpdate {
+	sju.mutation.SetSubmissionID(id)
 	return sju
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (sju *SubmitJudgeUpdate) SetNillableSubmitID(id *int) *SubmitJudgeUpdate {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (sju *SubmitJudgeUpdate) SetNillableSubmissionID(id *int) *SubmitJudgeUpdate {
 	if id != nil {
-		sju = sju.SetSubmitID(*id)
+		sju = sju.SetSubmissionID(*id)
 	}
 	return sju
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (sju *SubmitJudgeUpdate) SetSubmit(s *Submit) *SubmitJudgeUpdate {
-	return sju.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (sju *SubmitJudgeUpdate) SetSubmission(s *Submit) *SubmitJudgeUpdate {
+	return sju.SetSubmissionID(s.ID)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (sju *SubmitJudgeUpdate) SetUserID(id int) *SubmitJudgeUpdate {
-	sju.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (sju *SubmitJudgeUpdate) SetUsersID(id int) *SubmitJudgeUpdate {
+	sju.mutation.SetUsersID(id)
 	return sju
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (sju *SubmitJudgeUpdate) SetNillableUserID(id *int) *SubmitJudgeUpdate {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (sju *SubmitJudgeUpdate) SetNillableUsersID(id *int) *SubmitJudgeUpdate {
 	if id != nil {
-		sju = sju.SetUserID(*id)
+		sju = sju.SetUsersID(*id)
 	}
 	return sju
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (sju *SubmitJudgeUpdate) SetUser(u *User) *SubmitJudgeUpdate {
-	return sju.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (sju *SubmitJudgeUpdate) SetUsers(u *User) *SubmitJudgeUpdate {
+	return sju.SetUsersID(u.ID)
 }
 
 // Mutation returns the SubmitJudgeMutation object of the builder.
@@ -114,15 +114,15 @@ func (sju *SubmitJudgeUpdate) Mutation() *SubmitJudgeMutation {
 	return sju.mutation
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (sju *SubmitJudgeUpdate) ClearSubmit() *SubmitJudgeUpdate {
-	sju.mutation.ClearSubmit()
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (sju *SubmitJudgeUpdate) ClearSubmission() *SubmitJudgeUpdate {
+	sju.mutation.ClearSubmission()
 	return sju
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (sju *SubmitJudgeUpdate) ClearUser() *SubmitJudgeUpdate {
-	sju.mutation.ClearUser()
+// ClearUsers clears the "users" edge to the User entity.
+func (sju *SubmitJudgeUpdate) ClearUsers() *SubmitJudgeUpdate {
+	sju.mutation.ClearUsers()
 	return sju
 }
 
@@ -187,12 +187,12 @@ func (sju *SubmitJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := sju.mutation.AddedSubmitID(); ok {
 		_spec.AddField(submitjudge.FieldSubmitID, field.TypeInt, value)
 	}
-	if sju.mutation.SubmitCleared() {
+	if sju.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.SubmitTable,
-			Columns: []string{submitjudge.SubmitColumn},
+			Inverse: true,
+			Table:   submitjudge.SubmissionTable,
+			Columns: []string{submitjudge.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -200,12 +200,12 @@ func (sju *SubmitJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := sju.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := sju.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.SubmitTable,
-			Columns: []string{submitjudge.SubmitColumn},
+			Inverse: true,
+			Table:   submitjudge.SubmissionTable,
+			Columns: []string{submitjudge.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -216,12 +216,12 @@ func (sju *SubmitJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if sju.mutation.UserCleared() {
+	if sju.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.UserTable,
-			Columns: []string{submitjudge.UserColumn},
+			Inverse: true,
+			Table:   submitjudge.UsersTable,
+			Columns: []string{submitjudge.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -229,12 +229,12 @@ func (sju *SubmitJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := sju.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := sju.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.UserTable,
-			Columns: []string{submitjudge.UserColumn},
+			Inverse: true,
+			Table:   submitjudge.UsersTable,
+			Columns: []string{submitjudge.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -307,42 +307,42 @@ func (sjuo *SubmitJudgeUpdateOne) AddSubmitID(i int) *SubmitJudgeUpdateOne {
 	return sjuo
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (sjuo *SubmitJudgeUpdateOne) SetSubmitID(id int) *SubmitJudgeUpdateOne {
-	sjuo.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (sjuo *SubmitJudgeUpdateOne) SetSubmissionID(id int) *SubmitJudgeUpdateOne {
+	sjuo.mutation.SetSubmissionID(id)
 	return sjuo
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (sjuo *SubmitJudgeUpdateOne) SetNillableSubmitID(id *int) *SubmitJudgeUpdateOne {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (sjuo *SubmitJudgeUpdateOne) SetNillableSubmissionID(id *int) *SubmitJudgeUpdateOne {
 	if id != nil {
-		sjuo = sjuo.SetSubmitID(*id)
+		sjuo = sjuo.SetSubmissionID(*id)
 	}
 	return sjuo
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (sjuo *SubmitJudgeUpdateOne) SetSubmit(s *Submit) *SubmitJudgeUpdateOne {
-	return sjuo.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (sjuo *SubmitJudgeUpdateOne) SetSubmission(s *Submit) *SubmitJudgeUpdateOne {
+	return sjuo.SetSubmissionID(s.ID)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (sjuo *SubmitJudgeUpdateOne) SetUserID(id int) *SubmitJudgeUpdateOne {
-	sjuo.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (sjuo *SubmitJudgeUpdateOne) SetUsersID(id int) *SubmitJudgeUpdateOne {
+	sjuo.mutation.SetUsersID(id)
 	return sjuo
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (sjuo *SubmitJudgeUpdateOne) SetNillableUserID(id *int) *SubmitJudgeUpdateOne {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (sjuo *SubmitJudgeUpdateOne) SetNillableUsersID(id *int) *SubmitJudgeUpdateOne {
 	if id != nil {
-		sjuo = sjuo.SetUserID(*id)
+		sjuo = sjuo.SetUsersID(*id)
 	}
 	return sjuo
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (sjuo *SubmitJudgeUpdateOne) SetUser(u *User) *SubmitJudgeUpdateOne {
-	return sjuo.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (sjuo *SubmitJudgeUpdateOne) SetUsers(u *User) *SubmitJudgeUpdateOne {
+	return sjuo.SetUsersID(u.ID)
 }
 
 // Mutation returns the SubmitJudgeMutation object of the builder.
@@ -350,15 +350,15 @@ func (sjuo *SubmitJudgeUpdateOne) Mutation() *SubmitJudgeMutation {
 	return sjuo.mutation
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (sjuo *SubmitJudgeUpdateOne) ClearSubmit() *SubmitJudgeUpdateOne {
-	sjuo.mutation.ClearSubmit()
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (sjuo *SubmitJudgeUpdateOne) ClearSubmission() *SubmitJudgeUpdateOne {
+	sjuo.mutation.ClearSubmission()
 	return sjuo
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (sjuo *SubmitJudgeUpdateOne) ClearUser() *SubmitJudgeUpdateOne {
-	sjuo.mutation.ClearUser()
+// ClearUsers clears the "users" edge to the User entity.
+func (sjuo *SubmitJudgeUpdateOne) ClearUsers() *SubmitJudgeUpdateOne {
+	sjuo.mutation.ClearUsers()
 	return sjuo
 }
 
@@ -453,12 +453,12 @@ func (sjuo *SubmitJudgeUpdateOne) sqlSave(ctx context.Context) (_node *SubmitJud
 	if value, ok := sjuo.mutation.AddedSubmitID(); ok {
 		_spec.AddField(submitjudge.FieldSubmitID, field.TypeInt, value)
 	}
-	if sjuo.mutation.SubmitCleared() {
+	if sjuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.SubmitTable,
-			Columns: []string{submitjudge.SubmitColumn},
+			Inverse: true,
+			Table:   submitjudge.SubmissionTable,
+			Columns: []string{submitjudge.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -466,12 +466,12 @@ func (sjuo *SubmitJudgeUpdateOne) sqlSave(ctx context.Context) (_node *SubmitJud
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := sjuo.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := sjuo.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.SubmitTable,
-			Columns: []string{submitjudge.SubmitColumn},
+			Inverse: true,
+			Table:   submitjudge.SubmissionTable,
+			Columns: []string{submitjudge.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -482,12 +482,12 @@ func (sjuo *SubmitJudgeUpdateOne) sqlSave(ctx context.Context) (_node *SubmitJud
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if sjuo.mutation.UserCleared() {
+	if sjuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.UserTable,
-			Columns: []string{submitjudge.UserColumn},
+			Inverse: true,
+			Table:   submitjudge.UsersTable,
+			Columns: []string{submitjudge.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -495,12 +495,12 @@ func (sjuo *SubmitJudgeUpdateOne) sqlSave(ctx context.Context) (_node *SubmitJud
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := sjuo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := sjuo.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.UserTable,
-			Columns: []string{submitjudge.UserColumn},
+			Inverse: true,
+			Table:   submitjudge.UsersTable,
+			Columns: []string{submitjudge.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

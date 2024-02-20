@@ -144,21 +144,21 @@ func GroupIDLTE(v int) predicate.ContestGroup {
 	return predicate.ContestGroup(sql.FieldLTE(FieldGroupID, v))
 }
 
-// HasContest applies the HasEdge predicate on the "contest" edge.
-func HasContest() predicate.ContestGroup {
+// HasContests applies the HasEdge predicate on the "contests" edge.
+func HasContests() predicate.ContestGroup {
 	return predicate.ContestGroup(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, ContestTable, ContestColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasContestWith applies the HasEdge predicate on the "contest" edge with a given conditions (other predicates).
-func HasContestWith(preds ...predicate.Contest) predicate.ContestGroup {
+// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
+func HasContestsWith(preds ...predicate.Contest) predicate.ContestGroup {
 	return predicate.ContestGroup(func(s *sql.Selector) {
-		step := newContestStep()
+		step := newContestsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -167,21 +167,21 @@ func HasContestWith(preds ...predicate.Contest) predicate.ContestGroup {
 	})
 }
 
-// HasGroup applies the HasEdge predicate on the "group" edge.
-func HasGroup() predicate.ContestGroup {
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.ContestGroup {
 	return predicate.ContestGroup(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, GroupTable, GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasGroupWith applies the HasEdge predicate on the "group" edge with a given conditions (other predicates).
-func HasGroupWith(preds ...predicate.Group) predicate.ContestGroup {
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.Group) predicate.ContestGroup {
 	return predicate.ContestGroup(func(s *sql.Selector) {
-		step := newGroupStep()
+		step := newGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -25,46 +25,46 @@ type ContestGroup struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContestGroupQuery when eager-loading is set.
 	Edges                 ContestGroupEdges `json:"edges"`
-	contest_group_contest *int
-	contest_group_group   *int
+	contest_contest_group *int
+	group_contest_group   *int
 	selectValues          sql.SelectValues
 }
 
 // ContestGroupEdges holds the relations/edges for other nodes in the graph.
 type ContestGroupEdges struct {
-	// Contest holds the value of the contest edge.
-	Contest *Contest `json:"contest,omitempty"`
-	// Group holds the value of the group edge.
-	Group *Group `json:"group,omitempty"`
+	// Contests holds the value of the contests edge.
+	Contests *Contest `json:"contests,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups *Group `json:"groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 }
 
-// ContestOrErr returns the Contest value or an error if the edge
+// ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ContestGroupEdges) ContestOrErr() (*Contest, error) {
+func (e ContestGroupEdges) ContestsOrErr() (*Contest, error) {
 	if e.loadedTypes[0] {
-		if e.Contest == nil {
+		if e.Contests == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: contest.Label}
 		}
-		return e.Contest, nil
+		return e.Contests, nil
 	}
-	return nil, &NotLoadedError{edge: "contest"}
+	return nil, &NotLoadedError{edge: "contests"}
 }
 
-// GroupOrErr returns the Group value or an error if the edge
+// GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ContestGroupEdges) GroupOrErr() (*Group, error) {
+func (e ContestGroupEdges) GroupsOrErr() (*Group, error) {
 	if e.loadedTypes[1] {
-		if e.Group == nil {
+		if e.Groups == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: group.Label}
 		}
-		return e.Group, nil
+		return e.Groups, nil
 	}
-	return nil, &NotLoadedError{edge: "group"}
+	return nil, &NotLoadedError{edge: "groups"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -74,9 +74,9 @@ func (*ContestGroup) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case contestgroup.FieldID, contestgroup.FieldContestID, contestgroup.FieldGroupID:
 			values[i] = new(sql.NullInt64)
-		case contestgroup.ForeignKeys[0]: // contest_group_contest
+		case contestgroup.ForeignKeys[0]: // contest_contest_group
 			values[i] = new(sql.NullInt64)
-		case contestgroup.ForeignKeys[1]: // contest_group_group
+		case contestgroup.ForeignKeys[1]: // group_contest_group
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -113,17 +113,17 @@ func (cg *ContestGroup) assignValues(columns []string, values []any) error {
 			}
 		case contestgroup.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field contest_group_contest", value)
+				return fmt.Errorf("unexpected type %T for edge-field contest_contest_group", value)
 			} else if value.Valid {
-				cg.contest_group_contest = new(int)
-				*cg.contest_group_contest = int(value.Int64)
+				cg.contest_contest_group = new(int)
+				*cg.contest_contest_group = int(value.Int64)
 			}
 		case contestgroup.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field contest_group_group", value)
+				return fmt.Errorf("unexpected type %T for edge-field group_contest_group", value)
 			} else if value.Valid {
-				cg.contest_group_group = new(int)
-				*cg.contest_group_group = int(value.Int64)
+				cg.group_contest_group = new(int)
+				*cg.group_contest_group = int(value.Int64)
 			}
 		default:
 			cg.selectValues.Set(columns[i], values[i])
@@ -138,14 +138,14 @@ func (cg *ContestGroup) Value(name string) (ent.Value, error) {
 	return cg.selectValues.Get(name)
 }
 
-// QueryContest queries the "contest" edge of the ContestGroup entity.
-func (cg *ContestGroup) QueryContest() *ContestQuery {
-	return NewContestGroupClient(cg.config).QueryContest(cg)
+// QueryContests queries the "contests" edge of the ContestGroup entity.
+func (cg *ContestGroup) QueryContests() *ContestQuery {
+	return NewContestGroupClient(cg.config).QueryContests(cg)
 }
 
-// QueryGroup queries the "group" edge of the ContestGroup entity.
-func (cg *ContestGroup) QueryGroup() *GroupQuery {
-	return NewContestGroupClient(cg.config).QueryGroup(cg)
+// QueryGroups queries the "groups" edge of the ContestGroup entity.
+func (cg *ContestGroup) QueryGroups() *GroupQuery {
+	return NewContestGroupClient(cg.config).QueryGroups(cg)
 }
 
 // Update returns a builder for updating this ContestGroup.

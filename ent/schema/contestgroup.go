@@ -31,7 +31,7 @@ func (ContestGroup) Fields() []ent.Field {
 // Edges of the ContestGroup.
 func (ContestGroup) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("contest", Contest.Type).Unique(),
-		edge.To("group", Group.Type).Unique(),
+		edge.From("contests", Contest.Type).Ref("contest_group").Unique(),
+		edge.From("groups", Group.Type).Ref("contest_group").Unique(),
 	}
 }

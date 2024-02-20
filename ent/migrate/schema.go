@@ -33,8 +33,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "contest_id", Type: field.TypeInt},
 		{Name: "group_id", Type: field.TypeInt},
-		{Name: "contest_group_contest", Type: field.TypeInt, Nullable: true},
-		{Name: "contest_group_group", Type: field.TypeInt, Nullable: true},
+		{Name: "contest_contest_group", Type: field.TypeInt, Nullable: true},
+		{Name: "group_contest_group", Type: field.TypeInt, Nullable: true},
 	}
 	// ContestGroupTable holds the schema information for the "contest_group" table.
 	ContestGroupTable = &schema.Table{
@@ -43,13 +43,13 @@ var (
 		PrimaryKey: []*schema.Column{ContestGroupColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "contest_group_contests_contest",
+				Symbol:     "contest_group_contests_contest_group",
 				Columns:    []*schema.Column{ContestGroupColumns[3]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "contest_group_groups_group",
+				Symbol:     "contest_group_groups_contest_group",
 				Columns:    []*schema.Column{ContestGroupColumns[4]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -67,17 +67,17 @@ var (
 		Columns:    GroupsColumns,
 		PrimaryKey: []*schema.Column{GroupsColumns[0]},
 	}
-	// LoginSessionsColumns holds the columns for the "login_sessions" table.
-	LoginSessionsColumns = []*schema.Column{
+	// LoginSessionColumns holds the columns for the "login_session" table.
+	LoginSessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "create_time", Type: field.TypeTime},
 	}
-	// LoginSessionsTable holds the schema information for the "login_sessions" table.
-	LoginSessionsTable = &schema.Table{
-		Name:       "login_sessions",
-		Columns:    LoginSessionsColumns,
-		PrimaryKey: []*schema.Column{LoginSessionsColumns[0]},
+	// LoginSessionTable holds the schema information for the "login_session" table.
+	LoginSessionTable = &schema.Table{
+		Name:       "login_session",
+		Columns:    LoginSessionColumns,
+		PrimaryKey: []*schema.Column{LoginSessionColumns[0]},
 	}
 	// ProblemsColumns holds the columns for the "problems" table.
 	ProblemsColumns = []*schema.Column{
@@ -90,7 +90,7 @@ var (
 		{Name: "index", Type: field.TypeInt},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "config", Type: field.TypeString},
-		{Name: "problem_contest", Type: field.TypeInt, Nullable: true},
+		{Name: "contest_problems", Type: field.TypeInt, Nullable: true},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -99,7 +99,7 @@ var (
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problems_contests_contest",
+				Symbol:     "problems_contests_problems",
 				Columns:    []*schema.Column{ProblemsColumns[9]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -114,7 +114,7 @@ var (
 		{Name: "index", Type: field.TypeInt},
 		{Name: "is_auto", Type: field.TypeBool, Default: false},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
-		{Name: "problem_case_problem", Type: field.TypeInt, Nullable: true},
+		{Name: "problem_problem_cases", Type: field.TypeInt, Nullable: true},
 	}
 	// ProblemCasesTable holds the schema information for the "problem_cases" table.
 	ProblemCasesTable = &schema.Table{
@@ -123,7 +123,7 @@ var (
 		PrimaryKey: []*schema.Column{ProblemCasesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problem_cases_problems_problem",
+				Symbol:     "problem_cases_problems_problem_cases",
 				Columns:    []*schema.Column{ProblemCasesColumns[6]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -135,8 +135,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "group_id", Type: field.TypeInt},
 		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "problem_judge_group", Type: field.TypeInt, Nullable: true},
-		{Name: "problem_judge_problem", Type: field.TypeInt, Nullable: true},
+		{Name: "group_problem_judges", Type: field.TypeInt, Nullable: true},
+		{Name: "problem_problem_judges", Type: field.TypeInt, Nullable: true},
 	}
 	// ProblemJudgesTable holds the schema information for the "problem_judges" table.
 	ProblemJudgesTable = &schema.Table{
@@ -145,13 +145,13 @@ var (
 		PrimaryKey: []*schema.Column{ProblemJudgesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problem_judges_groups_group",
+				Symbol:     "problem_judges_groups_problem_judges",
 				Columns:    []*schema.Column{ProblemJudgesColumns[3]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "problem_judges_problems_problem",
+				Symbol:     "problem_judges_problems_problem_judges",
 				Columns:    []*schema.Column{ProblemJudgesColumns[4]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -171,8 +171,8 @@ var (
 		{Name: "max_memory", Type: field.TypeInt},
 		{Name: "language", Type: field.TypeString},
 		{Name: "case_version", Type: field.TypeInt},
-		{Name: "submit_user", Type: field.TypeInt, Nullable: true},
-		{Name: "submit_problem", Type: field.TypeInt, Nullable: true},
+		{Name: "problem_submission", Type: field.TypeInt, Nullable: true},
+		{Name: "user_submission", Type: field.TypeInt, Nullable: true},
 	}
 	// SubmitTable holds the schema information for the "submit" table.
 	SubmitTable = &schema.Table{
@@ -181,15 +181,15 @@ var (
 		PrimaryKey: []*schema.Column{SubmitColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submit_users_user",
+				Symbol:     "submit_problems_submission",
 				Columns:    []*schema.Column{SubmitColumns[11]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "submit_problems_problem",
+				Symbol:     "submit_users_submission",
 				Columns:    []*schema.Column{SubmitColumns[12]},
-				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -204,8 +204,8 @@ var (
 		{Name: "message", Type: field.TypeString, Size: 2147483647},
 		{Name: "time", Type: field.TypeInt},
 		{Name: "memory", Type: field.TypeInt},
-		{Name: "submit_case_submit", Type: field.TypeInt, Nullable: true},
-		{Name: "submit_case_problem_case", Type: field.TypeInt, Nullable: true},
+		{Name: "problem_case_submit_cases", Type: field.TypeInt, Nullable: true},
+		{Name: "submit_submit_cases", Type: field.TypeInt, Nullable: true},
 	}
 	// SubmitCasesTable holds the schema information for the "submit_cases" table.
 	SubmitCasesTable = &schema.Table{
@@ -214,15 +214,15 @@ var (
 		PrimaryKey: []*schema.Column{SubmitCasesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submit_cases_submit_submit",
+				Symbol:     "submit_cases_problem_cases_submit_cases",
 				Columns:    []*schema.Column{SubmitCasesColumns[8]},
-				RefColumns: []*schema.Column{SubmitColumns[0]},
+				RefColumns: []*schema.Column{ProblemCasesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "submit_cases_problem_cases_problem_case",
+				Symbol:     "submit_cases_submit_submit_cases",
 				Columns:    []*schema.Column{SubmitCasesColumns[9]},
-				RefColumns: []*schema.Column{ProblemCasesColumns[0]},
+				RefColumns: []*schema.Column{SubmitColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -232,8 +232,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "submit_id", Type: field.TypeInt},
-		{Name: "submit_judge_submit", Type: field.TypeInt, Nullable: true},
-		{Name: "submit_judge_user", Type: field.TypeInt, Nullable: true},
+		{Name: "submit_submit_judge", Type: field.TypeInt, Nullable: true},
+		{Name: "user_submit_judge", Type: field.TypeInt, Nullable: true},
 	}
 	// SubmitJudgeTable holds the schema information for the "submit_judge" table.
 	SubmitJudgeTable = &schema.Table{
@@ -242,13 +242,13 @@ var (
 		PrimaryKey: []*schema.Column{SubmitJudgeColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submit_judge_submit_submit",
+				Symbol:     "submit_judge_submit_submit_judge",
 				Columns:    []*schema.Column{SubmitJudgeColumns[3]},
 				RefColumns: []*schema.Column{SubmitColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "submit_judge_users_user",
+				Symbol:     "submit_judge_users_submit_judge",
 				Columns:    []*schema.Column{SubmitJudgeColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -264,7 +264,6 @@ var (
 		{Name: "state", Type: field.TypeInt},
 		{Name: "group_id", Type: field.TypeInt},
 		{Name: "group_users", Type: field.TypeInt, Nullable: true},
-		{Name: "login_session_user", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -278,11 +277,30 @@ var (
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
+		},
+	}
+	// UserLoginSessionColumns holds the columns for the "user_login_session" table.
+	UserLoginSessionColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "login_session_id", Type: field.TypeInt},
+	}
+	// UserLoginSessionTable holds the schema information for the "user_login_session" table.
+	UserLoginSessionTable = &schema.Table{
+		Name:       "user_login_session",
+		Columns:    UserLoginSessionColumns,
+		PrimaryKey: []*schema.Column{UserLoginSessionColumns[0], UserLoginSessionColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_login_sessions_user",
-				Columns:    []*schema.Column{UsersColumns[7]},
-				RefColumns: []*schema.Column{LoginSessionsColumns[0]},
-				OnDelete:   schema.SetNull,
+				Symbol:     "user_login_session_user_id",
+				Columns:    []*schema.Column{UserLoginSessionColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_login_session_login_session_id",
+				Columns:    []*schema.Column{UserLoginSessionColumns[1]},
+				RefColumns: []*schema.Column{LoginSessionColumns[0]},
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -291,7 +309,7 @@ var (
 		ContestsTable,
 		ContestGroupTable,
 		GroupsTable,
-		LoginSessionsTable,
+		LoginSessionTable,
 		ProblemsTable,
 		ProblemCasesTable,
 		ProblemJudgesTable,
@@ -299,6 +317,7 @@ var (
 		SubmitCasesTable,
 		SubmitJudgeTable,
 		UsersTable,
+		UserLoginSessionTable,
 	}
 )
 
@@ -308,22 +327,26 @@ func init() {
 	ContestGroupTable.Annotation = &entsql.Annotation{
 		Table: "contest_group",
 	}
+	LoginSessionTable.Annotation = &entsql.Annotation{
+		Table: "login_session",
+	}
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
 	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemJudgesTable.ForeignKeys[0].RefTable = GroupsTable
 	ProblemJudgesTable.ForeignKeys[1].RefTable = ProblemsTable
-	SubmitTable.ForeignKeys[0].RefTable = UsersTable
-	SubmitTable.ForeignKeys[1].RefTable = ProblemsTable
+	SubmitTable.ForeignKeys[0].RefTable = ProblemsTable
+	SubmitTable.ForeignKeys[1].RefTable = UsersTable
 	SubmitTable.Annotation = &entsql.Annotation{
 		Table: "submit",
 	}
-	SubmitCasesTable.ForeignKeys[0].RefTable = SubmitTable
-	SubmitCasesTable.ForeignKeys[1].RefTable = ProblemCasesTable
+	SubmitCasesTable.ForeignKeys[0].RefTable = ProblemCasesTable
+	SubmitCasesTable.ForeignKeys[1].RefTable = SubmitTable
 	SubmitJudgeTable.ForeignKeys[0].RefTable = SubmitTable
 	SubmitJudgeTable.ForeignKeys[1].RefTable = UsersTable
 	SubmitJudgeTable.Annotation = &entsql.Annotation{
 		Table: "submit_judge",
 	}
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
-	UsersTable.ForeignKeys[1].RefTable = LoginSessionsTable
+	UserLoginSessionTable.ForeignKeys[0].RefTable = UsersTable
+	UserLoginSessionTable.ForeignKeys[1].RefTable = LoginSessionTable
 }

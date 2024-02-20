@@ -396,6 +396,38 @@ func (c *ContestClient) GetX(ctx context.Context, id int) *Contest {
 	return obj
 }
 
+// QueryContestGroup queries the contest_group edge of a Contest.
+func (c *ContestClient) QueryContestGroup(co *Contest) *ContestGroupQuery {
+	query := (&ContestGroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestGroupTable, contest.ContestGroupColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblems queries the problems edge of a Contest.
+func (c *ContestClient) QueryProblems(co *Contest) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ContestClient) Hooks() []Hook {
 	return c.hooks.Contest
@@ -529,15 +561,15 @@ func (c *ContestGroupClient) GetX(ctx context.Context, id int) *ContestGroup {
 	return obj
 }
 
-// QueryContest queries the contest edge of a ContestGroup.
-func (c *ContestGroupClient) QueryContest(cg *ContestGroup) *ContestQuery {
+// QueryContests queries the contests edge of a ContestGroup.
+func (c *ContestGroupClient) QueryContests(cg *ContestGroup) *ContestQuery {
 	query := (&ContestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cg.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, id),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, contestgroup.ContestTable, contestgroup.ContestColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.ContestsTable, contestgroup.ContestsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cg.driver.Dialect(), step)
 		return fromV, nil
@@ -545,15 +577,15 @@ func (c *ContestGroupClient) QueryContest(cg *ContestGroup) *ContestQuery {
 	return query
 }
 
-// QueryGroup queries the group edge of a ContestGroup.
-func (c *ContestGroupClient) QueryGroup(cg *ContestGroup) *GroupQuery {
+// QueryGroups queries the groups edge of a ContestGroup.
+func (c *ContestGroupClient) QueryGroups(cg *ContestGroup) *GroupQuery {
 	query := (&GroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cg.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, id),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, contestgroup.GroupTable, contestgroup.GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.GroupsTable, contestgroup.GroupsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cg.driver.Dialect(), step)
 		return fromV, nil
@@ -710,6 +742,38 @@ func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
 	return query
 }
 
+// QueryContestGroup queries the contest_group edge of a Group.
+func (c *GroupClient) QueryContestGroup(gr *Group) *ContestGroupQuery {
+	query := (&ContestGroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, group.ContestGroupTable, group.ContestGroupColumn),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblemJudges queries the problem_judges edge of a Group.
+func (c *GroupClient) QueryProblemJudges(gr *Group) *ProblemJudgeQuery {
+	query := (&ProblemJudgeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, group.ProblemJudgesTable, group.ProblemJudgesColumn),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GroupClient) Hooks() []Hook {
 	return c.hooks.Group
@@ -843,15 +907,15 @@ func (c *LoginSessionClient) GetX(ctx context.Context, id int) *LoginSession {
 	return obj
 }
 
-// QueryUser queries the user edge of a LoginSession.
-func (c *LoginSessionClient) QueryUser(ls *LoginSession) *UserQuery {
+// QueryUsers queries the users edge of a LoginSession.
+func (c *LoginSessionClient) QueryUsers(ls *LoginSession) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ls.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(loginsession.Table, loginsession.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, loginsession.UserTable, loginsession.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, loginsession.UsersTable, loginsession.UsersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(ls.driver.Dialect(), step)
 		return fromV, nil
@@ -992,15 +1056,63 @@ func (c *ProblemClient) GetX(ctx context.Context, id int) *Problem {
 	return obj
 }
 
-// QueryContest queries the contest edge of a Problem.
-func (c *ProblemClient) QueryContest(pr *Problem) *ContestQuery {
+// QueryContests queries the contests edge of a Problem.
+func (c *ProblemClient) QueryContests(pr *Problem) *ContestQuery {
 	query := (&ContestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problem.ContestTable, problem.ContestColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblemCases queries the problem_cases edge of a Problem.
+func (c *ProblemClient) QueryProblemCases(pr *Problem) *ProblemCaseQuery {
+	query := (&ProblemCaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(problemcase.Table, problemcase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ProblemCasesTable, problem.ProblemCasesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblemJudges queries the problem_judges edge of a Problem.
+func (c *ProblemClient) QueryProblemJudges(pr *Problem) *ProblemJudgeQuery {
+	query := (&ProblemJudgeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.ProblemJudgesTable, problem.ProblemJudgesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmission queries the submission edge of a Problem.
+func (c *ProblemClient) QuerySubmission(pr *Problem) *SubmitQuery {
+	query := (&SubmitClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(submit.Table, submit.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionTable, problem.SubmissionColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1141,15 +1253,31 @@ func (c *ProblemCaseClient) GetX(ctx context.Context, id int) *ProblemCase {
 	return obj
 }
 
-// QueryProblem queries the problem edge of a ProblemCase.
-func (c *ProblemCaseClient) QueryProblem(pc *ProblemCase) *ProblemQuery {
+// QueryProblems queries the problems edge of a ProblemCase.
+func (c *ProblemCaseClient) QueryProblems(pc *ProblemCase) *ProblemQuery {
 	query := (&ProblemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pc.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problemcase.ProblemTable, problemcase.ProblemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemsTable, problemcase.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmitCases queries the submit_cases edge of a ProblemCase.
+func (c *ProblemCaseClient) QuerySubmitCases(pc *ProblemCase) *SubmitCaseQuery {
+	query := (&SubmitCaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
+			sqlgraph.To(submitcase.Table, submitcase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, problemcase.SubmitCasesTable, problemcase.SubmitCasesColumn),
 		)
 		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
 		return fromV, nil
@@ -1290,15 +1418,15 @@ func (c *ProblemJudgeClient) GetX(ctx context.Context, id int) *ProblemJudge {
 	return obj
 }
 
-// QueryGroup queries the group edge of a ProblemJudge.
-func (c *ProblemJudgeClient) QueryGroup(pj *ProblemJudge) *GroupQuery {
+// QueryGroups queries the groups edge of a ProblemJudge.
+func (c *ProblemJudgeClient) QueryGroups(pj *ProblemJudge) *GroupQuery {
 	query := (&GroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pj.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, id),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problemjudge.GroupTable, problemjudge.GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.GroupsTable, problemjudge.GroupsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pj.driver.Dialect(), step)
 		return fromV, nil
@@ -1306,15 +1434,15 @@ func (c *ProblemJudgeClient) QueryGroup(pj *ProblemJudge) *GroupQuery {
 	return query
 }
 
-// QueryProblem queries the problem edge of a ProblemJudge.
-func (c *ProblemJudgeClient) QueryProblem(pj *ProblemJudge) *ProblemQuery {
+// QueryProblems queries the problems edge of a ProblemJudge.
+func (c *ProblemJudgeClient) QueryProblems(pj *ProblemJudge) *ProblemQuery {
 	query := (&ProblemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pj.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problemjudge.ProblemTable, problemjudge.ProblemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.ProblemsTable, problemjudge.ProblemsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pj.driver.Dialect(), step)
 		return fromV, nil
@@ -1455,15 +1583,15 @@ func (c *SubmitClient) GetX(ctx context.Context, id int) *Submit {
 	return obj
 }
 
-// QueryUser queries the user edge of a Submit.
-func (c *SubmitClient) QueryUser(s *Submit) *UserQuery {
+// QueryUsers queries the users edge of a Submit.
+func (c *SubmitClient) QueryUsers(s *Submit) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submit.UserTable, submit.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1471,15 +1599,47 @@ func (c *SubmitClient) QueryUser(s *Submit) *UserQuery {
 	return query
 }
 
-// QueryProblem queries the problem edge of a Submit.
-func (c *SubmitClient) QueryProblem(s *Submit) *ProblemQuery {
+// QueryProblems queries the problems edge of a Submit.
+func (c *SubmitClient) QueryProblems(s *Submit) *ProblemQuery {
 	query := (&ProblemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submit.ProblemTable, submit.ProblemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submit.ProblemsTable, submit.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmitJudge queries the submit_judge edge of a Submit.
+func (c *SubmitClient) QuerySubmitJudge(s *Submit) *SubmitJudgeQuery {
+	query := (&SubmitJudgeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submit.Table, submit.FieldID, id),
+			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitJudgeTable, submit.SubmitJudgeColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmitCases queries the submit_cases edge of a Submit.
+func (c *SubmitClient) QuerySubmitCases(s *Submit) *SubmitCaseQuery {
+	query := (&SubmitCaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submit.Table, submit.FieldID, id),
+			sqlgraph.To(submitcase.Table, submitcase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1620,15 +1780,15 @@ func (c *SubmitCaseClient) GetX(ctx context.Context, id int) *SubmitCase {
 	return obj
 }
 
-// QuerySubmit queries the submit edge of a SubmitCase.
-func (c *SubmitCaseClient) QuerySubmit(sc *SubmitCase) *SubmitQuery {
+// QuerySubmission queries the submission edge of a SubmitCase.
+func (c *SubmitCaseClient) QuerySubmission(sc *SubmitCase) *SubmitQuery {
 	query := (&SubmitClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := sc.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitcase.Table, submitcase.FieldID, id),
 			sqlgraph.To(submit.Table, submit.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitcase.SubmitTable, submitcase.SubmitColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitcase.SubmissionTable, submitcase.SubmissionColumn),
 		)
 		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
 		return fromV, nil
@@ -1636,15 +1796,15 @@ func (c *SubmitCaseClient) QuerySubmit(sc *SubmitCase) *SubmitQuery {
 	return query
 }
 
-// QueryProblemCase queries the problem_case edge of a SubmitCase.
-func (c *SubmitCaseClient) QueryProblemCase(sc *SubmitCase) *ProblemCaseQuery {
+// QueryProblemCases queries the problem_cases edge of a SubmitCase.
+func (c *SubmitCaseClient) QueryProblemCases(sc *SubmitCase) *ProblemCaseQuery {
 	query := (&ProblemCaseClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := sc.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitcase.Table, submitcase.FieldID, id),
 			sqlgraph.To(problemcase.Table, problemcase.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitcase.ProblemCaseTable, submitcase.ProblemCaseColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitcase.ProblemCasesTable, submitcase.ProblemCasesColumn),
 		)
 		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
 		return fromV, nil
@@ -1785,15 +1945,15 @@ func (c *SubmitJudgeClient) GetX(ctx context.Context, id int) *SubmitJudge {
 	return obj
 }
 
-// QuerySubmit queries the submit edge of a SubmitJudge.
-func (c *SubmitJudgeClient) QuerySubmit(sj *SubmitJudge) *SubmitQuery {
+// QuerySubmission queries the submission edge of a SubmitJudge.
+func (c *SubmitJudgeClient) QuerySubmission(sj *SubmitJudge) *SubmitQuery {
 	query := (&SubmitClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := sj.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, id),
 			sqlgraph.To(submit.Table, submit.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitjudge.SubmitTable, submitjudge.SubmitColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.SubmissionTable, submitjudge.SubmissionColumn),
 		)
 		fromV = sqlgraph.Neighbors(sj.driver.Dialect(), step)
 		return fromV, nil
@@ -1801,15 +1961,15 @@ func (c *SubmitJudgeClient) QuerySubmit(sj *SubmitJudge) *SubmitQuery {
 	return query
 }
 
-// QueryUser queries the user edge of a SubmitJudge.
-func (c *SubmitJudgeClient) QueryUser(sj *SubmitJudge) *UserQuery {
+// QueryUsers queries the users edge of a SubmitJudge.
+func (c *SubmitJudgeClient) QueryUsers(sj *SubmitJudge) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := sj.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitjudge.UserTable, submitjudge.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.UsersTable, submitjudge.UsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(sj.driver.Dialect(), step)
 		return fromV, nil
@@ -1948,6 +2108,70 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 		panic(err)
 	}
 	return obj
+}
+
+// QuerySubmitJudge queries the submit_judge edge of a User.
+func (c *UserClient) QuerySubmitJudge(u *User) *SubmitJudgeQuery {
+	query := (&SubmitJudgeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmitJudgeTable, user.SubmitJudgeColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGroups queries the groups edge of a User.
+func (c *UserClient) QueryGroups(u *User) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmission queries the submission edge of a User.
+func (c *UserClient) QuerySubmission(u *User) *SubmitQuery {
+	query := (&SubmitClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(submit.Table, submit.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmissionTable, user.SubmissionColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryLoginSession queries the login_session edge of a User.
+func (c *UserClient) QueryLoginSession(u *User) *LoginSessionQuery {
+	query := (&LoginSessionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(loginsession.Table, loginsession.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.LoginSessionTable, user.LoginSessionPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

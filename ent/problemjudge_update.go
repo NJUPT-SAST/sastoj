@@ -71,42 +71,42 @@ func (pju *ProblemJudgeUpdate) AddProblemID(i int) *ProblemJudgeUpdate {
 	return pju
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (pju *ProblemJudgeUpdate) SetGroupID(id int) *ProblemJudgeUpdate {
-	pju.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (pju *ProblemJudgeUpdate) SetGroupsID(id int) *ProblemJudgeUpdate {
+	pju.mutation.SetGroupsID(id)
 	return pju
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (pju *ProblemJudgeUpdate) SetNillableGroupID(id *int) *ProblemJudgeUpdate {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (pju *ProblemJudgeUpdate) SetNillableGroupsID(id *int) *ProblemJudgeUpdate {
 	if id != nil {
-		pju = pju.SetGroupID(*id)
+		pju = pju.SetGroupsID(*id)
 	}
 	return pju
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (pju *ProblemJudgeUpdate) SetGroup(g *Group) *ProblemJudgeUpdate {
-	return pju.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (pju *ProblemJudgeUpdate) SetGroups(g *Group) *ProblemJudgeUpdate {
+	return pju.SetGroupsID(g.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (pju *ProblemJudgeUpdate) SetProblemID(id int) *ProblemJudgeUpdate {
-	pju.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (pju *ProblemJudgeUpdate) SetProblemsID(id int) *ProblemJudgeUpdate {
+	pju.mutation.SetProblemsID(id)
 	return pju
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (pju *ProblemJudgeUpdate) SetNillableProblemID(id *int) *ProblemJudgeUpdate {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (pju *ProblemJudgeUpdate) SetNillableProblemsID(id *int) *ProblemJudgeUpdate {
 	if id != nil {
-		pju = pju.SetProblemID(*id)
+		pju = pju.SetProblemsID(*id)
 	}
 	return pju
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (pju *ProblemJudgeUpdate) SetProblem(p *Problem) *ProblemJudgeUpdate {
-	return pju.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (pju *ProblemJudgeUpdate) SetProblems(p *Problem) *ProblemJudgeUpdate {
+	return pju.SetProblemsID(p.ID)
 }
 
 // Mutation returns the ProblemJudgeMutation object of the builder.
@@ -114,15 +114,15 @@ func (pju *ProblemJudgeUpdate) Mutation() *ProblemJudgeMutation {
 	return pju.mutation
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (pju *ProblemJudgeUpdate) ClearGroup() *ProblemJudgeUpdate {
-	pju.mutation.ClearGroup()
+// ClearGroups clears the "groups" edge to the Group entity.
+func (pju *ProblemJudgeUpdate) ClearGroups() *ProblemJudgeUpdate {
+	pju.mutation.ClearGroups()
 	return pju
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (pju *ProblemJudgeUpdate) ClearProblem() *ProblemJudgeUpdate {
-	pju.mutation.ClearProblem()
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (pju *ProblemJudgeUpdate) ClearProblems() *ProblemJudgeUpdate {
+	pju.mutation.ClearProblems()
 	return pju
 }
 
@@ -192,12 +192,12 @@ func (pju *ProblemJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pju.mutation.AddedProblemID(); ok {
 		_spec.AddField(problemjudge.FieldProblemID, field.TypeInt, value)
 	}
-	if pju.mutation.GroupCleared() {
+	if pju.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.GroupTable,
-			Columns: []string{problemjudge.GroupColumn},
+			Inverse: true,
+			Table:   problemjudge.GroupsTable,
+			Columns: []string{problemjudge.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -205,12 +205,12 @@ func (pju *ProblemJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pju.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := pju.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.GroupTable,
-			Columns: []string{problemjudge.GroupColumn},
+			Inverse: true,
+			Table:   problemjudge.GroupsTable,
+			Columns: []string{problemjudge.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -221,12 +221,12 @@ func (pju *ProblemJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if pju.mutation.ProblemCleared() {
+	if pju.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.ProblemTable,
-			Columns: []string{problemjudge.ProblemColumn},
+			Inverse: true,
+			Table:   problemjudge.ProblemsTable,
+			Columns: []string{problemjudge.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -234,12 +234,12 @@ func (pju *ProblemJudgeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pju.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := pju.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.ProblemTable,
-			Columns: []string{problemjudge.ProblemColumn},
+			Inverse: true,
+			Table:   problemjudge.ProblemsTable,
+			Columns: []string{problemjudge.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -312,42 +312,42 @@ func (pjuo *ProblemJudgeUpdateOne) AddProblemID(i int) *ProblemJudgeUpdateOne {
 	return pjuo
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (pjuo *ProblemJudgeUpdateOne) SetGroupID(id int) *ProblemJudgeUpdateOne {
-	pjuo.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (pjuo *ProblemJudgeUpdateOne) SetGroupsID(id int) *ProblemJudgeUpdateOne {
+	pjuo.mutation.SetGroupsID(id)
 	return pjuo
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (pjuo *ProblemJudgeUpdateOne) SetNillableGroupID(id *int) *ProblemJudgeUpdateOne {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (pjuo *ProblemJudgeUpdateOne) SetNillableGroupsID(id *int) *ProblemJudgeUpdateOne {
 	if id != nil {
-		pjuo = pjuo.SetGroupID(*id)
+		pjuo = pjuo.SetGroupsID(*id)
 	}
 	return pjuo
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (pjuo *ProblemJudgeUpdateOne) SetGroup(g *Group) *ProblemJudgeUpdateOne {
-	return pjuo.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (pjuo *ProblemJudgeUpdateOne) SetGroups(g *Group) *ProblemJudgeUpdateOne {
+	return pjuo.SetGroupsID(g.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (pjuo *ProblemJudgeUpdateOne) SetProblemID(id int) *ProblemJudgeUpdateOne {
-	pjuo.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (pjuo *ProblemJudgeUpdateOne) SetProblemsID(id int) *ProblemJudgeUpdateOne {
+	pjuo.mutation.SetProblemsID(id)
 	return pjuo
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (pjuo *ProblemJudgeUpdateOne) SetNillableProblemID(id *int) *ProblemJudgeUpdateOne {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (pjuo *ProblemJudgeUpdateOne) SetNillableProblemsID(id *int) *ProblemJudgeUpdateOne {
 	if id != nil {
-		pjuo = pjuo.SetProblemID(*id)
+		pjuo = pjuo.SetProblemsID(*id)
 	}
 	return pjuo
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (pjuo *ProblemJudgeUpdateOne) SetProblem(p *Problem) *ProblemJudgeUpdateOne {
-	return pjuo.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (pjuo *ProblemJudgeUpdateOne) SetProblems(p *Problem) *ProblemJudgeUpdateOne {
+	return pjuo.SetProblemsID(p.ID)
 }
 
 // Mutation returns the ProblemJudgeMutation object of the builder.
@@ -355,15 +355,15 @@ func (pjuo *ProblemJudgeUpdateOne) Mutation() *ProblemJudgeMutation {
 	return pjuo.mutation
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (pjuo *ProblemJudgeUpdateOne) ClearGroup() *ProblemJudgeUpdateOne {
-	pjuo.mutation.ClearGroup()
+// ClearGroups clears the "groups" edge to the Group entity.
+func (pjuo *ProblemJudgeUpdateOne) ClearGroups() *ProblemJudgeUpdateOne {
+	pjuo.mutation.ClearGroups()
 	return pjuo
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (pjuo *ProblemJudgeUpdateOne) ClearProblem() *ProblemJudgeUpdateOne {
-	pjuo.mutation.ClearProblem()
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (pjuo *ProblemJudgeUpdateOne) ClearProblems() *ProblemJudgeUpdateOne {
+	pjuo.mutation.ClearProblems()
 	return pjuo
 }
 
@@ -463,12 +463,12 @@ func (pjuo *ProblemJudgeUpdateOne) sqlSave(ctx context.Context) (_node *ProblemJ
 	if value, ok := pjuo.mutation.AddedProblemID(); ok {
 		_spec.AddField(problemjudge.FieldProblemID, field.TypeInt, value)
 	}
-	if pjuo.mutation.GroupCleared() {
+	if pjuo.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.GroupTable,
-			Columns: []string{problemjudge.GroupColumn},
+			Inverse: true,
+			Table:   problemjudge.GroupsTable,
+			Columns: []string{problemjudge.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -476,12 +476,12 @@ func (pjuo *ProblemJudgeUpdateOne) sqlSave(ctx context.Context) (_node *ProblemJ
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pjuo.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := pjuo.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.GroupTable,
-			Columns: []string{problemjudge.GroupColumn},
+			Inverse: true,
+			Table:   problemjudge.GroupsTable,
+			Columns: []string{problemjudge.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -492,12 +492,12 @@ func (pjuo *ProblemJudgeUpdateOne) sqlSave(ctx context.Context) (_node *ProblemJ
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if pjuo.mutation.ProblemCleared() {
+	if pjuo.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.ProblemTable,
-			Columns: []string{problemjudge.ProblemColumn},
+			Inverse: true,
+			Table:   problemjudge.ProblemsTable,
+			Columns: []string{problemjudge.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -505,12 +505,12 @@ func (pjuo *ProblemJudgeUpdateOne) sqlSave(ctx context.Context) (_node *ProblemJ
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pjuo.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := pjuo.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.ProblemTable,
-			Columns: []string{problemjudge.ProblemColumn},
+			Inverse: true,
+			Table:   problemjudge.ProblemsTable,
+			Columns: []string{problemjudge.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),

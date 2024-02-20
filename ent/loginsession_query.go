@@ -23,7 +23,7 @@ type LoginSessionQuery struct {
 	order      []loginsession.OrderOption
 	inters     []Interceptor
 	predicates []predicate.LoginSession
-	withUser   *UserQuery
+	withUsers  *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,8 +60,8 @@ func (lsq *LoginSessionQuery) Order(o ...loginsession.OrderOption) *LoginSession
 	return lsq
 }
 
-// QueryUser chains the current query on the "user" edge.
-func (lsq *LoginSessionQuery) QueryUser() *UserQuery {
+// QueryUsers chains the current query on the "users" edge.
+func (lsq *LoginSessionQuery) QueryUsers() *UserQuery {
 	query := (&UserClient{config: lsq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := lsq.prepareQuery(ctx); err != nil {
@@ -74,7 +74,7 @@ func (lsq *LoginSessionQuery) QueryUser() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(loginsession.Table, loginsession.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, loginsession.UserTable, loginsession.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, loginsession.UsersTable, loginsession.UsersPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(lsq.driver.Dialect(), step)
 		return fromU, nil
@@ -274,21 +274,21 @@ func (lsq *LoginSessionQuery) Clone() *LoginSessionQuery {
 		order:      append([]loginsession.OrderOption{}, lsq.order...),
 		inters:     append([]Interceptor{}, lsq.inters...),
 		predicates: append([]predicate.LoginSession{}, lsq.predicates...),
-		withUser:   lsq.withUser.Clone(),
+		withUsers:  lsq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  lsq.sql.Clone(),
 		path: lsq.path,
 	}
 }
 
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (lsq *LoginSessionQuery) WithUser(opts ...func(*UserQuery)) *LoginSessionQuery {
+// WithUsers tells the query-builder to eager-load the nodes that are connected to
+// the "users" edge. The optional arguments are used to configure the query builder of the edge.
+func (lsq *LoginSessionQuery) WithUsers(opts ...func(*UserQuery)) *LoginSessionQuery {
 	query := (&UserClient{config: lsq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	lsq.withUser = query
+	lsq.withUsers = query
 	return lsq
 }
 
@@ -371,7 +371,7 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		nodes       = []*LoginSession{}
 		_spec       = lsq.querySpec()
 		loadedTypes = [1]bool{
-			lsq.withUser != nil,
+			lsq.withUsers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -392,44 +392,74 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := lsq.withUser; query != nil {
-		if err := lsq.loadUser(ctx, query, nodes,
-			func(n *LoginSession) { n.Edges.User = []*User{} },
-			func(n *LoginSession, e *User) { n.Edges.User = append(n.Edges.User, e) }); err != nil {
+	if query := lsq.withUsers; query != nil {
+		if err := lsq.loadUsers(ctx, query, nodes,
+			func(n *LoginSession) { n.Edges.Users = []*User{} },
+			func(n *LoginSession, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (lsq *LoginSessionQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*LoginSession, init func(*LoginSession), assign func(*LoginSession, *User)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*LoginSession)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*LoginSession, init func(*LoginSession), assign func(*LoginSession, *User)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*LoginSession)
+	nids := make(map[int]map[*LoginSession]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
 		if init != nil {
-			init(nodes[i])
+			init(node)
 		}
 	}
-	query.withFKs = true
-	query.Where(predicate.User(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(loginsession.UserColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(loginsession.UsersTable)
+		s.Join(joinT).On(s.C(user.FieldID), joinT.C(loginsession.UsersPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(loginsession.UsersPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(loginsession.UsersPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*LoginSession]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*User](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.login_session_user
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "login_session_user" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "login_session_user" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

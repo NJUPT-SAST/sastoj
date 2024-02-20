@@ -71,42 +71,42 @@ func (cgu *ContestGroupUpdate) AddGroupID(i int) *ContestGroupUpdate {
 	return cgu
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by ID.
-func (cgu *ContestGroupUpdate) SetContestID(id int) *ContestGroupUpdate {
-	cgu.mutation.SetContestID(id)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (cgu *ContestGroupUpdate) SetContestsID(id int) *ContestGroupUpdate {
+	cgu.mutation.SetContestsID(id)
 	return cgu
 }
 
-// SetNillableContestID sets the "contest" edge to the Contest entity by ID if the given value is not nil.
-func (cgu *ContestGroupUpdate) SetNillableContestID(id *int) *ContestGroupUpdate {
+// SetNillableContestsID sets the "contests" edge to the Contest entity by ID if the given value is not nil.
+func (cgu *ContestGroupUpdate) SetNillableContestsID(id *int) *ContestGroupUpdate {
 	if id != nil {
-		cgu = cgu.SetContestID(*id)
+		cgu = cgu.SetContestsID(*id)
 	}
 	return cgu
 }
 
-// SetContest sets the "contest" edge to the Contest entity.
-func (cgu *ContestGroupUpdate) SetContest(c *Contest) *ContestGroupUpdate {
-	return cgu.SetContestID(c.ID)
+// SetContests sets the "contests" edge to the Contest entity.
+func (cgu *ContestGroupUpdate) SetContests(c *Contest) *ContestGroupUpdate {
+	return cgu.SetContestsID(c.ID)
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (cgu *ContestGroupUpdate) SetGroupID(id int) *ContestGroupUpdate {
-	cgu.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (cgu *ContestGroupUpdate) SetGroupsID(id int) *ContestGroupUpdate {
+	cgu.mutation.SetGroupsID(id)
 	return cgu
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (cgu *ContestGroupUpdate) SetNillableGroupID(id *int) *ContestGroupUpdate {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (cgu *ContestGroupUpdate) SetNillableGroupsID(id *int) *ContestGroupUpdate {
 	if id != nil {
-		cgu = cgu.SetGroupID(*id)
+		cgu = cgu.SetGroupsID(*id)
 	}
 	return cgu
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (cgu *ContestGroupUpdate) SetGroup(g *Group) *ContestGroupUpdate {
-	return cgu.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (cgu *ContestGroupUpdate) SetGroups(g *Group) *ContestGroupUpdate {
+	return cgu.SetGroupsID(g.ID)
 }
 
 // Mutation returns the ContestGroupMutation object of the builder.
@@ -114,15 +114,15 @@ func (cgu *ContestGroupUpdate) Mutation() *ContestGroupMutation {
 	return cgu.mutation
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (cgu *ContestGroupUpdate) ClearContest() *ContestGroupUpdate {
-	cgu.mutation.ClearContest()
+// ClearContests clears the "contests" edge to the Contest entity.
+func (cgu *ContestGroupUpdate) ClearContests() *ContestGroupUpdate {
+	cgu.mutation.ClearContests()
 	return cgu
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (cgu *ContestGroupUpdate) ClearGroup() *ContestGroupUpdate {
-	cgu.mutation.ClearGroup()
+// ClearGroups clears the "groups" edge to the Group entity.
+func (cgu *ContestGroupUpdate) ClearGroups() *ContestGroupUpdate {
+	cgu.mutation.ClearGroups()
 	return cgu
 }
 
@@ -174,12 +174,12 @@ func (cgu *ContestGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cgu.mutation.AddedGroupID(); ok {
 		_spec.AddField(contestgroup.FieldGroupID, field.TypeInt, value)
 	}
-	if cgu.mutation.ContestCleared() {
+	if cgu.mutation.ContestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.ContestTable,
-			Columns: []string{contestgroup.ContestColumn},
+			Inverse: true,
+			Table:   contestgroup.ContestsTable,
+			Columns: []string{contestgroup.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -187,12 +187,12 @@ func (cgu *ContestGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cgu.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := cgu.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.ContestTable,
-			Columns: []string{contestgroup.ContestColumn},
+			Inverse: true,
+			Table:   contestgroup.ContestsTable,
+			Columns: []string{contestgroup.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -203,12 +203,12 @@ func (cgu *ContestGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cgu.mutation.GroupCleared() {
+	if cgu.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.GroupTable,
-			Columns: []string{contestgroup.GroupColumn},
+			Inverse: true,
+			Table:   contestgroup.GroupsTable,
+			Columns: []string{contestgroup.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -216,12 +216,12 @@ func (cgu *ContestGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cgu.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := cgu.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.GroupTable,
-			Columns: []string{contestgroup.GroupColumn},
+			Inverse: true,
+			Table:   contestgroup.GroupsTable,
+			Columns: []string{contestgroup.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -294,42 +294,42 @@ func (cguo *ContestGroupUpdateOne) AddGroupID(i int) *ContestGroupUpdateOne {
 	return cguo
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by ID.
-func (cguo *ContestGroupUpdateOne) SetContestID(id int) *ContestGroupUpdateOne {
-	cguo.mutation.SetContestID(id)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (cguo *ContestGroupUpdateOne) SetContestsID(id int) *ContestGroupUpdateOne {
+	cguo.mutation.SetContestsID(id)
 	return cguo
 }
 
-// SetNillableContestID sets the "contest" edge to the Contest entity by ID if the given value is not nil.
-func (cguo *ContestGroupUpdateOne) SetNillableContestID(id *int) *ContestGroupUpdateOne {
+// SetNillableContestsID sets the "contests" edge to the Contest entity by ID if the given value is not nil.
+func (cguo *ContestGroupUpdateOne) SetNillableContestsID(id *int) *ContestGroupUpdateOne {
 	if id != nil {
-		cguo = cguo.SetContestID(*id)
+		cguo = cguo.SetContestsID(*id)
 	}
 	return cguo
 }
 
-// SetContest sets the "contest" edge to the Contest entity.
-func (cguo *ContestGroupUpdateOne) SetContest(c *Contest) *ContestGroupUpdateOne {
-	return cguo.SetContestID(c.ID)
+// SetContests sets the "contests" edge to the Contest entity.
+func (cguo *ContestGroupUpdateOne) SetContests(c *Contest) *ContestGroupUpdateOne {
+	return cguo.SetContestsID(c.ID)
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (cguo *ContestGroupUpdateOne) SetGroupID(id int) *ContestGroupUpdateOne {
-	cguo.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (cguo *ContestGroupUpdateOne) SetGroupsID(id int) *ContestGroupUpdateOne {
+	cguo.mutation.SetGroupsID(id)
 	return cguo
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (cguo *ContestGroupUpdateOne) SetNillableGroupID(id *int) *ContestGroupUpdateOne {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (cguo *ContestGroupUpdateOne) SetNillableGroupsID(id *int) *ContestGroupUpdateOne {
 	if id != nil {
-		cguo = cguo.SetGroupID(*id)
+		cguo = cguo.SetGroupsID(*id)
 	}
 	return cguo
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (cguo *ContestGroupUpdateOne) SetGroup(g *Group) *ContestGroupUpdateOne {
-	return cguo.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (cguo *ContestGroupUpdateOne) SetGroups(g *Group) *ContestGroupUpdateOne {
+	return cguo.SetGroupsID(g.ID)
 }
 
 // Mutation returns the ContestGroupMutation object of the builder.
@@ -337,15 +337,15 @@ func (cguo *ContestGroupUpdateOne) Mutation() *ContestGroupMutation {
 	return cguo.mutation
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (cguo *ContestGroupUpdateOne) ClearContest() *ContestGroupUpdateOne {
-	cguo.mutation.ClearContest()
+// ClearContests clears the "contests" edge to the Contest entity.
+func (cguo *ContestGroupUpdateOne) ClearContests() *ContestGroupUpdateOne {
+	cguo.mutation.ClearContests()
 	return cguo
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (cguo *ContestGroupUpdateOne) ClearGroup() *ContestGroupUpdateOne {
-	cguo.mutation.ClearGroup()
+// ClearGroups clears the "groups" edge to the Group entity.
+func (cguo *ContestGroupUpdateOne) ClearGroups() *ContestGroupUpdateOne {
+	cguo.mutation.ClearGroups()
 	return cguo
 }
 
@@ -427,12 +427,12 @@ func (cguo *ContestGroupUpdateOne) sqlSave(ctx context.Context) (_node *ContestG
 	if value, ok := cguo.mutation.AddedGroupID(); ok {
 		_spec.AddField(contestgroup.FieldGroupID, field.TypeInt, value)
 	}
-	if cguo.mutation.ContestCleared() {
+	if cguo.mutation.ContestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.ContestTable,
-			Columns: []string{contestgroup.ContestColumn},
+			Inverse: true,
+			Table:   contestgroup.ContestsTable,
+			Columns: []string{contestgroup.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -440,12 +440,12 @@ func (cguo *ContestGroupUpdateOne) sqlSave(ctx context.Context) (_node *ContestG
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cguo.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := cguo.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.ContestTable,
-			Columns: []string{contestgroup.ContestColumn},
+			Inverse: true,
+			Table:   contestgroup.ContestsTable,
+			Columns: []string{contestgroup.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -456,12 +456,12 @@ func (cguo *ContestGroupUpdateOne) sqlSave(ctx context.Context) (_node *ContestG
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cguo.mutation.GroupCleared() {
+	if cguo.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.GroupTable,
-			Columns: []string{contestgroup.GroupColumn},
+			Inverse: true,
+			Table:   contestgroup.GroupsTable,
+			Columns: []string{contestgroup.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -469,12 +469,12 @@ func (cguo *ContestGroupUpdateOne) sqlSave(ctx context.Context) (_node *ContestG
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cguo.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := cguo.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.GroupTable,
-			Columns: []string{contestgroup.GroupColumn},
+			Inverse: true,
+			Table:   contestgroup.GroupsTable,
+			Columns: []string{contestgroup.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),

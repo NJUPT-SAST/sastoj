@@ -32,26 +32,44 @@ const (
 	FieldLanguage = "language"
 	// FieldCaseVersion holds the string denoting the case_version field in the database.
 	FieldCaseVersion = "case_version"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
-	// EdgeProblem holds the string denoting the problem edge name in mutations.
-	EdgeProblem = "problem"
+	// EdgeUsers holds the string denoting the users edge name in mutations.
+	EdgeUsers = "users"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
+	// EdgeSubmitJudge holds the string denoting the submit_judge edge name in mutations.
+	EdgeSubmitJudge = "submit_judge"
+	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
+	EdgeSubmitCases = "submit_cases"
 	// Table holds the table name of the submit in the database.
 	Table = "submit"
-	// UserTable is the table that holds the user relation/edge.
-	UserTable = "submit"
-	// UserInverseTable is the table name for the User entity.
+	// UsersTable is the table that holds the users relation/edge.
+	UsersTable = "submit"
+	// UsersInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
-	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "submit_user"
-	// ProblemTable is the table that holds the problem relation/edge.
-	ProblemTable = "submit"
-	// ProblemInverseTable is the table name for the Problem entity.
+	UsersInverseTable = "users"
+	// UsersColumn is the table column denoting the users relation/edge.
+	UsersColumn = "user_submission"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "submit"
+	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemInverseTable = "problems"
-	// ProblemColumn is the table column denoting the problem relation/edge.
-	ProblemColumn = "submit_problem"
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "problem_submission"
+	// SubmitJudgeTable is the table that holds the submit_judge relation/edge.
+	SubmitJudgeTable = "submit_judge"
+	// SubmitJudgeInverseTable is the table name for the SubmitJudge entity.
+	// It exists in this package in order to avoid circular dependency with the "submitjudge" package.
+	SubmitJudgeInverseTable = "submit_judge"
+	// SubmitJudgeColumn is the table column denoting the submit_judge relation/edge.
+	SubmitJudgeColumn = "submit_submit_judge"
+	// SubmitCasesTable is the table that holds the submit_cases relation/edge.
+	SubmitCasesTable = "submit_cases"
+	// SubmitCasesInverseTable is the table name for the SubmitCase entity.
+	// It exists in this package in order to avoid circular dependency with the "submitcase" package.
+	SubmitCasesInverseTable = "submit_cases"
+	// SubmitCasesColumn is the table column denoting the submit_cases relation/edge.
+	SubmitCasesColumn = "submit_submit_cases"
 )
 
 // Columns holds all SQL columns for submit fields.
@@ -72,8 +90,8 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "submit"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"submit_user",
-	"submit_problem",
+	"problem_submission",
+	"user_submission",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -156,30 +174,72 @@ func ByCaseVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCaseVersion, opts...).ToFunc()
 }
 
-// ByUserField orders the results by user field.
-func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByUsersField orders the results by users field.
+func ByUsersField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByProblemField orders the results by problem field.
-func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByProblemsField orders the results by problems field.
+func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newUserStep() *sqlgraph.Step {
+
+// BySubmitJudgeCount orders the results by submit_judge count.
+func BySubmitJudgeCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmitJudgeStep(), opts...)
+	}
+}
+
+// BySubmitJudge orders the results by submit_judge terms.
+func BySubmitJudge(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmitJudgeStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySubmitCasesCount orders the results by submit_cases count.
+func BySubmitCasesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSubmitCasesStep(), opts...)
+	}
+}
+
+// BySubmitCases orders the results by submit_cases terms.
+func BySubmitCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSubmitCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+		sqlgraph.To(UsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 	)
 }
-func newProblemStep() *sqlgraph.Step {
+func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, ProblemTable, ProblemColumn),
+		sqlgraph.To(ProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
+	)
+}
+func newSubmitJudgeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmitJudgeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmitJudgeTable, SubmitJudgeColumn),
+	)
+}
+func newSubmitCasesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SubmitCasesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
 	)
 }

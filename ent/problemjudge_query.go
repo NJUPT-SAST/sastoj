@@ -19,13 +19,13 @@ import (
 // ProblemJudgeQuery is the builder for querying ProblemJudge entities.
 type ProblemJudgeQuery struct {
 	config
-	ctx         *QueryContext
-	order       []problemjudge.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.ProblemJudge
-	withGroup   *GroupQuery
-	withProblem *ProblemQuery
-	withFKs     bool
+	ctx          *QueryContext
+	order        []problemjudge.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.ProblemJudge
+	withGroups   *GroupQuery
+	withProblems *ProblemQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +62,8 @@ func (pjq *ProblemJudgeQuery) Order(o ...problemjudge.OrderOption) *ProblemJudge
 	return pjq
 }
 
-// QueryGroup chains the current query on the "group" edge.
-func (pjq *ProblemJudgeQuery) QueryGroup() *GroupQuery {
+// QueryGroups chains the current query on the "groups" edge.
+func (pjq *ProblemJudgeQuery) QueryGroups() *GroupQuery {
 	query := (&GroupClient{config: pjq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pjq.prepareQuery(ctx); err != nil {
@@ -76,7 +76,7 @@ func (pjq *ProblemJudgeQuery) QueryGroup() *GroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problemjudge.GroupTable, problemjudge.GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.GroupsTable, problemjudge.GroupsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pjq.driver.Dialect(), step)
 		return fromU, nil
@@ -84,8 +84,8 @@ func (pjq *ProblemJudgeQuery) QueryGroup() *GroupQuery {
 	return query
 }
 
-// QueryProblem chains the current query on the "problem" edge.
-func (pjq *ProblemJudgeQuery) QueryProblem() *ProblemQuery {
+// QueryProblems chains the current query on the "problems" edge.
+func (pjq *ProblemJudgeQuery) QueryProblems() *ProblemQuery {
 	query := (&ProblemClient{config: pjq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pjq.prepareQuery(ctx); err != nil {
@@ -98,7 +98,7 @@ func (pjq *ProblemJudgeQuery) QueryProblem() *ProblemQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, problemjudge.ProblemTable, problemjudge.ProblemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.ProblemsTable, problemjudge.ProblemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pjq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,38 +293,38 @@ func (pjq *ProblemJudgeQuery) Clone() *ProblemJudgeQuery {
 		return nil
 	}
 	return &ProblemJudgeQuery{
-		config:      pjq.config,
-		ctx:         pjq.ctx.Clone(),
-		order:       append([]problemjudge.OrderOption{}, pjq.order...),
-		inters:      append([]Interceptor{}, pjq.inters...),
-		predicates:  append([]predicate.ProblemJudge{}, pjq.predicates...),
-		withGroup:   pjq.withGroup.Clone(),
-		withProblem: pjq.withProblem.Clone(),
+		config:       pjq.config,
+		ctx:          pjq.ctx.Clone(),
+		order:        append([]problemjudge.OrderOption{}, pjq.order...),
+		inters:       append([]Interceptor{}, pjq.inters...),
+		predicates:   append([]predicate.ProblemJudge{}, pjq.predicates...),
+		withGroups:   pjq.withGroups.Clone(),
+		withProblems: pjq.withProblems.Clone(),
 		// clone intermediate query.
 		sql:  pjq.sql.Clone(),
 		path: pjq.path,
 	}
 }
 
-// WithGroup tells the query-builder to eager-load the nodes that are connected to
-// the "group" edge. The optional arguments are used to configure the query builder of the edge.
-func (pjq *ProblemJudgeQuery) WithGroup(opts ...func(*GroupQuery)) *ProblemJudgeQuery {
+// WithGroups tells the query-builder to eager-load the nodes that are connected to
+// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (pjq *ProblemJudgeQuery) WithGroups(opts ...func(*GroupQuery)) *ProblemJudgeQuery {
 	query := (&GroupClient{config: pjq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	pjq.withGroup = query
+	pjq.withGroups = query
 	return pjq
 }
 
-// WithProblem tells the query-builder to eager-load the nodes that are connected to
-// the "problem" edge. The optional arguments are used to configure the query builder of the edge.
-func (pjq *ProblemJudgeQuery) WithProblem(opts ...func(*ProblemQuery)) *ProblemJudgeQuery {
+// WithProblems tells the query-builder to eager-load the nodes that are connected to
+// the "problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (pjq *ProblemJudgeQuery) WithProblems(opts ...func(*ProblemQuery)) *ProblemJudgeQuery {
 	query := (&ProblemClient{config: pjq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	pjq.withProblem = query
+	pjq.withProblems = query
 	return pjq
 }
 
@@ -408,11 +408,11 @@ func (pjq *ProblemJudgeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		withFKs     = pjq.withFKs
 		_spec       = pjq.querySpec()
 		loadedTypes = [2]bool{
-			pjq.withGroup != nil,
-			pjq.withProblem != nil,
+			pjq.withGroups != nil,
+			pjq.withProblems != nil,
 		}
 	)
-	if pjq.withGroup != nil || pjq.withProblem != nil {
+	if pjq.withGroups != nil || pjq.withProblems != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -436,29 +436,29 @@ func (pjq *ProblemJudgeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := pjq.withGroup; query != nil {
-		if err := pjq.loadGroup(ctx, query, nodes, nil,
-			func(n *ProblemJudge, e *Group) { n.Edges.Group = e }); err != nil {
+	if query := pjq.withGroups; query != nil {
+		if err := pjq.loadGroups(ctx, query, nodes, nil,
+			func(n *ProblemJudge, e *Group) { n.Edges.Groups = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := pjq.withProblem; query != nil {
-		if err := pjq.loadProblem(ctx, query, nodes, nil,
-			func(n *ProblemJudge, e *Problem) { n.Edges.Problem = e }); err != nil {
+	if query := pjq.withProblems; query != nil {
+		if err := pjq.loadProblems(ctx, query, nodes, nil,
+			func(n *ProblemJudge, e *Problem) { n.Edges.Problems = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (pjq *ProblemJudgeQuery) loadGroup(ctx context.Context, query *GroupQuery, nodes []*ProblemJudge, init func(*ProblemJudge), assign func(*ProblemJudge, *Group)) error {
+func (pjq *ProblemJudgeQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*ProblemJudge, init func(*ProblemJudge), assign func(*ProblemJudge, *Group)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*ProblemJudge)
 	for i := range nodes {
-		if nodes[i].problem_judge_group == nil {
+		if nodes[i].group_problem_judges == nil {
 			continue
 		}
-		fk := *nodes[i].problem_judge_group
+		fk := *nodes[i].group_problem_judges
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +475,7 @@ func (pjq *ProblemJudgeQuery) loadGroup(ctx context.Context, query *GroupQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_judge_group" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "group_problem_judges" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -483,14 +483,14 @@ func (pjq *ProblemJudgeQuery) loadGroup(ctx context.Context, query *GroupQuery, 
 	}
 	return nil
 }
-func (pjq *ProblemJudgeQuery) loadProblem(ctx context.Context, query *ProblemQuery, nodes []*ProblemJudge, init func(*ProblemJudge), assign func(*ProblemJudge, *Problem)) error {
+func (pjq *ProblemJudgeQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*ProblemJudge, init func(*ProblemJudge), assign func(*ProblemJudge, *Problem)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*ProblemJudge)
 	for i := range nodes {
-		if nodes[i].problem_judge_problem == nil {
+		if nodes[i].problem_problem_judges == nil {
 			continue
 		}
-		fk := *nodes[i].problem_judge_problem
+		fk := *nodes[i].problem_problem_judges
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +507,7 @@ func (pjq *ProblemJudgeQuery) loadProblem(ctx context.Context, query *ProblemQue
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_judge_problem" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "problem_problem_judges" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

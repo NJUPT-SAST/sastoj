@@ -50,25 +50,31 @@ const (
 // ContestMutation represents an operation that mutates the Contest nodes in the graph.
 type ContestMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	title         *string
-	description   *string
-	state         *int
-	addstate      *int
-	_type         *int
-	add_type      *int
-	start_time    *time.Time
-	end_time      *time.Time
-	language      *string
-	extra_time    *int
-	addextra_time *int
-	create_time   *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Contest, error)
-	predicates    []predicate.Contest
+	op                   Op
+	typ                  string
+	id                   *int
+	title                *string
+	description          *string
+	state                *int
+	addstate             *int
+	_type                *int
+	add_type             *int
+	start_time           *time.Time
+	end_time             *time.Time
+	language             *string
+	extra_time           *int
+	addextra_time        *int
+	create_time          *time.Time
+	clearedFields        map[string]struct{}
+	contest_group        map[int]struct{}
+	removedcontest_group map[int]struct{}
+	clearedcontest_group bool
+	problems             map[int]struct{}
+	removedproblems      map[int]struct{}
+	clearedproblems      bool
+	done                 bool
+	oldValue             func(context.Context) (*Contest, error)
+	predicates           []predicate.Contest
 }
 
 var _ ent.Mutation = (*ContestMutation)(nil)
@@ -559,6 +565,114 @@ func (m *ContestMutation) ResetCreateTime() {
 	m.create_time = nil
 }
 
+// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by ids.
+func (m *ContestMutation) AddContestGroupIDs(ids ...int) {
+	if m.contest_group == nil {
+		m.contest_group = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.contest_group[ids[i]] = struct{}{}
+	}
+}
+
+// ClearContestGroup clears the "contest_group" edge to the ContestGroup entity.
+func (m *ContestMutation) ClearContestGroup() {
+	m.clearedcontest_group = true
+}
+
+// ContestGroupCleared reports if the "contest_group" edge to the ContestGroup entity was cleared.
+func (m *ContestMutation) ContestGroupCleared() bool {
+	return m.clearedcontest_group
+}
+
+// RemoveContestGroupIDs removes the "contest_group" edge to the ContestGroup entity by IDs.
+func (m *ContestMutation) RemoveContestGroupIDs(ids ...int) {
+	if m.removedcontest_group == nil {
+		m.removedcontest_group = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.contest_group, ids[i])
+		m.removedcontest_group[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedContestGroup returns the removed IDs of the "contest_group" edge to the ContestGroup entity.
+func (m *ContestMutation) RemovedContestGroupIDs() (ids []int) {
+	for id := range m.removedcontest_group {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ContestGroupIDs returns the "contest_group" edge IDs in the mutation.
+func (m *ContestMutation) ContestGroupIDs() (ids []int) {
+	for id := range m.contest_group {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetContestGroup resets all changes to the "contest_group" edge.
+func (m *ContestMutation) ResetContestGroup() {
+	m.contest_group = nil
+	m.clearedcontest_group = false
+	m.removedcontest_group = nil
+}
+
+// AddProblemIDs adds the "problems" edge to the Problem entity by ids.
+func (m *ContestMutation) AddProblemIDs(ids ...int) {
+	if m.problems == nil {
+		m.problems = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.problems[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (m *ContestMutation) ClearProblems() {
+	m.clearedproblems = true
+}
+
+// ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
+func (m *ContestMutation) ProblemsCleared() bool {
+	return m.clearedproblems
+}
+
+// RemoveProblemIDs removes the "problems" edge to the Problem entity by IDs.
+func (m *ContestMutation) RemoveProblemIDs(ids ...int) {
+	if m.removedproblems == nil {
+		m.removedproblems = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.problems, ids[i])
+		m.removedproblems[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProblems returns the removed IDs of the "problems" edge to the Problem entity.
+func (m *ContestMutation) RemovedProblemsIDs() (ids []int) {
+	for id := range m.removedproblems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProblemsIDs returns the "problems" edge IDs in the mutation.
+func (m *ContestMutation) ProblemsIDs() (ids []int) {
+	for id := range m.problems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProblems resets all changes to the "problems" edge.
+func (m *ContestMutation) ResetProblems() {
+	m.problems = nil
+	m.clearedproblems = false
+	m.removedproblems = nil
+}
+
 // Where appends a list predicates to the ContestMutation builder.
 func (m *ContestMutation) Where(ps ...predicate.Contest) {
 	m.predicates = append(m.predicates, ps...)
@@ -867,70 +981,132 @@ func (m *ContestMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ContestMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.contest_group != nil {
+		edges = append(edges, contest.EdgeContestGroup)
+	}
+	if m.problems != nil {
+		edges = append(edges, contest.EdgeProblems)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ContestMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case contest.EdgeContestGroup:
+		ids := make([]ent.Value, 0, len(m.contest_group))
+		for id := range m.contest_group {
+			ids = append(ids, id)
+		}
+		return ids
+	case contest.EdgeProblems:
+		ids := make([]ent.Value, 0, len(m.problems))
+		for id := range m.problems {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ContestMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.removedcontest_group != nil {
+		edges = append(edges, contest.EdgeContestGroup)
+	}
+	if m.removedproblems != nil {
+		edges = append(edges, contest.EdgeProblems)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ContestMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case contest.EdgeContestGroup:
+		ids := make([]ent.Value, 0, len(m.removedcontest_group))
+		for id := range m.removedcontest_group {
+			ids = append(ids, id)
+		}
+		return ids
+	case contest.EdgeProblems:
+		ids := make([]ent.Value, 0, len(m.removedproblems))
+		for id := range m.removedproblems {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ContestMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedcontest_group {
+		edges = append(edges, contest.EdgeContestGroup)
+	}
+	if m.clearedproblems {
+		edges = append(edges, contest.EdgeProblems)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ContestMutation) EdgeCleared(name string) bool {
+	switch name {
+	case contest.EdgeContestGroup:
+		return m.clearedcontest_group
+	case contest.EdgeProblems:
+		return m.clearedproblems
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ContestMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Contest unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ContestMutation) ResetEdge(name string) error {
+	switch name {
+	case contest.EdgeContestGroup:
+		m.ResetContestGroup()
+		return nil
+	case contest.EdgeProblems:
+		m.ResetProblems()
+		return nil
+	}
 	return fmt.Errorf("unknown Contest edge %s", name)
 }
 
 // ContestGroupMutation represents an operation that mutates the ContestGroup nodes in the graph.
 type ContestGroupMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	contest_id     *int
-	addcontest_id  *int
-	group_id       *int
-	addgroup_id    *int
-	clearedFields  map[string]struct{}
-	contest        *int
-	clearedcontest bool
-	group          *int
-	clearedgroup   bool
-	done           bool
-	oldValue       func(context.Context) (*ContestGroup, error)
-	predicates     []predicate.ContestGroup
+	op              Op
+	typ             string
+	id              *int
+	contest_id      *int
+	addcontest_id   *int
+	group_id        *int
+	addgroup_id     *int
+	clearedFields   map[string]struct{}
+	contests        *int
+	clearedcontests bool
+	groups          *int
+	clearedgroups   bool
+	done            bool
+	oldValue        func(context.Context) (*ContestGroup, error)
+	predicates      []predicate.ContestGroup
 }
 
 var _ ent.Mutation = (*ContestGroupMutation)(nil)
@@ -1149,82 +1325,82 @@ func (m *ContestGroupMutation) ResetGroupID() {
 	m.addgroup_id = nil
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by id.
-func (m *ContestGroupMutation) SetContestID(id int) {
-	m.contest = &id
+// SetContestsID sets the "contests" edge to the Contest entity by id.
+func (m *ContestGroupMutation) SetContestsID(id int) {
+	m.contests = &id
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (m *ContestGroupMutation) ClearContest() {
-	m.clearedcontest = true
+// ClearContests clears the "contests" edge to the Contest entity.
+func (m *ContestGroupMutation) ClearContests() {
+	m.clearedcontests = true
 }
 
-// ContestCleared reports if the "contest" edge to the Contest entity was cleared.
-func (m *ContestGroupMutation) ContestCleared() bool {
-	return m.clearedcontest
+// ContestsCleared reports if the "contests" edge to the Contest entity was cleared.
+func (m *ContestGroupMutation) ContestsCleared() bool {
+	return m.clearedcontests
 }
 
-// ContestID returns the "contest" edge ID in the mutation.
-func (m *ContestGroupMutation) ContestID() (id int, exists bool) {
-	if m.contest != nil {
-		return *m.contest, true
+// ContestsID returns the "contests" edge ID in the mutation.
+func (m *ContestGroupMutation) ContestsID() (id int, exists bool) {
+	if m.contests != nil {
+		return *m.contests, true
 	}
 	return
 }
 
-// ContestIDs returns the "contest" edge IDs in the mutation.
+// ContestsIDs returns the "contests" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ContestID instead. It exists only for internal usage by the builders.
-func (m *ContestGroupMutation) ContestIDs() (ids []int) {
-	if id := m.contest; id != nil {
+// ContestsID instead. It exists only for internal usage by the builders.
+func (m *ContestGroupMutation) ContestsIDs() (ids []int) {
+	if id := m.contests; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetContest resets all changes to the "contest" edge.
-func (m *ContestGroupMutation) ResetContest() {
-	m.contest = nil
-	m.clearedcontest = false
+// ResetContests resets all changes to the "contests" edge.
+func (m *ContestGroupMutation) ResetContests() {
+	m.contests = nil
+	m.clearedcontests = false
 }
 
-// SetGroupID sets the "group" edge to the Group entity by id.
-func (m *ContestGroupMutation) SetGroupID(id int) {
-	m.group = &id
+// SetGroupsID sets the "groups" edge to the Group entity by id.
+func (m *ContestGroupMutation) SetGroupsID(id int) {
+	m.groups = &id
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (m *ContestGroupMutation) ClearGroup() {
-	m.clearedgroup = true
+// ClearGroups clears the "groups" edge to the Group entity.
+func (m *ContestGroupMutation) ClearGroups() {
+	m.clearedgroups = true
 }
 
-// GroupCleared reports if the "group" edge to the Group entity was cleared.
-func (m *ContestGroupMutation) GroupCleared() bool {
-	return m.clearedgroup
+// GroupsCleared reports if the "groups" edge to the Group entity was cleared.
+func (m *ContestGroupMutation) GroupsCleared() bool {
+	return m.clearedgroups
 }
 
-// GroupID returns the "group" edge ID in the mutation.
-func (m *ContestGroupMutation) GroupID() (id int, exists bool) {
-	if m.group != nil {
-		return *m.group, true
+// GroupsID returns the "groups" edge ID in the mutation.
+func (m *ContestGroupMutation) GroupsID() (id int, exists bool) {
+	if m.groups != nil {
+		return *m.groups, true
 	}
 	return
 }
 
-// GroupIDs returns the "group" edge IDs in the mutation.
+// GroupsIDs returns the "groups" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// GroupID instead. It exists only for internal usage by the builders.
-func (m *ContestGroupMutation) GroupIDs() (ids []int) {
-	if id := m.group; id != nil {
+// GroupsID instead. It exists only for internal usage by the builders.
+func (m *ContestGroupMutation) GroupsIDs() (ids []int) {
+	if id := m.groups; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetGroup resets all changes to the "group" edge.
-func (m *ContestGroupMutation) ResetGroup() {
-	m.group = nil
-	m.clearedgroup = false
+// ResetGroups resets all changes to the "groups" edge.
+func (m *ContestGroupMutation) ResetGroups() {
+	m.groups = nil
+	m.clearedgroups = false
 }
 
 // Where appends a list predicates to the ContestGroupMutation builder.
@@ -1405,11 +1581,11 @@ func (m *ContestGroupMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ContestGroupMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.contest != nil {
-		edges = append(edges, contestgroup.EdgeContest)
+	if m.contests != nil {
+		edges = append(edges, contestgroup.EdgeContests)
 	}
-	if m.group != nil {
-		edges = append(edges, contestgroup.EdgeGroup)
+	if m.groups != nil {
+		edges = append(edges, contestgroup.EdgeGroups)
 	}
 	return edges
 }
@@ -1418,12 +1594,12 @@ func (m *ContestGroupMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ContestGroupMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case contestgroup.EdgeContest:
-		if id := m.contest; id != nil {
+	case contestgroup.EdgeContests:
+		if id := m.contests; id != nil {
 			return []ent.Value{*id}
 		}
-	case contestgroup.EdgeGroup:
-		if id := m.group; id != nil {
+	case contestgroup.EdgeGroups:
+		if id := m.groups; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -1445,11 +1621,11 @@ func (m *ContestGroupMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ContestGroupMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedcontest {
-		edges = append(edges, contestgroup.EdgeContest)
+	if m.clearedcontests {
+		edges = append(edges, contestgroup.EdgeContests)
 	}
-	if m.clearedgroup {
-		edges = append(edges, contestgroup.EdgeGroup)
+	if m.clearedgroups {
+		edges = append(edges, contestgroup.EdgeGroups)
 	}
 	return edges
 }
@@ -1458,10 +1634,10 @@ func (m *ContestGroupMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ContestGroupMutation) EdgeCleared(name string) bool {
 	switch name {
-	case contestgroup.EdgeContest:
-		return m.clearedcontest
-	case contestgroup.EdgeGroup:
-		return m.clearedgroup
+	case contestgroup.EdgeContests:
+		return m.clearedcontests
+	case contestgroup.EdgeGroups:
+		return m.clearedgroups
 	}
 	return false
 }
@@ -1470,11 +1646,11 @@ func (m *ContestGroupMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ContestGroupMutation) ClearEdge(name string) error {
 	switch name {
-	case contestgroup.EdgeContest:
-		m.ClearContest()
+	case contestgroup.EdgeContests:
+		m.ClearContests()
 		return nil
-	case contestgroup.EdgeGroup:
-		m.ClearGroup()
+	case contestgroup.EdgeGroups:
+		m.ClearGroups()
 		return nil
 	}
 	return fmt.Errorf("unknown ContestGroup unique edge %s", name)
@@ -1484,11 +1660,11 @@ func (m *ContestGroupMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ContestGroupMutation) ResetEdge(name string) error {
 	switch name {
-	case contestgroup.EdgeContest:
-		m.ResetContest()
+	case contestgroup.EdgeContests:
+		m.ResetContests()
 		return nil
-	case contestgroup.EdgeGroup:
-		m.ResetGroup()
+	case contestgroup.EdgeGroups:
+		m.ResetGroups()
 		return nil
 	}
 	return fmt.Errorf("unknown ContestGroup edge %s", name)
@@ -1497,17 +1673,23 @@ func (m *ContestGroupMutation) ResetEdge(name string) error {
 // GroupMutation represents an operation that mutates the Group nodes in the graph.
 type GroupMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	group_name    *string
-	clearedFields map[string]struct{}
-	users         map[int]struct{}
-	removedusers  map[int]struct{}
-	clearedusers  bool
-	done          bool
-	oldValue      func(context.Context) (*Group, error)
-	predicates    []predicate.Group
+	op                    Op
+	typ                   string
+	id                    *int
+	group_name            *string
+	clearedFields         map[string]struct{}
+	users                 map[int]struct{}
+	removedusers          map[int]struct{}
+	clearedusers          bool
+	contest_group         map[int]struct{}
+	removedcontest_group  map[int]struct{}
+	clearedcontest_group  bool
+	problem_judges        map[int]struct{}
+	removedproblem_judges map[int]struct{}
+	clearedproblem_judges bool
+	done                  bool
+	oldValue              func(context.Context) (*Group, error)
+	predicates            []predicate.Group
 }
 
 var _ ent.Mutation = (*GroupMutation)(nil)
@@ -1704,6 +1886,114 @@ func (m *GroupMutation) ResetUsers() {
 	m.removedusers = nil
 }
 
+// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by ids.
+func (m *GroupMutation) AddContestGroupIDs(ids ...int) {
+	if m.contest_group == nil {
+		m.contest_group = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.contest_group[ids[i]] = struct{}{}
+	}
+}
+
+// ClearContestGroup clears the "contest_group" edge to the ContestGroup entity.
+func (m *GroupMutation) ClearContestGroup() {
+	m.clearedcontest_group = true
+}
+
+// ContestGroupCleared reports if the "contest_group" edge to the ContestGroup entity was cleared.
+func (m *GroupMutation) ContestGroupCleared() bool {
+	return m.clearedcontest_group
+}
+
+// RemoveContestGroupIDs removes the "contest_group" edge to the ContestGroup entity by IDs.
+func (m *GroupMutation) RemoveContestGroupIDs(ids ...int) {
+	if m.removedcontest_group == nil {
+		m.removedcontest_group = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.contest_group, ids[i])
+		m.removedcontest_group[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedContestGroup returns the removed IDs of the "contest_group" edge to the ContestGroup entity.
+func (m *GroupMutation) RemovedContestGroupIDs() (ids []int) {
+	for id := range m.removedcontest_group {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ContestGroupIDs returns the "contest_group" edge IDs in the mutation.
+func (m *GroupMutation) ContestGroupIDs() (ids []int) {
+	for id := range m.contest_group {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetContestGroup resets all changes to the "contest_group" edge.
+func (m *GroupMutation) ResetContestGroup() {
+	m.contest_group = nil
+	m.clearedcontest_group = false
+	m.removedcontest_group = nil
+}
+
+// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by ids.
+func (m *GroupMutation) AddProblemJudgeIDs(ids ...int) {
+	if m.problem_judges == nil {
+		m.problem_judges = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.problem_judges[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProblemJudges clears the "problem_judges" edge to the ProblemJudge entity.
+func (m *GroupMutation) ClearProblemJudges() {
+	m.clearedproblem_judges = true
+}
+
+// ProblemJudgesCleared reports if the "problem_judges" edge to the ProblemJudge entity was cleared.
+func (m *GroupMutation) ProblemJudgesCleared() bool {
+	return m.clearedproblem_judges
+}
+
+// RemoveProblemJudgeIDs removes the "problem_judges" edge to the ProblemJudge entity by IDs.
+func (m *GroupMutation) RemoveProblemJudgeIDs(ids ...int) {
+	if m.removedproblem_judges == nil {
+		m.removedproblem_judges = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.problem_judges, ids[i])
+		m.removedproblem_judges[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProblemJudges returns the removed IDs of the "problem_judges" edge to the ProblemJudge entity.
+func (m *GroupMutation) RemovedProblemJudgesIDs() (ids []int) {
+	for id := range m.removedproblem_judges {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProblemJudgesIDs returns the "problem_judges" edge IDs in the mutation.
+func (m *GroupMutation) ProblemJudgesIDs() (ids []int) {
+	for id := range m.problem_judges {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProblemJudges resets all changes to the "problem_judges" edge.
+func (m *GroupMutation) ResetProblemJudges() {
+	m.problem_judges = nil
+	m.clearedproblem_judges = false
+	m.removedproblem_judges = nil
+}
+
 // Where appends a list predicates to the GroupMutation builder.
 func (m *GroupMutation) Where(ps ...predicate.Group) {
 	m.predicates = append(m.predicates, ps...)
@@ -1837,9 +2127,15 @@ func (m *GroupMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *GroupMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.users != nil {
 		edges = append(edges, group.EdgeUsers)
+	}
+	if m.contest_group != nil {
+		edges = append(edges, group.EdgeContestGroup)
+	}
+	if m.problem_judges != nil {
+		edges = append(edges, group.EdgeProblemJudges)
 	}
 	return edges
 }
@@ -1854,15 +2150,33 @@ func (m *GroupMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case group.EdgeContestGroup:
+		ids := make([]ent.Value, 0, len(m.contest_group))
+		for id := range m.contest_group {
+			ids = append(ids, id)
+		}
+		return ids
+	case group.EdgeProblemJudges:
+		ids := make([]ent.Value, 0, len(m.problem_judges))
+		for id := range m.problem_judges {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *GroupMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.removedusers != nil {
 		edges = append(edges, group.EdgeUsers)
+	}
+	if m.removedcontest_group != nil {
+		edges = append(edges, group.EdgeContestGroup)
+	}
+	if m.removedproblem_judges != nil {
+		edges = append(edges, group.EdgeProblemJudges)
 	}
 	return edges
 }
@@ -1877,15 +2191,33 @@ func (m *GroupMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case group.EdgeContestGroup:
+		ids := make([]ent.Value, 0, len(m.removedcontest_group))
+		for id := range m.removedcontest_group {
+			ids = append(ids, id)
+		}
+		return ids
+	case group.EdgeProblemJudges:
+		ids := make([]ent.Value, 0, len(m.removedproblem_judges))
+		for id := range m.removedproblem_judges {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *GroupMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.clearedusers {
 		edges = append(edges, group.EdgeUsers)
+	}
+	if m.clearedcontest_group {
+		edges = append(edges, group.EdgeContestGroup)
+	}
+	if m.clearedproblem_judges {
+		edges = append(edges, group.EdgeProblemJudges)
 	}
 	return edges
 }
@@ -1896,6 +2228,10 @@ func (m *GroupMutation) EdgeCleared(name string) bool {
 	switch name {
 	case group.EdgeUsers:
 		return m.clearedusers
+	case group.EdgeContestGroup:
+		return m.clearedcontest_group
+	case group.EdgeProblemJudges:
+		return m.clearedproblem_judges
 	}
 	return false
 }
@@ -1915,6 +2251,12 @@ func (m *GroupMutation) ResetEdge(name string) error {
 	case group.EdgeUsers:
 		m.ResetUsers()
 		return nil
+	case group.EdgeContestGroup:
+		m.ResetContestGroup()
+		return nil
+	case group.EdgeProblemJudges:
+		m.ResetProblemJudges()
+		return nil
 	}
 	return fmt.Errorf("unknown Group edge %s", name)
 }
@@ -1929,9 +2271,9 @@ type LoginSessionMutation struct {
 	adduser_id    *int
 	create_time   *time.Time
 	clearedFields map[string]struct{}
-	user          map[int]struct{}
-	removeduser   map[int]struct{}
-	cleareduser   bool
+	users         map[int]struct{}
+	removedusers  map[int]struct{}
+	clearedusers  bool
 	done          bool
 	oldValue      func(context.Context) (*LoginSession, error)
 	predicates    []predicate.LoginSession
@@ -2133,58 +2475,58 @@ func (m *LoginSessionMutation) ResetCreateTime() {
 	m.create_time = nil
 }
 
-// AddUserIDs adds the "user" edge to the User entity by ids.
+// AddUserIDs adds the "users" edge to the User entity by ids.
 func (m *LoginSessionMutation) AddUserIDs(ids ...int) {
-	if m.user == nil {
-		m.user = make(map[int]struct{})
+	if m.users == nil {
+		m.users = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.user[ids[i]] = struct{}{}
+		m.users[ids[i]] = struct{}{}
 	}
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (m *LoginSessionMutation) ClearUser() {
-	m.cleareduser = true
+// ClearUsers clears the "users" edge to the User entity.
+func (m *LoginSessionMutation) ClearUsers() {
+	m.clearedusers = true
 }
 
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *LoginSessionMutation) UserCleared() bool {
-	return m.cleareduser
+// UsersCleared reports if the "users" edge to the User entity was cleared.
+func (m *LoginSessionMutation) UsersCleared() bool {
+	return m.clearedusers
 }
 
-// RemoveUserIDs removes the "user" edge to the User entity by IDs.
+// RemoveUserIDs removes the "users" edge to the User entity by IDs.
 func (m *LoginSessionMutation) RemoveUserIDs(ids ...int) {
-	if m.removeduser == nil {
-		m.removeduser = make(map[int]struct{})
+	if m.removedusers == nil {
+		m.removedusers = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.user, ids[i])
-		m.removeduser[ids[i]] = struct{}{}
+		delete(m.users, ids[i])
+		m.removedusers[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedUser returns the removed IDs of the "user" edge to the User entity.
-func (m *LoginSessionMutation) RemovedUserIDs() (ids []int) {
-	for id := range m.removeduser {
+// RemovedUsers returns the removed IDs of the "users" edge to the User entity.
+func (m *LoginSessionMutation) RemovedUsersIDs() (ids []int) {
+	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// UserIDs returns the "user" edge IDs in the mutation.
-func (m *LoginSessionMutation) UserIDs() (ids []int) {
-	for id := range m.user {
+// UsersIDs returns the "users" edge IDs in the mutation.
+func (m *LoginSessionMutation) UsersIDs() (ids []int) {
+	for id := range m.users {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetUser resets all changes to the "user" edge.
-func (m *LoginSessionMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
-	m.removeduser = nil
+// ResetUsers resets all changes to the "users" edge.
+func (m *LoginSessionMutation) ResetUsers() {
+	m.users = nil
+	m.clearedusers = false
+	m.removedusers = nil
 }
 
 // Where appends a list predicates to the LoginSessionMutation builder.
@@ -2353,8 +2695,8 @@ func (m *LoginSessionMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *LoginSessionMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.user != nil {
-		edges = append(edges, loginsession.EdgeUser)
+	if m.users != nil {
+		edges = append(edges, loginsession.EdgeUsers)
 	}
 	return edges
 }
@@ -2363,9 +2705,9 @@ func (m *LoginSessionMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *LoginSessionMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case loginsession.EdgeUser:
-		ids := make([]ent.Value, 0, len(m.user))
-		for id := range m.user {
+	case loginsession.EdgeUsers:
+		ids := make([]ent.Value, 0, len(m.users))
+		for id := range m.users {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2376,8 +2718,8 @@ func (m *LoginSessionMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *LoginSessionMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removeduser != nil {
-		edges = append(edges, loginsession.EdgeUser)
+	if m.removedusers != nil {
+		edges = append(edges, loginsession.EdgeUsers)
 	}
 	return edges
 }
@@ -2386,9 +2728,9 @@ func (m *LoginSessionMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *LoginSessionMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case loginsession.EdgeUser:
-		ids := make([]ent.Value, 0, len(m.removeduser))
-		for id := range m.removeduser {
+	case loginsession.EdgeUsers:
+		ids := make([]ent.Value, 0, len(m.removedusers))
+		for id := range m.removedusers {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2399,8 +2741,8 @@ func (m *LoginSessionMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *LoginSessionMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.cleareduser {
-		edges = append(edges, loginsession.EdgeUser)
+	if m.clearedusers {
+		edges = append(edges, loginsession.EdgeUsers)
 	}
 	return edges
 }
@@ -2409,8 +2751,8 @@ func (m *LoginSessionMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *LoginSessionMutation) EdgeCleared(name string) bool {
 	switch name {
-	case loginsession.EdgeUser:
-		return m.cleareduser
+	case loginsession.EdgeUsers:
+		return m.clearedusers
 	}
 	return false
 }
@@ -2427,8 +2769,8 @@ func (m *LoginSessionMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *LoginSessionMutation) ResetEdge(name string) error {
 	switch name {
-	case loginsession.EdgeUser:
-		m.ResetUser()
+	case loginsession.EdgeUsers:
+		m.ResetUsers()
 		return nil
 	}
 	return fmt.Errorf("unknown LoginSession edge %s", name)
@@ -2437,27 +2779,36 @@ func (m *LoginSessionMutation) ResetEdge(name string) error {
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	title           *string
-	content         *string
-	point           *int
-	addpoint        *int
-	contest_id      *int
-	addcontest_id   *int
-	case_version    *int
-	addcase_version *int
-	index           *int
-	addindex        *int
-	is_deleted      *bool
-	_config         *string
-	clearedFields   map[string]struct{}
-	contest         *int
-	clearedcontest  bool
-	done            bool
-	oldValue        func(context.Context) (*Problem, error)
-	predicates      []predicate.Problem
+	op                    Op
+	typ                   string
+	id                    *int
+	title                 *string
+	content               *string
+	point                 *int
+	addpoint              *int
+	contest_id            *int
+	addcontest_id         *int
+	case_version          *int
+	addcase_version       *int
+	index                 *int
+	addindex              *int
+	is_deleted            *bool
+	_config               *string
+	clearedFields         map[string]struct{}
+	contests              *int
+	clearedcontests       bool
+	problem_cases         map[int]struct{}
+	removedproblem_cases  map[int]struct{}
+	clearedproblem_cases  bool
+	problem_judges        map[int]struct{}
+	removedproblem_judges map[int]struct{}
+	clearedproblem_judges bool
+	submission            map[int]struct{}
+	removedsubmission     map[int]struct{}
+	clearedsubmission     bool
+	done                  bool
+	oldValue              func(context.Context) (*Problem, error)
+	predicates            []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -2932,43 +3283,205 @@ func (m *ProblemMutation) ResetConfig() {
 	m._config = nil
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by id.
-func (m *ProblemMutation) SetContestID(id int) {
-	m.contest = &id
+// SetContestsID sets the "contests" edge to the Contest entity by id.
+func (m *ProblemMutation) SetContestsID(id int) {
+	m.contests = &id
 }
 
-// ClearContest clears the "contest" edge to the Contest entity.
-func (m *ProblemMutation) ClearContest() {
-	m.clearedcontest = true
+// ClearContests clears the "contests" edge to the Contest entity.
+func (m *ProblemMutation) ClearContests() {
+	m.clearedcontests = true
 }
 
-// ContestCleared reports if the "contest" edge to the Contest entity was cleared.
-func (m *ProblemMutation) ContestCleared() bool {
-	return m.clearedcontest
+// ContestsCleared reports if the "contests" edge to the Contest entity was cleared.
+func (m *ProblemMutation) ContestsCleared() bool {
+	return m.clearedcontests
 }
 
-// ContestID returns the "contest" edge ID in the mutation.
-func (m *ProblemMutation) ContestID() (id int, exists bool) {
-	if m.contest != nil {
-		return *m.contest, true
+// ContestsID returns the "contests" edge ID in the mutation.
+func (m *ProblemMutation) ContestsID() (id int, exists bool) {
+	if m.contests != nil {
+		return *m.contests, true
 	}
 	return
 }
 
-// ContestIDs returns the "contest" edge IDs in the mutation.
+// ContestsIDs returns the "contests" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ContestID instead. It exists only for internal usage by the builders.
-func (m *ProblemMutation) ContestIDs() (ids []int) {
-	if id := m.contest; id != nil {
+// ContestsID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) ContestsIDs() (ids []int) {
+	if id := m.contests; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetContest resets all changes to the "contest" edge.
-func (m *ProblemMutation) ResetContest() {
-	m.contest = nil
-	m.clearedcontest = false
+// ResetContests resets all changes to the "contests" edge.
+func (m *ProblemMutation) ResetContests() {
+	m.contests = nil
+	m.clearedcontests = false
+}
+
+// AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by ids.
+func (m *ProblemMutation) AddProblemCaseIDs(ids ...int) {
+	if m.problem_cases == nil {
+		m.problem_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.problem_cases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
+func (m *ProblemMutation) ClearProblemCases() {
+	m.clearedproblem_cases = true
+}
+
+// ProblemCasesCleared reports if the "problem_cases" edge to the ProblemCase entity was cleared.
+func (m *ProblemMutation) ProblemCasesCleared() bool {
+	return m.clearedproblem_cases
+}
+
+// RemoveProblemCaseIDs removes the "problem_cases" edge to the ProblemCase entity by IDs.
+func (m *ProblemMutation) RemoveProblemCaseIDs(ids ...int) {
+	if m.removedproblem_cases == nil {
+		m.removedproblem_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.problem_cases, ids[i])
+		m.removedproblem_cases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProblemCases returns the removed IDs of the "problem_cases" edge to the ProblemCase entity.
+func (m *ProblemMutation) RemovedProblemCasesIDs() (ids []int) {
+	for id := range m.removedproblem_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProblemCasesIDs returns the "problem_cases" edge IDs in the mutation.
+func (m *ProblemMutation) ProblemCasesIDs() (ids []int) {
+	for id := range m.problem_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProblemCases resets all changes to the "problem_cases" edge.
+func (m *ProblemMutation) ResetProblemCases() {
+	m.problem_cases = nil
+	m.clearedproblem_cases = false
+	m.removedproblem_cases = nil
+}
+
+// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by ids.
+func (m *ProblemMutation) AddProblemJudgeIDs(ids ...int) {
+	if m.problem_judges == nil {
+		m.problem_judges = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.problem_judges[ids[i]] = struct{}{}
+	}
+}
+
+// ClearProblemJudges clears the "problem_judges" edge to the ProblemJudge entity.
+func (m *ProblemMutation) ClearProblemJudges() {
+	m.clearedproblem_judges = true
+}
+
+// ProblemJudgesCleared reports if the "problem_judges" edge to the ProblemJudge entity was cleared.
+func (m *ProblemMutation) ProblemJudgesCleared() bool {
+	return m.clearedproblem_judges
+}
+
+// RemoveProblemJudgeIDs removes the "problem_judges" edge to the ProblemJudge entity by IDs.
+func (m *ProblemMutation) RemoveProblemJudgeIDs(ids ...int) {
+	if m.removedproblem_judges == nil {
+		m.removedproblem_judges = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.problem_judges, ids[i])
+		m.removedproblem_judges[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProblemJudges returns the removed IDs of the "problem_judges" edge to the ProblemJudge entity.
+func (m *ProblemMutation) RemovedProblemJudgesIDs() (ids []int) {
+	for id := range m.removedproblem_judges {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ProblemJudgesIDs returns the "problem_judges" edge IDs in the mutation.
+func (m *ProblemMutation) ProblemJudgesIDs() (ids []int) {
+	for id := range m.problem_judges {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetProblemJudges resets all changes to the "problem_judges" edge.
+func (m *ProblemMutation) ResetProblemJudges() {
+	m.problem_judges = nil
+	m.clearedproblem_judges = false
+	m.removedproblem_judges = nil
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by ids.
+func (m *ProblemMutation) AddSubmissionIDs(ids ...int) {
+	if m.submission == nil {
+		m.submission = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submission[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (m *ProblemMutation) ClearSubmission() {
+	m.clearedsubmission = true
+}
+
+// SubmissionCleared reports if the "submission" edge to the Submit entity was cleared.
+func (m *ProblemMutation) SubmissionCleared() bool {
+	return m.clearedsubmission
+}
+
+// RemoveSubmissionIDs removes the "submission" edge to the Submit entity by IDs.
+func (m *ProblemMutation) RemoveSubmissionIDs(ids ...int) {
+	if m.removedsubmission == nil {
+		m.removedsubmission = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submission, ids[i])
+		m.removedsubmission[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmission returns the removed IDs of the "submission" edge to the Submit entity.
+func (m *ProblemMutation) RemovedSubmissionIDs() (ids []int) {
+	for id := range m.removedsubmission {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmissionIDs returns the "submission" edge IDs in the mutation.
+func (m *ProblemMutation) SubmissionIDs() (ids []int) {
+	for id := range m.submission {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmission resets all changes to the "submission" edge.
+func (m *ProblemMutation) ResetSubmission() {
+	m.submission = nil
+	m.clearedsubmission = false
+	m.removedsubmission = nil
 }
 
 // Where appends a list predicates to the ProblemMutation builder.
@@ -3274,9 +3787,18 @@ func (m *ProblemMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProblemMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.contest != nil {
-		edges = append(edges, problem.EdgeContest)
+	edges := make([]string, 0, 4)
+	if m.contests != nil {
+		edges = append(edges, problem.EdgeContests)
+	}
+	if m.problem_cases != nil {
+		edges = append(edges, problem.EdgeProblemCases)
+	}
+	if m.problem_judges != nil {
+		edges = append(edges, problem.EdgeProblemJudges)
+	}
+	if m.submission != nil {
+		edges = append(edges, problem.EdgeSubmission)
 	}
 	return edges
 }
@@ -3285,31 +3807,87 @@ func (m *ProblemMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case problem.EdgeContest:
-		if id := m.contest; id != nil {
+	case problem.EdgeContests:
+		if id := m.contests; id != nil {
 			return []ent.Value{*id}
 		}
+	case problem.EdgeProblemCases:
+		ids := make([]ent.Value, 0, len(m.problem_cases))
+		for id := range m.problem_cases {
+			ids = append(ids, id)
+		}
+		return ids
+	case problem.EdgeProblemJudges:
+		ids := make([]ent.Value, 0, len(m.problem_judges))
+		for id := range m.problem_judges {
+			ids = append(ids, id)
+		}
+		return ids
+	case problem.EdgeSubmission:
+		ids := make([]ent.Value, 0, len(m.submission))
+		for id := range m.submission {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProblemMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 4)
+	if m.removedproblem_cases != nil {
+		edges = append(edges, problem.EdgeProblemCases)
+	}
+	if m.removedproblem_judges != nil {
+		edges = append(edges, problem.EdgeProblemJudges)
+	}
+	if m.removedsubmission != nil {
+		edges = append(edges, problem.EdgeSubmission)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ProblemMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case problem.EdgeProblemCases:
+		ids := make([]ent.Value, 0, len(m.removedproblem_cases))
+		for id := range m.removedproblem_cases {
+			ids = append(ids, id)
+		}
+		return ids
+	case problem.EdgeProblemJudges:
+		ids := make([]ent.Value, 0, len(m.removedproblem_judges))
+		for id := range m.removedproblem_judges {
+			ids = append(ids, id)
+		}
+		return ids
+	case problem.EdgeSubmission:
+		ids := make([]ent.Value, 0, len(m.removedsubmission))
+		for id := range m.removedsubmission {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProblemMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedcontest {
-		edges = append(edges, problem.EdgeContest)
+	edges := make([]string, 0, 4)
+	if m.clearedcontests {
+		edges = append(edges, problem.EdgeContests)
+	}
+	if m.clearedproblem_cases {
+		edges = append(edges, problem.EdgeProblemCases)
+	}
+	if m.clearedproblem_judges {
+		edges = append(edges, problem.EdgeProblemJudges)
+	}
+	if m.clearedsubmission {
+		edges = append(edges, problem.EdgeSubmission)
 	}
 	return edges
 }
@@ -3318,8 +3896,14 @@ func (m *ProblemMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProblemMutation) EdgeCleared(name string) bool {
 	switch name {
-	case problem.EdgeContest:
-		return m.clearedcontest
+	case problem.EdgeContests:
+		return m.clearedcontests
+	case problem.EdgeProblemCases:
+		return m.clearedproblem_cases
+	case problem.EdgeProblemJudges:
+		return m.clearedproblem_judges
+	case problem.EdgeSubmission:
+		return m.clearedsubmission
 	}
 	return false
 }
@@ -3328,8 +3912,8 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ProblemMutation) ClearEdge(name string) error {
 	switch name {
-	case problem.EdgeContest:
-		m.ClearContest()
+	case problem.EdgeContests:
+		m.ClearContests()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem unique edge %s", name)
@@ -3339,8 +3923,17 @@ func (m *ProblemMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProblemMutation) ResetEdge(name string) error {
 	switch name {
-	case problem.EdgeContest:
-		m.ResetContest()
+	case problem.EdgeContests:
+		m.ResetContests()
+		return nil
+	case problem.EdgeProblemCases:
+		m.ResetProblemCases()
+		return nil
+	case problem.EdgeProblemJudges:
+		m.ResetProblemJudges()
+		return nil
+	case problem.EdgeSubmission:
+		m.ResetSubmission()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem edge %s", name)
@@ -3349,23 +3942,26 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 // ProblemCaseMutation represents an operation that mutates the ProblemCase nodes in the graph.
 type ProblemCaseMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	problem_id     *int
-	addproblem_id  *int
-	point          *int
-	addpoint       *int
-	index          *int
-	addindex       *int
-	is_auto        *bool
-	is_deleted     *bool
-	clearedFields  map[string]struct{}
-	problem        *int
-	clearedproblem bool
-	done           bool
-	oldValue       func(context.Context) (*ProblemCase, error)
-	predicates     []predicate.ProblemCase
+	op                  Op
+	typ                 string
+	id                  *int
+	problem_id          *int
+	addproblem_id       *int
+	point               *int
+	addpoint            *int
+	index               *int
+	addindex            *int
+	is_auto             *bool
+	is_deleted          *bool
+	clearedFields       map[string]struct{}
+	problems            *int
+	clearedproblems     bool
+	submit_cases        map[int]struct{}
+	removedsubmit_cases map[int]struct{}
+	clearedsubmit_cases bool
+	done                bool
+	oldValue            func(context.Context) (*ProblemCase, error)
+	predicates          []predicate.ProblemCase
 }
 
 var _ ent.Mutation = (*ProblemCaseMutation)(nil)
@@ -3712,43 +4308,97 @@ func (m *ProblemCaseMutation) ResetIsDeleted() {
 	m.is_deleted = nil
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by id.
-func (m *ProblemCaseMutation) SetProblemID(id int) {
-	m.problem = &id
+// SetProblemsID sets the "problems" edge to the Problem entity by id.
+func (m *ProblemCaseMutation) SetProblemsID(id int) {
+	m.problems = &id
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (m *ProblemCaseMutation) ClearProblem() {
-	m.clearedproblem = true
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (m *ProblemCaseMutation) ClearProblems() {
+	m.clearedproblems = true
 }
 
-// ProblemCleared reports if the "problem" edge to the Problem entity was cleared.
-func (m *ProblemCaseMutation) ProblemCleared() bool {
-	return m.clearedproblem
+// ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
+func (m *ProblemCaseMutation) ProblemsCleared() bool {
+	return m.clearedproblems
 }
 
-// ProblemID returns the "problem" edge ID in the mutation.
-func (m *ProblemCaseMutation) ProblemID() (id int, exists bool) {
-	if m.problem != nil {
-		return *m.problem, true
+// ProblemsID returns the "problems" edge ID in the mutation.
+func (m *ProblemCaseMutation) ProblemsID() (id int, exists bool) {
+	if m.problems != nil {
+		return *m.problems, true
 	}
 	return
 }
 
-// ProblemIDs returns the "problem" edge IDs in the mutation.
+// ProblemsIDs returns the "problems" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProblemID instead. It exists only for internal usage by the builders.
-func (m *ProblemCaseMutation) ProblemIDs() (ids []int) {
-	if id := m.problem; id != nil {
+// ProblemsID instead. It exists only for internal usage by the builders.
+func (m *ProblemCaseMutation) ProblemsIDs() (ids []int) {
+	if id := m.problems; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProblem resets all changes to the "problem" edge.
-func (m *ProblemCaseMutation) ResetProblem() {
-	m.problem = nil
-	m.clearedproblem = false
+// ResetProblems resets all changes to the "problems" edge.
+func (m *ProblemCaseMutation) ResetProblems() {
+	m.problems = nil
+	m.clearedproblems = false
+}
+
+// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
+func (m *ProblemCaseMutation) AddSubmitCaseIDs(ids ...int) {
+	if m.submit_cases == nil {
+		m.submit_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submit_cases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmitCases clears the "submit_cases" edge to the SubmitCase entity.
+func (m *ProblemCaseMutation) ClearSubmitCases() {
+	m.clearedsubmit_cases = true
+}
+
+// SubmitCasesCleared reports if the "submit_cases" edge to the SubmitCase entity was cleared.
+func (m *ProblemCaseMutation) SubmitCasesCleared() bool {
+	return m.clearedsubmit_cases
+}
+
+// RemoveSubmitCaseIDs removes the "submit_cases" edge to the SubmitCase entity by IDs.
+func (m *ProblemCaseMutation) RemoveSubmitCaseIDs(ids ...int) {
+	if m.removedsubmit_cases == nil {
+		m.removedsubmit_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submit_cases, ids[i])
+		m.removedsubmit_cases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmitCases returns the removed IDs of the "submit_cases" edge to the SubmitCase entity.
+func (m *ProblemCaseMutation) RemovedSubmitCasesIDs() (ids []int) {
+	for id := range m.removedsubmit_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmitCasesIDs returns the "submit_cases" edge IDs in the mutation.
+func (m *ProblemCaseMutation) SubmitCasesIDs() (ids []int) {
+	for id := range m.submit_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmitCases resets all changes to the "submit_cases" edge.
+func (m *ProblemCaseMutation) ResetSubmitCases() {
+	m.submit_cases = nil
+	m.clearedsubmit_cases = false
+	m.removedsubmit_cases = nil
 }
 
 // Where appends a list predicates to the ProblemCaseMutation builder.
@@ -3991,9 +4641,12 @@ func (m *ProblemCaseMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProblemCaseMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.problem != nil {
-		edges = append(edges, problemcase.EdgeProblem)
+	edges := make([]string, 0, 2)
+	if m.problems != nil {
+		edges = append(edges, problemcase.EdgeProblems)
+	}
+	if m.submit_cases != nil {
+		edges = append(edges, problemcase.EdgeSubmitCases)
 	}
 	return edges
 }
@@ -4002,31 +4655,51 @@ func (m *ProblemCaseMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProblemCaseMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case problemcase.EdgeProblem:
-		if id := m.problem; id != nil {
+	case problemcase.EdgeProblems:
+		if id := m.problems; id != nil {
 			return []ent.Value{*id}
 		}
+	case problemcase.EdgeSubmitCases:
+		ids := make([]ent.Value, 0, len(m.submit_cases))
+		for id := range m.submit_cases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProblemCaseMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.removedsubmit_cases != nil {
+		edges = append(edges, problemcase.EdgeSubmitCases)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ProblemCaseMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case problemcase.EdgeSubmitCases:
+		ids := make([]ent.Value, 0, len(m.removedsubmit_cases))
+		for id := range m.removedsubmit_cases {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProblemCaseMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedproblem {
-		edges = append(edges, problemcase.EdgeProblem)
+	edges := make([]string, 0, 2)
+	if m.clearedproblems {
+		edges = append(edges, problemcase.EdgeProblems)
+	}
+	if m.clearedsubmit_cases {
+		edges = append(edges, problemcase.EdgeSubmitCases)
 	}
 	return edges
 }
@@ -4035,8 +4708,10 @@ func (m *ProblemCaseMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProblemCaseMutation) EdgeCleared(name string) bool {
 	switch name {
-	case problemcase.EdgeProblem:
-		return m.clearedproblem
+	case problemcase.EdgeProblems:
+		return m.clearedproblems
+	case problemcase.EdgeSubmitCases:
+		return m.clearedsubmit_cases
 	}
 	return false
 }
@@ -4045,8 +4720,8 @@ func (m *ProblemCaseMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ProblemCaseMutation) ClearEdge(name string) error {
 	switch name {
-	case problemcase.EdgeProblem:
-		m.ClearProblem()
+	case problemcase.EdgeProblems:
+		m.ClearProblems()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase unique edge %s", name)
@@ -4056,8 +4731,11 @@ func (m *ProblemCaseMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProblemCaseMutation) ResetEdge(name string) error {
 	switch name {
-	case problemcase.EdgeProblem:
-		m.ResetProblem()
+	case problemcase.EdgeProblems:
+		m.ResetProblems()
+		return nil
+	case problemcase.EdgeSubmitCases:
+		m.ResetSubmitCases()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase edge %s", name)
@@ -4066,21 +4744,21 @@ func (m *ProblemCaseMutation) ResetEdge(name string) error {
 // ProblemJudgeMutation represents an operation that mutates the ProblemJudge nodes in the graph.
 type ProblemJudgeMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	group_id       *int
-	addgroup_id    *int
-	problem_id     *int
-	addproblem_id  *int
-	clearedFields  map[string]struct{}
-	group          *int
-	clearedgroup   bool
-	problem        *int
-	clearedproblem bool
-	done           bool
-	oldValue       func(context.Context) (*ProblemJudge, error)
-	predicates     []predicate.ProblemJudge
+	op              Op
+	typ             string
+	id              *int
+	group_id        *int
+	addgroup_id     *int
+	problem_id      *int
+	addproblem_id   *int
+	clearedFields   map[string]struct{}
+	groups          *int
+	clearedgroups   bool
+	problems        *int
+	clearedproblems bool
+	done            bool
+	oldValue        func(context.Context) (*ProblemJudge, error)
+	predicates      []predicate.ProblemJudge
 }
 
 var _ ent.Mutation = (*ProblemJudgeMutation)(nil)
@@ -4299,82 +4977,82 @@ func (m *ProblemJudgeMutation) ResetProblemID() {
 	m.addproblem_id = nil
 }
 
-// SetGroupID sets the "group" edge to the Group entity by id.
-func (m *ProblemJudgeMutation) SetGroupID(id int) {
-	m.group = &id
+// SetGroupsID sets the "groups" edge to the Group entity by id.
+func (m *ProblemJudgeMutation) SetGroupsID(id int) {
+	m.groups = &id
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (m *ProblemJudgeMutation) ClearGroup() {
-	m.clearedgroup = true
+// ClearGroups clears the "groups" edge to the Group entity.
+func (m *ProblemJudgeMutation) ClearGroups() {
+	m.clearedgroups = true
 }
 
-// GroupCleared reports if the "group" edge to the Group entity was cleared.
-func (m *ProblemJudgeMutation) GroupCleared() bool {
-	return m.clearedgroup
+// GroupsCleared reports if the "groups" edge to the Group entity was cleared.
+func (m *ProblemJudgeMutation) GroupsCleared() bool {
+	return m.clearedgroups
 }
 
-// GroupID returns the "group" edge ID in the mutation.
-func (m *ProblemJudgeMutation) GroupID() (id int, exists bool) {
-	if m.group != nil {
-		return *m.group, true
+// GroupsID returns the "groups" edge ID in the mutation.
+func (m *ProblemJudgeMutation) GroupsID() (id int, exists bool) {
+	if m.groups != nil {
+		return *m.groups, true
 	}
 	return
 }
 
-// GroupIDs returns the "group" edge IDs in the mutation.
+// GroupsIDs returns the "groups" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// GroupID instead. It exists only for internal usage by the builders.
-func (m *ProblemJudgeMutation) GroupIDs() (ids []int) {
-	if id := m.group; id != nil {
+// GroupsID instead. It exists only for internal usage by the builders.
+func (m *ProblemJudgeMutation) GroupsIDs() (ids []int) {
+	if id := m.groups; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetGroup resets all changes to the "group" edge.
-func (m *ProblemJudgeMutation) ResetGroup() {
-	m.group = nil
-	m.clearedgroup = false
+// ResetGroups resets all changes to the "groups" edge.
+func (m *ProblemJudgeMutation) ResetGroups() {
+	m.groups = nil
+	m.clearedgroups = false
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by id.
-func (m *ProblemJudgeMutation) SetProblemID(id int) {
-	m.problem = &id
+// SetProblemsID sets the "problems" edge to the Problem entity by id.
+func (m *ProblemJudgeMutation) SetProblemsID(id int) {
+	m.problems = &id
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (m *ProblemJudgeMutation) ClearProblem() {
-	m.clearedproblem = true
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (m *ProblemJudgeMutation) ClearProblems() {
+	m.clearedproblems = true
 }
 
-// ProblemCleared reports if the "problem" edge to the Problem entity was cleared.
-func (m *ProblemJudgeMutation) ProblemCleared() bool {
-	return m.clearedproblem
+// ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
+func (m *ProblemJudgeMutation) ProblemsCleared() bool {
+	return m.clearedproblems
 }
 
-// ProblemID returns the "problem" edge ID in the mutation.
-func (m *ProblemJudgeMutation) ProblemID() (id int, exists bool) {
-	if m.problem != nil {
-		return *m.problem, true
+// ProblemsID returns the "problems" edge ID in the mutation.
+func (m *ProblemJudgeMutation) ProblemsID() (id int, exists bool) {
+	if m.problems != nil {
+		return *m.problems, true
 	}
 	return
 }
 
-// ProblemIDs returns the "problem" edge IDs in the mutation.
+// ProblemsIDs returns the "problems" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProblemID instead. It exists only for internal usage by the builders.
-func (m *ProblemJudgeMutation) ProblemIDs() (ids []int) {
-	if id := m.problem; id != nil {
+// ProblemsID instead. It exists only for internal usage by the builders.
+func (m *ProblemJudgeMutation) ProblemsIDs() (ids []int) {
+	if id := m.problems; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProblem resets all changes to the "problem" edge.
-func (m *ProblemJudgeMutation) ResetProblem() {
-	m.problem = nil
-	m.clearedproblem = false
+// ResetProblems resets all changes to the "problems" edge.
+func (m *ProblemJudgeMutation) ResetProblems() {
+	m.problems = nil
+	m.clearedproblems = false
 }
 
 // Where appends a list predicates to the ProblemJudgeMutation builder.
@@ -4555,11 +5233,11 @@ func (m *ProblemJudgeMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProblemJudgeMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.group != nil {
-		edges = append(edges, problemjudge.EdgeGroup)
+	if m.groups != nil {
+		edges = append(edges, problemjudge.EdgeGroups)
 	}
-	if m.problem != nil {
-		edges = append(edges, problemjudge.EdgeProblem)
+	if m.problems != nil {
+		edges = append(edges, problemjudge.EdgeProblems)
 	}
 	return edges
 }
@@ -4568,12 +5246,12 @@ func (m *ProblemJudgeMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProblemJudgeMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case problemjudge.EdgeGroup:
-		if id := m.group; id != nil {
+	case problemjudge.EdgeGroups:
+		if id := m.groups; id != nil {
 			return []ent.Value{*id}
 		}
-	case problemjudge.EdgeProblem:
-		if id := m.problem; id != nil {
+	case problemjudge.EdgeProblems:
+		if id := m.problems; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -4595,11 +5273,11 @@ func (m *ProblemJudgeMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProblemJudgeMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedgroup {
-		edges = append(edges, problemjudge.EdgeGroup)
+	if m.clearedgroups {
+		edges = append(edges, problemjudge.EdgeGroups)
 	}
-	if m.clearedproblem {
-		edges = append(edges, problemjudge.EdgeProblem)
+	if m.clearedproblems {
+		edges = append(edges, problemjudge.EdgeProblems)
 	}
 	return edges
 }
@@ -4608,10 +5286,10 @@ func (m *ProblemJudgeMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProblemJudgeMutation) EdgeCleared(name string) bool {
 	switch name {
-	case problemjudge.EdgeGroup:
-		return m.clearedgroup
-	case problemjudge.EdgeProblem:
-		return m.clearedproblem
+	case problemjudge.EdgeGroups:
+		return m.clearedgroups
+	case problemjudge.EdgeProblems:
+		return m.clearedproblems
 	}
 	return false
 }
@@ -4620,11 +5298,11 @@ func (m *ProblemJudgeMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ProblemJudgeMutation) ClearEdge(name string) error {
 	switch name {
-	case problemjudge.EdgeGroup:
-		m.ClearGroup()
+	case problemjudge.EdgeGroups:
+		m.ClearGroups()
 		return nil
-	case problemjudge.EdgeProblem:
-		m.ClearProblem()
+	case problemjudge.EdgeProblems:
+		m.ClearProblems()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemJudge unique edge %s", name)
@@ -4634,11 +5312,11 @@ func (m *ProblemJudgeMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProblemJudgeMutation) ResetEdge(name string) error {
 	switch name {
-	case problemjudge.EdgeGroup:
-		m.ResetGroup()
+	case problemjudge.EdgeGroups:
+		m.ResetGroups()
 		return nil
-	case problemjudge.EdgeProblem:
-		m.ResetProblem()
+	case problemjudge.EdgeProblems:
+		m.ResetProblems()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemJudge edge %s", name)
@@ -4647,33 +5325,39 @@ func (m *ProblemJudgeMutation) ResetEdge(name string) error {
 // SubmitMutation represents an operation that mutates the Submit nodes in the graph.
 type SubmitMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	user_id         *int
-	adduser_id      *int
-	problem_id      *int
-	addproblem_id   *int
-	code            *string
-	state           *int
-	addstate        *int
-	point           *int
-	addpoint        *int
-	create_time     *time.Time
-	total_time      *time.Time
-	max_memory      *int
-	addmax_memory   *int
-	language        *string
-	case_version    *int
-	addcase_version *int
-	clearedFields   map[string]struct{}
-	user            *int
-	cleareduser     bool
-	problem         *int
-	clearedproblem  bool
-	done            bool
-	oldValue        func(context.Context) (*Submit, error)
-	predicates      []predicate.Submit
+	op                  Op
+	typ                 string
+	id                  *int
+	user_id             *int
+	adduser_id          *int
+	problem_id          *int
+	addproblem_id       *int
+	code                *string
+	state               *int
+	addstate            *int
+	point               *int
+	addpoint            *int
+	create_time         *time.Time
+	total_time          *time.Time
+	max_memory          *int
+	addmax_memory       *int
+	language            *string
+	case_version        *int
+	addcase_version     *int
+	clearedFields       map[string]struct{}
+	users               *int
+	clearedusers        bool
+	problems            *int
+	clearedproblems     bool
+	submit_judge        map[int]struct{}
+	removedsubmit_judge map[int]struct{}
+	clearedsubmit_judge bool
+	submit_cases        map[int]struct{}
+	removedsubmit_cases map[int]struct{}
+	clearedsubmit_cases bool
+	done                bool
+	oldValue            func(context.Context) (*Submit, error)
+	predicates          []predicate.Submit
 }
 
 var _ ent.Mutation = (*SubmitMutation)(nil)
@@ -5260,82 +5944,190 @@ func (m *SubmitMutation) ResetCaseVersion() {
 	m.addcase_version = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *SubmitMutation) SetUserID(id int) {
-	m.user = &id
+// SetUsersID sets the "users" edge to the User entity by id.
+func (m *SubmitMutation) SetUsersID(id int) {
+	m.users = &id
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (m *SubmitMutation) ClearUser() {
-	m.cleareduser = true
+// ClearUsers clears the "users" edge to the User entity.
+func (m *SubmitMutation) ClearUsers() {
+	m.clearedusers = true
 }
 
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *SubmitMutation) UserCleared() bool {
-	return m.cleareduser
+// UsersCleared reports if the "users" edge to the User entity was cleared.
+func (m *SubmitMutation) UsersCleared() bool {
+	return m.clearedusers
 }
 
-// UserID returns the "user" edge ID in the mutation.
-func (m *SubmitMutation) UserID() (id int, exists bool) {
-	if m.user != nil {
-		return *m.user, true
+// UsersID returns the "users" edge ID in the mutation.
+func (m *SubmitMutation) UsersID() (id int, exists bool) {
+	if m.users != nil {
+		return *m.users, true
 	}
 	return
 }
 
-// UserIDs returns the "user" edge IDs in the mutation.
+// UsersIDs returns the "users" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *SubmitMutation) UserIDs() (ids []int) {
-	if id := m.user; id != nil {
+// UsersID instead. It exists only for internal usage by the builders.
+func (m *SubmitMutation) UsersIDs() (ids []int) {
+	if id := m.users; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetUser resets all changes to the "user" edge.
-func (m *SubmitMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
+// ResetUsers resets all changes to the "users" edge.
+func (m *SubmitMutation) ResetUsers() {
+	m.users = nil
+	m.clearedusers = false
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by id.
-func (m *SubmitMutation) SetProblemID(id int) {
-	m.problem = &id
+// SetProblemsID sets the "problems" edge to the Problem entity by id.
+func (m *SubmitMutation) SetProblemsID(id int) {
+	m.problems = &id
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (m *SubmitMutation) ClearProblem() {
-	m.clearedproblem = true
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (m *SubmitMutation) ClearProblems() {
+	m.clearedproblems = true
 }
 
-// ProblemCleared reports if the "problem" edge to the Problem entity was cleared.
-func (m *SubmitMutation) ProblemCleared() bool {
-	return m.clearedproblem
+// ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
+func (m *SubmitMutation) ProblemsCleared() bool {
+	return m.clearedproblems
 }
 
-// ProblemID returns the "problem" edge ID in the mutation.
-func (m *SubmitMutation) ProblemID() (id int, exists bool) {
-	if m.problem != nil {
-		return *m.problem, true
+// ProblemsID returns the "problems" edge ID in the mutation.
+func (m *SubmitMutation) ProblemsID() (id int, exists bool) {
+	if m.problems != nil {
+		return *m.problems, true
 	}
 	return
 }
 
-// ProblemIDs returns the "problem" edge IDs in the mutation.
+// ProblemsIDs returns the "problems" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProblemID instead. It exists only for internal usage by the builders.
-func (m *SubmitMutation) ProblemIDs() (ids []int) {
-	if id := m.problem; id != nil {
+// ProblemsID instead. It exists only for internal usage by the builders.
+func (m *SubmitMutation) ProblemsIDs() (ids []int) {
+	if id := m.problems; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProblem resets all changes to the "problem" edge.
-func (m *SubmitMutation) ResetProblem() {
-	m.problem = nil
-	m.clearedproblem = false
+// ResetProblems resets all changes to the "problems" edge.
+func (m *SubmitMutation) ResetProblems() {
+	m.problems = nil
+	m.clearedproblems = false
+}
+
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by ids.
+func (m *SubmitMutation) AddSubmitJudgeIDs(ids ...int) {
+	if m.submit_judge == nil {
+		m.submit_judge = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submit_judge[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmitJudge clears the "submit_judge" edge to the SubmitJudge entity.
+func (m *SubmitMutation) ClearSubmitJudge() {
+	m.clearedsubmit_judge = true
+}
+
+// SubmitJudgeCleared reports if the "submit_judge" edge to the SubmitJudge entity was cleared.
+func (m *SubmitMutation) SubmitJudgeCleared() bool {
+	return m.clearedsubmit_judge
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (m *SubmitMutation) RemoveSubmitJudgeIDs(ids ...int) {
+	if m.removedsubmit_judge == nil {
+		m.removedsubmit_judge = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submit_judge, ids[i])
+		m.removedsubmit_judge[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmitJudge returns the removed IDs of the "submit_judge" edge to the SubmitJudge entity.
+func (m *SubmitMutation) RemovedSubmitJudgeIDs() (ids []int) {
+	for id := range m.removedsubmit_judge {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmitJudgeIDs returns the "submit_judge" edge IDs in the mutation.
+func (m *SubmitMutation) SubmitJudgeIDs() (ids []int) {
+	for id := range m.submit_judge {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmitJudge resets all changes to the "submit_judge" edge.
+func (m *SubmitMutation) ResetSubmitJudge() {
+	m.submit_judge = nil
+	m.clearedsubmit_judge = false
+	m.removedsubmit_judge = nil
+}
+
+// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
+func (m *SubmitMutation) AddSubmitCaseIDs(ids ...int) {
+	if m.submit_cases == nil {
+		m.submit_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submit_cases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmitCases clears the "submit_cases" edge to the SubmitCase entity.
+func (m *SubmitMutation) ClearSubmitCases() {
+	m.clearedsubmit_cases = true
+}
+
+// SubmitCasesCleared reports if the "submit_cases" edge to the SubmitCase entity was cleared.
+func (m *SubmitMutation) SubmitCasesCleared() bool {
+	return m.clearedsubmit_cases
+}
+
+// RemoveSubmitCaseIDs removes the "submit_cases" edge to the SubmitCase entity by IDs.
+func (m *SubmitMutation) RemoveSubmitCaseIDs(ids ...int) {
+	if m.removedsubmit_cases == nil {
+		m.removedsubmit_cases = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submit_cases, ids[i])
+		m.removedsubmit_cases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmitCases returns the removed IDs of the "submit_cases" edge to the SubmitCase entity.
+func (m *SubmitMutation) RemovedSubmitCasesIDs() (ids []int) {
+	for id := range m.removedsubmit_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmitCasesIDs returns the "submit_cases" edge IDs in the mutation.
+func (m *SubmitMutation) SubmitCasesIDs() (ids []int) {
+	for id := range m.submit_cases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmitCases resets all changes to the "submit_cases" edge.
+func (m *SubmitMutation) ResetSubmitCases() {
+	m.submit_cases = nil
+	m.clearedsubmit_cases = false
+	m.removedsubmit_cases = nil
 }
 
 // Where appends a list predicates to the SubmitMutation builder.
@@ -5699,12 +6491,18 @@ func (m *SubmitMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SubmitMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.user != nil {
-		edges = append(edges, submit.EdgeUser)
+	edges := make([]string, 0, 4)
+	if m.users != nil {
+		edges = append(edges, submit.EdgeUsers)
 	}
-	if m.problem != nil {
-		edges = append(edges, submit.EdgeProblem)
+	if m.problems != nil {
+		edges = append(edges, submit.EdgeProblems)
+	}
+	if m.submit_judge != nil {
+		edges = append(edges, submit.EdgeSubmitJudge)
+	}
+	if m.submit_cases != nil {
+		edges = append(edges, submit.EdgeSubmitCases)
 	}
 	return edges
 }
@@ -5713,38 +6511,76 @@ func (m *SubmitMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *SubmitMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case submit.EdgeUser:
-		if id := m.user; id != nil {
+	case submit.EdgeUsers:
+		if id := m.users; id != nil {
 			return []ent.Value{*id}
 		}
-	case submit.EdgeProblem:
-		if id := m.problem; id != nil {
+	case submit.EdgeProblems:
+		if id := m.problems; id != nil {
 			return []ent.Value{*id}
 		}
+	case submit.EdgeSubmitJudge:
+		ids := make([]ent.Value, 0, len(m.submit_judge))
+		for id := range m.submit_judge {
+			ids = append(ids, id)
+		}
+		return ids
+	case submit.EdgeSubmitCases:
+		ids := make([]ent.Value, 0, len(m.submit_cases))
+		for id := range m.submit_cases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SubmitMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
+	if m.removedsubmit_judge != nil {
+		edges = append(edges, submit.EdgeSubmitJudge)
+	}
+	if m.removedsubmit_cases != nil {
+		edges = append(edges, submit.EdgeSubmitCases)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *SubmitMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case submit.EdgeSubmitJudge:
+		ids := make([]ent.Value, 0, len(m.removedsubmit_judge))
+		for id := range m.removedsubmit_judge {
+			ids = append(ids, id)
+		}
+		return ids
+	case submit.EdgeSubmitCases:
+		ids := make([]ent.Value, 0, len(m.removedsubmit_cases))
+		for id := range m.removedsubmit_cases {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SubmitMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.cleareduser {
-		edges = append(edges, submit.EdgeUser)
+	edges := make([]string, 0, 4)
+	if m.clearedusers {
+		edges = append(edges, submit.EdgeUsers)
 	}
-	if m.clearedproblem {
-		edges = append(edges, submit.EdgeProblem)
+	if m.clearedproblems {
+		edges = append(edges, submit.EdgeProblems)
+	}
+	if m.clearedsubmit_judge {
+		edges = append(edges, submit.EdgeSubmitJudge)
+	}
+	if m.clearedsubmit_cases {
+		edges = append(edges, submit.EdgeSubmitCases)
 	}
 	return edges
 }
@@ -5753,10 +6589,14 @@ func (m *SubmitMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *SubmitMutation) EdgeCleared(name string) bool {
 	switch name {
-	case submit.EdgeUser:
-		return m.cleareduser
-	case submit.EdgeProblem:
-		return m.clearedproblem
+	case submit.EdgeUsers:
+		return m.clearedusers
+	case submit.EdgeProblems:
+		return m.clearedproblems
+	case submit.EdgeSubmitJudge:
+		return m.clearedsubmit_judge
+	case submit.EdgeSubmitCases:
+		return m.clearedsubmit_cases
 	}
 	return false
 }
@@ -5765,11 +6605,11 @@ func (m *SubmitMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SubmitMutation) ClearEdge(name string) error {
 	switch name {
-	case submit.EdgeUser:
-		m.ClearUser()
+	case submit.EdgeUsers:
+		m.ClearUsers()
 		return nil
-	case submit.EdgeProblem:
-		m.ClearProblem()
+	case submit.EdgeProblems:
+		m.ClearProblems()
 		return nil
 	}
 	return fmt.Errorf("unknown Submit unique edge %s", name)
@@ -5779,11 +6619,17 @@ func (m *SubmitMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *SubmitMutation) ResetEdge(name string) error {
 	switch name {
-	case submit.EdgeUser:
-		m.ResetUser()
+	case submit.EdgeUsers:
+		m.ResetUsers()
 		return nil
-	case submit.EdgeProblem:
-		m.ResetProblem()
+	case submit.EdgeProblems:
+		m.ResetProblems()
+		return nil
+	case submit.EdgeSubmitJudge:
+		m.ResetSubmitJudge()
+		return nil
+	case submit.EdgeSubmitCases:
+		m.ResetSubmitCases()
 		return nil
 	}
 	return fmt.Errorf("unknown Submit edge %s", name)
@@ -5792,30 +6638,30 @@ func (m *SubmitMutation) ResetEdge(name string) error {
 // SubmitCaseMutation represents an operation that mutates the SubmitCase nodes in the graph.
 type SubmitCaseMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *int
-	submit_id           *int
-	addsubmit_id        *int
-	case_id             *int
-	addcase_id          *int
-	state               *int
-	addstate            *int
-	point               *int
-	addpoint            *int
-	message             *string
-	time                *int
-	addtime             *int
-	memory              *int
-	addmemory           *int
-	clearedFields       map[string]struct{}
-	submit              *int
-	clearedsubmit       bool
-	problem_case        *int
-	clearedproblem_case bool
-	done                bool
-	oldValue            func(context.Context) (*SubmitCase, error)
-	predicates          []predicate.SubmitCase
+	op                   Op
+	typ                  string
+	id                   *int
+	submit_id            *int
+	addsubmit_id         *int
+	case_id              *int
+	addcase_id           *int
+	state                *int
+	addstate             *int
+	point                *int
+	addpoint             *int
+	message              *string
+	time                 *int
+	addtime              *int
+	memory               *int
+	addmemory            *int
+	clearedFields        map[string]struct{}
+	submission           *int
+	clearedsubmission    bool
+	problem_cases        *int
+	clearedproblem_cases bool
+	done                 bool
+	oldValue             func(context.Context) (*SubmitCase, error)
+	predicates           []predicate.SubmitCase
 }
 
 var _ ent.Mutation = (*SubmitCaseMutation)(nil)
@@ -6294,82 +7140,82 @@ func (m *SubmitCaseMutation) ResetMemory() {
 	m.addmemory = nil
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by id.
-func (m *SubmitCaseMutation) SetSubmitID(id int) {
-	m.submit = &id
+// SetSubmissionID sets the "submission" edge to the Submit entity by id.
+func (m *SubmitCaseMutation) SetSubmissionID(id int) {
+	m.submission = &id
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (m *SubmitCaseMutation) ClearSubmit() {
-	m.clearedsubmit = true
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (m *SubmitCaseMutation) ClearSubmission() {
+	m.clearedsubmission = true
 }
 
-// SubmitCleared reports if the "submit" edge to the Submit entity was cleared.
-func (m *SubmitCaseMutation) SubmitCleared() bool {
-	return m.clearedsubmit
+// SubmissionCleared reports if the "submission" edge to the Submit entity was cleared.
+func (m *SubmitCaseMutation) SubmissionCleared() bool {
+	return m.clearedsubmission
 }
 
-// SubmitID returns the "submit" edge ID in the mutation.
-func (m *SubmitCaseMutation) SubmitID() (id int, exists bool) {
-	if m.submit != nil {
-		return *m.submit, true
+// SubmissionID returns the "submission" edge ID in the mutation.
+func (m *SubmitCaseMutation) SubmissionID() (id int, exists bool) {
+	if m.submission != nil {
+		return *m.submission, true
 	}
 	return
 }
 
-// SubmitIDs returns the "submit" edge IDs in the mutation.
+// SubmissionIDs returns the "submission" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// SubmitID instead. It exists only for internal usage by the builders.
-func (m *SubmitCaseMutation) SubmitIDs() (ids []int) {
-	if id := m.submit; id != nil {
+// SubmissionID instead. It exists only for internal usage by the builders.
+func (m *SubmitCaseMutation) SubmissionIDs() (ids []int) {
+	if id := m.submission; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetSubmit resets all changes to the "submit" edge.
-func (m *SubmitCaseMutation) ResetSubmit() {
-	m.submit = nil
-	m.clearedsubmit = false
+// ResetSubmission resets all changes to the "submission" edge.
+func (m *SubmitCaseMutation) ResetSubmission() {
+	m.submission = nil
+	m.clearedsubmission = false
 }
 
-// SetProblemCaseID sets the "problem_case" edge to the ProblemCase entity by id.
-func (m *SubmitCaseMutation) SetProblemCaseID(id int) {
-	m.problem_case = &id
+// SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by id.
+func (m *SubmitCaseMutation) SetProblemCasesID(id int) {
+	m.problem_cases = &id
 }
 
-// ClearProblemCase clears the "problem_case" edge to the ProblemCase entity.
-func (m *SubmitCaseMutation) ClearProblemCase() {
-	m.clearedproblem_case = true
+// ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
+func (m *SubmitCaseMutation) ClearProblemCases() {
+	m.clearedproblem_cases = true
 }
 
-// ProblemCaseCleared reports if the "problem_case" edge to the ProblemCase entity was cleared.
-func (m *SubmitCaseMutation) ProblemCaseCleared() bool {
-	return m.clearedproblem_case
+// ProblemCasesCleared reports if the "problem_cases" edge to the ProblemCase entity was cleared.
+func (m *SubmitCaseMutation) ProblemCasesCleared() bool {
+	return m.clearedproblem_cases
 }
 
-// ProblemCaseID returns the "problem_case" edge ID in the mutation.
-func (m *SubmitCaseMutation) ProblemCaseID() (id int, exists bool) {
-	if m.problem_case != nil {
-		return *m.problem_case, true
+// ProblemCasesID returns the "problem_cases" edge ID in the mutation.
+func (m *SubmitCaseMutation) ProblemCasesID() (id int, exists bool) {
+	if m.problem_cases != nil {
+		return *m.problem_cases, true
 	}
 	return
 }
 
-// ProblemCaseIDs returns the "problem_case" edge IDs in the mutation.
+// ProblemCasesIDs returns the "problem_cases" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProblemCaseID instead. It exists only for internal usage by the builders.
-func (m *SubmitCaseMutation) ProblemCaseIDs() (ids []int) {
-	if id := m.problem_case; id != nil {
+// ProblemCasesID instead. It exists only for internal usage by the builders.
+func (m *SubmitCaseMutation) ProblemCasesIDs() (ids []int) {
+	if id := m.problem_cases; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProblemCase resets all changes to the "problem_case" edge.
-func (m *SubmitCaseMutation) ResetProblemCase() {
-	m.problem_case = nil
-	m.clearedproblem_case = false
+// ResetProblemCases resets all changes to the "problem_cases" edge.
+func (m *SubmitCaseMutation) ResetProblemCases() {
+	m.problem_cases = nil
+	m.clearedproblem_cases = false
 }
 
 // Where appends a list predicates to the SubmitCaseMutation builder.
@@ -6683,11 +7529,11 @@ func (m *SubmitCaseMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SubmitCaseMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.submit != nil {
-		edges = append(edges, submitcase.EdgeSubmit)
+	if m.submission != nil {
+		edges = append(edges, submitcase.EdgeSubmission)
 	}
-	if m.problem_case != nil {
-		edges = append(edges, submitcase.EdgeProblemCase)
+	if m.problem_cases != nil {
+		edges = append(edges, submitcase.EdgeProblemCases)
 	}
 	return edges
 }
@@ -6696,12 +7542,12 @@ func (m *SubmitCaseMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *SubmitCaseMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case submitcase.EdgeSubmit:
-		if id := m.submit; id != nil {
+	case submitcase.EdgeSubmission:
+		if id := m.submission; id != nil {
 			return []ent.Value{*id}
 		}
-	case submitcase.EdgeProblemCase:
-		if id := m.problem_case; id != nil {
+	case submitcase.EdgeProblemCases:
+		if id := m.problem_cases; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -6723,11 +7569,11 @@ func (m *SubmitCaseMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SubmitCaseMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedsubmit {
-		edges = append(edges, submitcase.EdgeSubmit)
+	if m.clearedsubmission {
+		edges = append(edges, submitcase.EdgeSubmission)
 	}
-	if m.clearedproblem_case {
-		edges = append(edges, submitcase.EdgeProblemCase)
+	if m.clearedproblem_cases {
+		edges = append(edges, submitcase.EdgeProblemCases)
 	}
 	return edges
 }
@@ -6736,10 +7582,10 @@ func (m *SubmitCaseMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *SubmitCaseMutation) EdgeCleared(name string) bool {
 	switch name {
-	case submitcase.EdgeSubmit:
-		return m.clearedsubmit
-	case submitcase.EdgeProblemCase:
-		return m.clearedproblem_case
+	case submitcase.EdgeSubmission:
+		return m.clearedsubmission
+	case submitcase.EdgeProblemCases:
+		return m.clearedproblem_cases
 	}
 	return false
 }
@@ -6748,11 +7594,11 @@ func (m *SubmitCaseMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SubmitCaseMutation) ClearEdge(name string) error {
 	switch name {
-	case submitcase.EdgeSubmit:
-		m.ClearSubmit()
+	case submitcase.EdgeSubmission:
+		m.ClearSubmission()
 		return nil
-	case submitcase.EdgeProblemCase:
-		m.ClearProblemCase()
+	case submitcase.EdgeProblemCases:
+		m.ClearProblemCases()
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitCase unique edge %s", name)
@@ -6762,11 +7608,11 @@ func (m *SubmitCaseMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *SubmitCaseMutation) ResetEdge(name string) error {
 	switch name {
-	case submitcase.EdgeSubmit:
-		m.ResetSubmit()
+	case submitcase.EdgeSubmission:
+		m.ResetSubmission()
 		return nil
-	case submitcase.EdgeProblemCase:
-		m.ResetProblemCase()
+	case submitcase.EdgeProblemCases:
+		m.ResetProblemCases()
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitCase edge %s", name)
@@ -6775,21 +7621,21 @@ func (m *SubmitCaseMutation) ResetEdge(name string) error {
 // SubmitJudgeMutation represents an operation that mutates the SubmitJudge nodes in the graph.
 type SubmitJudgeMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	user_id       *int
-	adduser_id    *int
-	submit_id     *int
-	addsubmit_id  *int
-	clearedFields map[string]struct{}
-	submit        *int
-	clearedsubmit bool
-	user          *int
-	cleareduser   bool
-	done          bool
-	oldValue      func(context.Context) (*SubmitJudge, error)
-	predicates    []predicate.SubmitJudge
+	op                Op
+	typ               string
+	id                *int
+	user_id           *int
+	adduser_id        *int
+	submit_id         *int
+	addsubmit_id      *int
+	clearedFields     map[string]struct{}
+	submission        *int
+	clearedsubmission bool
+	users             *int
+	clearedusers      bool
+	done              bool
+	oldValue          func(context.Context) (*SubmitJudge, error)
+	predicates        []predicate.SubmitJudge
 }
 
 var _ ent.Mutation = (*SubmitJudgeMutation)(nil)
@@ -7008,82 +7854,82 @@ func (m *SubmitJudgeMutation) ResetSubmitID() {
 	m.addsubmit_id = nil
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by id.
-func (m *SubmitJudgeMutation) SetSubmitID(id int) {
-	m.submit = &id
+// SetSubmissionID sets the "submission" edge to the Submit entity by id.
+func (m *SubmitJudgeMutation) SetSubmissionID(id int) {
+	m.submission = &id
 }
 
-// ClearSubmit clears the "submit" edge to the Submit entity.
-func (m *SubmitJudgeMutation) ClearSubmit() {
-	m.clearedsubmit = true
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (m *SubmitJudgeMutation) ClearSubmission() {
+	m.clearedsubmission = true
 }
 
-// SubmitCleared reports if the "submit" edge to the Submit entity was cleared.
-func (m *SubmitJudgeMutation) SubmitCleared() bool {
-	return m.clearedsubmit
+// SubmissionCleared reports if the "submission" edge to the Submit entity was cleared.
+func (m *SubmitJudgeMutation) SubmissionCleared() bool {
+	return m.clearedsubmission
 }
 
-// SubmitID returns the "submit" edge ID in the mutation.
-func (m *SubmitJudgeMutation) SubmitID() (id int, exists bool) {
-	if m.submit != nil {
-		return *m.submit, true
+// SubmissionID returns the "submission" edge ID in the mutation.
+func (m *SubmitJudgeMutation) SubmissionID() (id int, exists bool) {
+	if m.submission != nil {
+		return *m.submission, true
 	}
 	return
 }
 
-// SubmitIDs returns the "submit" edge IDs in the mutation.
+// SubmissionIDs returns the "submission" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// SubmitID instead. It exists only for internal usage by the builders.
-func (m *SubmitJudgeMutation) SubmitIDs() (ids []int) {
-	if id := m.submit; id != nil {
+// SubmissionID instead. It exists only for internal usage by the builders.
+func (m *SubmitJudgeMutation) SubmissionIDs() (ids []int) {
+	if id := m.submission; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetSubmit resets all changes to the "submit" edge.
-func (m *SubmitJudgeMutation) ResetSubmit() {
-	m.submit = nil
-	m.clearedsubmit = false
+// ResetSubmission resets all changes to the "submission" edge.
+func (m *SubmitJudgeMutation) ResetSubmission() {
+	m.submission = nil
+	m.clearedsubmission = false
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *SubmitJudgeMutation) SetUserID(id int) {
-	m.user = &id
+// SetUsersID sets the "users" edge to the User entity by id.
+func (m *SubmitJudgeMutation) SetUsersID(id int) {
+	m.users = &id
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (m *SubmitJudgeMutation) ClearUser() {
-	m.cleareduser = true
+// ClearUsers clears the "users" edge to the User entity.
+func (m *SubmitJudgeMutation) ClearUsers() {
+	m.clearedusers = true
 }
 
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *SubmitJudgeMutation) UserCleared() bool {
-	return m.cleareduser
+// UsersCleared reports if the "users" edge to the User entity was cleared.
+func (m *SubmitJudgeMutation) UsersCleared() bool {
+	return m.clearedusers
 }
 
-// UserID returns the "user" edge ID in the mutation.
-func (m *SubmitJudgeMutation) UserID() (id int, exists bool) {
-	if m.user != nil {
-		return *m.user, true
+// UsersID returns the "users" edge ID in the mutation.
+func (m *SubmitJudgeMutation) UsersID() (id int, exists bool) {
+	if m.users != nil {
+		return *m.users, true
 	}
 	return
 }
 
-// UserIDs returns the "user" edge IDs in the mutation.
+// UsersIDs returns the "users" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *SubmitJudgeMutation) UserIDs() (ids []int) {
-	if id := m.user; id != nil {
+// UsersID instead. It exists only for internal usage by the builders.
+func (m *SubmitJudgeMutation) UsersIDs() (ids []int) {
+	if id := m.users; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetUser resets all changes to the "user" edge.
-func (m *SubmitJudgeMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
+// ResetUsers resets all changes to the "users" edge.
+func (m *SubmitJudgeMutation) ResetUsers() {
+	m.users = nil
+	m.clearedusers = false
 }
 
 // Where appends a list predicates to the SubmitJudgeMutation builder.
@@ -7264,11 +8110,11 @@ func (m *SubmitJudgeMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SubmitJudgeMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.submit != nil {
-		edges = append(edges, submitjudge.EdgeSubmit)
+	if m.submission != nil {
+		edges = append(edges, submitjudge.EdgeSubmission)
 	}
-	if m.user != nil {
-		edges = append(edges, submitjudge.EdgeUser)
+	if m.users != nil {
+		edges = append(edges, submitjudge.EdgeUsers)
 	}
 	return edges
 }
@@ -7277,12 +8123,12 @@ func (m *SubmitJudgeMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *SubmitJudgeMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case submitjudge.EdgeSubmit:
-		if id := m.submit; id != nil {
+	case submitjudge.EdgeSubmission:
+		if id := m.submission; id != nil {
 			return []ent.Value{*id}
 		}
-	case submitjudge.EdgeUser:
-		if id := m.user; id != nil {
+	case submitjudge.EdgeUsers:
+		if id := m.users; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -7304,11 +8150,11 @@ func (m *SubmitJudgeMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SubmitJudgeMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedsubmit {
-		edges = append(edges, submitjudge.EdgeSubmit)
+	if m.clearedsubmission {
+		edges = append(edges, submitjudge.EdgeSubmission)
 	}
-	if m.cleareduser {
-		edges = append(edges, submitjudge.EdgeUser)
+	if m.clearedusers {
+		edges = append(edges, submitjudge.EdgeUsers)
 	}
 	return edges
 }
@@ -7317,10 +8163,10 @@ func (m *SubmitJudgeMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *SubmitJudgeMutation) EdgeCleared(name string) bool {
 	switch name {
-	case submitjudge.EdgeSubmit:
-		return m.clearedsubmit
-	case submitjudge.EdgeUser:
-		return m.cleareduser
+	case submitjudge.EdgeSubmission:
+		return m.clearedsubmission
+	case submitjudge.EdgeUsers:
+		return m.clearedusers
 	}
 	return false
 }
@@ -7329,11 +8175,11 @@ func (m *SubmitJudgeMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SubmitJudgeMutation) ClearEdge(name string) error {
 	switch name {
-	case submitjudge.EdgeSubmit:
-		m.ClearSubmit()
+	case submitjudge.EdgeSubmission:
+		m.ClearSubmission()
 		return nil
-	case submitjudge.EdgeUser:
-		m.ClearUser()
+	case submitjudge.EdgeUsers:
+		m.ClearUsers()
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitJudge unique edge %s", name)
@@ -7343,11 +8189,11 @@ func (m *SubmitJudgeMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *SubmitJudgeMutation) ResetEdge(name string) error {
 	switch name {
-	case submitjudge.EdgeSubmit:
-		m.ResetSubmit()
+	case submitjudge.EdgeSubmission:
+		m.ResetSubmission()
 		return nil
-	case submitjudge.EdgeUser:
-		m.ResetUser()
+	case submitjudge.EdgeUsers:
+		m.ResetUsers()
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitJudge edge %s", name)
@@ -7356,20 +8202,31 @@ func (m *SubmitJudgeMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	username      *string
-	password      *string
-	salt          *string
-	state         *int
-	addstate      *int
-	group_id      *int
-	addgroup_id   *int
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*User, error)
-	predicates    []predicate.User
+	op                   Op
+	typ                  string
+	id                   *int
+	username             *string
+	password             *string
+	salt                 *string
+	state                *int
+	addstate             *int
+	group_id             *int
+	addgroup_id          *int
+	clearedFields        map[string]struct{}
+	submit_judge         map[int]struct{}
+	removedsubmit_judge  map[int]struct{}
+	clearedsubmit_judge  bool
+	groups               *int
+	clearedgroups        bool
+	submission           map[int]struct{}
+	removedsubmission    map[int]struct{}
+	clearedsubmission    bool
+	login_session        map[int]struct{}
+	removedlogin_session map[int]struct{}
+	clearedlogin_session bool
+	done                 bool
+	oldValue             func(context.Context) (*User, error)
+	predicates           []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -7696,6 +8553,207 @@ func (m *UserMutation) ResetGroupID() {
 	m.addgroup_id = nil
 }
 
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by ids.
+func (m *UserMutation) AddSubmitJudgeIDs(ids ...int) {
+	if m.submit_judge == nil {
+		m.submit_judge = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submit_judge[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmitJudge clears the "submit_judge" edge to the SubmitJudge entity.
+func (m *UserMutation) ClearSubmitJudge() {
+	m.clearedsubmit_judge = true
+}
+
+// SubmitJudgeCleared reports if the "submit_judge" edge to the SubmitJudge entity was cleared.
+func (m *UserMutation) SubmitJudgeCleared() bool {
+	return m.clearedsubmit_judge
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (m *UserMutation) RemoveSubmitJudgeIDs(ids ...int) {
+	if m.removedsubmit_judge == nil {
+		m.removedsubmit_judge = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submit_judge, ids[i])
+		m.removedsubmit_judge[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmitJudge returns the removed IDs of the "submit_judge" edge to the SubmitJudge entity.
+func (m *UserMutation) RemovedSubmitJudgeIDs() (ids []int) {
+	for id := range m.removedsubmit_judge {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmitJudgeIDs returns the "submit_judge" edge IDs in the mutation.
+func (m *UserMutation) SubmitJudgeIDs() (ids []int) {
+	for id := range m.submit_judge {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmitJudge resets all changes to the "submit_judge" edge.
+func (m *UserMutation) ResetSubmitJudge() {
+	m.submit_judge = nil
+	m.clearedsubmit_judge = false
+	m.removedsubmit_judge = nil
+}
+
+// SetGroupsID sets the "groups" edge to the Group entity by id.
+func (m *UserMutation) SetGroupsID(id int) {
+	m.groups = &id
+}
+
+// ClearGroups clears the "groups" edge to the Group entity.
+func (m *UserMutation) ClearGroups() {
+	m.clearedgroups = true
+}
+
+// GroupsCleared reports if the "groups" edge to the Group entity was cleared.
+func (m *UserMutation) GroupsCleared() bool {
+	return m.clearedgroups
+}
+
+// GroupsID returns the "groups" edge ID in the mutation.
+func (m *UserMutation) GroupsID() (id int, exists bool) {
+	if m.groups != nil {
+		return *m.groups, true
+	}
+	return
+}
+
+// GroupsIDs returns the "groups" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GroupsID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) GroupsIDs() (ids []int) {
+	if id := m.groups; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGroups resets all changes to the "groups" edge.
+func (m *UserMutation) ResetGroups() {
+	m.groups = nil
+	m.clearedgroups = false
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by ids.
+func (m *UserMutation) AddSubmissionIDs(ids ...int) {
+	if m.submission == nil {
+		m.submission = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.submission[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSubmission clears the "submission" edge to the Submit entity.
+func (m *UserMutation) ClearSubmission() {
+	m.clearedsubmission = true
+}
+
+// SubmissionCleared reports if the "submission" edge to the Submit entity was cleared.
+func (m *UserMutation) SubmissionCleared() bool {
+	return m.clearedsubmission
+}
+
+// RemoveSubmissionIDs removes the "submission" edge to the Submit entity by IDs.
+func (m *UserMutation) RemoveSubmissionIDs(ids ...int) {
+	if m.removedsubmission == nil {
+		m.removedsubmission = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.submission, ids[i])
+		m.removedsubmission[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSubmission returns the removed IDs of the "submission" edge to the Submit entity.
+func (m *UserMutation) RemovedSubmissionIDs() (ids []int) {
+	for id := range m.removedsubmission {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SubmissionIDs returns the "submission" edge IDs in the mutation.
+func (m *UserMutation) SubmissionIDs() (ids []int) {
+	for id := range m.submission {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSubmission resets all changes to the "submission" edge.
+func (m *UserMutation) ResetSubmission() {
+	m.submission = nil
+	m.clearedsubmission = false
+	m.removedsubmission = nil
+}
+
+// AddLoginSessionIDs adds the "login_session" edge to the LoginSession entity by ids.
+func (m *UserMutation) AddLoginSessionIDs(ids ...int) {
+	if m.login_session == nil {
+		m.login_session = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.login_session[ids[i]] = struct{}{}
+	}
+}
+
+// ClearLoginSession clears the "login_session" edge to the LoginSession entity.
+func (m *UserMutation) ClearLoginSession() {
+	m.clearedlogin_session = true
+}
+
+// LoginSessionCleared reports if the "login_session" edge to the LoginSession entity was cleared.
+func (m *UserMutation) LoginSessionCleared() bool {
+	return m.clearedlogin_session
+}
+
+// RemoveLoginSessionIDs removes the "login_session" edge to the LoginSession entity by IDs.
+func (m *UserMutation) RemoveLoginSessionIDs(ids ...int) {
+	if m.removedlogin_session == nil {
+		m.removedlogin_session = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.login_session, ids[i])
+		m.removedlogin_session[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedLoginSession returns the removed IDs of the "login_session" edge to the LoginSession entity.
+func (m *UserMutation) RemovedLoginSessionIDs() (ids []int) {
+	for id := range m.removedlogin_session {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// LoginSessionIDs returns the "login_session" edge IDs in the mutation.
+func (m *UserMutation) LoginSessionIDs() (ids []int) {
+	for id := range m.login_session {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetLoginSession resets all changes to the "login_session" edge.
+func (m *UserMutation) ResetLoginSession() {
+	m.login_session = nil
+	m.clearedlogin_session = false
+	m.removedlogin_session = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -7924,48 +8982,154 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m.submit_judge != nil {
+		edges = append(edges, user.EdgeSubmitJudge)
+	}
+	if m.groups != nil {
+		edges = append(edges, user.EdgeGroups)
+	}
+	if m.submission != nil {
+		edges = append(edges, user.EdgeSubmission)
+	}
+	if m.login_session != nil {
+		edges = append(edges, user.EdgeLoginSession)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeSubmitJudge:
+		ids := make([]ent.Value, 0, len(m.submit_judge))
+		for id := range m.submit_judge {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeGroups:
+		if id := m.groups; id != nil {
+			return []ent.Value{*id}
+		}
+	case user.EdgeSubmission:
+		ids := make([]ent.Value, 0, len(m.submission))
+		for id := range m.submission {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeLoginSession:
+		ids := make([]ent.Value, 0, len(m.login_session))
+		for id := range m.login_session {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m.removedsubmit_judge != nil {
+		edges = append(edges, user.EdgeSubmitJudge)
+	}
+	if m.removedsubmission != nil {
+		edges = append(edges, user.EdgeSubmission)
+	}
+	if m.removedlogin_session != nil {
+		edges = append(edges, user.EdgeLoginSession)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *UserMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeSubmitJudge:
+		ids := make([]ent.Value, 0, len(m.removedsubmit_judge))
+		for id := range m.removedsubmit_judge {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeSubmission:
+		ids := make([]ent.Value, 0, len(m.removedsubmission))
+		for id := range m.removedsubmission {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeLoginSession:
+		ids := make([]ent.Value, 0, len(m.removedlogin_session))
+		for id := range m.removedlogin_session {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m.clearedsubmit_judge {
+		edges = append(edges, user.EdgeSubmitJudge)
+	}
+	if m.clearedgroups {
+		edges = append(edges, user.EdgeGroups)
+	}
+	if m.clearedsubmission {
+		edges = append(edges, user.EdgeSubmission)
+	}
+	if m.clearedlogin_session {
+		edges = append(edges, user.EdgeLoginSession)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case user.EdgeSubmitJudge:
+		return m.clearedsubmit_judge
+	case user.EdgeGroups:
+		return m.clearedgroups
+	case user.EdgeSubmission:
+		return m.clearedsubmission
+	case user.EdgeLoginSession:
+		return m.clearedlogin_session
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
+	switch name {
+	case user.EdgeGroups:
+		m.ClearGroups()
+		return nil
+	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
+	switch name {
+	case user.EdgeSubmitJudge:
+		m.ResetSubmitJudge()
+		return nil
+	case user.EdgeGroups:
+		m.ResetGroups()
+		return nil
+	case user.EdgeSubmission:
+		m.ResetSubmission()
+		return nil
+	case user.EdgeLoginSession:
+		m.ResetLoginSession()
+		return nil
+	}
 	return fmt.Errorf("unknown User edge %s", name)
 }

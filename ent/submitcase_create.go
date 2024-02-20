@@ -69,42 +69,42 @@ func (scc *SubmitCaseCreate) SetID(i int) *SubmitCaseCreate {
 	return scc
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (scc *SubmitCaseCreate) SetSubmitID(id int) *SubmitCaseCreate {
-	scc.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (scc *SubmitCaseCreate) SetSubmissionID(id int) *SubmitCaseCreate {
+	scc.mutation.SetSubmissionID(id)
 	return scc
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (scc *SubmitCaseCreate) SetNillableSubmitID(id *int) *SubmitCaseCreate {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (scc *SubmitCaseCreate) SetNillableSubmissionID(id *int) *SubmitCaseCreate {
 	if id != nil {
-		scc = scc.SetSubmitID(*id)
+		scc = scc.SetSubmissionID(*id)
 	}
 	return scc
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (scc *SubmitCaseCreate) SetSubmit(s *Submit) *SubmitCaseCreate {
-	return scc.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (scc *SubmitCaseCreate) SetSubmission(s *Submit) *SubmitCaseCreate {
+	return scc.SetSubmissionID(s.ID)
 }
 
-// SetProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID.
-func (scc *SubmitCaseCreate) SetProblemCaseID(id int) *SubmitCaseCreate {
-	scc.mutation.SetProblemCaseID(id)
+// SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
+func (scc *SubmitCaseCreate) SetProblemCasesID(id int) *SubmitCaseCreate {
+	scc.mutation.SetProblemCasesID(id)
 	return scc
 }
 
-// SetNillableProblemCaseID sets the "problem_case" edge to the ProblemCase entity by ID if the given value is not nil.
-func (scc *SubmitCaseCreate) SetNillableProblemCaseID(id *int) *SubmitCaseCreate {
+// SetNillableProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID if the given value is not nil.
+func (scc *SubmitCaseCreate) SetNillableProblemCasesID(id *int) *SubmitCaseCreate {
 	if id != nil {
-		scc = scc.SetProblemCaseID(*id)
+		scc = scc.SetProblemCasesID(*id)
 	}
 	return scc
 }
 
-// SetProblemCase sets the "problem_case" edge to the ProblemCase entity.
-func (scc *SubmitCaseCreate) SetProblemCase(p *ProblemCase) *SubmitCaseCreate {
-	return scc.SetProblemCaseID(p.ID)
+// SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
+func (scc *SubmitCaseCreate) SetProblemCases(p *ProblemCase) *SubmitCaseCreate {
+	return scc.SetProblemCasesID(p.ID)
 }
 
 // Mutation returns the SubmitCaseMutation object of the builder.
@@ -237,12 +237,12 @@ func (scc *SubmitCaseCreate) createSpec() (*SubmitCase, *sqlgraph.CreateSpec) {
 		_spec.SetField(submitcase.FieldMemory, field.TypeInt, value)
 		_node.Memory = value
 	}
-	if nodes := scc.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := scc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.SubmitTable,
-			Columns: []string{submitcase.SubmitColumn},
+			Inverse: true,
+			Table:   submitcase.SubmissionTable,
+			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -251,15 +251,15 @@ func (scc *SubmitCaseCreate) createSpec() (*SubmitCase, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_case_submit = &nodes[0]
+		_node.submit_submit_cases = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := scc.mutation.ProblemCaseIDs(); len(nodes) > 0 {
+	if nodes := scc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitcase.ProblemCaseTable,
-			Columns: []string{submitcase.ProblemCaseColumn},
+			Inverse: true,
+			Table:   submitcase.ProblemCasesTable,
+			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
@@ -268,7 +268,7 @@ func (scc *SubmitCaseCreate) createSpec() (*SubmitCase, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_case_problem_case = &nodes[0]
+		_node.problem_case_submit_cases = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

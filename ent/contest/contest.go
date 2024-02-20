@@ -4,6 +4,7 @@ package contest
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -29,8 +30,26 @@ const (
 	FieldExtraTime = "extra_time"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
+	// EdgeContestGroup holds the string denoting the contest_group edge name in mutations.
+	EdgeContestGroup = "contest_group"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
+	// ContestGroupTable is the table that holds the contest_group relation/edge.
+	ContestGroupTable = "contest_group"
+	// ContestGroupInverseTable is the table name for the ContestGroup entity.
+	// It exists in this package in order to avoid circular dependency with the "contestgroup" package.
+	ContestGroupInverseTable = "contest_group"
+	// ContestGroupColumn is the table column denoting the contest_group relation/edge.
+	ContestGroupColumn = "contest_contest_group"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "problems"
+	// ProblemsInverseTable is the table name for the Problem entity.
+	// It exists in this package in order to avoid circular dependency with the "problem" package.
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "contest_problems"
 )
 
 // Columns holds all SQL columns for contest fields.
@@ -117,4 +136,46 @@ func ByExtraTime(opts ...sql.OrderTermOption) OrderOption {
 // ByCreateTime orders the results by the create_time field.
 func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
+}
+
+// ByContestGroupCount orders the results by contest_group count.
+func ByContestGroupCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestGroupStep(), opts...)
+	}
+}
+
+// ByContestGroup orders the results by contest_group terms.
+func ByContestGroup(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestGroupStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByProblemsCount orders the results by problems count.
+func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProblemsStep(), opts...)
+	}
+}
+
+// ByProblems orders the results by problems terms.
+func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newContestGroupStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestGroupInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
+	)
+}
+func newProblemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
 }

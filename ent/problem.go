@@ -35,31 +35,64 @@ type Problem struct {
 	Config string `json:"config,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
-	Edges           ProblemEdges `json:"edges"`
-	problem_contest *int
-	selectValues    sql.SelectValues
+	Edges            ProblemEdges `json:"edges"`
+	contest_problems *int
+	selectValues     sql.SelectValues
 }
 
 // ProblemEdges holds the relations/edges for other nodes in the graph.
 type ProblemEdges struct {
-	// Contest holds the value of the contest edge.
-	Contest *Contest `json:"contest,omitempty"`
+	// Contests holds the value of the contests edge.
+	Contests *Contest `json:"contests,omitempty"`
+	// ProblemCases holds the value of the problem_cases edge.
+	ProblemCases []*ProblemCase `json:"problem_cases,omitempty"`
+	// ProblemJudges holds the value of the problem_judges edge.
+	ProblemJudges []*ProblemJudge `json:"problem_judges,omitempty"`
+	// Submission holds the value of the submission edge.
+	Submission []*Submit `json:"submission,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [4]bool
 }
 
-// ContestOrErr returns the Contest value or an error if the edge
+// ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemEdges) ContestOrErr() (*Contest, error) {
+func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
 	if e.loadedTypes[0] {
-		if e.Contest == nil {
+		if e.Contests == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: contest.Label}
 		}
-		return e.Contest, nil
+		return e.Contests, nil
 	}
-	return nil, &NotLoadedError{edge: "contest"}
+	return nil, &NotLoadedError{edge: "contests"}
+}
+
+// ProblemCasesOrErr returns the ProblemCases value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ProblemCasesOrErr() ([]*ProblemCase, error) {
+	if e.loadedTypes[1] {
+		return e.ProblemCases, nil
+	}
+	return nil, &NotLoadedError{edge: "problem_cases"}
+}
+
+// ProblemJudgesOrErr returns the ProblemJudges value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) ProblemJudgesOrErr() ([]*ProblemJudge, error) {
+	if e.loadedTypes[2] {
+		return e.ProblemJudges, nil
+	}
+	return nil, &NotLoadedError{edge: "problem_judges"}
+}
+
+// SubmissionOrErr returns the Submission value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) SubmissionOrErr() ([]*Submit, error) {
+	if e.loadedTypes[3] {
+		return e.Submission, nil
+	}
+	return nil, &NotLoadedError{edge: "submission"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -73,7 +106,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case problem.FieldTitle, problem.FieldContent, problem.FieldConfig:
 			values[i] = new(sql.NullString)
-		case problem.ForeignKeys[0]: // problem_contest
+		case problem.ForeignKeys[0]: // contest_problems
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -146,10 +179,10 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			}
 		case problem.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_contest", value)
+				return fmt.Errorf("unexpected type %T for edge-field contest_problems", value)
 			} else if value.Valid {
-				pr.problem_contest = new(int)
-				*pr.problem_contest = int(value.Int64)
+				pr.contest_problems = new(int)
+				*pr.contest_problems = int(value.Int64)
 			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
@@ -164,9 +197,24 @@ func (pr *Problem) Value(name string) (ent.Value, error) {
 	return pr.selectValues.Get(name)
 }
 
-// QueryContest queries the "contest" edge of the Problem entity.
-func (pr *Problem) QueryContest() *ContestQuery {
-	return NewProblemClient(pr.config).QueryContest(pr)
+// QueryContests queries the "contests" edge of the Problem entity.
+func (pr *Problem) QueryContests() *ContestQuery {
+	return NewProblemClient(pr.config).QueryContests(pr)
+}
+
+// QueryProblemCases queries the "problem_cases" edge of the Problem entity.
+func (pr *Problem) QueryProblemCases() *ProblemCaseQuery {
+	return NewProblemClient(pr.config).QueryProblemCases(pr)
+}
+
+// QueryProblemJudges queries the "problem_judges" edge of the Problem entity.
+func (pr *Problem) QueryProblemJudges() *ProblemJudgeQuery {
+	return NewProblemClient(pr.config).QueryProblemJudges(pr)
+}
+
+// QuerySubmission queries the "submission" edge of the Problem entity.
+func (pr *Problem) QuerySubmission() *SubmitQuery {
+	return NewProblemClient(pr.config).QuerySubmission(pr)
 }
 
 // Update returns a builder for updating this Problem.

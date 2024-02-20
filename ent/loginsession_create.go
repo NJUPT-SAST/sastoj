@@ -39,14 +39,14 @@ func (lsc *LoginSessionCreate) SetID(i int) *LoginSessionCreate {
 	return lsc
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (lsc *LoginSessionCreate) AddUserIDs(ids ...int) *LoginSessionCreate {
 	lsc.mutation.AddUserIDs(ids...)
 	return lsc
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (lsc *LoginSessionCreate) AddUser(u ...*User) *LoginSessionCreate {
+// AddUsers adds the "users" edges to the User entity.
+func (lsc *LoginSessionCreate) AddUsers(u ...*User) *LoginSessionCreate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -139,12 +139,12 @@ func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec
 		_spec.SetField(loginsession.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
 	}
-	if nodes := lsc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := lsc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

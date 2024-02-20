@@ -39,7 +39,9 @@ func (Submit) Fields() []ent.Field {
 // Edges of the Submit.
 func (Submit) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("user", User.Type).Unique(),
-		edge.To("problem", Problem.Type).Unique(),
+		edge.From("users", User.Type).Ref("submission").Unique(),
+		edge.From("problems", Problem.Type).Ref("submission").Unique(),
+		edge.To("submit_judge", SubmitJudge.Type),
+		edge.To("submit_cases", SubmitCase.Type),
 	}
 }

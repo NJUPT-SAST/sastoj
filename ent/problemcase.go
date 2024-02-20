@@ -29,31 +29,42 @@ type ProblemCase struct {
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemCaseQuery when eager-loading is set.
-	Edges                ProblemCaseEdges `json:"edges"`
-	problem_case_problem *int
-	selectValues         sql.SelectValues
+	Edges                 ProblemCaseEdges `json:"edges"`
+	problem_problem_cases *int
+	selectValues          sql.SelectValues
 }
 
 // ProblemCaseEdges holds the relations/edges for other nodes in the graph.
 type ProblemCaseEdges struct {
-	// Problem holds the value of the problem edge.
-	Problem *Problem `json:"problem,omitempty"`
+	// Problems holds the value of the problems edge.
+	Problems *Problem `json:"problems,omitempty"`
+	// SubmitCases holds the value of the submit_cases edge.
+	SubmitCases []*SubmitCase `json:"submit_cases,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
-// ProblemOrErr returns the Problem value or an error if the edge
+// ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemCaseEdges) ProblemOrErr() (*Problem, error) {
+func (e ProblemCaseEdges) ProblemsOrErr() (*Problem, error) {
 	if e.loadedTypes[0] {
-		if e.Problem == nil {
+		if e.Problems == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: problem.Label}
 		}
-		return e.Problem, nil
+		return e.Problems, nil
 	}
-	return nil, &NotLoadedError{edge: "problem"}
+	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// SubmitCasesOrErr returns the SubmitCases value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemCaseEdges) SubmitCasesOrErr() ([]*SubmitCase, error) {
+	if e.loadedTypes[1] {
+		return e.SubmitCases, nil
+	}
+	return nil, &NotLoadedError{edge: "submit_cases"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -65,7 +76,7 @@ func (*ProblemCase) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case problemcase.FieldID, problemcase.FieldProblemID, problemcase.FieldPoint, problemcase.FieldIndex:
 			values[i] = new(sql.NullInt64)
-		case problemcase.ForeignKeys[0]: // problem_case_problem
+		case problemcase.ForeignKeys[0]: // problem_problem_cases
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -120,10 +131,10 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 			}
 		case problemcase.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_case_problem", value)
+				return fmt.Errorf("unexpected type %T for edge-field problem_problem_cases", value)
 			} else if value.Valid {
-				pc.problem_case_problem = new(int)
-				*pc.problem_case_problem = int(value.Int64)
+				pc.problem_problem_cases = new(int)
+				*pc.problem_problem_cases = int(value.Int64)
 			}
 		default:
 			pc.selectValues.Set(columns[i], values[i])
@@ -138,9 +149,14 @@ func (pc *ProblemCase) Value(name string) (ent.Value, error) {
 	return pc.selectValues.Get(name)
 }
 
-// QueryProblem queries the "problem" edge of the ProblemCase entity.
-func (pc *ProblemCase) QueryProblem() *ProblemQuery {
-	return NewProblemCaseClient(pc.config).QueryProblem(pc)
+// QueryProblems queries the "problems" edge of the ProblemCase entity.
+func (pc *ProblemCase) QueryProblems() *ProblemQuery {
+	return NewProblemCaseClient(pc.config).QueryProblems(pc)
+}
+
+// QuerySubmitCases queries the "submit_cases" edge of the ProblemCase entity.
+func (pc *ProblemCase) QuerySubmitCases() *SubmitCaseQuery {
+	return NewProblemCaseClient(pc.config).QuerySubmitCases(pc)
 }
 
 // Update returns a builder for updating this ProblemCase.

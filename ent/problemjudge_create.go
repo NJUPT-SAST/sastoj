@@ -39,42 +39,42 @@ func (pjc *ProblemJudgeCreate) SetID(i int) *ProblemJudgeCreate {
 	return pjc
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (pjc *ProblemJudgeCreate) SetGroupID(id int) *ProblemJudgeCreate {
-	pjc.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (pjc *ProblemJudgeCreate) SetGroupsID(id int) *ProblemJudgeCreate {
+	pjc.mutation.SetGroupsID(id)
 	return pjc
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (pjc *ProblemJudgeCreate) SetNillableGroupID(id *int) *ProblemJudgeCreate {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (pjc *ProblemJudgeCreate) SetNillableGroupsID(id *int) *ProblemJudgeCreate {
 	if id != nil {
-		pjc = pjc.SetGroupID(*id)
+		pjc = pjc.SetGroupsID(*id)
 	}
 	return pjc
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (pjc *ProblemJudgeCreate) SetGroup(g *Group) *ProblemJudgeCreate {
-	return pjc.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (pjc *ProblemJudgeCreate) SetGroups(g *Group) *ProblemJudgeCreate {
+	return pjc.SetGroupsID(g.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (pjc *ProblemJudgeCreate) SetProblemID(id int) *ProblemJudgeCreate {
-	pjc.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (pjc *ProblemJudgeCreate) SetProblemsID(id int) *ProblemJudgeCreate {
+	pjc.mutation.SetProblemsID(id)
 	return pjc
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (pjc *ProblemJudgeCreate) SetNillableProblemID(id *int) *ProblemJudgeCreate {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (pjc *ProblemJudgeCreate) SetNillableProblemsID(id *int) *ProblemJudgeCreate {
 	if id != nil {
-		pjc = pjc.SetProblemID(*id)
+		pjc = pjc.SetProblemsID(*id)
 	}
 	return pjc
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (pjc *ProblemJudgeCreate) SetProblem(p *Problem) *ProblemJudgeCreate {
-	return pjc.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (pjc *ProblemJudgeCreate) SetProblems(p *Problem) *ProblemJudgeCreate {
+	return pjc.SetProblemsID(p.ID)
 }
 
 // Mutation returns the ProblemJudgeMutation object of the builder.
@@ -167,12 +167,12 @@ func (pjc *ProblemJudgeCreate) createSpec() (*ProblemJudge, *sqlgraph.CreateSpec
 		_spec.SetField(problemjudge.FieldProblemID, field.TypeInt, value)
 		_node.ProblemID = value
 	}
-	if nodes := pjc.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := pjc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.GroupTable,
-			Columns: []string{problemjudge.GroupColumn},
+			Inverse: true,
+			Table:   problemjudge.GroupsTable,
+			Columns: []string{problemjudge.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -181,15 +181,15 @@ func (pjc *ProblemJudgeCreate) createSpec() (*ProblemJudge, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.problem_judge_group = &nodes[0]
+		_node.group_problem_judges = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pjc.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := pjc.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   problemjudge.ProblemTable,
-			Columns: []string{problemjudge.ProblemColumn},
+			Inverse: true,
+			Table:   problemjudge.ProblemsTable,
+			Columns: []string{problemjudge.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -198,7 +198,7 @@ func (pjc *ProblemJudgeCreate) createSpec() (*ProblemJudge, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.problem_judge_problem = &nodes[0]
+		_node.problem_problem_judges = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

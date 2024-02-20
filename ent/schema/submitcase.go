@@ -28,7 +28,7 @@ func (SubmitCase) Fields() []ent.Field {
 // Edges of the SubmitCase.
 func (SubmitCase) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("submit", Submit.Type).Unique(),
-		edge.To("problem_case", ProblemCase.Type).Unique(),
+		edge.From("submission", Submit.Type).Ref("submit_cases").Unique(),
+		edge.From("problem_cases", ProblemCase.Type).Ref("submit_cases").Unique(),
 	}
 }

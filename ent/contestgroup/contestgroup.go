@@ -16,26 +16,26 @@ const (
 	FieldContestID = "contest_id"
 	// FieldGroupID holds the string denoting the group_id field in the database.
 	FieldGroupID = "group_id"
-	// EdgeContest holds the string denoting the contest edge name in mutations.
-	EdgeContest = "contest"
-	// EdgeGroup holds the string denoting the group edge name in mutations.
-	EdgeGroup = "group"
+	// EdgeContests holds the string denoting the contests edge name in mutations.
+	EdgeContests = "contests"
+	// EdgeGroups holds the string denoting the groups edge name in mutations.
+	EdgeGroups = "groups"
 	// Table holds the table name of the contestgroup in the database.
 	Table = "contest_group"
-	// ContestTable is the table that holds the contest relation/edge.
-	ContestTable = "contest_group"
-	// ContestInverseTable is the table name for the Contest entity.
+	// ContestsTable is the table that holds the contests relation/edge.
+	ContestsTable = "contest_group"
+	// ContestsInverseTable is the table name for the Contest entity.
 	// It exists in this package in order to avoid circular dependency with the "contest" package.
-	ContestInverseTable = "contests"
-	// ContestColumn is the table column denoting the contest relation/edge.
-	ContestColumn = "contest_group_contest"
-	// GroupTable is the table that holds the group relation/edge.
-	GroupTable = "contest_group"
-	// GroupInverseTable is the table name for the Group entity.
+	ContestsInverseTable = "contests"
+	// ContestsColumn is the table column denoting the contests relation/edge.
+	ContestsColumn = "contest_contest_group"
+	// GroupsTable is the table that holds the groups relation/edge.
+	GroupsTable = "contest_group"
+	// GroupsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	GroupInverseTable = "groups"
-	// GroupColumn is the table column denoting the group relation/edge.
-	GroupColumn = "contest_group_group"
+	GroupsInverseTable = "groups"
+	// GroupsColumn is the table column denoting the groups relation/edge.
+	GroupsColumn = "group_contest_group"
 )
 
 // Columns holds all SQL columns for contestgroup fields.
@@ -48,8 +48,8 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "contest_group"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"contest_group_contest",
-	"contest_group_group",
+	"contest_contest_group",
+	"group_contest_group",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -85,30 +85,30 @@ func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
 }
 
-// ByContestField orders the results by contest field.
-func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByContestsField orders the results by contests field.
+func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByGroupField orders the results by group field.
-func ByGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByGroupsField orders the results by groups field.
+func ByGroupsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGroupStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newContestStep() *sqlgraph.Step {
+func newContestsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, ContestTable, ContestColumn),
+		sqlgraph.To(ContestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
 	)
 }
-func newGroupStep() *sqlgraph.Step {
+func newGroupsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, GroupTable, GroupColumn),
+		sqlgraph.To(GroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
 	)
 }

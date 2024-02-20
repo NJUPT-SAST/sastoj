@@ -19,13 +19,13 @@ import (
 // SubmitJudgeQuery is the builder for querying SubmitJudge entities.
 type SubmitJudgeQuery struct {
 	config
-	ctx        *QueryContext
-	order      []submitjudge.OrderOption
-	inters     []Interceptor
-	predicates []predicate.SubmitJudge
-	withSubmit *SubmitQuery
-	withUser   *UserQuery
-	withFKs    bool
+	ctx            *QueryContext
+	order          []submitjudge.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.SubmitJudge
+	withSubmission *SubmitQuery
+	withUsers      *UserQuery
+	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +62,8 @@ func (sjq *SubmitJudgeQuery) Order(o ...submitjudge.OrderOption) *SubmitJudgeQue
 	return sjq
 }
 
-// QuerySubmit chains the current query on the "submit" edge.
-func (sjq *SubmitJudgeQuery) QuerySubmit() *SubmitQuery {
+// QuerySubmission chains the current query on the "submission" edge.
+func (sjq *SubmitJudgeQuery) QuerySubmission() *SubmitQuery {
 	query := (&SubmitClient{config: sjq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sjq.prepareQuery(ctx); err != nil {
@@ -76,7 +76,7 @@ func (sjq *SubmitJudgeQuery) QuerySubmit() *SubmitQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, selector),
 			sqlgraph.To(submit.Table, submit.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitjudge.SubmitTable, submitjudge.SubmitColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.SubmissionTable, submitjudge.SubmissionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sjq.driver.Dialect(), step)
 		return fromU, nil
@@ -84,8 +84,8 @@ func (sjq *SubmitJudgeQuery) QuerySubmit() *SubmitQuery {
 	return query
 }
 
-// QueryUser chains the current query on the "user" edge.
-func (sjq *SubmitJudgeQuery) QueryUser() *UserQuery {
+// QueryUsers chains the current query on the "users" edge.
+func (sjq *SubmitJudgeQuery) QueryUsers() *UserQuery {
 	query := (&UserClient{config: sjq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sjq.prepareQuery(ctx); err != nil {
@@ -98,7 +98,7 @@ func (sjq *SubmitJudgeQuery) QueryUser() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, submitjudge.UserTable, submitjudge.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.UsersTable, submitjudge.UsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sjq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,38 +293,38 @@ func (sjq *SubmitJudgeQuery) Clone() *SubmitJudgeQuery {
 		return nil
 	}
 	return &SubmitJudgeQuery{
-		config:     sjq.config,
-		ctx:        sjq.ctx.Clone(),
-		order:      append([]submitjudge.OrderOption{}, sjq.order...),
-		inters:     append([]Interceptor{}, sjq.inters...),
-		predicates: append([]predicate.SubmitJudge{}, sjq.predicates...),
-		withSubmit: sjq.withSubmit.Clone(),
-		withUser:   sjq.withUser.Clone(),
+		config:         sjq.config,
+		ctx:            sjq.ctx.Clone(),
+		order:          append([]submitjudge.OrderOption{}, sjq.order...),
+		inters:         append([]Interceptor{}, sjq.inters...),
+		predicates:     append([]predicate.SubmitJudge{}, sjq.predicates...),
+		withSubmission: sjq.withSubmission.Clone(),
+		withUsers:      sjq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  sjq.sql.Clone(),
 		path: sjq.path,
 	}
 }
 
-// WithSubmit tells the query-builder to eager-load the nodes that are connected to
-// the "submit" edge. The optional arguments are used to configure the query builder of the edge.
-func (sjq *SubmitJudgeQuery) WithSubmit(opts ...func(*SubmitQuery)) *SubmitJudgeQuery {
+// WithSubmission tells the query-builder to eager-load the nodes that are connected to
+// the "submission" edge. The optional arguments are used to configure the query builder of the edge.
+func (sjq *SubmitJudgeQuery) WithSubmission(opts ...func(*SubmitQuery)) *SubmitJudgeQuery {
 	query := (&SubmitClient{config: sjq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sjq.withSubmit = query
+	sjq.withSubmission = query
 	return sjq
 }
 
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (sjq *SubmitJudgeQuery) WithUser(opts ...func(*UserQuery)) *SubmitJudgeQuery {
+// WithUsers tells the query-builder to eager-load the nodes that are connected to
+// the "users" edge. The optional arguments are used to configure the query builder of the edge.
+func (sjq *SubmitJudgeQuery) WithUsers(opts ...func(*UserQuery)) *SubmitJudgeQuery {
 	query := (&UserClient{config: sjq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sjq.withUser = query
+	sjq.withUsers = query
 	return sjq
 }
 
@@ -408,11 +408,11 @@ func (sjq *SubmitJudgeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		withFKs     = sjq.withFKs
 		_spec       = sjq.querySpec()
 		loadedTypes = [2]bool{
-			sjq.withSubmit != nil,
-			sjq.withUser != nil,
+			sjq.withSubmission != nil,
+			sjq.withUsers != nil,
 		}
 	)
-	if sjq.withSubmit != nil || sjq.withUser != nil {
+	if sjq.withSubmission != nil || sjq.withUsers != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -436,29 +436,29 @@ func (sjq *SubmitJudgeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sjq.withSubmit; query != nil {
-		if err := sjq.loadSubmit(ctx, query, nodes, nil,
-			func(n *SubmitJudge, e *Submit) { n.Edges.Submit = e }); err != nil {
+	if query := sjq.withSubmission; query != nil {
+		if err := sjq.loadSubmission(ctx, query, nodes, nil,
+			func(n *SubmitJudge, e *Submit) { n.Edges.Submission = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := sjq.withUser; query != nil {
-		if err := sjq.loadUser(ctx, query, nodes, nil,
-			func(n *SubmitJudge, e *User) { n.Edges.User = e }); err != nil {
+	if query := sjq.withUsers; query != nil {
+		if err := sjq.loadUsers(ctx, query, nodes, nil,
+			func(n *SubmitJudge, e *User) { n.Edges.Users = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (sjq *SubmitJudgeQuery) loadSubmit(ctx context.Context, query *SubmitQuery, nodes []*SubmitJudge, init func(*SubmitJudge), assign func(*SubmitJudge, *Submit)) error {
+func (sjq *SubmitJudgeQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*SubmitJudge, init func(*SubmitJudge), assign func(*SubmitJudge, *Submit)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*SubmitJudge)
 	for i := range nodes {
-		if nodes[i].submit_judge_submit == nil {
+		if nodes[i].submit_submit_judge == nil {
 			continue
 		}
-		fk := *nodes[i].submit_judge_submit
+		fk := *nodes[i].submit_submit_judge
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +475,7 @@ func (sjq *SubmitJudgeQuery) loadSubmit(ctx context.Context, query *SubmitQuery,
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "submit_judge_submit" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "submit_submit_judge" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -483,14 +483,14 @@ func (sjq *SubmitJudgeQuery) loadSubmit(ctx context.Context, query *SubmitQuery,
 	}
 	return nil
 }
-func (sjq *SubmitJudgeQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*SubmitJudge, init func(*SubmitJudge), assign func(*SubmitJudge, *User)) error {
+func (sjq *SubmitJudgeQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*SubmitJudge, init func(*SubmitJudge), assign func(*SubmitJudge, *User)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*SubmitJudge)
 	for i := range nodes {
-		if nodes[i].submit_judge_user == nil {
+		if nodes[i].user_submit_judge == nil {
 			continue
 		}
-		fk := *nodes[i].submit_judge_user
+		fk := *nodes[i].user_submit_judge
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +507,7 @@ func (sjq *SubmitJudgeQuery) loadUser(ctx context.Context, query *UserQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "submit_judge_user" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_submit_judge" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

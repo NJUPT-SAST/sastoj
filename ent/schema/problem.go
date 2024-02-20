@@ -29,6 +29,9 @@ func (Problem) Fields() []ent.Field {
 // Edges of the Problem.
 func (Problem) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("contest", Contest.Type).Unique(),
+		edge.From("contests", Contest.Type).Ref("problems").Unique(),
+		edge.To("problem_cases", ProblemCase.Type),
+		edge.To("problem_judges", ProblemJudge.Type),
+		edge.To("submission", Submit.Type),
 	}
 }

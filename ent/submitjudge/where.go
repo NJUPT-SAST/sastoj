@@ -144,21 +144,21 @@ func SubmitIDLTE(v int) predicate.SubmitJudge {
 	return predicate.SubmitJudge(sql.FieldLTE(FieldSubmitID, v))
 }
 
-// HasSubmit applies the HasEdge predicate on the "submit" edge.
-func HasSubmit() predicate.SubmitJudge {
+// HasSubmission applies the HasEdge predicate on the "submission" edge.
+func HasSubmission() predicate.SubmitJudge {
 	return predicate.SubmitJudge(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, SubmitTable, SubmitColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, SubmissionTable, SubmissionColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSubmitWith applies the HasEdge predicate on the "submit" edge with a given conditions (other predicates).
-func HasSubmitWith(preds ...predicate.Submit) predicate.SubmitJudge {
+// HasSubmissionWith applies the HasEdge predicate on the "submission" edge with a given conditions (other predicates).
+func HasSubmissionWith(preds ...predicate.Submit) predicate.SubmitJudge {
 	return predicate.SubmitJudge(func(s *sql.Selector) {
-		step := newSubmitStep()
+		step := newSubmissionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -167,21 +167,21 @@ func HasSubmitWith(preds ...predicate.Submit) predicate.SubmitJudge {
 	})
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.SubmitJudge {
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.SubmitJudge {
 	return predicate.SubmitJudge(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.SubmitJudge {
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.SubmitJudge {
 	return predicate.SubmitJudge(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -64,14 +64,14 @@ func (lsu *LoginSessionUpdate) SetNillableCreateTime(t *time.Time) *LoginSession
 	return lsu
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (lsu *LoginSessionUpdate) AddUserIDs(ids ...int) *LoginSessionUpdate {
 	lsu.mutation.AddUserIDs(ids...)
 	return lsu
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (lsu *LoginSessionUpdate) AddUser(u ...*User) *LoginSessionUpdate {
+// AddUsers adds the "users" edges to the User entity.
+func (lsu *LoginSessionUpdate) AddUsers(u ...*User) *LoginSessionUpdate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -84,20 +84,20 @@ func (lsu *LoginSessionUpdate) Mutation() *LoginSessionMutation {
 	return lsu.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (lsu *LoginSessionUpdate) ClearUser() *LoginSessionUpdate {
-	lsu.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (lsu *LoginSessionUpdate) ClearUsers() *LoginSessionUpdate {
+	lsu.mutation.ClearUsers()
 	return lsu
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
 func (lsu *LoginSessionUpdate) RemoveUserIDs(ids ...int) *LoginSessionUpdate {
 	lsu.mutation.RemoveUserIDs(ids...)
 	return lsu
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (lsu *LoginSessionUpdate) RemoveUser(u ...*User) *LoginSessionUpdate {
+// RemoveUsers removes "users" edges to User entities.
+func (lsu *LoginSessionUpdate) RemoveUsers(u ...*User) *LoginSessionUpdate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -163,12 +163,12 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lsu.mutation.CreateTime(); ok {
 		_spec.SetField(loginsession.FieldCreateTime, field.TypeTime, value)
 	}
-	if lsu.mutation.UserCleared() {
+	if lsu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -176,12 +176,12 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lsu.mutation.RemovedUserIDs(); len(nodes) > 0 && !lsu.mutation.UserCleared() {
+	if nodes := lsu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !lsu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -192,12 +192,12 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lsu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := lsu.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -263,14 +263,14 @@ func (lsuo *LoginSessionUpdateOne) SetNillableCreateTime(t *time.Time) *LoginSes
 	return lsuo
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (lsuo *LoginSessionUpdateOne) AddUserIDs(ids ...int) *LoginSessionUpdateOne {
 	lsuo.mutation.AddUserIDs(ids...)
 	return lsuo
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (lsuo *LoginSessionUpdateOne) AddUser(u ...*User) *LoginSessionUpdateOne {
+// AddUsers adds the "users" edges to the User entity.
+func (lsuo *LoginSessionUpdateOne) AddUsers(u ...*User) *LoginSessionUpdateOne {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -283,20 +283,20 @@ func (lsuo *LoginSessionUpdateOne) Mutation() *LoginSessionMutation {
 	return lsuo.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (lsuo *LoginSessionUpdateOne) ClearUser() *LoginSessionUpdateOne {
-	lsuo.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (lsuo *LoginSessionUpdateOne) ClearUsers() *LoginSessionUpdateOne {
+	lsuo.mutation.ClearUsers()
 	return lsuo
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
 func (lsuo *LoginSessionUpdateOne) RemoveUserIDs(ids ...int) *LoginSessionUpdateOne {
 	lsuo.mutation.RemoveUserIDs(ids...)
 	return lsuo
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (lsuo *LoginSessionUpdateOne) RemoveUser(u ...*User) *LoginSessionUpdateOne {
+// RemoveUsers removes "users" edges to User entities.
+func (lsuo *LoginSessionUpdateOne) RemoveUsers(u ...*User) *LoginSessionUpdateOne {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -392,12 +392,12 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 	if value, ok := lsuo.mutation.CreateTime(); ok {
 		_spec.SetField(loginsession.FieldCreateTime, field.TypeTime, value)
 	}
-	if lsuo.mutation.UserCleared() {
+	if lsuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -405,12 +405,12 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lsuo.mutation.RemovedUserIDs(); len(nodes) > 0 && !lsuo.mutation.UserCleared() {
+	if nodes := lsuo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !lsuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -421,12 +421,12 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lsuo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := lsuo.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   loginsession.UserTable,
-			Columns: []string{loginsession.UserColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   loginsession.UsersTable,
+			Columns: loginsession.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

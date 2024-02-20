@@ -6,6 +6,7 @@ import (
 	"sastoj/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -351,6 +352,98 @@ func GroupIDLT(v int) predicate.User {
 // GroupIDLTE applies the LTE predicate on the "group_id" field.
 func GroupIDLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldGroupID, v))
+}
+
+// HasSubmitJudge applies the HasEdge predicate on the "submit_judge" edge.
+func HasSubmitJudge() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmitJudgeTable, SubmitJudgeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmitJudgeWith applies the HasEdge predicate on the "submit_judge" edge with a given conditions (other predicates).
+func HasSubmitJudgeWith(preds ...predicate.SubmitJudge) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newSubmitJudgeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.Group) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newGroupsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSubmission applies the HasEdge predicate on the "submission" edge.
+func HasSubmission() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionTable, SubmissionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSubmissionWith applies the HasEdge predicate on the "submission" edge with a given conditions (other predicates).
+func HasSubmissionWith(preds ...predicate.Submit) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newSubmissionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasLoginSession applies the HasEdge predicate on the "login_session" edge.
+func HasLoginSession() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, LoginSessionTable, LoginSessionPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasLoginSessionWith applies the HasEdge predicate on the "login_session" edge with a given conditions (other predicates).
+func HasLoginSessionWith(preds ...predicate.LoginSession) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newLoginSessionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sastoj/ent/problem"
 	"sastoj/ent/submit"
+	"sastoj/ent/submitcase"
+	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 	"time"
 
@@ -88,42 +90,72 @@ func (sc *SubmitCreate) SetID(i int) *SubmitCreate {
 	return sc
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (sc *SubmitCreate) SetUserID(id int) *SubmitCreate {
-	sc.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (sc *SubmitCreate) SetUsersID(id int) *SubmitCreate {
+	sc.mutation.SetUsersID(id)
 	return sc
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (sc *SubmitCreate) SetNillableUserID(id *int) *SubmitCreate {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (sc *SubmitCreate) SetNillableUsersID(id *int) *SubmitCreate {
 	if id != nil {
-		sc = sc.SetUserID(*id)
+		sc = sc.SetUsersID(*id)
 	}
 	return sc
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (sc *SubmitCreate) SetUser(u *User) *SubmitCreate {
-	return sc.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (sc *SubmitCreate) SetUsers(u *User) *SubmitCreate {
+	return sc.SetUsersID(u.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (sc *SubmitCreate) SetProblemID(id int) *SubmitCreate {
-	sc.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (sc *SubmitCreate) SetProblemsID(id int) *SubmitCreate {
+	sc.mutation.SetProblemsID(id)
 	return sc
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (sc *SubmitCreate) SetNillableProblemID(id *int) *SubmitCreate {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (sc *SubmitCreate) SetNillableProblemsID(id *int) *SubmitCreate {
 	if id != nil {
-		sc = sc.SetProblemID(*id)
+		sc = sc.SetProblemsID(*id)
 	}
 	return sc
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (sc *SubmitCreate) SetProblem(p *Problem) *SubmitCreate {
-	return sc.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (sc *SubmitCreate) SetProblems(p *Problem) *SubmitCreate {
+	return sc.SetProblemsID(p.ID)
+}
+
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (sc *SubmitCreate) AddSubmitJudgeIDs(ids ...int) *SubmitCreate {
+	sc.mutation.AddSubmitJudgeIDs(ids...)
+	return sc
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (sc *SubmitCreate) AddSubmitJudge(s ...*SubmitJudge) *SubmitCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddSubmitJudgeIDs(ids...)
+}
+
+// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
+func (sc *SubmitCreate) AddSubmitCaseIDs(ids ...int) *SubmitCreate {
+	sc.mutation.AddSubmitCaseIDs(ids...)
+	return sc
+}
+
+// AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
+func (sc *SubmitCreate) AddSubmitCases(s ...*SubmitCase) *SubmitCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return sc.AddSubmitCaseIDs(ids...)
 }
 
 // Mutation returns the SubmitMutation object of the builder.
@@ -272,12 +304,12 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_spec.SetField(submit.FieldCaseVersion, field.TypeInt, value)
 		_node.CaseVersion = value
 	}
-	if nodes := sc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.UserTable,
-			Columns: []string{submit.UserColumn},
+			Inverse: true,
+			Table:   submit.UsersTable,
+			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -286,15 +318,15 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_user = &nodes[0]
+		_node.user_submission = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := sc.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.ProblemTable,
-			Columns: []string{submit.ProblemColumn},
+			Inverse: true,
+			Table:   submit.ProblemsTable,
+			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -303,7 +335,39 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_problem = &nodes[0]
+		_node.problem_submission = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

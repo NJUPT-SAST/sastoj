@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestgroup"
+	"sastoj/ent/problem"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -78,6 +80,36 @@ func (cc *ContestCreate) SetCreateTime(t time.Time) *ContestCreate {
 func (cc *ContestCreate) SetID(i int) *ContestCreate {
 	cc.mutation.SetID(i)
 	return cc
+}
+
+// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
+func (cc *ContestCreate) AddContestGroupIDs(ids ...int) *ContestCreate {
+	cc.mutation.AddContestGroupIDs(ids...)
+	return cc
+}
+
+// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
+func (cc *ContestCreate) AddContestGroup(c ...*ContestGroup) *ContestCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cc.AddContestGroupIDs(ids...)
+}
+
+// AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
+func (cc *ContestCreate) AddProblemIDs(ids ...int) *ContestCreate {
+	cc.mutation.AddProblemIDs(ids...)
+	return cc
+}
+
+// AddProblems adds the "problems" edges to the Problem entity.
+func (cc *ContestCreate) AddProblems(p ...*Problem) *ContestCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cc.AddProblemIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -223,6 +255,38 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.CreateTime(); ok {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
+	}
+	if nodes := cc.mutation.ContestGroupIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestGroupTable,
+			Columns: []string{contest.ContestGroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ProblemsTable,
+			Columns: []string{contest.ProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

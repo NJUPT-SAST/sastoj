@@ -9,6 +9,8 @@ import (
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/submit"
+	"sastoj/ent/submitcase"
+	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 	"time"
 
@@ -212,42 +214,72 @@ func (su *SubmitUpdate) AddCaseVersion(i int) *SubmitUpdate {
 	return su
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (su *SubmitUpdate) SetUserID(id int) *SubmitUpdate {
-	su.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (su *SubmitUpdate) SetUsersID(id int) *SubmitUpdate {
+	su.mutation.SetUsersID(id)
 	return su
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (su *SubmitUpdate) SetNillableUserID(id *int) *SubmitUpdate {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (su *SubmitUpdate) SetNillableUsersID(id *int) *SubmitUpdate {
 	if id != nil {
-		su = su.SetUserID(*id)
+		su = su.SetUsersID(*id)
 	}
 	return su
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (su *SubmitUpdate) SetUser(u *User) *SubmitUpdate {
-	return su.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (su *SubmitUpdate) SetUsers(u *User) *SubmitUpdate {
+	return su.SetUsersID(u.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (su *SubmitUpdate) SetProblemID(id int) *SubmitUpdate {
-	su.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (su *SubmitUpdate) SetProblemsID(id int) *SubmitUpdate {
+	su.mutation.SetProblemsID(id)
 	return su
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (su *SubmitUpdate) SetNillableProblemID(id *int) *SubmitUpdate {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (su *SubmitUpdate) SetNillableProblemsID(id *int) *SubmitUpdate {
 	if id != nil {
-		su = su.SetProblemID(*id)
+		su = su.SetProblemsID(*id)
 	}
 	return su
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (su *SubmitUpdate) SetProblem(p *Problem) *SubmitUpdate {
-	return su.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (su *SubmitUpdate) SetProblems(p *Problem) *SubmitUpdate {
+	return su.SetProblemsID(p.ID)
+}
+
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (su *SubmitUpdate) AddSubmitJudgeIDs(ids ...int) *SubmitUpdate {
+	su.mutation.AddSubmitJudgeIDs(ids...)
+	return su
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (su *SubmitUpdate) AddSubmitJudge(s ...*SubmitJudge) *SubmitUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddSubmitJudgeIDs(ids...)
+}
+
+// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
+func (su *SubmitUpdate) AddSubmitCaseIDs(ids ...int) *SubmitUpdate {
+	su.mutation.AddSubmitCaseIDs(ids...)
+	return su
+}
+
+// AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
+func (su *SubmitUpdate) AddSubmitCases(s ...*SubmitCase) *SubmitUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.AddSubmitCaseIDs(ids...)
 }
 
 // Mutation returns the SubmitMutation object of the builder.
@@ -255,16 +287,58 @@ func (su *SubmitUpdate) Mutation() *SubmitMutation {
 	return su.mutation
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (su *SubmitUpdate) ClearUser() *SubmitUpdate {
-	su.mutation.ClearUser()
+// ClearUsers clears the "users" edge to the User entity.
+func (su *SubmitUpdate) ClearUsers() *SubmitUpdate {
+	su.mutation.ClearUsers()
 	return su
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (su *SubmitUpdate) ClearProblem() *SubmitUpdate {
-	su.mutation.ClearProblem()
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (su *SubmitUpdate) ClearProblems() *SubmitUpdate {
+	su.mutation.ClearProblems()
 	return su
+}
+
+// ClearSubmitJudge clears all "submit_judge" edges to the SubmitJudge entity.
+func (su *SubmitUpdate) ClearSubmitJudge() *SubmitUpdate {
+	su.mutation.ClearSubmitJudge()
+	return su
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to SubmitJudge entities by IDs.
+func (su *SubmitUpdate) RemoveSubmitJudgeIDs(ids ...int) *SubmitUpdate {
+	su.mutation.RemoveSubmitJudgeIDs(ids...)
+	return su
+}
+
+// RemoveSubmitJudge removes "submit_judge" edges to SubmitJudge entities.
+func (su *SubmitUpdate) RemoveSubmitJudge(s ...*SubmitJudge) *SubmitUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveSubmitJudgeIDs(ids...)
+}
+
+// ClearSubmitCases clears all "submit_cases" edges to the SubmitCase entity.
+func (su *SubmitUpdate) ClearSubmitCases() *SubmitUpdate {
+	su.mutation.ClearSubmitCases()
+	return su
+}
+
+// RemoveSubmitCaseIDs removes the "submit_cases" edge to SubmitCase entities by IDs.
+func (su *SubmitUpdate) RemoveSubmitCaseIDs(ids ...int) *SubmitUpdate {
+	su.mutation.RemoveSubmitCaseIDs(ids...)
+	return su
+}
+
+// RemoveSubmitCases removes "submit_cases" edges to SubmitCase entities.
+func (su *SubmitUpdate) RemoveSubmitCases(s ...*SubmitCase) *SubmitUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return su.RemoveSubmitCaseIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -369,12 +443,12 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.AddedCaseVersion(); ok {
 		_spec.AddField(submit.FieldCaseVersion, field.TypeInt, value)
 	}
-	if su.mutation.UserCleared() {
+	if su.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.UserTable,
-			Columns: []string{submit.UserColumn},
+			Inverse: true,
+			Table:   submit.UsersTable,
+			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -382,12 +456,12 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.UserTable,
-			Columns: []string{submit.UserColumn},
+			Inverse: true,
+			Table:   submit.UsersTable,
+			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -398,12 +472,12 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.ProblemCleared() {
+	if su.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.ProblemTable,
-			Columns: []string{submit.ProblemColumn},
+			Inverse: true,
+			Table:   submit.ProblemsTable,
+			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -411,15 +485,105 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.ProblemTable,
-			Columns: []string{submit.ProblemColumn},
+			Inverse: true,
+			Table:   submit.ProblemsTable,
+			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedSubmitJudgeIDs(); len(nodes) > 0 && !su.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.SubmitCasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedSubmitCasesIDs(); len(nodes) > 0 && !su.mutation.SubmitCasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.SubmitCasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -629,42 +793,72 @@ func (suo *SubmitUpdateOne) AddCaseVersion(i int) *SubmitUpdateOne {
 	return suo
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (suo *SubmitUpdateOne) SetUserID(id int) *SubmitUpdateOne {
-	suo.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (suo *SubmitUpdateOne) SetUsersID(id int) *SubmitUpdateOne {
+	suo.mutation.SetUsersID(id)
 	return suo
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableUserID(id *int) *SubmitUpdateOne {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (suo *SubmitUpdateOne) SetNillableUsersID(id *int) *SubmitUpdateOne {
 	if id != nil {
-		suo = suo.SetUserID(*id)
+		suo = suo.SetUsersID(*id)
 	}
 	return suo
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (suo *SubmitUpdateOne) SetUser(u *User) *SubmitUpdateOne {
-	return suo.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (suo *SubmitUpdateOne) SetUsers(u *User) *SubmitUpdateOne {
+	return suo.SetUsersID(u.ID)
 }
 
-// SetProblemID sets the "problem" edge to the Problem entity by ID.
-func (suo *SubmitUpdateOne) SetProblemID(id int) *SubmitUpdateOne {
-	suo.mutation.SetProblemID(id)
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (suo *SubmitUpdateOne) SetProblemsID(id int) *SubmitUpdateOne {
+	suo.mutation.SetProblemsID(id)
 	return suo
 }
 
-// SetNillableProblemID sets the "problem" edge to the Problem entity by ID if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableProblemID(id *int) *SubmitUpdateOne {
+// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
+func (suo *SubmitUpdateOne) SetNillableProblemsID(id *int) *SubmitUpdateOne {
 	if id != nil {
-		suo = suo.SetProblemID(*id)
+		suo = suo.SetProblemsID(*id)
 	}
 	return suo
 }
 
-// SetProblem sets the "problem" edge to the Problem entity.
-func (suo *SubmitUpdateOne) SetProblem(p *Problem) *SubmitUpdateOne {
-	return suo.SetProblemID(p.ID)
+// SetProblems sets the "problems" edge to the Problem entity.
+func (suo *SubmitUpdateOne) SetProblems(p *Problem) *SubmitUpdateOne {
+	return suo.SetProblemsID(p.ID)
+}
+
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (suo *SubmitUpdateOne) AddSubmitJudgeIDs(ids ...int) *SubmitUpdateOne {
+	suo.mutation.AddSubmitJudgeIDs(ids...)
+	return suo
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (suo *SubmitUpdateOne) AddSubmitJudge(s ...*SubmitJudge) *SubmitUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddSubmitJudgeIDs(ids...)
+}
+
+// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
+func (suo *SubmitUpdateOne) AddSubmitCaseIDs(ids ...int) *SubmitUpdateOne {
+	suo.mutation.AddSubmitCaseIDs(ids...)
+	return suo
+}
+
+// AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
+func (suo *SubmitUpdateOne) AddSubmitCases(s ...*SubmitCase) *SubmitUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.AddSubmitCaseIDs(ids...)
 }
 
 // Mutation returns the SubmitMutation object of the builder.
@@ -672,16 +866,58 @@ func (suo *SubmitUpdateOne) Mutation() *SubmitMutation {
 	return suo.mutation
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (suo *SubmitUpdateOne) ClearUser() *SubmitUpdateOne {
-	suo.mutation.ClearUser()
+// ClearUsers clears the "users" edge to the User entity.
+func (suo *SubmitUpdateOne) ClearUsers() *SubmitUpdateOne {
+	suo.mutation.ClearUsers()
 	return suo
 }
 
-// ClearProblem clears the "problem" edge to the Problem entity.
-func (suo *SubmitUpdateOne) ClearProblem() *SubmitUpdateOne {
-	suo.mutation.ClearProblem()
+// ClearProblems clears the "problems" edge to the Problem entity.
+func (suo *SubmitUpdateOne) ClearProblems() *SubmitUpdateOne {
+	suo.mutation.ClearProblems()
 	return suo
+}
+
+// ClearSubmitJudge clears all "submit_judge" edges to the SubmitJudge entity.
+func (suo *SubmitUpdateOne) ClearSubmitJudge() *SubmitUpdateOne {
+	suo.mutation.ClearSubmitJudge()
+	return suo
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to SubmitJudge entities by IDs.
+func (suo *SubmitUpdateOne) RemoveSubmitJudgeIDs(ids ...int) *SubmitUpdateOne {
+	suo.mutation.RemoveSubmitJudgeIDs(ids...)
+	return suo
+}
+
+// RemoveSubmitJudge removes "submit_judge" edges to SubmitJudge entities.
+func (suo *SubmitUpdateOne) RemoveSubmitJudge(s ...*SubmitJudge) *SubmitUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveSubmitJudgeIDs(ids...)
+}
+
+// ClearSubmitCases clears all "submit_cases" edges to the SubmitCase entity.
+func (suo *SubmitUpdateOne) ClearSubmitCases() *SubmitUpdateOne {
+	suo.mutation.ClearSubmitCases()
+	return suo
+}
+
+// RemoveSubmitCaseIDs removes the "submit_cases" edge to SubmitCase entities by IDs.
+func (suo *SubmitUpdateOne) RemoveSubmitCaseIDs(ids ...int) *SubmitUpdateOne {
+	suo.mutation.RemoveSubmitCaseIDs(ids...)
+	return suo
+}
+
+// RemoveSubmitCases removes "submit_cases" edges to SubmitCase entities.
+func (suo *SubmitUpdateOne) RemoveSubmitCases(s ...*SubmitCase) *SubmitUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return suo.RemoveSubmitCaseIDs(ids...)
 }
 
 // Where appends a list predicates to the SubmitUpdate builder.
@@ -816,12 +1052,12 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 	if value, ok := suo.mutation.AddedCaseVersion(); ok {
 		_spec.AddField(submit.FieldCaseVersion, field.TypeInt, value)
 	}
-	if suo.mutation.UserCleared() {
+	if suo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.UserTable,
-			Columns: []string{submit.UserColumn},
+			Inverse: true,
+			Table:   submit.UsersTable,
+			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -829,12 +1065,12 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.UserTable,
-			Columns: []string{submit.UserColumn},
+			Inverse: true,
+			Table:   submit.UsersTable,
+			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -845,12 +1081,12 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if suo.mutation.ProblemCleared() {
+	if suo.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.ProblemTable,
-			Columns: []string{submit.ProblemColumn},
+			Inverse: true,
+			Table:   submit.ProblemsTable,
+			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -858,15 +1094,105 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.ProblemIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submit.ProblemTable,
-			Columns: []string{submit.ProblemColumn},
+			Inverse: true,
+			Table:   submit.ProblemsTable,
+			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedSubmitJudgeIDs(); len(nodes) > 0 && !suo.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitJudgeTable,
+			Columns: []string{submit.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.SubmitCasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedSubmitCasesIDs(); len(nodes) > 0 && !suo.mutation.SubmitCasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.SubmitCasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   submit.SubmitCasesTable,
+			Columns: []string{submit.SubmitCasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

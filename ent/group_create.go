@@ -6,7 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestgroup"
 	"sastoj/ent/group"
+	"sastoj/ent/problemjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -53,6 +55,36 @@ func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
 		ids[i] = u[i].ID
 	}
 	return gc.AddUserIDs(ids...)
+}
+
+// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
+func (gc *GroupCreate) AddContestGroupIDs(ids ...int) *GroupCreate {
+	gc.mutation.AddContestGroupIDs(ids...)
+	return gc
+}
+
+// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
+func (gc *GroupCreate) AddContestGroup(c ...*ContestGroup) *GroupCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return gc.AddContestGroupIDs(ids...)
+}
+
+// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by IDs.
+func (gc *GroupCreate) AddProblemJudgeIDs(ids ...int) *GroupCreate {
+	gc.mutation.AddProblemJudgeIDs(ids...)
+	return gc
+}
+
+// AddProblemJudges adds the "problem_judges" edges to the ProblemJudge entity.
+func (gc *GroupCreate) AddProblemJudges(p ...*ProblemJudge) *GroupCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gc.AddProblemJudgeIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -146,6 +178,38 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.ContestGroupIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.ContestGroupTable,
+			Columns: []string{group.ContestGroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.ProblemJudgesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.ProblemJudgesTable,
+			Columns: []string{group.ProblemJudgesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemjudge.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

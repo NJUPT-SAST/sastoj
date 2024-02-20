@@ -39,42 +39,42 @@ func (cgc *ContestGroupCreate) SetID(i int) *ContestGroupCreate {
 	return cgc
 }
 
-// SetContestID sets the "contest" edge to the Contest entity by ID.
-func (cgc *ContestGroupCreate) SetContestID(id int) *ContestGroupCreate {
-	cgc.mutation.SetContestID(id)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (cgc *ContestGroupCreate) SetContestsID(id int) *ContestGroupCreate {
+	cgc.mutation.SetContestsID(id)
 	return cgc
 }
 
-// SetNillableContestID sets the "contest" edge to the Contest entity by ID if the given value is not nil.
-func (cgc *ContestGroupCreate) SetNillableContestID(id *int) *ContestGroupCreate {
+// SetNillableContestsID sets the "contests" edge to the Contest entity by ID if the given value is not nil.
+func (cgc *ContestGroupCreate) SetNillableContestsID(id *int) *ContestGroupCreate {
 	if id != nil {
-		cgc = cgc.SetContestID(*id)
+		cgc = cgc.SetContestsID(*id)
 	}
 	return cgc
 }
 
-// SetContest sets the "contest" edge to the Contest entity.
-func (cgc *ContestGroupCreate) SetContest(c *Contest) *ContestGroupCreate {
-	return cgc.SetContestID(c.ID)
+// SetContests sets the "contests" edge to the Contest entity.
+func (cgc *ContestGroupCreate) SetContests(c *Contest) *ContestGroupCreate {
+	return cgc.SetContestsID(c.ID)
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (cgc *ContestGroupCreate) SetGroupID(id int) *ContestGroupCreate {
-	cgc.mutation.SetGroupID(id)
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (cgc *ContestGroupCreate) SetGroupsID(id int) *ContestGroupCreate {
+	cgc.mutation.SetGroupsID(id)
 	return cgc
 }
 
-// SetNillableGroupID sets the "group" edge to the Group entity by ID if the given value is not nil.
-func (cgc *ContestGroupCreate) SetNillableGroupID(id *int) *ContestGroupCreate {
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (cgc *ContestGroupCreate) SetNillableGroupsID(id *int) *ContestGroupCreate {
 	if id != nil {
-		cgc = cgc.SetGroupID(*id)
+		cgc = cgc.SetGroupsID(*id)
 	}
 	return cgc
 }
 
-// SetGroup sets the "group" edge to the Group entity.
-func (cgc *ContestGroupCreate) SetGroup(g *Group) *ContestGroupCreate {
-	return cgc.SetGroupID(g.ID)
+// SetGroups sets the "groups" edge to the Group entity.
+func (cgc *ContestGroupCreate) SetGroups(g *Group) *ContestGroupCreate {
+	return cgc.SetGroupsID(g.ID)
 }
 
 // Mutation returns the ContestGroupMutation object of the builder.
@@ -157,12 +157,12 @@ func (cgc *ContestGroupCreate) createSpec() (*ContestGroup, *sqlgraph.CreateSpec
 		_spec.SetField(contestgroup.FieldGroupID, field.TypeInt, value)
 		_node.GroupID = value
 	}
-	if nodes := cgc.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := cgc.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.ContestTable,
-			Columns: []string{contestgroup.ContestColumn},
+			Inverse: true,
+			Table:   contestgroup.ContestsTable,
+			Columns: []string{contestgroup.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
@@ -171,15 +171,15 @@ func (cgc *ContestGroupCreate) createSpec() (*ContestGroup, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.contest_group_contest = &nodes[0]
+		_node.contest_contest_group = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cgc.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := cgc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   contestgroup.GroupTable,
-			Columns: []string{contestgroup.GroupColumn},
+			Inverse: true,
+			Table:   contestgroup.GroupsTable,
+			Columns: []string{contestgroup.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
@@ -188,7 +188,7 @@ func (cgc *ContestGroupCreate) createSpec() (*ContestGroup, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.contest_group_group = &nodes[0]
+		_node.group_contest_group = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

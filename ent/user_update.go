@@ -6,7 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/group"
+	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
+	"sastoj/ent/submit"
+	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -111,9 +115,142 @@ func (uu *UserUpdate) AddGroupID(i int) *UserUpdate {
 	return uu
 }
 
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (uu *UserUpdate) AddSubmitJudgeIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddSubmitJudgeIDs(ids...)
+	return uu
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (uu *UserUpdate) AddSubmitJudge(s ...*SubmitJudge) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.AddSubmitJudgeIDs(ids...)
+}
+
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (uu *UserUpdate) SetGroupsID(id int) *UserUpdate {
+	uu.mutation.SetGroupsID(id)
+	return uu
+}
+
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableGroupsID(id *int) *UserUpdate {
+	if id != nil {
+		uu = uu.SetGroupsID(*id)
+	}
+	return uu
+}
+
+// SetGroups sets the "groups" edge to the Group entity.
+func (uu *UserUpdate) SetGroups(g *Group) *UserUpdate {
+	return uu.SetGroupsID(g.ID)
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+func (uu *UserUpdate) AddSubmissionIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddSubmissionIDs(ids...)
+	return uu
+}
+
+// AddSubmission adds the "submission" edges to the Submit entity.
+func (uu *UserUpdate) AddSubmission(s ...*Submit) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.AddSubmissionIDs(ids...)
+}
+
+// AddLoginSessionIDs adds the "login_session" edge to the LoginSession entity by IDs.
+func (uu *UserUpdate) AddLoginSessionIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddLoginSessionIDs(ids...)
+	return uu
+}
+
+// AddLoginSession adds the "login_session" edges to the LoginSession entity.
+func (uu *UserUpdate) AddLoginSession(l ...*LoginSession) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uu.AddLoginSessionIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearSubmitJudge clears all "submit_judge" edges to the SubmitJudge entity.
+func (uu *UserUpdate) ClearSubmitJudge() *UserUpdate {
+	uu.mutation.ClearSubmitJudge()
+	return uu
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to SubmitJudge entities by IDs.
+func (uu *UserUpdate) RemoveSubmitJudgeIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveSubmitJudgeIDs(ids...)
+	return uu
+}
+
+// RemoveSubmitJudge removes "submit_judge" edges to SubmitJudge entities.
+func (uu *UserUpdate) RemoveSubmitJudge(s ...*SubmitJudge) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.RemoveSubmitJudgeIDs(ids...)
+}
+
+// ClearGroups clears the "groups" edge to the Group entity.
+func (uu *UserUpdate) ClearGroups() *UserUpdate {
+	uu.mutation.ClearGroups()
+	return uu
+}
+
+// ClearSubmission clears all "submission" edges to the Submit entity.
+func (uu *UserUpdate) ClearSubmission() *UserUpdate {
+	uu.mutation.ClearSubmission()
+	return uu
+}
+
+// RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
+func (uu *UserUpdate) RemoveSubmissionIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveSubmissionIDs(ids...)
+	return uu
+}
+
+// RemoveSubmission removes "submission" edges to Submit entities.
+func (uu *UserUpdate) RemoveSubmission(s ...*Submit) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.RemoveSubmissionIDs(ids...)
+}
+
+// ClearLoginSession clears all "login_session" edges to the LoginSession entity.
+func (uu *UserUpdate) ClearLoginSession() *UserUpdate {
+	uu.mutation.ClearLoginSession()
+	return uu
+}
+
+// RemoveLoginSessionIDs removes the "login_session" edge to LoginSession entities by IDs.
+func (uu *UserUpdate) RemoveLoginSessionIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveLoginSessionIDs(ids...)
+	return uu
+}
+
+// RemoveLoginSession removes "login_session" edges to LoginSession entities.
+func (uu *UserUpdate) RemoveLoginSession(l ...*LoginSession) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uu.RemoveLoginSessionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -190,6 +327,170 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.AddedGroupID(); ok {
 		_spec.AddField(user.FieldGroupID, field.TypeInt, value)
+	}
+	if uu.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedSubmitJudgeIDs(); len(nodes) > 0 && !uu.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.GroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupsTable,
+			Columns: []string{user.GroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.GroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupsTable,
+			Columns: []string{user.GroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.SubmissionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedSubmissionIDs(); len(nodes) > 0 && !uu.mutation.SubmissionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.SubmissionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.LoginSessionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedLoginSessionIDs(); len(nodes) > 0 && !uu.mutation.LoginSessionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.LoginSessionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -295,9 +596,142 @@ func (uuo *UserUpdateOne) AddGroupID(i int) *UserUpdateOne {
 	return uuo
 }
 
+// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
+func (uuo *UserUpdateOne) AddSubmitJudgeIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddSubmitJudgeIDs(ids...)
+	return uuo
+}
+
+// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
+func (uuo *UserUpdateOne) AddSubmitJudge(s ...*SubmitJudge) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.AddSubmitJudgeIDs(ids...)
+}
+
+// SetGroupsID sets the "groups" edge to the Group entity by ID.
+func (uuo *UserUpdateOne) SetGroupsID(id int) *UserUpdateOne {
+	uuo.mutation.SetGroupsID(id)
+	return uuo
+}
+
+// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableGroupsID(id *int) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetGroupsID(*id)
+	}
+	return uuo
+}
+
+// SetGroups sets the "groups" edge to the Group entity.
+func (uuo *UserUpdateOne) SetGroups(g *Group) *UserUpdateOne {
+	return uuo.SetGroupsID(g.ID)
+}
+
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+func (uuo *UserUpdateOne) AddSubmissionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddSubmissionIDs(ids...)
+	return uuo
+}
+
+// AddSubmission adds the "submission" edges to the Submit entity.
+func (uuo *UserUpdateOne) AddSubmission(s ...*Submit) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.AddSubmissionIDs(ids...)
+}
+
+// AddLoginSessionIDs adds the "login_session" edge to the LoginSession entity by IDs.
+func (uuo *UserUpdateOne) AddLoginSessionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddLoginSessionIDs(ids...)
+	return uuo
+}
+
+// AddLoginSession adds the "login_session" edges to the LoginSession entity.
+func (uuo *UserUpdateOne) AddLoginSession(l ...*LoginSession) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uuo.AddLoginSessionIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearSubmitJudge clears all "submit_judge" edges to the SubmitJudge entity.
+func (uuo *UserUpdateOne) ClearSubmitJudge() *UserUpdateOne {
+	uuo.mutation.ClearSubmitJudge()
+	return uuo
+}
+
+// RemoveSubmitJudgeIDs removes the "submit_judge" edge to SubmitJudge entities by IDs.
+func (uuo *UserUpdateOne) RemoveSubmitJudgeIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveSubmitJudgeIDs(ids...)
+	return uuo
+}
+
+// RemoveSubmitJudge removes "submit_judge" edges to SubmitJudge entities.
+func (uuo *UserUpdateOne) RemoveSubmitJudge(s ...*SubmitJudge) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.RemoveSubmitJudgeIDs(ids...)
+}
+
+// ClearGroups clears the "groups" edge to the Group entity.
+func (uuo *UserUpdateOne) ClearGroups() *UserUpdateOne {
+	uuo.mutation.ClearGroups()
+	return uuo
+}
+
+// ClearSubmission clears all "submission" edges to the Submit entity.
+func (uuo *UserUpdateOne) ClearSubmission() *UserUpdateOne {
+	uuo.mutation.ClearSubmission()
+	return uuo
+}
+
+// RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
+func (uuo *UserUpdateOne) RemoveSubmissionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveSubmissionIDs(ids...)
+	return uuo
+}
+
+// RemoveSubmission removes "submission" edges to Submit entities.
+func (uuo *UserUpdateOne) RemoveSubmission(s ...*Submit) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.RemoveSubmissionIDs(ids...)
+}
+
+// ClearLoginSession clears all "login_session" edges to the LoginSession entity.
+func (uuo *UserUpdateOne) ClearLoginSession() *UserUpdateOne {
+	uuo.mutation.ClearLoginSession()
+	return uuo
+}
+
+// RemoveLoginSessionIDs removes the "login_session" edge to LoginSession entities by IDs.
+func (uuo *UserUpdateOne) RemoveLoginSessionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveLoginSessionIDs(ids...)
+	return uuo
+}
+
+// RemoveLoginSession removes "login_session" edges to LoginSession entities.
+func (uuo *UserUpdateOne) RemoveLoginSession(l ...*LoginSession) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uuo.RemoveLoginSessionIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -404,6 +838,170 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.AddedGroupID(); ok {
 		_spec.AddField(user.FieldGroupID, field.TypeInt, value)
+	}
+	if uuo.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedSubmitJudgeIDs(); len(nodes) > 0 && !uuo.mutation.SubmitJudgeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmitJudgeTable,
+			Columns: []string{user.SubmitJudgeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.GroupsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupsTable,
+			Columns: []string{user.GroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.GroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupsTable,
+			Columns: []string{user.GroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.SubmissionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedSubmissionIDs(); len(nodes) > 0 && !uuo.mutation.SubmissionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.SubmissionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.LoginSessionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedLoginSessionIDs(); len(nodes) > 0 && !uuo.mutation.LoginSessionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.LoginSessionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.LoginSessionTable,
+			Columns: user.LoginSessionPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

@@ -24,47 +24,47 @@ type ProblemJudge struct {
 	ProblemID int `json:"problem_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemJudgeQuery when eager-loading is set.
-	Edges                 ProblemJudgeEdges `json:"edges"`
-	problem_judge_group   *int
-	problem_judge_problem *int
-	selectValues          sql.SelectValues
+	Edges                  ProblemJudgeEdges `json:"edges"`
+	group_problem_judges   *int
+	problem_problem_judges *int
+	selectValues           sql.SelectValues
 }
 
 // ProblemJudgeEdges holds the relations/edges for other nodes in the graph.
 type ProblemJudgeEdges struct {
-	// Group holds the value of the group edge.
-	Group *Group `json:"group,omitempty"`
-	// Problem holds the value of the problem edge.
-	Problem *Problem `json:"problem,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups *Group `json:"groups,omitempty"`
+	// Problems holds the value of the problems edge.
+	Problems *Problem `json:"problems,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 }
 
-// GroupOrErr returns the Group value or an error if the edge
+// GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemJudgeEdges) GroupOrErr() (*Group, error) {
+func (e ProblemJudgeEdges) GroupsOrErr() (*Group, error) {
 	if e.loadedTypes[0] {
-		if e.Group == nil {
+		if e.Groups == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: group.Label}
 		}
-		return e.Group, nil
+		return e.Groups, nil
 	}
-	return nil, &NotLoadedError{edge: "group"}
+	return nil, &NotLoadedError{edge: "groups"}
 }
 
-// ProblemOrErr returns the Problem value or an error if the edge
+// ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemJudgeEdges) ProblemOrErr() (*Problem, error) {
+func (e ProblemJudgeEdges) ProblemsOrErr() (*Problem, error) {
 	if e.loadedTypes[1] {
-		if e.Problem == nil {
+		if e.Problems == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: problem.Label}
 		}
-		return e.Problem, nil
+		return e.Problems, nil
 	}
-	return nil, &NotLoadedError{edge: "problem"}
+	return nil, &NotLoadedError{edge: "problems"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -74,9 +74,9 @@ func (*ProblemJudge) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problemjudge.FieldID, problemjudge.FieldGroupID, problemjudge.FieldProblemID:
 			values[i] = new(sql.NullInt64)
-		case problemjudge.ForeignKeys[0]: // problem_judge_group
+		case problemjudge.ForeignKeys[0]: // group_problem_judges
 			values[i] = new(sql.NullInt64)
-		case problemjudge.ForeignKeys[1]: // problem_judge_problem
+		case problemjudge.ForeignKeys[1]: // problem_problem_judges
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -113,17 +113,17 @@ func (pj *ProblemJudge) assignValues(columns []string, values []any) error {
 			}
 		case problemjudge.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_judge_group", value)
+				return fmt.Errorf("unexpected type %T for edge-field group_problem_judges", value)
 			} else if value.Valid {
-				pj.problem_judge_group = new(int)
-				*pj.problem_judge_group = int(value.Int64)
+				pj.group_problem_judges = new(int)
+				*pj.group_problem_judges = int(value.Int64)
 			}
 		case problemjudge.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_judge_problem", value)
+				return fmt.Errorf("unexpected type %T for edge-field problem_problem_judges", value)
 			} else if value.Valid {
-				pj.problem_judge_problem = new(int)
-				*pj.problem_judge_problem = int(value.Int64)
+				pj.problem_problem_judges = new(int)
+				*pj.problem_problem_judges = int(value.Int64)
 			}
 		default:
 			pj.selectValues.Set(columns[i], values[i])
@@ -138,14 +138,14 @@ func (pj *ProblemJudge) Value(name string) (ent.Value, error) {
 	return pj.selectValues.Get(name)
 }
 
-// QueryGroup queries the "group" edge of the ProblemJudge entity.
-func (pj *ProblemJudge) QueryGroup() *GroupQuery {
-	return NewProblemJudgeClient(pj.config).QueryGroup(pj)
+// QueryGroups queries the "groups" edge of the ProblemJudge entity.
+func (pj *ProblemJudge) QueryGroups() *GroupQuery {
+	return NewProblemJudgeClient(pj.config).QueryGroups(pj)
 }
 
-// QueryProblem queries the "problem" edge of the ProblemJudge entity.
-func (pj *ProblemJudge) QueryProblem() *ProblemQuery {
-	return NewProblemJudgeClient(pj.config).QueryProblem(pj)
+// QueryProblems queries the "problems" edge of the ProblemJudge entity.
+func (pj *ProblemJudge) QueryProblems() *ProblemQuery {
+	return NewProblemJudgeClient(pj.config).QueryProblems(pj)
 }
 
 // Update returns a builder for updating this ProblemJudge.

@@ -23,7 +23,7 @@ func (ProblemJudge) Fields() []ent.Field {
 // Edges of the ProblemJudge.
 func (ProblemJudge) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("group", Group.Type).Unique(),
-		edge.To("problem", Problem.Type).Unique(),
+		edge.From("groups", Group.Type).Ref("problem_judges").Unique(),
+		edge.From("problems", Problem.Type).Ref("problem_judges").Unique(),
 	}
 }

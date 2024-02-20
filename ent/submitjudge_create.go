@@ -39,42 +39,42 @@ func (sjc *SubmitJudgeCreate) SetID(i int) *SubmitJudgeCreate {
 	return sjc
 }
 
-// SetSubmitID sets the "submit" edge to the Submit entity by ID.
-func (sjc *SubmitJudgeCreate) SetSubmitID(id int) *SubmitJudgeCreate {
-	sjc.mutation.SetSubmitID(id)
+// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
+func (sjc *SubmitJudgeCreate) SetSubmissionID(id int) *SubmitJudgeCreate {
+	sjc.mutation.SetSubmissionID(id)
 	return sjc
 }
 
-// SetNillableSubmitID sets the "submit" edge to the Submit entity by ID if the given value is not nil.
-func (sjc *SubmitJudgeCreate) SetNillableSubmitID(id *int) *SubmitJudgeCreate {
+// SetNillableSubmissionID sets the "submission" edge to the Submit entity by ID if the given value is not nil.
+func (sjc *SubmitJudgeCreate) SetNillableSubmissionID(id *int) *SubmitJudgeCreate {
 	if id != nil {
-		sjc = sjc.SetSubmitID(*id)
+		sjc = sjc.SetSubmissionID(*id)
 	}
 	return sjc
 }
 
-// SetSubmit sets the "submit" edge to the Submit entity.
-func (sjc *SubmitJudgeCreate) SetSubmit(s *Submit) *SubmitJudgeCreate {
-	return sjc.SetSubmitID(s.ID)
+// SetSubmission sets the "submission" edge to the Submit entity.
+func (sjc *SubmitJudgeCreate) SetSubmission(s *Submit) *SubmitJudgeCreate {
+	return sjc.SetSubmissionID(s.ID)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (sjc *SubmitJudgeCreate) SetUserID(id int) *SubmitJudgeCreate {
-	sjc.mutation.SetUserID(id)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (sjc *SubmitJudgeCreate) SetUsersID(id int) *SubmitJudgeCreate {
+	sjc.mutation.SetUsersID(id)
 	return sjc
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (sjc *SubmitJudgeCreate) SetNillableUserID(id *int) *SubmitJudgeCreate {
+// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
+func (sjc *SubmitJudgeCreate) SetNillableUsersID(id *int) *SubmitJudgeCreate {
 	if id != nil {
-		sjc = sjc.SetUserID(*id)
+		sjc = sjc.SetUsersID(*id)
 	}
 	return sjc
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (sjc *SubmitJudgeCreate) SetUser(u *User) *SubmitJudgeCreate {
-	return sjc.SetUserID(u.ID)
+// SetUsers sets the "users" edge to the User entity.
+func (sjc *SubmitJudgeCreate) SetUsers(u *User) *SubmitJudgeCreate {
+	return sjc.SetUsersID(u.ID)
 }
 
 // Mutation returns the SubmitJudgeMutation object of the builder.
@@ -162,12 +162,12 @@ func (sjc *SubmitJudgeCreate) createSpec() (*SubmitJudge, *sqlgraph.CreateSpec) 
 		_spec.SetField(submitjudge.FieldSubmitID, field.TypeInt, value)
 		_node.SubmitID = value
 	}
-	if nodes := sjc.mutation.SubmitIDs(); len(nodes) > 0 {
+	if nodes := sjc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.SubmitTable,
-			Columns: []string{submitjudge.SubmitColumn},
+			Inverse: true,
+			Table:   submitjudge.SubmissionTable,
+			Columns: []string{submitjudge.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
@@ -176,15 +176,15 @@ func (sjc *SubmitJudgeCreate) createSpec() (*SubmitJudge, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_judge_submit = &nodes[0]
+		_node.submit_submit_judge = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := sjc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := sjc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   submitjudge.UserTable,
-			Columns: []string{submitjudge.UserColumn},
+			Inverse: true,
+			Table:   submitjudge.UsersTable,
+			Columns: []string{submitjudge.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -193,7 +193,7 @@ func (sjc *SubmitJudgeCreate) createSpec() (*SubmitJudge, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.submit_judge_user = &nodes[0]
+		_node.user_submit_judge = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

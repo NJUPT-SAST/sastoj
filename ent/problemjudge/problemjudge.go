@@ -16,26 +16,26 @@ const (
 	FieldGroupID = "group_id"
 	// FieldProblemID holds the string denoting the problem_id field in the database.
 	FieldProblemID = "problem_id"
-	// EdgeGroup holds the string denoting the group edge name in mutations.
-	EdgeGroup = "group"
-	// EdgeProblem holds the string denoting the problem edge name in mutations.
-	EdgeProblem = "problem"
+	// EdgeGroups holds the string denoting the groups edge name in mutations.
+	EdgeGroups = "groups"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
 	// Table holds the table name of the problemjudge in the database.
 	Table = "problem_judges"
-	// GroupTable is the table that holds the group relation/edge.
-	GroupTable = "problem_judges"
-	// GroupInverseTable is the table name for the Group entity.
+	// GroupsTable is the table that holds the groups relation/edge.
+	GroupsTable = "problem_judges"
+	// GroupsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	GroupInverseTable = "groups"
-	// GroupColumn is the table column denoting the group relation/edge.
-	GroupColumn = "problem_judge_group"
-	// ProblemTable is the table that holds the problem relation/edge.
-	ProblemTable = "problem_judges"
-	// ProblemInverseTable is the table name for the Problem entity.
+	GroupsInverseTable = "groups"
+	// GroupsColumn is the table column denoting the groups relation/edge.
+	GroupsColumn = "group_problem_judges"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "problem_judges"
+	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemInverseTable = "problems"
-	// ProblemColumn is the table column denoting the problem relation/edge.
-	ProblemColumn = "problem_judge_problem"
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "problem_problem_judges"
 )
 
 // Columns holds all SQL columns for problemjudge fields.
@@ -48,8 +48,8 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "problem_judges"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"problem_judge_group",
-	"problem_judge_problem",
+	"group_problem_judges",
+	"problem_problem_judges",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -92,30 +92,30 @@ func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
 }
 
-// ByGroupField orders the results by group field.
-func ByGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByGroupsField orders the results by groups field.
+func ByGroupsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGroupStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByProblemField orders the results by problem field.
-func ByProblemField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByProblemsField orders the results by problems field.
+func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newGroupStep() *sqlgraph.Step {
+func newGroupsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, GroupTable, GroupColumn),
+		sqlgraph.To(GroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
 	)
 }
-func newProblemStep() *sqlgraph.Step {
+func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, ProblemTable, ProblemColumn),
+		sqlgraph.To(ProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
 	)
 }

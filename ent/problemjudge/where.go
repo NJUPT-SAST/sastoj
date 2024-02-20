@@ -144,21 +144,21 @@ func ProblemIDLTE(v int) predicate.ProblemJudge {
 	return predicate.ProblemJudge(sql.FieldLTE(FieldProblemID, v))
 }
 
-// HasGroup applies the HasEdge predicate on the "group" edge.
-func HasGroup() predicate.ProblemJudge {
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.ProblemJudge {
 	return predicate.ProblemJudge(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, GroupTable, GroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasGroupWith applies the HasEdge predicate on the "group" edge with a given conditions (other predicates).
-func HasGroupWith(preds ...predicate.Group) predicate.ProblemJudge {
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.Group) predicate.ProblemJudge {
 	return predicate.ProblemJudge(func(s *sql.Selector) {
-		step := newGroupStep()
+		step := newGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -167,21 +167,21 @@ func HasGroupWith(preds ...predicate.Group) predicate.ProblemJudge {
 	})
 }
 
-// HasProblem applies the HasEdge predicate on the "problem" edge.
-func HasProblem() predicate.ProblemJudge {
+// HasProblems applies the HasEdge predicate on the "problems" edge.
+func HasProblems() predicate.ProblemJudge {
 	return predicate.ProblemJudge(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, ProblemTable, ProblemColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProblemWith applies the HasEdge predicate on the "problem" edge with a given conditions (other predicates).
-func HasProblemWith(preds ...predicate.Problem) predicate.ProblemJudge {
+// HasProblemsWith applies the HasEdge predicate on the "problems" edge with a given conditions (other predicates).
+func HasProblemsWith(preds ...predicate.Problem) predicate.ProblemJudge {
 	return predicate.ProblemJudge(func(s *sql.Selector) {
-		step := newProblemStep()
+		step := newProblemsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
