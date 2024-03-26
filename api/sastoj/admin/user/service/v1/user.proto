@@ -11,7 +11,7 @@ option java_package = "api.sastoj.admin.user.service.v1";
 service User {
 	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
 		option (google.api.http) = {
-			post: "/v1/user"
+			post: "/user"
 			body: "*"
 		};
 	};

@@ -3,19 +3,43 @@
 
 openapi: 3.0.3
 info:
-    title: User API
+    title: ContestService API
     version: 0.0.1
 paths:
-    /v1/user:
+    /user/contest:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_ListContest
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListContestReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/contest/{contestId}:
         post:
             tags:
-                - User
-            operationId: User_CreateUser
+                - ContestService
+            operationId: ContestService_JoinContest
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateUserRequest'
+                            $ref: '#/components/schemas/JoinContestRequest'
                 required: true
             responses:
                 "200":
@@ -23,7 +47,163 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateUserReply'
+                                $ref: '#/components/schemas/JoinContestReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/contest/{contestId}/problem/{problemId}:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_GetProblem
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetProblemReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - ContestService
+            operationId: ContestService_SubmitProblem
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SubmitProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SubmitProblemReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/contest/{contestId}/problem/{problemId}/pretest:
+        post:
+            tags:
+                - ContestService
+            operationId: ContestService_PretestProblem
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PretestProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PretestProblemReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/contest/{contestId}/problem/{problemId}/submit/{submitId}:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_GetSubmission
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: submitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSubmissionReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/contest/{contestId}/ranking:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_GetRanking
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetRankingReply'
                 default:
                     description: Default error response
                     content:
@@ -32,20 +212,91 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        CreateUserReply:
+        Contest:
             type: object
             properties:
                 id:
                     type: string
-        CreateUserRequest:
+                title:
+                    type: string
+                description:
+                    type: string
+                state:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+        GetProblemReply:
             type: object
             properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+        GetRankingReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GetRankingReply_User'
+        GetRankingReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
                 username:
                     type: string
-                password:
+                score:
+                    type: integer
+                    format: int32
+                rank:
+                    type: integer
+                    format: int32
+        GetSubmissionReply:
+            type: object
+            properties:
+                id:
                     type: string
-                groupId:
+                code:
                     type: string
+                language:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                totalTime:
+                    type: integer
+                    format: int32
+                maxMemory:
+                    type: integer
+                    format: int32
         GoogleProtobufAny:
             type: object
             properties:
@@ -54,6 +305,41 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        JoinContestReply:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
+        JoinContestRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                isJoin:
+                    type: string
+        ListContestReply:
+            type: object
+            properties:
+                contests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contest'
+        PretestProblemReply:
+            type: object
+            properties:
+                pretestId:
+                    type: string
+        PretestProblemRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
         Status:
             type: object
             properties:
@@ -70,5 +356,21 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        SubmitProblemReply:
+            type: object
+            properties:
+                submitId:
+                    type: string
+        SubmitProblemRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
 tags:
-    - name: User
+    - name: ContestService
