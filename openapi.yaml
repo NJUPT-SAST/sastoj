@@ -39,7 +39,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/JoinContestRequest'
+                            $ref: '#/components/schemas/JoinContestBody'
                 required: true
             responses:
                 "200":
@@ -305,18 +305,16 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        JoinContestBody:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
         JoinContestReply:
             type: object
             properties:
                 isJoin:
                     type: boolean
-        JoinContestRequest:
-            type: object
-            properties:
-                contestId:
-                    type: string
-                isJoin:
-                    type: string
         ListContestReply:
             type: object
             properties:
