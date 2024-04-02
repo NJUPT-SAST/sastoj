@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -20,11 +21,13 @@ var ProviderSet = wire.NewSet(NewData, NewContestRepo)
 
 // Data .
 type Data struct {
-	db *ent.Client
+	db    *ent.Client
+	redis *redis.Client
 }
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	// connect to postgres
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
@@ -53,6 +56,15 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	// Run the auto migration tool.
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Errorf("failed creating schema resources: %v", err)
+		return nil, nil, err
+	}
+	// connect to redis
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: c.Redis.Addr,
+		DB:   int(c.Redis.Db),
+	})
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
 	return &Data{db: client}, cleanup, nil

@@ -31,10 +31,8 @@ message Data {
     string source = 2;
   }
   message Redis {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration read_timeout = 3;
-    google.protobuf.Duration write_timeout = 4;
+    string addr = 1;
+    int32 db = 2;
   }
   Database database = 1;
   Redis redis = 2;
