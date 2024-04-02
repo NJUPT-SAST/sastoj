@@ -43,7 +43,14 @@ func (s *ContestService) ListContest(ctx context.Context, req *pb.ListContestReq
 	return reply, nil
 }
 func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
-	return &pb.JoinContestReply{}, nil
+	println(req.JoinContestBody.IsJoin)
+	err := s.uc.JoinContest(ctx, 1, 1, req.JoinContestBody.IsJoin)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.JoinContestReply{
+		IsJoin: req.JoinContestBody.IsJoin,
+	}, nil
 }
 func (s *ContestService) GetProblem(ctx context.Context, req *pb.GetProblemRequest) (*pb.GetProblemReply, error) {
 	return &pb.GetProblemReply{}, nil

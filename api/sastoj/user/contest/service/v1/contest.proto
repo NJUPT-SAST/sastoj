@@ -18,7 +18,7 @@ service ContestService {
 	rpc JoinContest (JoinContestRequest) returns (JoinContestReply) {
 		option (google.api.http) = {
 			post: "/user/contest/{contest_id}",
-			body: "*"
+			body: "joinContestBody"
 		};
 	};
 	rpc GetProblem (GetProblemRequest) returns (GetProblemReply) {
@@ -70,7 +70,11 @@ message ListContestReply {
 
 message JoinContestRequest {
 	string contest_id = 1;
-	string is_join = 2;
+	JoinContestBody joinContestBody = 2;
+}
+
+message JoinContestBody {
+	bool is_join = 1;
 }
 
 message JoinContestReply {

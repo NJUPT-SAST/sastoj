@@ -70,7 +70,7 @@ func _ContestService_ListContest0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 func _ContestService_JoinContest0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in JoinContestRequest
-		if err := ctx.Bind(&in); err != nil {
+		if err := ctx.Bind(&in.JoinContestBody); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
@@ -271,7 +271,7 @@ func (c *ContestServiceHTTPClientImpl) JoinContest(ctx context.Context, in *Join
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationContestServiceJoinContest))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in.JoinContestBody, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

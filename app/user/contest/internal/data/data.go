@@ -67,5 +67,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client}, cleanup, nil
+	return &Data{client, redisClient}, cleanup, nil
 }
