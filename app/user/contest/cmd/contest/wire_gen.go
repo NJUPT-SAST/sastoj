@@ -30,9 +30,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	}
 	contestRepo := data.NewContestRepo(dataData, logger)
 	contestUsecase := biz.NewContestUsecase(contestRepo, logger)
-	contestService := service.NewContestService(contestUsecase)
-	grpcServer := server.NewGRPCServer(confServer, contestService, logger)
-	httpServer := server.NewHTTPServer(confServer, contestService, logger)
+	problemRepo := data.NewProblemRepo(dataData, logger)
+	problemUsecase := biz.NewProblemUsecase(problemRepo, logger)
+	userContestService := service.NewUserContestService(contestUsecase, problemUsecase)
+	grpcServer := server.NewGRPCServer(confServer, userContestService, logger)
+	httpServer := server.NewHTTPServer(confServer, userContestService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

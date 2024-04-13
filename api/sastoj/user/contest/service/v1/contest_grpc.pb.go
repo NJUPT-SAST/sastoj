@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.1
-// source: api/sastoj/user/contest/service/v1/contest.proto
+// source: sastoj/user/contest/service/v1/contest.proto
 
 package v1
 
@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	ContestService_ListContest_FullMethodName    = "/api.sastoj.user.contest.service.v1.ContestService/ListContest"
 	ContestService_JoinContest_FullMethodName    = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
+	ContestService_GetProblems_FullMethodName    = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
 	ContestService_GetProblem_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
 	ContestService_SubmitProblem_FullMethodName  = "/api.sastoj.user.contest.service.v1.ContestService/SubmitProblem"
 	ContestService_PretestProblem_FullMethodName = "/api.sastoj.user.contest.service.v1.ContestService/PretestProblem"
@@ -34,6 +35,7 @@ const (
 type ContestServiceClient interface {
 	ListContest(ctx context.Context, in *ListContestRequest, opts ...grpc.CallOption) (*ListContestReply, error)
 	JoinContest(ctx context.Context, in *JoinContestRequest, opts ...grpc.CallOption) (*JoinContestReply, error)
+	GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...grpc.CallOption) (*GetProblemsReply, error)
 	GetProblem(ctx context.Context, in *GetProblemRequest, opts ...grpc.CallOption) (*GetProblemReply, error)
 	SubmitProblem(ctx context.Context, in *SubmitProblemRequest, opts ...grpc.CallOption) (*SubmitProblemReply, error)
 	PretestProblem(ctx context.Context, in *PretestProblemRequest, opts ...grpc.CallOption) (*PretestProblemReply, error)
@@ -61,6 +63,15 @@ func (c *contestServiceClient) ListContest(ctx context.Context, in *ListContestR
 func (c *contestServiceClient) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...grpc.CallOption) (*JoinContestReply, error) {
 	out := new(JoinContestReply)
 	err := c.cc.Invoke(ctx, ContestService_JoinContest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contestServiceClient) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...grpc.CallOption) (*GetProblemsReply, error) {
+	out := new(GetProblemsReply)
+	err := c.cc.Invoke(ctx, ContestService_GetProblems_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +129,7 @@ func (c *contestServiceClient) GetRanking(ctx context.Context, in *GetRankingReq
 type ContestServiceServer interface {
 	ListContest(context.Context, *ListContestRequest) (*ListContestReply, error)
 	JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error)
+	GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error)
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	SubmitProblem(context.Context, *SubmitProblemRequest) (*SubmitProblemReply, error)
 	PretestProblem(context.Context, *PretestProblemRequest) (*PretestProblemReply, error)
@@ -135,6 +147,9 @@ func (UnimplementedContestServiceServer) ListContest(context.Context, *ListConte
 }
 func (UnimplementedContestServiceServer) JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinContest not implemented")
+}
+func (UnimplementedContestServiceServer) GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProblems not implemented")
 }
 func (UnimplementedContestServiceServer) GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProblem not implemented")
@@ -196,6 +211,24 @@ func _ContestService_JoinContest_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContestServiceServer).JoinContest(ctx, req.(*JoinContestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContestService_GetProblems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProblemsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContestServiceServer).GetProblems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContestService_GetProblems_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContestServiceServer).GetProblems(ctx, req.(*GetProblemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,6 +339,10 @@ var ContestService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ContestService_JoinContest_Handler,
 		},
 		{
+			MethodName: "GetProblems",
+			Handler:    _ContestService_GetProblems_Handler,
+		},
+		{
 			MethodName: "GetProblem",
 			Handler:    _ContestService_GetProblem_Handler,
 		},
@@ -327,5 +364,5 @@ var ContestService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/sastoj/user/contest/service/v1/contest.proto",
+	Metadata: "sastoj/user/contest/service/v1/contest.proto",
 }

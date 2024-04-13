@@ -3,9 +3,63 @@
 
 openapi: 3.0.3
 info:
-    title: ContestService API
+    title: ""
     version: 0.0.1
 paths:
+    /group:
+        put:
+            tags:
+                - Group
+            operationId: Group_CreateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.CreateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.CreateGroupReply'
+    /group/{id}:
+        get:
+            tags:
+                - Group
+            operationId: Group_GetGroup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.GetGroupReply'
+    /user:
+        post:
+            tags:
+                - User
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserReply'
     /user/contest:
         get:
             tags:
@@ -17,13 +71,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListContestReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.ListContestReply'
     /user/contest/{contestId}:
         post:
             tags:
@@ -39,7 +87,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/JoinContestBody'
+                            $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.JoinContestBody'
                 required: true
             responses:
                 "200":
@@ -47,13 +95,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/JoinContestReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.JoinContestReply'
     /user/contest/{contestId}/problem/{problemId}:
         get:
             tags:
@@ -76,13 +118,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetProblemReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetProblemReply'
         post:
             tags:
                 - ContestService
@@ -102,7 +138,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SubmitProblemRequest'
+                            $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.SubmitProblemRequest'
                 required: true
             responses:
                 "200":
@@ -110,13 +146,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SubmitProblemReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.SubmitProblemReply'
     /user/contest/{contestId}/problem/{problemId}/pretest:
         post:
             tags:
@@ -137,7 +167,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/PretestProblemRequest'
+                            $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.PretestProblemRequest'
                 required: true
             responses:
                 "200":
@@ -145,13 +175,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PretestProblemReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.PretestProblemReply'
     /user/contest/{contestId}/problem/{problemId}/submit/{submitId}:
         get:
             tags:
@@ -179,13 +203,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetSubmissionReply'
-                default:
-                    description: Default error response
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetSubmissionReply'
+    /user/contest/{contestId}/problems:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_GetProblems
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetProblemsReply'
     /user/contest/{contestId}/ranking:
         get:
             tags:
@@ -203,16 +239,41 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetRankingReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetRankingReply'
 components:
     schemas:
-        Contest:
+        api.sastoj.admin.group.service.v1.CreateGroupReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.group.service.v1.CreateGroupRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+        api.sastoj.admin.group.service.v1.GetGroupReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.user.service.v1.CreateUserReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.user.service.v1.CreateUserRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                groupId:
+                    type: string
+        api.sastoj.user.contest.service.v1.Contest:
             type: object
             properties:
                 id:
@@ -238,7 +299,7 @@ components:
                 extraTime:
                     type: integer
                     format: int32
-        GetProblemReply:
+        api.sastoj.user.contest.service.v1.GetProblemReply:
             type: object
             properties:
                 id:
@@ -250,14 +311,34 @@ components:
                 point:
                     type: integer
                     format: int32
-        GetRankingReply:
+        api.sastoj.user.contest.service.v1.GetProblemsReply:
+            type: object
+            properties:
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetProblemsReply_Problem'
+        api.sastoj.user.contest.service.v1.GetProblemsReply_Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.GetRankingReply:
             type: object
             properties:
                 users:
                     type: array
                     items:
-                        $ref: '#/components/schemas/GetRankingReply_User'
-        GetRankingReply_User:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetRankingReply_User'
+        api.sastoj.user.contest.service.v1.GetRankingReply_User:
             type: object
             properties:
                 id:
@@ -270,7 +351,7 @@ components:
                 rank:
                     type: integer
                     format: int32
-        GetSubmissionReply:
+        api.sastoj.user.contest.service.v1.GetSubmissionReply:
             type: object
             properties:
                 id:
@@ -297,37 +378,29 @@ components:
                 maxMemory:
                     type: integer
                     format: int32
-        GoogleProtobufAny:
-            type: object
-            properties:
-                '@type':
-                    type: string
-                    description: The type of the serialized message.
-            additionalProperties: true
-            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        JoinContestBody:
+        api.sastoj.user.contest.service.v1.JoinContestBody:
             type: object
             properties:
                 isJoin:
                     type: boolean
-        JoinContestReply:
+        api.sastoj.user.contest.service.v1.JoinContestReply:
             type: object
             properties:
                 isJoin:
                     type: boolean
-        ListContestReply:
+        api.sastoj.user.contest.service.v1.ListContestReply:
             type: object
             properties:
                 contests:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Contest'
-        PretestProblemReply:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.Contest'
+        api.sastoj.user.contest.service.v1.PretestProblemReply:
             type: object
             properties:
                 pretestId:
                     type: string
-        PretestProblemRequest:
+        api.sastoj.user.contest.service.v1.PretestProblemRequest:
             type: object
             properties:
                 contestId:
@@ -338,28 +411,12 @@ components:
                     type: string
                 language:
                     type: string
-        Status:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
-                    format: int32
-                message:
-                    type: string
-                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
-                details:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GoogleProtobufAny'
-                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
-            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        SubmitProblemReply:
+        api.sastoj.user.contest.service.v1.SubmitProblemReply:
             type: object
             properties:
                 submitId:
                     type: string
-        SubmitProblemRequest:
+        api.sastoj.user.contest.service.v1.SubmitProblemRequest:
             type: object
             properties:
                 contestId:
@@ -372,3 +429,5 @@ components:
                     type: string
 tags:
     - name: ContestService
+    - name: Group
+    - name: User
