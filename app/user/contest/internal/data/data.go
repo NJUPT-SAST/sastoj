@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -23,6 +24,7 @@ var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo)
 type Data struct {
 	db    *ent.Client
 	redis *redis.Client
+	ch    *amqp.Channel
 }
 
 // NewData .
@@ -67,5 +69,14 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
-	return &Data{client, redisClient}, cleanup, nil
+	// connect to mq
+	conn, err := amqp.Dial(c.Mq)
+	if err != nil {
+		log.Errorf("failed connecting to mq: %v", err)
+	}
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Errorf("failed opening a channel")
+	}
+	return &Data{client, redisClient, ch}, cleanup, nil
 }
