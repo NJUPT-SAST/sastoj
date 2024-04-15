@@ -21,6 +21,7 @@ func NewGroupRepo(data *Data, logger log.Logger) biz.GroupRepo {
 }
 
 func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) {
+
 	po, err := r.data.db.Group.
 		Create().
 		SetGroupName(g.Name).
@@ -28,28 +29,48 @@ func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) 
 	if err != nil {
 		return nil, err
 	}
-	return &biz.Group{Id: int64(po.ID), Name: po.GroupName}, nil
+	r.log.WithContext(ctx).Infof("Save Group: %v", g.Name)
+	return &biz.Group{Id: po.ID, Name: po.GroupName}, nil
 }
 
-func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*biz.Group, error) {
-	return g, nil
+func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*int, error) {
+	res, err := r.data.db.Group.Update().
+		SetGroupName(g.Name).
+		Where(group.IDEQ(int(g.Id))).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 
-func (r *groupRepo) FindByID(ctx context.Context, id int64) (*biz.Group, error) {
-	group, err := r.data.db.Group.Query().Where(group.IDEQ(int(id))).Only(ctx)
+func (r *groupRepo) FindByID(ctx context.Context, id int) (*biz.Group, error) {
+	group, err := r.data.db.Group.Query().Where(group.IDEQ(id)).Only(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &biz.Group{
-		Id:   int64(group.ID),
+		Id:   group.ID,
 		Name: group.GroupName,
 	}, nil
 }
 
-func (r *groupRepo) ListByPage(context.Context, string) ([]*biz.Group, error) {
-	return nil, nil
+func (r *groupRepo) ListByPage(ctx context.Context, current int, size int) ([]*biz.Group, error) {
+	res, err := r.data.db.Group.Query().Limit(size).Offset((current - 1) * size).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var groups []*biz.Group
+	for _, group := range res {
+		groups = append(groups, &biz.Group{
+			Id:   group.ID,
+			Name: group.GroupName,
+		})
+	}
+	return groups, nil
 }
 
-func (r *groupRepo) DeleteById(context.Context, int64) error {
-	return nil
+func (r *groupRepo) DeleteById(ctx context.Context, id int) error {
+	err := r.data.db.Group.DeleteOneID(id).Exec(ctx)
+	return err
 }
