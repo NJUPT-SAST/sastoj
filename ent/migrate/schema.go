@@ -176,7 +176,7 @@ var (
 		{Name: "state", Type: field.TypeInt},
 		{Name: "point", Type: field.TypeInt},
 		{Name: "create_time", Type: field.TypeTime},
-		{Name: "total_time", Type: field.TypeTime},
+		{Name: "total_time", Type: field.TypeInt},
 		{Name: "max_memory", Type: field.TypeInt},
 		{Name: "language", Type: field.TypeString},
 		{Name: "case_version", Type: field.TypeInt},

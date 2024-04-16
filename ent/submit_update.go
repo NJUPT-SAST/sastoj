@@ -145,16 +145,23 @@ func (su *SubmitUpdate) SetNillableCreateTime(t *time.Time) *SubmitUpdate {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (su *SubmitUpdate) SetTotalTime(t time.Time) *SubmitUpdate {
-	su.mutation.SetTotalTime(t)
+func (su *SubmitUpdate) SetTotalTime(i int) *SubmitUpdate {
+	su.mutation.ResetTotalTime()
+	su.mutation.SetTotalTime(i)
 	return su
 }
 
 // SetNillableTotalTime sets the "total_time" field if the given value is not nil.
-func (su *SubmitUpdate) SetNillableTotalTime(t *time.Time) *SubmitUpdate {
-	if t != nil {
-		su.SetTotalTime(*t)
+func (su *SubmitUpdate) SetNillableTotalTime(i *int) *SubmitUpdate {
+	if i != nil {
+		su.SetTotalTime(*i)
 	}
+	return su
+}
+
+// AddTotalTime adds i to the "total_time" field.
+func (su *SubmitUpdate) AddTotalTime(i int) *SubmitUpdate {
+	su.mutation.AddTotalTime(i)
 	return su
 }
 
@@ -426,7 +433,10 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(submit.FieldCreateTime, field.TypeTime, value)
 	}
 	if value, ok := su.mutation.TotalTime(); ok {
-		_spec.SetField(submit.FieldTotalTime, field.TypeTime, value)
+		_spec.SetField(submit.FieldTotalTime, field.TypeInt, value)
+	}
+	if value, ok := su.mutation.AddedTotalTime(); ok {
+		_spec.AddField(submit.FieldTotalTime, field.TypeInt, value)
 	}
 	if value, ok := su.mutation.MaxMemory(); ok {
 		_spec.SetField(submit.FieldMaxMemory, field.TypeInt, value)
@@ -724,16 +734,23 @@ func (suo *SubmitUpdateOne) SetNillableCreateTime(t *time.Time) *SubmitUpdateOne
 }
 
 // SetTotalTime sets the "total_time" field.
-func (suo *SubmitUpdateOne) SetTotalTime(t time.Time) *SubmitUpdateOne {
-	suo.mutation.SetTotalTime(t)
+func (suo *SubmitUpdateOne) SetTotalTime(i int) *SubmitUpdateOne {
+	suo.mutation.ResetTotalTime()
+	suo.mutation.SetTotalTime(i)
 	return suo
 }
 
 // SetNillableTotalTime sets the "total_time" field if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableTotalTime(t *time.Time) *SubmitUpdateOne {
-	if t != nil {
-		suo.SetTotalTime(*t)
+func (suo *SubmitUpdateOne) SetNillableTotalTime(i *int) *SubmitUpdateOne {
+	if i != nil {
+		suo.SetTotalTime(*i)
 	}
+	return suo
+}
+
+// AddTotalTime adds i to the "total_time" field.
+func (suo *SubmitUpdateOne) AddTotalTime(i int) *SubmitUpdateOne {
+	suo.mutation.AddTotalTime(i)
 	return suo
 }
 
@@ -1035,7 +1052,10 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		_spec.SetField(submit.FieldCreateTime, field.TypeTime, value)
 	}
 	if value, ok := suo.mutation.TotalTime(); ok {
-		_spec.SetField(submit.FieldTotalTime, field.TypeTime, value)
+		_spec.SetField(submit.FieldTotalTime, field.TypeInt, value)
+	}
+	if value, ok := suo.mutation.AddedTotalTime(); ok {
+		_spec.AddField(submit.FieldTotalTime, field.TypeInt, value)
 	}
 	if value, ok := suo.mutation.MaxMemory(); ok {
 		_spec.SetField(submit.FieldMaxMemory, field.TypeInt, value)

@@ -5312,7 +5312,8 @@ type SubmitMutation struct {
 	point               *int
 	addpoint            *int
 	create_time         *time.Time
-	total_time          *time.Time
+	total_time          *int
+	addtotal_time       *int
 	max_memory          *int
 	addmax_memory       *int
 	language            *string
@@ -5735,12 +5736,13 @@ func (m *SubmitMutation) ResetCreateTime() {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (m *SubmitMutation) SetTotalTime(t time.Time) {
-	m.total_time = &t
+func (m *SubmitMutation) SetTotalTime(i int) {
+	m.total_time = &i
+	m.addtotal_time = nil
 }
 
 // TotalTime returns the value of the "total_time" field in the mutation.
-func (m *SubmitMutation) TotalTime() (r time.Time, exists bool) {
+func (m *SubmitMutation) TotalTime() (r int, exists bool) {
 	v := m.total_time
 	if v == nil {
 		return
@@ -5751,7 +5753,7 @@ func (m *SubmitMutation) TotalTime() (r time.Time, exists bool) {
 // OldTotalTime returns the old "total_time" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v time.Time, err error) {
+func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTotalTime is only allowed on UpdateOne operations")
 	}
@@ -5765,9 +5767,28 @@ func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v time.Time, err err
 	return oldValue.TotalTime, nil
 }
 
+// AddTotalTime adds i to the "total_time" field.
+func (m *SubmitMutation) AddTotalTime(i int) {
+	if m.addtotal_time != nil {
+		*m.addtotal_time += i
+	} else {
+		m.addtotal_time = &i
+	}
+}
+
+// AddedTotalTime returns the value that was added to the "total_time" field in this mutation.
+func (m *SubmitMutation) AddedTotalTime() (r int, exists bool) {
+	v := m.addtotal_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ResetTotalTime resets all changes to the "total_time" field.
 func (m *SubmitMutation) ResetTotalTime() {
 	m.total_time = nil
+	m.addtotal_time = nil
 }
 
 // SetMaxMemory sets the "max_memory" field.
@@ -6278,7 +6299,7 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCreateTime(v)
 		return nil
 	case submit.FieldTotalTime:
-		v, ok := value.(time.Time)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6325,6 +6346,9 @@ func (m *SubmitMutation) AddedFields() []string {
 	if m.addpoint != nil {
 		fields = append(fields, submit.FieldPoint)
 	}
+	if m.addtotal_time != nil {
+		fields = append(fields, submit.FieldTotalTime)
+	}
 	if m.addmax_memory != nil {
 		fields = append(fields, submit.FieldMaxMemory)
 	}
@@ -6347,6 +6371,8 @@ func (m *SubmitMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedState()
 	case submit.FieldPoint:
 		return m.AddedPoint()
+	case submit.FieldTotalTime:
+		return m.AddedTotalTime()
 	case submit.FieldMaxMemory:
 		return m.AddedMaxMemory()
 	case submit.FieldCaseVersion:
@@ -6387,6 +6413,13 @@ func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPoint(v)
+		return nil
+	case submit.FieldTotalTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalTime(v)
 		return nil
 	case submit.FieldMaxMemory:
 		v, ok := value.(int)
