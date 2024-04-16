@@ -31,7 +31,7 @@ type SubmitRepo interface {
 	CreateSubmit(ctx context.Context, submit *Submit) (int, error)
 	UpdateState(ctx context.Context, submitID int, state int) error
 	UpdateSubmit(ctx context.Context, submit *Submit) error
-	GetSubmission(ctx context.Context, submitID int) (*Submit, error)
+	GetSubmission(ctx context.Context, submitID int, userID int) (*Submit, error)
 	CreatePretest(ctx context.Context, pretest *Pretest) error
 }
 
@@ -60,8 +60,8 @@ func (uc *SubmitUsecase) UpdateSubmit(ctx context.Context, submit *Submit) error
 	return uc.repo.UpdateSubmit(ctx, submit)
 }
 
-func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int) (*Submit, error) {
-	return uc.repo.GetSubmission(ctx, submitID)
+func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int, userID int) (*Submit, error) {
+	return uc.repo.GetSubmission(ctx, submitID, userID)
 }
 
 func (uc *SubmitUsecase) PretestProblem(ctx context.Context, pretest *Pretest) error {

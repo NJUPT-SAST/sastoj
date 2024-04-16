@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sastoj/app/user/contest/internal/biz"
@@ -41,10 +42,13 @@ func (s submitRepo) CreatePretest(ctx context.Context, p *biz.Pretest) error {
 	return err
 }
 
-func (s submitRepo) GetSubmission(ctx context.Context, submitID int) (*biz.Submit, error) {
+func (s submitRepo) GetSubmission(ctx context.Context, submitID int, userID int) (*biz.Submit, error) {
 	po, err := s.data.db.Submit.Get(ctx, submitID)
 	if err != nil {
 		return nil, err
+	}
+	if po.UserID != userID {
+		return nil, errors.New("permission denied")
 	}
 	return &biz.Submit{
 		ID:          po.ID,

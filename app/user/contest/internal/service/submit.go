@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
 	"time"
@@ -49,5 +50,19 @@ func (s *UserContestService) PretestProblem(ctx context.Context, req *pb.Pretest
 	}, nil
 }
 func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
-	return &pb.GetSubmissionReply{}, nil
+	submission, err := s.submitUc.GetSubmission(ctx, int(req.SubmitId), 1) // TODO: Get the userID from context
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetSubmissionReply{
+		Id:        int64(submission.ID),
+		Code:      submission.Code,
+		Language:  submission.Language,
+		Point:     int32(submission.Point),
+		Status:    int32(submission.State),
+		CreatedAt: timestamppb.New(submission.CreateTime),
+		UpdatedAt: timestamppb.New(submission.CreateTime),
+		TotalTime: int32(submission.TotalTime),
+		MaxMemory: int32(submission.MaxMemory),
+	}, nil
 }
