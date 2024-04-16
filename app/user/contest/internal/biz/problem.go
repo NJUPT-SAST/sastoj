@@ -16,6 +16,7 @@ type Problem struct {
 type ProblemRepo interface {
 	ListProblem(ctx context.Context, contestID int) ([]*Problem, error)
 	GetProblem(ctx context.Context, problemID, contestID int) (*Problem, error)
+	GetProblemCaseVer(ctx context.Context, problemId int) (int, error)
 }
 
 type ProblemUsecase struct {
@@ -41,4 +42,8 @@ func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int, problem
 		return nil, err
 	}
 	return problem, nil
+}
+
+func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int) (int, error) {
+	return uc.repo.GetProblemCaseVer(ctx, problemId)
 }

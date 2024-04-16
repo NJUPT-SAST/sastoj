@@ -13,11 +13,13 @@ type UserContestService struct {
 	pb.UnimplementedContestServiceServer
 	contestUc *biz.ContestUsecase
 	problemUc *biz.ProblemUsecase
+	submitUc  *biz.SubmitUsecase
 }
 
-func NewUserContestService(contestUsecase *biz.ContestUsecase, problemUsecase *biz.ProblemUsecase) *UserContestService {
+func NewUserContestService(contestUsecase *biz.ContestUsecase, problemUsecase *biz.ProblemUsecase, submitUsecase *biz.SubmitUsecase) *UserContestService {
 	return &UserContestService{
 		contestUc: contestUsecase,
 		problemUc: problemUsecase,
+		submitUc:  submitUsecase,
 	}
 }

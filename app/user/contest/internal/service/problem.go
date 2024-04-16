@@ -34,3 +34,7 @@ func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemR
 		Point:   int32(rv.Point),
 	}, nil
 }
+
+func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int) (int, error) {
+	return s.problemUc.GetProblemCaseVer(ctx, problemId)
+}

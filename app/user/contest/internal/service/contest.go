@@ -6,7 +6,7 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 )
 
-func (s *UserContestService) ListContest(ctx context.Context, req *pb.ListContestRequest) (*pb.ListContestReply, error) {
+func (s *UserContestService) ListContest(ctx context.Context, _ *pb.ListContestRequest) (*pb.ListContestReply, error) {
 	// TODO: Get the userID from context
 	rv, err := s.contestUc.ListContest(ctx, 1)
 	if err != nil {
@@ -38,16 +38,6 @@ func (s *UserContestService) JoinContest(ctx context.Context, req *pb.JoinContes
 	}, nil
 }
 
-func (s *UserContestService) SubmitProblem(ctx context.Context, req *pb.SubmitProblemRequest) (*pb.SubmitProblemReply, error) {
-	return &pb.SubmitProblemReply{}, nil
-}
-
-func (s *UserContestService) PretestProblem(ctx context.Context, req *pb.PretestProblemRequest) (*pb.PretestProblemReply, error) {
-	return &pb.PretestProblemReply{}, nil
-}
-func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
-	return &pb.GetSubmissionReply{}, nil
-}
 func (s *UserContestService) GetRanking(ctx context.Context, req *pb.GetRankingRequest) (*pb.GetRankingReply, error) {
 	return &pb.GetRankingReply{}, nil
 }

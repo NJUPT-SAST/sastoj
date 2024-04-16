@@ -5,11 +5,27 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent/problem"
+	"strconv"
+	"time"
 )
 
 type problemRepo struct {
 	data *Data
 	log  *log.Helper
+}
+
+func (p problemRepo) GetProblemCaseVer(ctx context.Context, problemId int) (int, error) {
+	result, err := p.data.redis.Get(ctx, "problem:"+strconv.Itoa(problemId)+":"+"case_version").Result()
+	if err == nil {
+		ver, _ := strconv.Atoi(result)
+		return ver, nil
+	}
+	po, err := p.data.db.Problem.Query().Where(problem.IDEQ(problemId)).Only(ctx)
+	if err != nil {
+		return 0, err
+	}
+	p.data.redis.Set(ctx, "problem:"+strconv.Itoa(problemId)+":"+"case_version", strconv.Itoa(po.CaseVersion), 2*time.Hour)
+	return po.CaseVersion, nil
 }
 
 func (p problemRepo) ListProblem(ctx context.Context, contestID int) ([]*biz.Problem, error) {

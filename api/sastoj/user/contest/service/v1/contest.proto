@@ -69,7 +69,6 @@ message Contest {
 
 message ListContestRequest {}
 message ListContestReply {
-
   repeated Contest contests = 1;
 }
 
@@ -114,7 +113,7 @@ message GetProblemsReply {
 
 message SubmitProblemRequest {
   int64 contest_id = 1;
-  string problem_id = 2;
+  int64 problem_id = 2;
   string code = 3;
   string language = 4;
 }
@@ -131,7 +130,7 @@ message PretestProblemRequest {
 }
 
 message PretestProblemReply {
-  int64 pretest_id = 1;
+  string pretest_id = 1;
 }
 
 message GetSubmissionRequest {
