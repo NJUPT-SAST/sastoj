@@ -12,7 +12,7 @@ var (
 
 // User is a User model.
 type User struct {
-	ID       int64
+	ID       int
 	Username string
 	Password string
 	Salt     string
@@ -23,10 +23,9 @@ type User struct {
 // UserRepo is a Greater repo.
 type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
-	Update(context.Context, *User) (*User, error)
-	FindByID(context.Context, int64) (*User, error)
-	ListByHello(context.Context, string) ([]*User, error)
-	ListAll(context.Context) ([]*User, error)
+	Update(context.Context, *User) (*int, error)
+	FindByID(context.Context, int) (*User, error)
+	ListPages(ctx context.Context, current int, size int) ([]*User, error)
 }
 
 // UserUsecase is a User usecase.
@@ -43,5 +42,32 @@ func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
 // CreateUser creates a User, and returns the new User.
 func (uc *UserUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 	uc.log.WithContext(ctx).Infof("CreateUser: %v", u.Username)
-	return uc.repo.Save(ctx, u)
+	res, err := uc.repo.Save(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+func (uc *UserUsecase) UpdateUser(ctx context.Context, u *User) (bool, error) {
+	uc.log.WithContext(ctx).Infof("UpdateUser: %v", u.Username)
+	rv, err := uc.repo.Update(ctx, u)
+	if err != nil || *rv == 0 {
+		return false, err
+	}
+	return true, nil
+}
+func (uc *UserUsecase) GetUser(ctx context.Context, id int) (*User, error) {
+	res, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+func (uc *UserUsecase) ListUser(ctx context.Context, current int, size int) ([]*User, error) {
+	uc.log.WithContext(ctx).Infof("ListUser: %v", current)
+	res, err := uc.repo.ListPages(ctx, current, size)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

@@ -11,18 +11,31 @@ option java_package = "api.sastoj.admin.group.service.v1";
 service Group {
   rpc CreateGroup (CreateGroupRequest) returns (CreateGroupReply) {
     option (google.api.http) = {
+      post: "/group",
+      body: "*"
+    };
+  };
+  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupReply){
+    option (google.api.http) = {
       put: "/group",
       body: "*"
     };
   };
-  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupReply);
-  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupReply);
+  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupReply){
+    option (google.api.http) = {
+      delete: "/group/{id}";
+    };
+  }
   rpc GetGroup (GetGroupRequest) returns (GetGroupReply) {
     option (google.api.http) = {
       get: "/group/{id}"
     };
   };
-  rpc ListGroup (ListGroupRequest) returns (ListGroupReply);
+  rpc ListGroup (ListGroupRequest) returns (ListGroupReply){
+    option (google.api.http) = {
+      get: "/group"
+    };
+  };
 }
 
 message CreateGroupRequest {
@@ -37,14 +50,14 @@ message UpdateGroupRequest {
   string name = 2;
 }
 message UpdateGroupReply {
-  string success = 1;
+  bool success = 1;
 }
 
 message DeleteGroupRequest {
   int64 id = 1;
 }
 message DeleteGroupReply {
-  string success = 1;
+  bool success = 1;
 }
 
 message GetGroupRequest {
@@ -55,7 +68,10 @@ message GetGroupReply {
   string name = 2;
 }
 
-message ListGroupRequest {}
+message ListGroupRequest {
+  int64 size = 1;
+  int64 current = 2;
+}
 message ListGroupReply {
   message Group {
     int64 id = 1;
