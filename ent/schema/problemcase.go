@@ -18,7 +18,7 @@ func (ProblemCase) Fields() []ent.Field {
 		field.Int("problem_id").Positive(),
 		field.Int("point"),
 		field.Int("index").Positive(),
-		field.Bool("is_auto").Default(false),
+		field.Bool("is_auto").Default(false).Comment("是否自动均分100分"),
 		field.Bool("is_deleted").Default(false),
 	}
 }
