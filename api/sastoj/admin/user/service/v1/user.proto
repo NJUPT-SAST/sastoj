@@ -15,10 +15,27 @@ service User {
 			body: "*"
 		};
 	};
-	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
-	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
-	rpc GetUser (GetUserRequest) returns (GetUserReply);
-	rpc ListUser (ListUserRequest) returns (ListUserReply);
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply){
+		option (google.api.http) = {
+			put: "/user"
+			body: "*"
+		};
+	}
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply){
+		option (google.api.http) = {
+			delete: "/user/{id}"
+		};
+	}
+	rpc GetUser (GetUserRequest) returns (GetUserReply){
+		option (google.api.http) = {
+			get: "/user/{id}"
+		};
+	}
+	rpc ListUser (ListUserRequest) returns (ListUserReply){
+		option (google.api.http) = {
+			get: "/user"
+		};
+	}
 }
 
 message CreateUserRequest {
@@ -27,41 +44,41 @@ message CreateUserRequest {
 	int64 group_id = 3;
 }
 message CreateUserReply {
-	string id = 1;
+	int64 id = 1;
 }
 
 message UpdateUserRequest {
-	string id = 1;
+	int64 id = 1;
 	string username = 2;
 	string password = 3;
 	int64 state = 4;
 }
 message UpdateUserReply {
-	string success = 1;
+	bool success = 1;
 }
 
 message DeleteUserRequest {
-	string id = 1;
+	int64 id = 1;
 }
 message DeleteUserReply {
-	string success = 1;
+	bool success = 1;
 }
 
 message GetUserRequest {
-	string id = 1;
+	int64 id = 1;
 }
 message GetUserReply {
-	string id = 1;
+	int64 id = 1;
 	string username = 2;
 }
 
 message ListUserRequest {
-	string size = 1;
-	string page = 2;
+	int64 size = 1;
+	int64 current = 2;
 }
 message ListUserReply {
 	message User {
-		string id = 1;
+		int64 id = 1;
 		string username = 2;
 	}
 	repeated User users = 1;
