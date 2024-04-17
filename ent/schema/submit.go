@@ -29,7 +29,7 @@ func (Submit) Fields() []ent.Field {
 		field.Int("state"),
 		field.Int("point"),
 		field.Time("create_time"),
-		field.Time("total_time"),
+		field.Int("total_time"),
 		field.Int("max_memory"),
 		field.String("language"),
 		field.Int("case_version"),

@@ -915,7 +915,7 @@ func (c *LoginSessionClient) QueryUsers(ls *LoginSession) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(loginsession.Table, loginsession.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, loginsession.UsersTable, loginsession.UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, loginsession.UsersTable, loginsession.UsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(ls.driver.Dialect(), step)
 		return fromV, nil
@@ -2166,7 +2166,7 @@ func (c *UserClient) QueryLoginSession(u *User) *LoginSessionQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(loginsession.Table, loginsession.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.LoginSessionTable, user.LoginSessionPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionTable, user.LoginSessionColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

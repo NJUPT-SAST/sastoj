@@ -86,7 +86,7 @@ func CreateTime(v time.Time) predicate.Submit {
 }
 
 // TotalTime applies equality check predicate on the "total_time" field. It's identical to TotalTimeEQ.
-func TotalTime(v time.Time) predicate.Submit {
+func TotalTime(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldTotalTime, v))
 }
 
@@ -371,42 +371,42 @@ func CreateTimeLTE(v time.Time) predicate.Submit {
 }
 
 // TotalTimeEQ applies the EQ predicate on the "total_time" field.
-func TotalTimeEQ(v time.Time) predicate.Submit {
+func TotalTimeEQ(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldTotalTime, v))
 }
 
 // TotalTimeNEQ applies the NEQ predicate on the "total_time" field.
-func TotalTimeNEQ(v time.Time) predicate.Submit {
+func TotalTimeNEQ(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldTotalTime, v))
 }
 
 // TotalTimeIn applies the In predicate on the "total_time" field.
-func TotalTimeIn(vs ...time.Time) predicate.Submit {
+func TotalTimeIn(vs ...int) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeNotIn applies the NotIn predicate on the "total_time" field.
-func TotalTimeNotIn(vs ...time.Time) predicate.Submit {
+func TotalTimeNotIn(vs ...int) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeGT applies the GT predicate on the "total_time" field.
-func TotalTimeGT(v time.Time) predicate.Submit {
+func TotalTimeGT(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldTotalTime, v))
 }
 
 // TotalTimeGTE applies the GTE predicate on the "total_time" field.
-func TotalTimeGTE(v time.Time) predicate.Submit {
+func TotalTimeGTE(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldTotalTime, v))
 }
 
 // TotalTimeLT applies the LT predicate on the "total_time" field.
-func TotalTimeLT(v time.Time) predicate.Submit {
+func TotalTimeLT(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldTotalTime, v))
 }
 
 // TotalTimeLTE applies the LTE predicate on the "total_time" field.
-func TotalTimeLTE(v time.Time) predicate.Submit {
+func TotalTimeLTE(v int) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldTotalTime, v))
 }
 

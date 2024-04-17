@@ -32,7 +32,7 @@ type Submit struct {
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// TotalTime holds the value of the "total_time" field.
-	TotalTime time.Time `json:"total_time,omitempty"`
+	TotalTime int `json:"total_time,omitempty"`
 	// MaxMemory holds the value of the "max_memory" field.
 	MaxMemory int `json:"max_memory,omitempty"`
 	// Language holds the value of the "language" field.
@@ -111,11 +111,11 @@ func (*Submit) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submit.FieldID, submit.FieldUserID, submit.FieldProblemID, submit.FieldState, submit.FieldPoint, submit.FieldMaxMemory, submit.FieldCaseVersion:
+		case submit.FieldID, submit.FieldUserID, submit.FieldProblemID, submit.FieldState, submit.FieldPoint, submit.FieldTotalTime, submit.FieldMaxMemory, submit.FieldCaseVersion:
 			values[i] = new(sql.NullInt64)
 		case submit.FieldCode, submit.FieldLanguage:
 			values[i] = new(sql.NullString)
-		case submit.FieldCreateTime, submit.FieldTotalTime:
+		case submit.FieldCreateTime:
 			values[i] = new(sql.NullTime)
 		case submit.ForeignKeys[0]: // problem_submission
 			values[i] = new(sql.NullInt64)
@@ -179,10 +179,10 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 				s.CreateTime = value.Time
 			}
 		case submit.FieldTotalTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_time", values[i])
 			} else if value.Valid {
-				s.TotalTime = value.Time
+				s.TotalTime = int(value.Int64)
 			}
 		case submit.FieldMaxMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -291,7 +291,7 @@ func (s *Submit) String() string {
 	builder.WriteString(s.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("total_time=")
-	builder.WriteString(s.TotalTime.Format(time.ANSIC))
+	builder.WriteString(fmt.Sprintf("%v", s.TotalTime))
 	builder.WriteString(", ")
 	builder.WriteString("max_memory=")
 	builder.WriteString(fmt.Sprintf("%v", s.MaxMemory))

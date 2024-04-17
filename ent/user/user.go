@@ -53,11 +53,13 @@ const (
 	SubmissionInverseTable = "submit"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
 	SubmissionColumn = "user_submission"
-	// LoginSessionTable is the table that holds the login_session relation/edge. The primary key declared below.
-	LoginSessionTable = "user_login_session"
+	// LoginSessionTable is the table that holds the login_session relation/edge.
+	LoginSessionTable = "login_session"
 	// LoginSessionInverseTable is the table name for the LoginSession entity.
 	// It exists in this package in order to avoid circular dependency with the "loginsession" package.
 	LoginSessionInverseTable = "login_session"
+	// LoginSessionColumn is the table column denoting the login_session relation/edge.
+	LoginSessionColumn = "user_login_session"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -74,14 +76,7 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"group_users",
-	"login_session_user",
 }
-
-var (
-	// LoginSessionPrimaryKey and LoginSessionColumn2 are the table columns denoting the
-	// primary key for the login_session relation (M2M).
-	LoginSessionPrimaryKey = []string{"user_id", "login_session_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -213,6 +208,6 @@ func newLoginSessionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LoginSessionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, LoginSessionTable, LoginSessionPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, LoginSessionTable, LoginSessionColumn),
 	)
 }

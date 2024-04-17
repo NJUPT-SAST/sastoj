@@ -150,7 +150,7 @@ func HasUsers() predicate.LoginSession {
 	return predicate.LoginSession(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

@@ -61,8 +61,8 @@ func (sc *SubmitCreate) SetCreateTime(t time.Time) *SubmitCreate {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (sc *SubmitCreate) SetTotalTime(t time.Time) *SubmitCreate {
-	sc.mutation.SetTotalTime(t)
+func (sc *SubmitCreate) SetTotalTime(i int) *SubmitCreate {
+	sc.mutation.SetTotalTime(i)
 	return sc
 }
 
@@ -289,7 +289,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_node.CreateTime = value
 	}
 	if value, ok := sc.mutation.TotalTime(); ok {
-		_spec.SetField(submit.FieldTotalTime, field.TypeTime, value)
+		_spec.SetField(submit.FieldTotalTime, field.TypeInt, value)
 		_node.TotalTime = value
 	}
 	if value, ok := sc.mutation.MaxMemory(); ok {

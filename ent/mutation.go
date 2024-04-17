@@ -2271,8 +2271,7 @@ type LoginSessionMutation struct {
 	adduser_id    *int
 	create_time   *time.Time
 	clearedFields map[string]struct{}
-	users         map[int]struct{}
-	removedusers  map[int]struct{}
+	users         *int
 	clearedusers  bool
 	done          bool
 	oldValue      func(context.Context) (*LoginSession, error)
@@ -2475,14 +2474,9 @@ func (m *LoginSessionMutation) ResetCreateTime() {
 	m.create_time = nil
 }
 
-// AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *LoginSessionMutation) AddUserIDs(ids ...int) {
-	if m.users == nil {
-		m.users = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.users[ids[i]] = struct{}{}
-	}
+// SetUsersID sets the "users" edge to the User entity by id.
+func (m *LoginSessionMutation) SetUsersID(id int) {
+	m.users = &id
 }
 
 // ClearUsers clears the "users" edge to the User entity.
@@ -2495,29 +2489,20 @@ func (m *LoginSessionMutation) UsersCleared() bool {
 	return m.clearedusers
 }
 
-// RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *LoginSessionMutation) RemoveUserIDs(ids ...int) {
-	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.users, ids[i])
-		m.removedusers[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *LoginSessionMutation) RemovedUsersIDs() (ids []int) {
-	for id := range m.removedusers {
-		ids = append(ids, id)
+// UsersID returns the "users" edge ID in the mutation.
+func (m *LoginSessionMutation) UsersID() (id int, exists bool) {
+	if m.users != nil {
+		return *m.users, true
 	}
 	return
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UsersID instead. It exists only for internal usage by the builders.
 func (m *LoginSessionMutation) UsersIDs() (ids []int) {
-	for id := range m.users {
-		ids = append(ids, id)
+	if id := m.users; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -2526,7 +2511,6 @@ func (m *LoginSessionMutation) UsersIDs() (ids []int) {
 func (m *LoginSessionMutation) ResetUsers() {
 	m.users = nil
 	m.clearedusers = false
-	m.removedusers = nil
 }
 
 // Where appends a list predicates to the LoginSessionMutation builder.
@@ -2706,11 +2690,9 @@ func (m *LoginSessionMutation) AddedEdges() []string {
 func (m *LoginSessionMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case loginsession.EdgeUsers:
-		ids := make([]ent.Value, 0, len(m.users))
-		for id := range m.users {
-			ids = append(ids, id)
+		if id := m.users; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -2718,23 +2700,12 @@ func (m *LoginSessionMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *LoginSessionMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedusers != nil {
-		edges = append(edges, loginsession.EdgeUsers)
-	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *LoginSessionMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case loginsession.EdgeUsers:
-		ids := make([]ent.Value, 0, len(m.removedusers))
-		for id := range m.removedusers {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
@@ -2761,6 +2732,9 @@ func (m *LoginSessionMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *LoginSessionMutation) ClearEdge(name string) error {
 	switch name {
+	case loginsession.EdgeUsers:
+		m.ClearUsers()
+		return nil
 	}
 	return fmt.Errorf("unknown LoginSession unique edge %s", name)
 }
@@ -5338,7 +5312,8 @@ type SubmitMutation struct {
 	point               *int
 	addpoint            *int
 	create_time         *time.Time
-	total_time          *time.Time
+	total_time          *int
+	addtotal_time       *int
 	max_memory          *int
 	addmax_memory       *int
 	language            *string
@@ -5761,12 +5736,13 @@ func (m *SubmitMutation) ResetCreateTime() {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (m *SubmitMutation) SetTotalTime(t time.Time) {
-	m.total_time = &t
+func (m *SubmitMutation) SetTotalTime(i int) {
+	m.total_time = &i
+	m.addtotal_time = nil
 }
 
 // TotalTime returns the value of the "total_time" field in the mutation.
-func (m *SubmitMutation) TotalTime() (r time.Time, exists bool) {
+func (m *SubmitMutation) TotalTime() (r int, exists bool) {
 	v := m.total_time
 	if v == nil {
 		return
@@ -5777,7 +5753,7 @@ func (m *SubmitMutation) TotalTime() (r time.Time, exists bool) {
 // OldTotalTime returns the old "total_time" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v time.Time, err error) {
+func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTotalTime is only allowed on UpdateOne operations")
 	}
@@ -5791,9 +5767,28 @@ func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v time.Time, err err
 	return oldValue.TotalTime, nil
 }
 
+// AddTotalTime adds i to the "total_time" field.
+func (m *SubmitMutation) AddTotalTime(i int) {
+	if m.addtotal_time != nil {
+		*m.addtotal_time += i
+	} else {
+		m.addtotal_time = &i
+	}
+}
+
+// AddedTotalTime returns the value that was added to the "total_time" field in this mutation.
+func (m *SubmitMutation) AddedTotalTime() (r int, exists bool) {
+	v := m.addtotal_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ResetTotalTime resets all changes to the "total_time" field.
 func (m *SubmitMutation) ResetTotalTime() {
 	m.total_time = nil
+	m.addtotal_time = nil
 }
 
 // SetMaxMemory sets the "max_memory" field.
@@ -6304,7 +6299,7 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCreateTime(v)
 		return nil
 	case submit.FieldTotalTime:
-		v, ok := value.(time.Time)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6351,6 +6346,9 @@ func (m *SubmitMutation) AddedFields() []string {
 	if m.addpoint != nil {
 		fields = append(fields, submit.FieldPoint)
 	}
+	if m.addtotal_time != nil {
+		fields = append(fields, submit.FieldTotalTime)
+	}
 	if m.addmax_memory != nil {
 		fields = append(fields, submit.FieldMaxMemory)
 	}
@@ -6373,6 +6371,8 @@ func (m *SubmitMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedState()
 	case submit.FieldPoint:
 		return m.AddedPoint()
+	case submit.FieldTotalTime:
+		return m.AddedTotalTime()
 	case submit.FieldMaxMemory:
 		return m.AddedMaxMemory()
 	case submit.FieldCaseVersion:
@@ -6413,6 +6413,13 @@ func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPoint(v)
+		return nil
+	case submit.FieldTotalTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalTime(v)
 		return nil
 	case submit.FieldMaxMemory:
 		v, ok := value.(int)
