@@ -25,6 +25,7 @@ type Pretest struct {
 	UserID   int    `json:"user_id,omitempty"`
 	Code     string `json:"code,omitempty"`
 	Language string `json:"language,omitempty"`
+	Input    string `json:"input,omitempty"`
 }
 
 type SubmitRepo interface {

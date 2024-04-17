@@ -7,7 +7,44 @@ info:
     version: 0.0.1
 paths:
     /group:
+        get:
+            tags:
+                - Group
+            operationId: Group_ListGroup
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.ListGroupReply'
         put:
+            tags:
+                - Group
+            operationId: Group_UpdateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.UpdateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.UpdateGroupReply'
+        post:
             tags:
                 - Group
             operationId: Group_CreateGroup
@@ -42,7 +79,154 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.GetGroupReply'
+        delete:
+            tags:
+                - Group
+            operationId: Group_DeleteGroup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.DeleteGroupReply'
+    /problem:
+        put:
+            tags:
+                - Problem
+            operationId: Problem_UpdateProblem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.problem.UpdateProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.UpdateProblemReply'
+        post:
+            tags:
+                - Problem
+            operationId: Problem_CreateProblem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.problem.CreateProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.CreateProblemReply'
+    /problem/list:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_ListProblem
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: currency
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.ListProblemReply'
+    /problem/{id}:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_GetProblem
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.GetProblemReply'
+        delete:
+            tags:
+                - Problem
+            operationId: Problem_DeleteProblem
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.DeleteProblemReply'
     /user:
+        get:
+            tags:
+                - User
+            operationId: User_ListUser
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply'
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserReply'
         post:
             tags:
                 - User
@@ -240,6 +424,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetRankingReply'
+    /user/{id}:
+        get:
+            tags:
+                - User
+            operationId: User_GetUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.GetUserReply'
+        delete:
+            tags:
+                - User
+            operationId: User_DeleteUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.DeleteUserReply'
 components:
     schemas:
         api.sastoj.admin.group.service.v1.CreateGroupReply:
@@ -252,12 +471,157 @@ components:
             properties:
                 name:
                     type: string
+        api.sastoj.admin.group.service.v1.DeleteGroupReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
         api.sastoj.admin.group.service.v1.GetGroupReply:
             type: object
             properties:
                 id:
                     type: string
                 name:
+                    type: string
+        api.sastoj.admin.group.service.v1.ListGroupReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.ListGroupReply_Group'
+        api.sastoj.admin.group.service.v1.ListGroupReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.group.service.v1.UpdateGroupReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.group.service.v1.UpdateGroupRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.problem.CreateProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.problem.CreateProblemRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.DeleteProblemReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.problem.GetProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.ListProblemReply:
+            type: object
+            properties:
+                currency:
+                    type: integer
+                    format: int32
+                total:
+                    type: integer
+                    format: int32
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.problem.ListProblemReply_Problem'
+        api.sastoj.admin.problem.ListProblemReply_Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.UpdateProblemReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.problem.UpdateProblemRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
                     type: string
         api.sastoj.admin.user.service.v1.CreateUserReply:
             type: object
@@ -272,6 +636,48 @@ components:
                 password:
                     type: string
                 groupId:
+                    type: string
+        api.sastoj.admin.user.service.v1.DeleteUserReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.user.service.v1.GetUserReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+        api.sastoj.admin.user.service.v1.ListUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply_User'
+        api.sastoj.admin.user.service.v1.ListUserReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+        api.sastoj.admin.user.service.v1.UpdateUserReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.user.service.v1.UpdateUserRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                password:
+                    type: string
+                state:
                     type: string
         api.sastoj.user.contest.service.v1.Contest:
             type: object
@@ -411,6 +817,8 @@ components:
                     type: string
                 language:
                     type: string
+                input:
+                    type: string
         api.sastoj.user.contest.service.v1.SubmitProblemReply:
             type: object
             properties:
@@ -430,4 +838,5 @@ components:
 tags:
     - name: ContestService
     - name: Group
+    - name: Problem
     - name: User

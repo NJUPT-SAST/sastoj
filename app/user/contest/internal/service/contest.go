@@ -8,7 +8,8 @@ import (
 
 func (s *UserContestService) ListContest(ctx context.Context, _ *pb.ListContestRequest) (*pb.ListContestReply, error) {
 	// TODO: Get the userID from context
-	rv, err := s.contestUc.ListContest(ctx, 1)
+	userId := 1
+	rv, err := s.contestUc.ListContest(ctx, int64(userId))
 	if err != nil {
 		return nil, err
 	}

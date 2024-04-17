@@ -39,7 +39,6 @@ func NewContestUsecase(repo ContestRepo, logger log.Logger) *ContestUsecase {
 
 // ListContest list all contests.
 func (uc *ContestUsecase) ListContest(ctx context.Context, userID int64) ([]*Contest, error) {
-	userID = 1
 	uc.log.Infof("userID: %d", userID)
 	contests, err := uc.repo.ListContest(ctx, userID)
 	if err != nil {

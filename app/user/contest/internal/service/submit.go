@@ -41,6 +41,7 @@ func (s *UserContestService) PretestProblem(ctx context.Context, req *pb.Pretest
 		UserID:   1, // TODO: Get the userID from context
 		Code:     req.Code,
 		Language: req.Language,
+		Input:    req.Input,
 	})
 	if err != nil {
 		return nil, err

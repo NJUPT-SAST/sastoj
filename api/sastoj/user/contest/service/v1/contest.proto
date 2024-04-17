@@ -127,6 +127,7 @@ message PretestProblemRequest {
   int64 problem_id = 2;
   string code = 3;
   string language = 4;
+  string input = 5;
 }
 
 message PretestProblemReply {
