@@ -20,6 +20,8 @@ const (
 	FieldSalt = "salt"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldGroupID holds the string denoting the group_id field in the database.
+	FieldGroupID = "group_id"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
 	// EdgeLoginSessions holds the string denoting the login_sessions edge name in mutations.
@@ -34,21 +36,21 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "submit" package.
 	SubmissionInverseTable = "submit"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
-	SubmissionColumn = "user_submission"
+	SubmissionColumn = "user_id"
 	// LoginSessionsTable is the table that holds the login_sessions relation/edge.
 	LoginSessionsTable = "login_session"
 	// LoginSessionsInverseTable is the table name for the LoginSession entity.
 	// It exists in this package in order to avoid circular dependency with the "loginsession" package.
 	LoginSessionsInverseTable = "login_session"
 	// LoginSessionsColumn is the table column denoting the login_sessions relation/edge.
-	LoginSessionsColumn = "user_login_sessions"
+	LoginSessionsColumn = "user_id"
 	// GroupsTable is the table that holds the groups relation/edge.
 	GroupsTable = "users"
 	// GroupsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
 	GroupsInverseTable = "groups"
 	// GroupsColumn is the table column denoting the groups relation/edge.
-	GroupsColumn = "group_users"
+	GroupsColumn = "group_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -58,23 +60,13 @@ var Columns = []string{
 	FieldPassword,
 	FieldSalt,
 	FieldStatus,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"group_users",
+	FieldGroupID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -85,7 +77,7 @@ var (
 	// DefaultUsername holds the default value on creation for the "username" field.
 	DefaultUsername string
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int) error
+	StatusValidator func(int16) error
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -114,6 +106,11 @@ func BySalt(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByGroupID orders the results by the group_id field.
+func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
 }
 
 // BySubmissionCount orders the results by submission count.

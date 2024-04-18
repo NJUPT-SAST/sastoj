@@ -25,12 +25,13 @@ func (LoginSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
 		field.Time("create_time").Default(time.Now()),
+		field.Int("user_id"),
 	}
 }
 
 // Edges of the LoginSession.
 func (LoginSession) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("users", User.Type).Ref("login_sessions").Unique(),
+		edge.From("users", User.Type).Ref("login_sessions").Field("user_id").Unique().Required(),
 	}
 }

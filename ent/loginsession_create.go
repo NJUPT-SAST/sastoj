@@ -35,6 +35,12 @@ func (lsc *LoginSessionCreate) SetNillableCreateTime(t *time.Time) *LoginSession
 	return lsc
 }
 
+// SetUserID sets the "user_id" field.
+func (lsc *LoginSessionCreate) SetUserID(i int) *LoginSessionCreate {
+	lsc.mutation.SetUserID(i)
+	return lsc
+}
+
 // SetID sets the "id" field.
 func (lsc *LoginSessionCreate) SetID(i int) *LoginSessionCreate {
 	lsc.mutation.SetID(i)
@@ -44,14 +50,6 @@ func (lsc *LoginSessionCreate) SetID(i int) *LoginSessionCreate {
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (lsc *LoginSessionCreate) SetUsersID(id int) *LoginSessionCreate {
 	lsc.mutation.SetUsersID(id)
-	return lsc
-}
-
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (lsc *LoginSessionCreate) SetNillableUsersID(id *int) *LoginSessionCreate {
-	if id != nil {
-		lsc = lsc.SetUsersID(*id)
-	}
 	return lsc
 }
 
@@ -106,6 +104,12 @@ func (lsc *LoginSessionCreate) check() error {
 	if _, ok := lsc.mutation.CreateTime(); !ok {
 		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "LoginSession.create_time"`)}
 	}
+	if _, ok := lsc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "LoginSession.user_id"`)}
+	}
+	if _, ok := lsc.mutation.UsersID(); !ok {
+		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "LoginSession.users"`)}
+	}
 	return nil
 }
 
@@ -156,7 +160,7 @@ func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_login_sessions = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

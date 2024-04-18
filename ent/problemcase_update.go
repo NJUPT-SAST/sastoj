@@ -30,14 +30,14 @@ func (pcu *ProblemCaseUpdate) Where(ps ...predicate.ProblemCase) *ProblemCaseUpd
 }
 
 // SetPoint sets the "point" field.
-func (pcu *ProblemCaseUpdate) SetPoint(i int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetPoint(i int16) *ProblemCaseUpdate {
 	pcu.mutation.ResetPoint()
 	pcu.mutation.SetPoint(i)
 	return pcu
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (pcu *ProblemCaseUpdate) SetNillablePoint(i *int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetNillablePoint(i *int16) *ProblemCaseUpdate {
 	if i != nil {
 		pcu.SetPoint(*i)
 	}
@@ -45,20 +45,20 @@ func (pcu *ProblemCaseUpdate) SetNillablePoint(i *int) *ProblemCaseUpdate {
 }
 
 // AddPoint adds i to the "point" field.
-func (pcu *ProblemCaseUpdate) AddPoint(i int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) AddPoint(i int16) *ProblemCaseUpdate {
 	pcu.mutation.AddPoint(i)
 	return pcu
 }
 
 // SetIndex sets the "index" field.
-func (pcu *ProblemCaseUpdate) SetIndex(i int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetIndex(i int16) *ProblemCaseUpdate {
 	pcu.mutation.ResetIndex()
 	pcu.mutation.SetIndex(i)
 	return pcu
 }
 
 // SetNillableIndex sets the "index" field if the given value is not nil.
-func (pcu *ProblemCaseUpdate) SetNillableIndex(i *int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetNillableIndex(i *int16) *ProblemCaseUpdate {
 	if i != nil {
 		pcu.SetIndex(*i)
 	}
@@ -66,7 +66,7 @@ func (pcu *ProblemCaseUpdate) SetNillableIndex(i *int) *ProblemCaseUpdate {
 }
 
 // AddIndex adds i to the "index" field.
-func (pcu *ProblemCaseUpdate) AddIndex(i int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) AddIndex(i int16) *ProblemCaseUpdate {
 	pcu.mutation.AddIndex(i)
 	return pcu
 }
@@ -99,6 +99,20 @@ func (pcu *ProblemCaseUpdate) SetNillableIsDeleted(b *bool) *ProblemCaseUpdate {
 	return pcu
 }
 
+// SetProblemID sets the "problem_id" field.
+func (pcu *ProblemCaseUpdate) SetProblemID(i int) *ProblemCaseUpdate {
+	pcu.mutation.SetProblemID(i)
+	return pcu
+}
+
+// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
+func (pcu *ProblemCaseUpdate) SetNillableProblemID(i *int) *ProblemCaseUpdate {
+	if i != nil {
+		pcu.SetProblemID(*i)
+	}
+	return pcu
+}
+
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
 func (pcu *ProblemCaseUpdate) AddSubmitCaseIDs(ids ...int) *ProblemCaseUpdate {
 	pcu.mutation.AddSubmitCaseIDs(ids...)
@@ -117,14 +131,6 @@ func (pcu *ProblemCaseUpdate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseUpdat
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
 func (pcu *ProblemCaseUpdate) SetProblemsID(id int) *ProblemCaseUpdate {
 	pcu.mutation.SetProblemsID(id)
-	return pcu
-}
-
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (pcu *ProblemCaseUpdate) SetNillableProblemsID(id *int) *ProblemCaseUpdate {
-	if id != nil {
-		pcu = pcu.SetProblemsID(*id)
-	}
 	return pcu
 }
 
@@ -204,6 +210,9 @@ func (pcu *ProblemCaseUpdate) check() error {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "ProblemCase.index": %w`, err)}
 		}
 	}
+	if _, ok := pcu.mutation.ProblemsID(); pcu.mutation.ProblemsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "ProblemCase.problems"`)
+	}
 	return nil
 }
 
@@ -220,16 +229,16 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := pcu.mutation.Point(); ok {
-		_spec.SetField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pcu.mutation.AddedPoint(); ok {
-		_spec.AddField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.AddField(problemcase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pcu.mutation.Index(); ok {
-		_spec.SetField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pcu.mutation.AddedIndex(); ok {
-		_spec.AddField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.AddField(problemcase.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pcu.mutation.IsAuto(); ok {
 		_spec.SetField(problemcase.FieldIsAuto, field.TypeBool, value)
@@ -332,14 +341,14 @@ type ProblemCaseUpdateOne struct {
 }
 
 // SetPoint sets the "point" field.
-func (pcuo *ProblemCaseUpdateOne) SetPoint(i int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetPoint(i int16) *ProblemCaseUpdateOne {
 	pcuo.mutation.ResetPoint()
 	pcuo.mutation.SetPoint(i)
 	return pcuo
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (pcuo *ProblemCaseUpdateOne) SetNillablePoint(i *int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetNillablePoint(i *int16) *ProblemCaseUpdateOne {
 	if i != nil {
 		pcuo.SetPoint(*i)
 	}
@@ -347,20 +356,20 @@ func (pcuo *ProblemCaseUpdateOne) SetNillablePoint(i *int) *ProblemCaseUpdateOne
 }
 
 // AddPoint adds i to the "point" field.
-func (pcuo *ProblemCaseUpdateOne) AddPoint(i int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) AddPoint(i int16) *ProblemCaseUpdateOne {
 	pcuo.mutation.AddPoint(i)
 	return pcuo
 }
 
 // SetIndex sets the "index" field.
-func (pcuo *ProblemCaseUpdateOne) SetIndex(i int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetIndex(i int16) *ProblemCaseUpdateOne {
 	pcuo.mutation.ResetIndex()
 	pcuo.mutation.SetIndex(i)
 	return pcuo
 }
 
 // SetNillableIndex sets the "index" field if the given value is not nil.
-func (pcuo *ProblemCaseUpdateOne) SetNillableIndex(i *int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetNillableIndex(i *int16) *ProblemCaseUpdateOne {
 	if i != nil {
 		pcuo.SetIndex(*i)
 	}
@@ -368,7 +377,7 @@ func (pcuo *ProblemCaseUpdateOne) SetNillableIndex(i *int) *ProblemCaseUpdateOne
 }
 
 // AddIndex adds i to the "index" field.
-func (pcuo *ProblemCaseUpdateOne) AddIndex(i int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) AddIndex(i int16) *ProblemCaseUpdateOne {
 	pcuo.mutation.AddIndex(i)
 	return pcuo
 }
@@ -401,6 +410,20 @@ func (pcuo *ProblemCaseUpdateOne) SetNillableIsDeleted(b *bool) *ProblemCaseUpda
 	return pcuo
 }
 
+// SetProblemID sets the "problem_id" field.
+func (pcuo *ProblemCaseUpdateOne) SetProblemID(i int) *ProblemCaseUpdateOne {
+	pcuo.mutation.SetProblemID(i)
+	return pcuo
+}
+
+// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
+func (pcuo *ProblemCaseUpdateOne) SetNillableProblemID(i *int) *ProblemCaseUpdateOne {
+	if i != nil {
+		pcuo.SetProblemID(*i)
+	}
+	return pcuo
+}
+
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
 func (pcuo *ProblemCaseUpdateOne) AddSubmitCaseIDs(ids ...int) *ProblemCaseUpdateOne {
 	pcuo.mutation.AddSubmitCaseIDs(ids...)
@@ -419,14 +442,6 @@ func (pcuo *ProblemCaseUpdateOne) AddSubmitCases(s ...*SubmitCase) *ProblemCaseU
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
 func (pcuo *ProblemCaseUpdateOne) SetProblemsID(id int) *ProblemCaseUpdateOne {
 	pcuo.mutation.SetProblemsID(id)
-	return pcuo
-}
-
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (pcuo *ProblemCaseUpdateOne) SetNillableProblemsID(id *int) *ProblemCaseUpdateOne {
-	if id != nil {
-		pcuo = pcuo.SetProblemsID(*id)
-	}
 	return pcuo
 }
 
@@ -519,6 +534,9 @@ func (pcuo *ProblemCaseUpdateOne) check() error {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "ProblemCase.index": %w`, err)}
 		}
 	}
+	if _, ok := pcuo.mutation.ProblemsID(); pcuo.mutation.ProblemsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "ProblemCase.problems"`)
+	}
 	return nil
 }
 
@@ -552,16 +570,16 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 		}
 	}
 	if value, ok := pcuo.mutation.Point(); ok {
-		_spec.SetField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pcuo.mutation.AddedPoint(); ok {
-		_spec.AddField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.AddField(problemcase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pcuo.mutation.Index(); ok {
-		_spec.SetField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pcuo.mutation.AddedIndex(); ok {
-		_spec.AddField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.AddField(problemcase.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pcuo.mutation.IsAuto(); ok {
 		_spec.SetField(problemcase.FieldIsAuto, field.TypeBool, value)

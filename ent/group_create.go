@@ -36,6 +36,20 @@ func (gc *GroupCreate) SetNillableGroupName(s *string) *GroupCreate {
 	return gc
 }
 
+// SetRootGroupID sets the "root_group_id" field.
+func (gc *GroupCreate) SetRootGroupID(i int) *GroupCreate {
+	gc.mutation.SetRootGroupID(i)
+	return gc
+}
+
+// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableRootGroupID(i *int) *GroupCreate {
+	if i != nil {
+		gc.SetRootGroupID(*i)
+	}
+	return gc
+}
+
 // SetID sets the "id" field.
 func (gc *GroupCreate) SetID(i int) *GroupCreate {
 	gc.mutation.SetID(i)
@@ -102,20 +116,6 @@ func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
 	return gc.AddUserIDs(ids...)
 }
 
-// SetRootGroupID sets the "root_group" edge to the Group entity by ID.
-func (gc *GroupCreate) SetRootGroupID(id int) *GroupCreate {
-	gc.mutation.SetRootGroupID(id)
-	return gc
-}
-
-// SetNillableRootGroupID sets the "root_group" edge to the Group entity by ID if the given value is not nil.
-func (gc *GroupCreate) SetNillableRootGroupID(id *int) *GroupCreate {
-	if id != nil {
-		gc = gc.SetRootGroupID(*id)
-	}
-	return gc
-}
-
 // SetRootGroup sets the "root_group" edge to the Group entity.
 func (gc *GroupCreate) SetRootGroup(g *Group) *GroupCreate {
 	return gc.SetRootGroupID(g.ID)
@@ -175,12 +175,22 @@ func (gc *GroupCreate) defaults() {
 		v := group.DefaultGroupName
 		gc.mutation.SetGroupName(v)
 	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		v := group.DefaultRootGroupID
+		gc.mutation.SetRootGroupID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (gc *GroupCreate) check() error {
 	if _, ok := gc.mutation.GroupName(); !ok {
 		return &ValidationError{Name: "group_name", err: errors.New(`ent: missing required field "Group.group_name"`)}
+	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		return &ValidationError{Name: "root_group_id", err: errors.New(`ent: missing required field "Group.root_group_id"`)}
+	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		return &ValidationError{Name: "root_group", err: errors.New(`ent: missing required edge "Group.root_group"`)}
 	}
 	return nil
 }
@@ -296,7 +306,7 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.group_subgroups = &nodes[0]
+		_node.RootGroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := gc.mutation.SubgroupsIDs(); len(nodes) > 0 {

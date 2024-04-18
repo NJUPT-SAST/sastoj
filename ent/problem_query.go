@@ -544,7 +544,9 @@ func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCase
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(problemcase.FieldProblemID)
+	}
 	query.Where(predicate.ProblemCase(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(problem.ProblemCasesColumn), fks...))
 	}))
@@ -553,13 +555,10 @@ func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCase
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.problem_problem_cases
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "problem_problem_cases" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "problem_problem_cases" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -575,7 +574,9 @@ func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, 
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submit.FieldProblemID)
+	}
 	query.Where(predicate.Submit(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(problem.SubmissionColumn), fks...))
 	}))
@@ -584,13 +585,10 @@ func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, 
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.problem_submission
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "problem_submission" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ProblemID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "problem_submission" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

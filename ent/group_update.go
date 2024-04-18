@@ -44,6 +44,20 @@ func (gu *GroupUpdate) SetNillableGroupName(s *string) *GroupUpdate {
 	return gu
 }
 
+// SetRootGroupID sets the "root_group_id" field.
+func (gu *GroupUpdate) SetRootGroupID(i int) *GroupUpdate {
+	gu.mutation.SetRootGroupID(i)
+	return gu
+}
+
+// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableRootGroupID(i *int) *GroupUpdate {
+	if i != nil {
+		gu.SetRootGroupID(*i)
+	}
+	return gu
+}
+
 // AddAdminIDs adds the "admins" edge to the Contest entity by IDs.
 func (gu *GroupUpdate) AddAdminIDs(ids ...int) *GroupUpdate {
 	gu.mutation.AddAdminIDs(ids...)
@@ -102,20 +116,6 @@ func (gu *GroupUpdate) AddUsers(u ...*User) *GroupUpdate {
 		ids[i] = u[i].ID
 	}
 	return gu.AddUserIDs(ids...)
-}
-
-// SetRootGroupID sets the "root_group" edge to the Group entity by ID.
-func (gu *GroupUpdate) SetRootGroupID(id int) *GroupUpdate {
-	gu.mutation.SetRootGroupID(id)
-	return gu
-}
-
-// SetNillableRootGroupID sets the "root_group" edge to the Group entity by ID if the given value is not nil.
-func (gu *GroupUpdate) SetNillableRootGroupID(id *int) *GroupUpdate {
-	if id != nil {
-		gu = gu.SetRootGroupID(*id)
-	}
-	return gu
 }
 
 // SetRootGroup sets the "root_group" edge to the Group entity.
@@ -281,7 +281,18 @@ func (gu *GroupUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (gu *GroupUpdate) check() error {
+	if _, ok := gu.mutation.RootGroupID(); gu.mutation.RootGroupCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Group.root_group"`)
+	}
+	return nil
+}
+
 func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := gu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
 	if ps := gu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -581,6 +592,20 @@ func (guo *GroupUpdateOne) SetNillableGroupName(s *string) *GroupUpdateOne {
 	return guo
 }
 
+// SetRootGroupID sets the "root_group_id" field.
+func (guo *GroupUpdateOne) SetRootGroupID(i int) *GroupUpdateOne {
+	guo.mutation.SetRootGroupID(i)
+	return guo
+}
+
+// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableRootGroupID(i *int) *GroupUpdateOne {
+	if i != nil {
+		guo.SetRootGroupID(*i)
+	}
+	return guo
+}
+
 // AddAdminIDs adds the "admins" edge to the Contest entity by IDs.
 func (guo *GroupUpdateOne) AddAdminIDs(ids ...int) *GroupUpdateOne {
 	guo.mutation.AddAdminIDs(ids...)
@@ -639,20 +664,6 @@ func (guo *GroupUpdateOne) AddUsers(u ...*User) *GroupUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return guo.AddUserIDs(ids...)
-}
-
-// SetRootGroupID sets the "root_group" edge to the Group entity by ID.
-func (guo *GroupUpdateOne) SetRootGroupID(id int) *GroupUpdateOne {
-	guo.mutation.SetRootGroupID(id)
-	return guo
-}
-
-// SetNillableRootGroupID sets the "root_group" edge to the Group entity by ID if the given value is not nil.
-func (guo *GroupUpdateOne) SetNillableRootGroupID(id *int) *GroupUpdateOne {
-	if id != nil {
-		guo = guo.SetRootGroupID(*id)
-	}
-	return guo
 }
 
 // SetRootGroup sets the "root_group" edge to the Group entity.
@@ -831,7 +842,18 @@ func (guo *GroupUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (guo *GroupUpdateOne) check() error {
+	if _, ok := guo.mutation.RootGroupID(); guo.mutation.RootGroupCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Group.root_group"`)
+	}
+	return nil
+}
+
 func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error) {
+	if err := guo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
 	id, ok := guo.mutation.ID()
 	if !ok {

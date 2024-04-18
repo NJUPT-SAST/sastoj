@@ -20,11 +20,12 @@ type LoginSession struct {
 	ID int `json:"id,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LoginSessionQuery when eager-loading is set.
-	Edges               LoginSessionEdges `json:"edges"`
-	user_login_sessions *int
-	selectValues        sql.SelectValues
+	Edges        LoginSessionEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // LoginSessionEdges holds the relations/edges for other nodes in the graph.
@@ -54,12 +55,10 @@ func (*LoginSession) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case loginsession.FieldID:
+		case loginsession.FieldID, loginsession.FieldUserID:
 			values[i] = new(sql.NullInt64)
 		case loginsession.FieldCreateTime:
 			values[i] = new(sql.NullTime)
-		case loginsession.ForeignKeys[0]: // user_login_sessions
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -87,12 +86,11 @@ func (ls *LoginSession) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ls.CreateTime = value.Time
 			}
-		case loginsession.ForeignKeys[0]:
+		case loginsession.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_login_sessions", value)
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				ls.user_login_sessions = new(int)
-				*ls.user_login_sessions = int(value.Int64)
+				ls.UserID = int(value.Int64)
 			}
 		default:
 			ls.selectValues.Set(columns[i], values[i])
@@ -137,6 +135,9 @@ func (ls *LoginSession) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", ls.ID))
 	builder.WriteString("create_time=")
 	builder.WriteString(ls.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", ls.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

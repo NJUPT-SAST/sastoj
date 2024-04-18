@@ -31,7 +31,6 @@ type GroupQuery struct {
 	withUsers       *UserQuery
 	withRootGroup   *GroupQuery
 	withSubgroups   *GroupQuery
-	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -547,7 +546,6 @@ func (gq *GroupQuery) prepareQuery(ctx context.Context) error {
 func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group, error) {
 	var (
 		nodes       = []*Group{}
-		withFKs     = gq.withFKs
 		_spec       = gq.querySpec()
 		loadedTypes = [6]bool{
 			gq.withAdmins != nil,
@@ -558,12 +556,6 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 			gq.withSubgroups != nil,
 		}
 	)
-	if gq.withRootGroup != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, group.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Group).scanValues(nil, columns)
 	}
@@ -819,7 +811,9 @@ func (gq *GroupQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(user.FieldGroupID)
+	}
 	query.Where(predicate.User(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(group.UsersColumn), fks...))
 	}))
@@ -828,13 +822,10 @@ func (gq *GroupQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.group_users
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "group_users" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.GroupID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "group_users" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "group_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -844,10 +835,7 @@ func (gq *GroupQuery) loadRootGroup(ctx context.Context, query *GroupQuery, node
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Group)
 	for i := range nodes {
-		if nodes[i].group_subgroups == nil {
-			continue
-		}
-		fk := *nodes[i].group_subgroups
+		fk := nodes[i].RootGroupID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -864,7 +852,7 @@ func (gq *GroupQuery) loadRootGroup(ctx context.Context, query *GroupQuery, node
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "group_subgroups" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "root_group_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -882,7 +870,9 @@ func (gq *GroupQuery) loadSubgroups(ctx context.Context, query *GroupQuery, node
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(group.FieldRootGroupID)
+	}
 	query.Where(predicate.Group(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(group.SubgroupsColumn), fks...))
 	}))
@@ -891,13 +881,10 @@ func (gq *GroupQuery) loadSubgroups(ctx context.Context, query *GroupQuery, node
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.group_subgroups
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "group_subgroups" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.RootGroupID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "group_subgroups" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "root_group_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -928,6 +915,9 @@ func (gq *GroupQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != group.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if gq.withRootGroup != nil {
+			_spec.Node.AddColumnOnce(group.FieldRootGroupID)
 		}
 	}
 	if ps := gq.predicates; len(ps) > 0 {

@@ -22,13 +22,13 @@ type ProblemCaseCreate struct {
 }
 
 // SetPoint sets the "point" field.
-func (pcc *ProblemCaseCreate) SetPoint(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetPoint(i int16) *ProblemCaseCreate {
 	pcc.mutation.SetPoint(i)
 	return pcc
 }
 
 // SetIndex sets the "index" field.
-func (pcc *ProblemCaseCreate) SetIndex(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetIndex(i int16) *ProblemCaseCreate {
 	pcc.mutation.SetIndex(i)
 	return pcc
 }
@@ -61,6 +61,12 @@ func (pcc *ProblemCaseCreate) SetNillableIsDeleted(b *bool) *ProblemCaseCreate {
 	return pcc
 }
 
+// SetProblemID sets the "problem_id" field.
+func (pcc *ProblemCaseCreate) SetProblemID(i int) *ProblemCaseCreate {
+	pcc.mutation.SetProblemID(i)
+	return pcc
+}
+
 // SetID sets the "id" field.
 func (pcc *ProblemCaseCreate) SetID(i int) *ProblemCaseCreate {
 	pcc.mutation.SetID(i)
@@ -85,14 +91,6 @@ func (pcc *ProblemCaseCreate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseCreat
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
 func (pcc *ProblemCaseCreate) SetProblemsID(id int) *ProblemCaseCreate {
 	pcc.mutation.SetProblemsID(id)
-	return pcc
-}
-
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (pcc *ProblemCaseCreate) SetNillableProblemsID(id *int) *ProblemCaseCreate {
-	if id != nil {
-		pcc = pcc.SetProblemsID(*id)
-	}
 	return pcc
 }
 
@@ -170,6 +168,12 @@ func (pcc *ProblemCaseCreate) check() error {
 	if _, ok := pcc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "ProblemCase.is_deleted"`)}
 	}
+	if _, ok := pcc.mutation.ProblemID(); !ok {
+		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "ProblemCase.problem_id"`)}
+	}
+	if _, ok := pcc.mutation.ProblemsID(); !ok {
+		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "ProblemCase.problems"`)}
+	}
 	return nil
 }
 
@@ -203,11 +207,11 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		_spec.ID.Value = id
 	}
 	if value, ok := pcc.mutation.Point(); ok {
-		_spec.SetField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
 	if value, ok := pcc.mutation.Index(); ok {
-		_spec.SetField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
 	}
 	if value, ok := pcc.mutation.IsAuto(); ok {
@@ -248,7 +252,7 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.problem_problem_cases = &nodes[0]
+		_node.ProblemID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -22,6 +22,10 @@ const (
 	FieldTime = "time"
 	// FieldMemory holds the string denoting the memory field in the database.
 	FieldMemory = "memory"
+	// FieldSubmitID holds the string denoting the submit_id field in the database.
+	FieldSubmitID = "submit_id"
+	// FieldProblemCaseID holds the string denoting the problem_case_id field in the database.
+	FieldProblemCaseID = "problem_case_id"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
 	// EdgeProblemCases holds the string denoting the problem_cases edge name in mutations.
@@ -34,14 +38,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "submit" package.
 	SubmissionInverseTable = "submit"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
-	SubmissionColumn = "submit_submit_cases"
+	SubmissionColumn = "submit_id"
 	// ProblemCasesTable is the table that holds the problem_cases relation/edge.
 	ProblemCasesTable = "submit_cases"
 	// ProblemCasesInverseTable is the table name for the ProblemCase entity.
 	// It exists in this package in order to avoid circular dependency with the "problemcase" package.
 	ProblemCasesInverseTable = "problem_cases"
 	// ProblemCasesColumn is the table column denoting the problem_cases relation/edge.
-	ProblemCasesColumn = "problem_case_submit_cases"
+	ProblemCasesColumn = "problem_case_id"
 )
 
 // Columns holds all SQL columns for submitcase fields.
@@ -52,13 +56,8 @@ var Columns = []string{
 	FieldMessage,
 	FieldTime,
 	FieldMemory,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "submit_cases"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"problem_case_submit_cases",
-	"submit_submit_cases",
+	FieldSubmitID,
+	FieldProblemCaseID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -68,19 +67,14 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
 	// StateValidator is a validator for the "state" field. It is called by the builders before save.
-	StateValidator func(int) error
+	StateValidator func(int16) error
 	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int) error
+	PointValidator func(int16) error
 	// TimeValidator is a validator for the "time" field. It is called by the builders before save.
 	TimeValidator func(int) error
 	// MemoryValidator is a validator for the "memory" field. It is called by the builders before save.
@@ -118,6 +112,16 @@ func ByTime(opts ...sql.OrderTermOption) OrderOption {
 // ByMemory orders the results by the memory field.
 func ByMemory(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMemory, opts...).ToFunc()
+}
+
+// BySubmitID orders the results by the submit_id field.
+func BySubmitID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubmitID, opts...).ToFunc()
+}
+
+// ByProblemCaseID orders the results by the problem_case_id field.
+func ByProblemCaseID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProblemCaseID, opts...).ToFunc()
 }
 
 // BySubmissionField orders the results by submission field.

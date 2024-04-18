@@ -59,6 +59,11 @@ func GroupName(v string) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldGroupName, v))
 }
 
+// RootGroupID applies equality check predicate on the "root_group_id" field. It's identical to RootGroupIDEQ.
+func RootGroupID(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
+}
+
 // GroupNameEQ applies the EQ predicate on the "group_name" field.
 func GroupNameEQ(v string) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldGroupName, v))
@@ -122,6 +127,26 @@ func GroupNameEqualFold(v string) predicate.Group {
 // GroupNameContainsFold applies the ContainsFold predicate on the "group_name" field.
 func GroupNameContainsFold(v string) predicate.Group {
 	return predicate.Group(sql.FieldContainsFold(FieldGroupName, v))
+}
+
+// RootGroupIDEQ applies the EQ predicate on the "root_group_id" field.
+func RootGroupIDEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
+}
+
+// RootGroupIDNEQ applies the NEQ predicate on the "root_group_id" field.
+func RootGroupIDNEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldRootGroupID, v))
+}
+
+// RootGroupIDIn applies the In predicate on the "root_group_id" field.
+func RootGroupIDIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldRootGroupID, vs...))
+}
+
+// RootGroupIDNotIn applies the NotIn predicate on the "root_group_id" field.
+func RootGroupIDNotIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldRootGroupID, vs...))
 }
 
 // HasAdmins applies the HasEdge predicate on the "admins" edge.

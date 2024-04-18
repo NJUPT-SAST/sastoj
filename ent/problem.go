@@ -21,11 +21,11 @@ type Problem struct {
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
 	// Point holds the value of the "point" field.
-	Point int `json:"point,omitempty"`
+	Point int16 `json:"point,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
-	CaseVersion int `json:"case_version,omitempty"`
+	CaseVersion int16 `json:"case_version,omitempty"`
 	// Index holds the value of the "index" field.
-	Index int `json:"index,omitempty"`
+	Index int16 `json:"index,omitempty"`
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// Config holds the value of the "config" field.
@@ -135,19 +135,19 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
-				pr.Point = int(value.Int64)
+				pr.Point = int16(value.Int64)
 			}
 		case problem.FieldCaseVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field case_version", values[i])
 			} else if value.Valid {
-				pr.CaseVersion = int(value.Int64)
+				pr.CaseVersion = int16(value.Int64)
 			}
 		case problem.FieldIndex:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field index", values[i])
 			} else if value.Valid {
-				pr.Index = int(value.Int64)
+				pr.Index = int16(value.Int64)
 			}
 		case problem.FieldIsDeleted:
 			if value, ok := values[i].(*sql.NullBool); !ok {

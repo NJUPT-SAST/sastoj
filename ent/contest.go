@@ -22,9 +22,9 @@ type Contest struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Status holds the value of the "status" field.
-	Status int `json:"status,omitempty"`
+	Status int16 `json:"status,omitempty"`
 	// Type holds the value of the "type" field.
-	Type int `json:"type,omitempty"`
+	Type int16 `json:"type,omitempty"`
 	// StartTime holds the value of the "start_time" field.
 	StartTime time.Time `json:"start_time,omitempty"`
 	// EndTime holds the value of the "end_time" field.
@@ -32,7 +32,7 @@ type Contest struct {
 	// Language holds the value of the "language" field.
 	Language string `json:"language,omitempty"`
 	// ExtraTime holds the value of the "extra_time" field.
-	ExtraTime int `json:"extra_time,omitempty"`
+	ExtraTime int16 `json:"extra_time,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -129,13 +129,13 @@ func (c *Contest) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				c.Status = int(value.Int64)
+				c.Status = int16(value.Int64)
 			}
 		case contest.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				c.Type = int(value.Int64)
+				c.Type = int16(value.Int64)
 			}
 		case contest.FieldStartTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -159,7 +159,7 @@ func (c *Contest) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field extra_time", values[i])
 			} else if value.Valid {
-				c.ExtraTime = int(value.Int64)
+				c.ExtraTime = int16(value.Int64)
 			}
 		case contest.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {

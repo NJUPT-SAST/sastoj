@@ -24,15 +24,17 @@ func init() {
 	// contestDescStatus is the schema descriptor for status field.
 	contestDescStatus := contestFields[3].Descriptor()
 	// contest.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	contest.StatusValidator = contestDescStatus.Validators[0].(func(int) error)
+	contest.StatusValidator = contestDescStatus.Validators[0].(func(int16) error)
 	// contestDescType is the schema descriptor for type field.
 	contestDescType := contestFields[4].Descriptor()
 	// contest.TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	contest.TypeValidator = contestDescType.Validators[0].(func(int) error)
+	contest.TypeValidator = contestDescType.Validators[0].(func(int16) error)
 	// contestDescExtraTime is the schema descriptor for extra_time field.
 	contestDescExtraTime := contestFields[8].Descriptor()
+	// contest.DefaultExtraTime holds the default value on creation for the extra_time field.
+	contest.DefaultExtraTime = contestDescExtraTime.Default.(int16)
 	// contest.ExtraTimeValidator is a validator for the "extra_time" field. It is called by the builders before save.
-	contest.ExtraTimeValidator = contestDescExtraTime.Validators[0].(func(int) error)
+	contest.ExtraTimeValidator = contestDescExtraTime.Validators[0].(func(int16) error)
 	// contestDescCreateTime is the schema descriptor for create_time field.
 	contestDescCreateTime := contestFields[9].Descriptor()
 	// contest.DefaultCreateTime holds the default value on creation for the create_time field.
@@ -43,6 +45,10 @@ func init() {
 	groupDescGroupName := groupFields[1].Descriptor()
 	// group.DefaultGroupName holds the default value on creation for the group_name field.
 	group.DefaultGroupName = groupDescGroupName.Default.(string)
+	// groupDescRootGroupID is the schema descriptor for root_group_id field.
+	groupDescRootGroupID := groupFields[2].Descriptor()
+	// group.DefaultRootGroupID holds the default value on creation for the root_group_id field.
+	group.DefaultRootGroupID = groupDescRootGroupID.Default.(int)
 	loginsessionFields := schema.LoginSession{}.Fields()
 	_ = loginsessionFields
 	// loginsessionDescCreateTime is the schema descriptor for create_time field.
@@ -54,17 +60,17 @@ func init() {
 	// problemDescPoint is the schema descriptor for point field.
 	problemDescPoint := problemFields[3].Descriptor()
 	// problem.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	problem.PointValidator = problemDescPoint.Validators[0].(func(int) error)
+	problem.PointValidator = problemDescPoint.Validators[0].(func(int16) error)
 	// problemDescCaseVersion is the schema descriptor for case_version field.
 	problemDescCaseVersion := problemFields[4].Descriptor()
 	// problem.DefaultCaseVersion holds the default value on creation for the case_version field.
-	problem.DefaultCaseVersion = problemDescCaseVersion.Default.(int)
+	problem.DefaultCaseVersion = problemDescCaseVersion.Default.(int16)
 	// problem.CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	problem.CaseVersionValidator = problemDescCaseVersion.Validators[0].(func(int) error)
+	problem.CaseVersionValidator = problemDescCaseVersion.Validators[0].(func(int16) error)
 	// problemDescIndex is the schema descriptor for index field.
 	problemDescIndex := problemFields[5].Descriptor()
 	// problem.IndexValidator is a validator for the "index" field. It is called by the builders before save.
-	problem.IndexValidator = problemDescIndex.Validators[0].(func(int) error)
+	problem.IndexValidator = problemDescIndex.Validators[0].(func(int16) error)
 	// problemDescIsDeleted is the schema descriptor for is_deleted field.
 	problemDescIsDeleted := problemFields[6].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.
@@ -74,11 +80,11 @@ func init() {
 	// problemcaseDescPoint is the schema descriptor for point field.
 	problemcaseDescPoint := problemcaseFields[1].Descriptor()
 	// problemcase.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	problemcase.PointValidator = problemcaseDescPoint.Validators[0].(func(int) error)
+	problemcase.PointValidator = problemcaseDescPoint.Validators[0].(func(int16) error)
 	// problemcaseDescIndex is the schema descriptor for index field.
 	problemcaseDescIndex := problemcaseFields[2].Descriptor()
 	// problemcase.IndexValidator is a validator for the "index" field. It is called by the builders before save.
-	problemcase.IndexValidator = problemcaseDescIndex.Validators[0].(func(int) error)
+	problemcase.IndexValidator = problemcaseDescIndex.Validators[0].(func(int16) error)
 	// problemcaseDescIsAuto is the schema descriptor for is_auto field.
 	problemcaseDescIsAuto := problemcaseFields[3].Descriptor()
 	// problemcase.DefaultIsAuto holds the default value on creation for the is_auto field.
@@ -92,11 +98,11 @@ func init() {
 	// submitDescStatus is the schema descriptor for status field.
 	submitDescStatus := submitFields[2].Descriptor()
 	// submit.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	submit.StatusValidator = submitDescStatus.Validators[0].(func(int) error)
+	submit.StatusValidator = submitDescStatus.Validators[0].(func(int8) error)
 	// submitDescPoint is the schema descriptor for point field.
 	submitDescPoint := submitFields[3].Descriptor()
 	// submit.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	submit.PointValidator = submitDescPoint.Validators[0].(func(int) error)
+	submit.PointValidator = submitDescPoint.Validators[0].(func(int16) error)
 	// submitDescCreateTime is the schema descriptor for create_time field.
 	submitDescCreateTime := submitFields[4].Descriptor()
 	// submit.DefaultCreateTime holds the default value on creation for the create_time field.
@@ -112,17 +118,17 @@ func init() {
 	// submitDescCaseVersion is the schema descriptor for case_version field.
 	submitDescCaseVersion := submitFields[8].Descriptor()
 	// submit.CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	submit.CaseVersionValidator = submitDescCaseVersion.Validators[0].(func(int) error)
+	submit.CaseVersionValidator = submitDescCaseVersion.Validators[0].(func(int8) error)
 	submitcaseFields := schema.SubmitCase{}.Fields()
 	_ = submitcaseFields
 	// submitcaseDescState is the schema descriptor for state field.
 	submitcaseDescState := submitcaseFields[1].Descriptor()
 	// submitcase.StateValidator is a validator for the "state" field. It is called by the builders before save.
-	submitcase.StateValidator = submitcaseDescState.Validators[0].(func(int) error)
+	submitcase.StateValidator = submitcaseDescState.Validators[0].(func(int16) error)
 	// submitcaseDescPoint is the schema descriptor for point field.
 	submitcaseDescPoint := submitcaseFields[2].Descriptor()
 	// submitcase.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	submitcase.PointValidator = submitcaseDescPoint.Validators[0].(func(int) error)
+	submitcase.PointValidator = submitcaseDescPoint.Validators[0].(func(int16) error)
 	// submitcaseDescTime is the schema descriptor for time field.
 	submitcaseDescTime := submitcaseFields[4].Descriptor()
 	// submitcase.TimeValidator is a validator for the "time" field. It is called by the builders before save.
@@ -140,5 +146,5 @@ func init() {
 	// userDescStatus is the schema descriptor for status field.
 	userDescStatus := userFields[4].Descriptor()
 	// user.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	user.StatusValidator = userDescStatus.Validators[0].(func(int) error)
+	user.StatusValidator = userDescStatus.Validators[0].(func(int16) error)
 }

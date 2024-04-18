@@ -20,6 +20,8 @@ const (
 	FieldIsAuto = "is_auto"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
+	// FieldProblemID holds the string denoting the problem_id field in the database.
+	FieldProblemID = "problem_id"
 	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
 	EdgeSubmitCases = "submit_cases"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
@@ -32,14 +34,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "submitcase" package.
 	SubmitCasesInverseTable = "submit_cases"
 	// SubmitCasesColumn is the table column denoting the submit_cases relation/edge.
-	SubmitCasesColumn = "problem_case_submit_cases"
+	SubmitCasesColumn = "problem_case_id"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "problem_cases"
 	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemsInverseTable = "problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
-	ProblemsColumn = "problem_problem_cases"
+	ProblemsColumn = "problem_id"
 )
 
 // Columns holds all SQL columns for problemcase fields.
@@ -49,12 +51,7 @@ var Columns = []string{
 	FieldIndex,
 	FieldIsAuto,
 	FieldIsDeleted,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "problem_cases"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"problem_problem_cases",
+	FieldProblemID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -64,19 +61,14 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
 	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int) error
+	PointValidator func(int16) error
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
-	IndexValidator func(int) error
+	IndexValidator func(int16) error
 	// DefaultIsAuto holds the default value on creation for the "is_auto" field.
 	DefaultIsAuto bool
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
@@ -109,6 +101,11 @@ func ByIsAuto(opts ...sql.OrderTermOption) OrderOption {
 // ByIsDeleted orders the results by the is_deleted field.
 func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDeleted, opts...).ToFunc()
+}
+
+// ByProblemID orders the results by the problem_id field.
+func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
 }
 
 // BySubmitCasesCount orders the results by submit_cases count.

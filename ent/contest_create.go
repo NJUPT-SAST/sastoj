@@ -35,13 +35,13 @@ func (cc *ContestCreate) SetDescription(s string) *ContestCreate {
 }
 
 // SetStatus sets the "status" field.
-func (cc *ContestCreate) SetStatus(i int) *ContestCreate {
+func (cc *ContestCreate) SetStatus(i int16) *ContestCreate {
 	cc.mutation.SetStatus(i)
 	return cc
 }
 
 // SetType sets the "type" field.
-func (cc *ContestCreate) SetType(i int) *ContestCreate {
+func (cc *ContestCreate) SetType(i int16) *ContestCreate {
 	cc.mutation.SetType(i)
 	return cc
 }
@@ -65,8 +65,16 @@ func (cc *ContestCreate) SetLanguage(s string) *ContestCreate {
 }
 
 // SetExtraTime sets the "extra_time" field.
-func (cc *ContestCreate) SetExtraTime(i int) *ContestCreate {
+func (cc *ContestCreate) SetExtraTime(i int16) *ContestCreate {
 	cc.mutation.SetExtraTime(i)
+	return cc
+}
+
+// SetNillableExtraTime sets the "extra_time" field if the given value is not nil.
+func (cc *ContestCreate) SetNillableExtraTime(i *int16) *ContestCreate {
+	if i != nil {
+		cc.SetExtraTime(*i)
+	}
 	return cc
 }
 
@@ -170,6 +178,10 @@ func (cc *ContestCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *ContestCreate) defaults() {
+	if _, ok := cc.mutation.ExtraTime(); !ok {
+		v := contest.DefaultExtraTime
+		cc.mutation.SetExtraTime(v)
+	}
 	if _, ok := cc.mutation.CreateTime(); !ok {
 		v := contest.DefaultCreateTime
 		cc.mutation.SetCreateTime(v)
@@ -261,11 +273,11 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_node.Description = value
 	}
 	if value, ok := cc.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
+		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
 		_node.Status = value
 	}
 	if value, ok := cc.mutation.GetType(); ok {
-		_spec.SetField(contest.FieldType, field.TypeInt, value)
+		_spec.SetField(contest.FieldType, field.TypeInt16, value)
 		_node.Type = value
 	}
 	if value, ok := cc.mutation.StartTime(); ok {
@@ -281,7 +293,7 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_node.Language = value
 	}
 	if value, ok := cc.mutation.ExtraTime(); ok {
-		_spec.SetField(contest.FieldExtraTime, field.TypeInt, value)
+		_spec.SetField(contest.FieldExtraTime, field.TypeInt16, value)
 		_node.ExtraTime = value
 	}
 	if value, ok := cc.mutation.CreateTime(); ok {

@@ -28,7 +28,6 @@ type SubmitQuery struct {
 	withSubmitCases *SubmitCaseQuery
 	withProblems    *ProblemQuery
 	withUsers       *UserQuery
-	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -442,7 +441,6 @@ func (sq *SubmitQuery) prepareQuery(ctx context.Context) error {
 func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submit, error) {
 	var (
 		nodes       = []*Submit{}
-		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
 		loadedTypes = [3]bool{
 			sq.withSubmitCases != nil,
@@ -450,12 +448,6 @@ func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submi
 			sq.withUsers != nil,
 		}
 	)
-	if sq.withProblems != nil || sq.withUsers != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, submit.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Submit).scanValues(nil, columns)
 	}
@@ -506,7 +498,9 @@ func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQue
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submitcase.FieldSubmitID)
+	}
 	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(submit.SubmitCasesColumn), fks...))
 	}))
@@ -515,13 +509,10 @@ func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQue
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.submit_submit_cases
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "submit_submit_cases" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.SubmitID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "submit_submit_cases" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "submit_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -531,10 +522,7 @@ func (sq *SubmitQuery) loadProblems(ctx context.Context, query *ProblemQuery, no
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Submit)
 	for i := range nodes {
-		if nodes[i].problem_submission == nil {
-			continue
-		}
-		fk := *nodes[i].problem_submission
+		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -551,7 +539,7 @@ func (sq *SubmitQuery) loadProblems(ctx context.Context, query *ProblemQuery, no
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_submission" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "problem_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -563,10 +551,7 @@ func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Submit)
 	for i := range nodes {
-		if nodes[i].user_submission == nil {
-			continue
-		}
-		fk := *nodes[i].user_submission
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -583,7 +568,7 @@ func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_submission" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -616,6 +601,12 @@ func (sq *SubmitQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != submit.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if sq.withProblems != nil {
+			_spec.Node.AddColumnOnce(submit.FieldProblemID)
+		}
+		if sq.withUsers != nil {
+			_spec.Node.AddColumnOnce(submit.FieldUserID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

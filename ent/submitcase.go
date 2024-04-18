@@ -19,21 +19,23 @@ type SubmitCase struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// State holds the value of the "state" field.
-	State int `json:"state,omitempty"`
+	State int16 `json:"state,omitempty"`
 	// Point holds the value of the "point" field.
-	Point int `json:"point,omitempty"`
+	Point int16 `json:"point,omitempty"`
 	// Message holds the value of the "message" field.
 	Message string `json:"message,omitempty"`
 	// Time holds the value of the "time" field.
 	Time int `json:"time,omitempty"`
 	// Memory holds the value of the "memory" field.
 	Memory int `json:"memory,omitempty"`
+	// SubmitID holds the value of the "submit_id" field.
+	SubmitID int `json:"submit_id,omitempty"`
+	// ProblemCaseID holds the value of the "problem_case_id" field.
+	ProblemCaseID int `json:"problem_case_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitCaseQuery when eager-loading is set.
-	Edges                     SubmitCaseEdges `json:"edges"`
-	problem_case_submit_cases *int
-	submit_submit_cases       *int
-	selectValues              sql.SelectValues
+	Edges        SubmitCaseEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // SubmitCaseEdges holds the relations/edges for other nodes in the graph.
@@ -78,14 +80,10 @@ func (*SubmitCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submitcase.FieldID, submitcase.FieldState, submitcase.FieldPoint, submitcase.FieldTime, submitcase.FieldMemory:
+		case submitcase.FieldID, submitcase.FieldState, submitcase.FieldPoint, submitcase.FieldTime, submitcase.FieldMemory, submitcase.FieldSubmitID, submitcase.FieldProblemCaseID:
 			values[i] = new(sql.NullInt64)
 		case submitcase.FieldMessage:
 			values[i] = new(sql.NullString)
-		case submitcase.ForeignKeys[0]: // problem_case_submit_cases
-			values[i] = new(sql.NullInt64)
-		case submitcase.ForeignKeys[1]: // submit_submit_cases
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -111,13 +109,13 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
-				sc.State = int(value.Int64)
+				sc.State = int16(value.Int64)
 			}
 		case submitcase.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
-				sc.Point = int(value.Int64)
+				sc.Point = int16(value.Int64)
 			}
 		case submitcase.FieldMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -137,19 +135,17 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				sc.Memory = int(value.Int64)
 			}
-		case submitcase.ForeignKeys[0]:
+		case submitcase.FieldSubmitID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_case_submit_cases", value)
+				return fmt.Errorf("unexpected type %T for field submit_id", values[i])
 			} else if value.Valid {
-				sc.problem_case_submit_cases = new(int)
-				*sc.problem_case_submit_cases = int(value.Int64)
+				sc.SubmitID = int(value.Int64)
 			}
-		case submitcase.ForeignKeys[1]:
+		case submitcase.FieldProblemCaseID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field submit_submit_cases", value)
+				return fmt.Errorf("unexpected type %T for field problem_case_id", values[i])
 			} else if value.Valid {
-				sc.submit_submit_cases = new(int)
-				*sc.submit_submit_cases = int(value.Int64)
+				sc.ProblemCaseID = int(value.Int64)
 			}
 		default:
 			sc.selectValues.Set(columns[i], values[i])
@@ -211,6 +207,12 @@ func (sc *SubmitCase) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("memory=")
 	builder.WriteString(fmt.Sprintf("%v", sc.Memory))
+	builder.WriteString(", ")
+	builder.WriteString("submit_id=")
+	builder.WriteString(fmt.Sprintf("%v", sc.SubmitID))
+	builder.WriteString(", ")
+	builder.WriteString("problem_case_id=")
+	builder.WriteString(fmt.Sprintf("%v", sc.ProblemCaseID))
 	builder.WriteByte(')')
 	return builder.String()
 }

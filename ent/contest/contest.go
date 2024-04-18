@@ -95,11 +95,13 @@ func ValidColumn(column string) bool {
 
 var (
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int) error
+	StatusValidator func(int16) error
 	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	TypeValidator func(int) error
+	TypeValidator func(int16) error
+	// DefaultExtraTime holds the default value on creation for the "extra_time" field.
+	DefaultExtraTime int16
 	// ExtraTimeValidator is a validator for the "extra_time" field. It is called by the builders before save.
-	ExtraTimeValidator func(int) error
+	ExtraTimeValidator func(int16) error
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime time.Time
 )

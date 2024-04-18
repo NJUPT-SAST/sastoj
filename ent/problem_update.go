@@ -60,14 +60,14 @@ func (pu *ProblemUpdate) SetNillableContent(s *string) *ProblemUpdate {
 }
 
 // SetPoint sets the "point" field.
-func (pu *ProblemUpdate) SetPoint(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetPoint(i int16) *ProblemUpdate {
 	pu.mutation.ResetPoint()
 	pu.mutation.SetPoint(i)
 	return pu
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillablePoint(i *int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetNillablePoint(i *int16) *ProblemUpdate {
 	if i != nil {
 		pu.SetPoint(*i)
 	}
@@ -75,20 +75,20 @@ func (pu *ProblemUpdate) SetNillablePoint(i *int) *ProblemUpdate {
 }
 
 // AddPoint adds i to the "point" field.
-func (pu *ProblemUpdate) AddPoint(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddPoint(i int16) *ProblemUpdate {
 	pu.mutation.AddPoint(i)
 	return pu
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (pu *ProblemUpdate) SetCaseVersion(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetCaseVersion(i int16) *ProblemUpdate {
 	pu.mutation.ResetCaseVersion()
 	pu.mutation.SetCaseVersion(i)
 	return pu
 }
 
 // SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableCaseVersion(i *int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetNillableCaseVersion(i *int16) *ProblemUpdate {
 	if i != nil {
 		pu.SetCaseVersion(*i)
 	}
@@ -96,20 +96,20 @@ func (pu *ProblemUpdate) SetNillableCaseVersion(i *int) *ProblemUpdate {
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (pu *ProblemUpdate) AddCaseVersion(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddCaseVersion(i int16) *ProblemUpdate {
 	pu.mutation.AddCaseVersion(i)
 	return pu
 }
 
 // SetIndex sets the "index" field.
-func (pu *ProblemUpdate) SetIndex(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetIndex(i int16) *ProblemUpdate {
 	pu.mutation.ResetIndex()
 	pu.mutation.SetIndex(i)
 	return pu
 }
 
 // SetNillableIndex sets the "index" field if the given value is not nil.
-func (pu *ProblemUpdate) SetNillableIndex(i *int) *ProblemUpdate {
+func (pu *ProblemUpdate) SetNillableIndex(i *int16) *ProblemUpdate {
 	if i != nil {
 		pu.SetIndex(*i)
 	}
@@ -117,7 +117,7 @@ func (pu *ProblemUpdate) SetNillableIndex(i *int) *ProblemUpdate {
 }
 
 // AddIndex adds i to the "index" field.
-func (pu *ProblemUpdate) AddIndex(i int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddIndex(i int16) *ProblemUpdate {
 	pu.mutation.AddIndex(i)
 	return pu
 }
@@ -365,22 +365,22 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(problem.FieldContent, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.Point(); ok {
-		_spec.SetField(problem.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problem.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.AddedPoint(); ok {
-		_spec.AddField(problem.FieldPoint, field.TypeInt, value)
+		_spec.AddField(problem.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.CaseVersion(); ok {
-		_spec.SetField(problem.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(problem.FieldCaseVersion, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.AddedCaseVersion(); ok {
-		_spec.AddField(problem.FieldCaseVersion, field.TypeInt, value)
+		_spec.AddField(problem.FieldCaseVersion, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.Index(); ok {
-		_spec.SetField(problem.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.AddedIndex(); ok {
-		_spec.AddField(problem.FieldIndex, field.TypeInt, value)
+		_spec.AddField(problem.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := pu.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)
@@ -617,14 +617,14 @@ func (puo *ProblemUpdateOne) SetNillableContent(s *string) *ProblemUpdateOne {
 }
 
 // SetPoint sets the "point" field.
-func (puo *ProblemUpdateOne) SetPoint(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetPoint(i int16) *ProblemUpdateOne {
 	puo.mutation.ResetPoint()
 	puo.mutation.SetPoint(i)
 	return puo
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillablePoint(i *int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetNillablePoint(i *int16) *ProblemUpdateOne {
 	if i != nil {
 		puo.SetPoint(*i)
 	}
@@ -632,20 +632,20 @@ func (puo *ProblemUpdateOne) SetNillablePoint(i *int) *ProblemUpdateOne {
 }
 
 // AddPoint adds i to the "point" field.
-func (puo *ProblemUpdateOne) AddPoint(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddPoint(i int16) *ProblemUpdateOne {
 	puo.mutation.AddPoint(i)
 	return puo
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (puo *ProblemUpdateOne) SetCaseVersion(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetCaseVersion(i int16) *ProblemUpdateOne {
 	puo.mutation.ResetCaseVersion()
 	puo.mutation.SetCaseVersion(i)
 	return puo
 }
 
 // SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableCaseVersion(i *int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetNillableCaseVersion(i *int16) *ProblemUpdateOne {
 	if i != nil {
 		puo.SetCaseVersion(*i)
 	}
@@ -653,20 +653,20 @@ func (puo *ProblemUpdateOne) SetNillableCaseVersion(i *int) *ProblemUpdateOne {
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (puo *ProblemUpdateOne) AddCaseVersion(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddCaseVersion(i int16) *ProblemUpdateOne {
 	puo.mutation.AddCaseVersion(i)
 	return puo
 }
 
 // SetIndex sets the "index" field.
-func (puo *ProblemUpdateOne) SetIndex(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetIndex(i int16) *ProblemUpdateOne {
 	puo.mutation.ResetIndex()
 	puo.mutation.SetIndex(i)
 	return puo
 }
 
 // SetNillableIndex sets the "index" field if the given value is not nil.
-func (puo *ProblemUpdateOne) SetNillableIndex(i *int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) SetNillableIndex(i *int16) *ProblemUpdateOne {
 	if i != nil {
 		puo.SetIndex(*i)
 	}
@@ -674,7 +674,7 @@ func (puo *ProblemUpdateOne) SetNillableIndex(i *int) *ProblemUpdateOne {
 }
 
 // AddIndex adds i to the "index" field.
-func (puo *ProblemUpdateOne) AddIndex(i int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddIndex(i int16) *ProblemUpdateOne {
 	puo.mutation.AddIndex(i)
 	return puo
 }
@@ -952,22 +952,22 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 		_spec.SetField(problem.FieldContent, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.Point(); ok {
-		_spec.SetField(problem.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problem.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.AddedPoint(); ok {
-		_spec.AddField(problem.FieldPoint, field.TypeInt, value)
+		_spec.AddField(problem.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.CaseVersion(); ok {
-		_spec.SetField(problem.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(problem.FieldCaseVersion, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.AddedCaseVersion(); ok {
-		_spec.AddField(problem.FieldCaseVersion, field.TypeInt, value)
+		_spec.AddField(problem.FieldCaseVersion, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.Index(); ok {
-		_spec.SetField(problem.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.AddedIndex(); ok {
-		_spec.AddField(problem.FieldIndex, field.TypeInt, value)
+		_spec.AddField(problem.FieldIndex, field.TypeInt16, value)
 	}
 	if value, ok := puo.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)

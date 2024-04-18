@@ -59,14 +59,14 @@ func (cu *ContestUpdate) SetNillableDescription(s *string) *ContestUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (cu *ContestUpdate) SetStatus(i int) *ContestUpdate {
+func (cu *ContestUpdate) SetStatus(i int16) *ContestUpdate {
 	cu.mutation.ResetStatus()
 	cu.mutation.SetStatus(i)
 	return cu
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (cu *ContestUpdate) SetNillableStatus(i *int) *ContestUpdate {
+func (cu *ContestUpdate) SetNillableStatus(i *int16) *ContestUpdate {
 	if i != nil {
 		cu.SetStatus(*i)
 	}
@@ -74,20 +74,20 @@ func (cu *ContestUpdate) SetNillableStatus(i *int) *ContestUpdate {
 }
 
 // AddStatus adds i to the "status" field.
-func (cu *ContestUpdate) AddStatus(i int) *ContestUpdate {
+func (cu *ContestUpdate) AddStatus(i int16) *ContestUpdate {
 	cu.mutation.AddStatus(i)
 	return cu
 }
 
 // SetType sets the "type" field.
-func (cu *ContestUpdate) SetType(i int) *ContestUpdate {
+func (cu *ContestUpdate) SetType(i int16) *ContestUpdate {
 	cu.mutation.ResetType()
 	cu.mutation.SetType(i)
 	return cu
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (cu *ContestUpdate) SetNillableType(i *int) *ContestUpdate {
+func (cu *ContestUpdate) SetNillableType(i *int16) *ContestUpdate {
 	if i != nil {
 		cu.SetType(*i)
 	}
@@ -95,7 +95,7 @@ func (cu *ContestUpdate) SetNillableType(i *int) *ContestUpdate {
 }
 
 // AddType adds i to the "type" field.
-func (cu *ContestUpdate) AddType(i int) *ContestUpdate {
+func (cu *ContestUpdate) AddType(i int16) *ContestUpdate {
 	cu.mutation.AddType(i)
 	return cu
 }
@@ -143,14 +143,14 @@ func (cu *ContestUpdate) SetNillableLanguage(s *string) *ContestUpdate {
 }
 
 // SetExtraTime sets the "extra_time" field.
-func (cu *ContestUpdate) SetExtraTime(i int) *ContestUpdate {
+func (cu *ContestUpdate) SetExtraTime(i int16) *ContestUpdate {
 	cu.mutation.ResetExtraTime()
 	cu.mutation.SetExtraTime(i)
 	return cu
 }
 
 // SetNillableExtraTime sets the "extra_time" field if the given value is not nil.
-func (cu *ContestUpdate) SetNillableExtraTime(i *int) *ContestUpdate {
+func (cu *ContestUpdate) SetNillableExtraTime(i *int16) *ContestUpdate {
 	if i != nil {
 		cu.SetExtraTime(*i)
 	}
@@ -158,7 +158,7 @@ func (cu *ContestUpdate) SetNillableExtraTime(i *int) *ContestUpdate {
 }
 
 // AddExtraTime adds i to the "extra_time" field.
-func (cu *ContestUpdate) AddExtraTime(i int) *ContestUpdate {
+func (cu *ContestUpdate) AddExtraTime(i int16) *ContestUpdate {
 	cu.mutation.AddExtraTime(i)
 	return cu
 }
@@ -356,16 +356,16 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
+		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.AddedStatus(); ok {
-		_spec.AddField(contest.FieldStatus, field.TypeInt, value)
+		_spec.AddField(contest.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.GetType(); ok {
-		_spec.SetField(contest.FieldType, field.TypeInt, value)
+		_spec.SetField(contest.FieldType, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.AddedType(); ok {
-		_spec.AddField(contest.FieldType, field.TypeInt, value)
+		_spec.AddField(contest.FieldType, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.StartTime(); ok {
 		_spec.SetField(contest.FieldStartTime, field.TypeTime, value)
@@ -377,10 +377,10 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(contest.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.ExtraTime(); ok {
-		_spec.SetField(contest.FieldExtraTime, field.TypeInt, value)
+		_spec.SetField(contest.FieldExtraTime, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.AddedExtraTime(); ok {
-		_spec.AddField(contest.FieldExtraTime, field.TypeInt, value)
+		_spec.AddField(contest.FieldExtraTime, field.TypeInt16, value)
 	}
 	if value, ok := cu.mutation.CreateTime(); ok {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)
@@ -569,14 +569,14 @@ func (cuo *ContestUpdateOne) SetNillableDescription(s *string) *ContestUpdateOne
 }
 
 // SetStatus sets the "status" field.
-func (cuo *ContestUpdateOne) SetStatus(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetStatus(i int16) *ContestUpdateOne {
 	cuo.mutation.ResetStatus()
 	cuo.mutation.SetStatus(i)
 	return cuo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (cuo *ContestUpdateOne) SetNillableStatus(i *int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetNillableStatus(i *int16) *ContestUpdateOne {
 	if i != nil {
 		cuo.SetStatus(*i)
 	}
@@ -584,20 +584,20 @@ func (cuo *ContestUpdateOne) SetNillableStatus(i *int) *ContestUpdateOne {
 }
 
 // AddStatus adds i to the "status" field.
-func (cuo *ContestUpdateOne) AddStatus(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) AddStatus(i int16) *ContestUpdateOne {
 	cuo.mutation.AddStatus(i)
 	return cuo
 }
 
 // SetType sets the "type" field.
-func (cuo *ContestUpdateOne) SetType(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetType(i int16) *ContestUpdateOne {
 	cuo.mutation.ResetType()
 	cuo.mutation.SetType(i)
 	return cuo
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (cuo *ContestUpdateOne) SetNillableType(i *int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetNillableType(i *int16) *ContestUpdateOne {
 	if i != nil {
 		cuo.SetType(*i)
 	}
@@ -605,7 +605,7 @@ func (cuo *ContestUpdateOne) SetNillableType(i *int) *ContestUpdateOne {
 }
 
 // AddType adds i to the "type" field.
-func (cuo *ContestUpdateOne) AddType(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) AddType(i int16) *ContestUpdateOne {
 	cuo.mutation.AddType(i)
 	return cuo
 }
@@ -653,14 +653,14 @@ func (cuo *ContestUpdateOne) SetNillableLanguage(s *string) *ContestUpdateOne {
 }
 
 // SetExtraTime sets the "extra_time" field.
-func (cuo *ContestUpdateOne) SetExtraTime(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetExtraTime(i int16) *ContestUpdateOne {
 	cuo.mutation.ResetExtraTime()
 	cuo.mutation.SetExtraTime(i)
 	return cuo
 }
 
 // SetNillableExtraTime sets the "extra_time" field if the given value is not nil.
-func (cuo *ContestUpdateOne) SetNillableExtraTime(i *int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) SetNillableExtraTime(i *int16) *ContestUpdateOne {
 	if i != nil {
 		cuo.SetExtraTime(*i)
 	}
@@ -668,7 +668,7 @@ func (cuo *ContestUpdateOne) SetNillableExtraTime(i *int) *ContestUpdateOne {
 }
 
 // AddExtraTime adds i to the "extra_time" field.
-func (cuo *ContestUpdateOne) AddExtraTime(i int) *ContestUpdateOne {
+func (cuo *ContestUpdateOne) AddExtraTime(i int16) *ContestUpdateOne {
 	cuo.mutation.AddExtraTime(i)
 	return cuo
 }
@@ -896,16 +896,16 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
+		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.AddedStatus(); ok {
-		_spec.AddField(contest.FieldStatus, field.TypeInt, value)
+		_spec.AddField(contest.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.GetType(); ok {
-		_spec.SetField(contest.FieldType, field.TypeInt, value)
+		_spec.SetField(contest.FieldType, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.AddedType(); ok {
-		_spec.AddField(contest.FieldType, field.TypeInt, value)
+		_spec.AddField(contest.FieldType, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.StartTime(); ok {
 		_spec.SetField(contest.FieldStartTime, field.TypeTime, value)
@@ -917,10 +917,10 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 		_spec.SetField(contest.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.ExtraTime(); ok {
-		_spec.SetField(contest.FieldExtraTime, field.TypeInt, value)
+		_spec.SetField(contest.FieldExtraTime, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.AddedExtraTime(); ok {
-		_spec.AddField(contest.FieldExtraTime, field.TypeInt, value)
+		_spec.AddField(contest.FieldExtraTime, field.TypeInt16, value)
 	}
 	if value, ok := cuo.mutation.CreateTime(); ok {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)

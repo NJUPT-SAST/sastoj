@@ -25,7 +25,6 @@ type SubmitCaseQuery struct {
 	predicates       []predicate.SubmitCase
 	withSubmission   *SubmitQuery
 	withProblemCases *ProblemCaseQuery
-	withFKs          bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -334,7 +333,7 @@ func (scq *SubmitCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *S
 // Example:
 //
 //	var v []struct {
-//		State int `json:"state,omitempty"`
+//		State int16 `json:"state,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -357,7 +356,7 @@ func (scq *SubmitCaseQuery) GroupBy(field string, fields ...string) *SubmitCaseG
 // Example:
 //
 //	var v []struct {
-//		State int `json:"state,omitempty"`
+//		State int16 `json:"state,omitempty"`
 //	}
 //
 //	client.SubmitCase.Query().
@@ -405,19 +404,12 @@ func (scq *SubmitCaseQuery) prepareQuery(ctx context.Context) error {
 func (scq *SubmitCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SubmitCase, error) {
 	var (
 		nodes       = []*SubmitCase{}
-		withFKs     = scq.withFKs
 		_spec       = scq.querySpec()
 		loadedTypes = [2]bool{
 			scq.withSubmission != nil,
 			scq.withProblemCases != nil,
 		}
 	)
-	if scq.withSubmission != nil || scq.withProblemCases != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, submitcase.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*SubmitCase).scanValues(nil, columns)
 	}
@@ -455,10 +447,7 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*SubmitCase)
 	for i := range nodes {
-		if nodes[i].submit_submit_cases == nil {
-			continue
-		}
-		fk := *nodes[i].submit_submit_cases
+		fk := nodes[i].SubmitID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +464,7 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "submit_submit_cases" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "submit_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -487,10 +476,7 @@ func (scq *SubmitCaseQuery) loadProblemCases(ctx context.Context, query *Problem
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*SubmitCase)
 	for i := range nodes {
-		if nodes[i].problem_case_submit_cases == nil {
-			continue
-		}
-		fk := *nodes[i].problem_case_submit_cases
+		fk := nodes[i].ProblemCaseID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +493,7 @@ func (scq *SubmitCaseQuery) loadProblemCases(ctx context.Context, query *Problem
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_case_submit_cases" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "problem_case_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -540,6 +526,12 @@ func (scq *SubmitCaseQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != submitcase.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if scq.withSubmission != nil {
+			_spec.Node.AddColumnOnce(submitcase.FieldSubmitID)
+		}
+		if scq.withProblemCases != nil {
+			_spec.Node.AddColumnOnce(submitcase.FieldProblemCaseID)
 		}
 	}
 	if ps := scq.predicates; len(ps) > 0 {

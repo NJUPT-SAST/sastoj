@@ -49,8 +49,14 @@ func (uc *UserCreate) SetSalt(s string) *UserCreate {
 }
 
 // SetStatus sets the "status" field.
-func (uc *UserCreate) SetStatus(i int) *UserCreate {
+func (uc *UserCreate) SetStatus(i int16) *UserCreate {
 	uc.mutation.SetStatus(i)
+	return uc
+}
+
+// SetGroupID sets the "group_id" field.
+func (uc *UserCreate) SetGroupID(i int) *UserCreate {
+	uc.mutation.SetGroupID(i)
 	return uc
 }
 
@@ -93,14 +99,6 @@ func (uc *UserCreate) AddLoginSessions(l ...*LoginSession) *UserCreate {
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
 func (uc *UserCreate) SetGroupsID(id int) *UserCreate {
 	uc.mutation.SetGroupsID(id)
-	return uc
-}
-
-// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableGroupsID(id *int) *UserCreate {
-	if id != nil {
-		uc = uc.SetGroupsID(*id)
-	}
 	return uc
 }
 
@@ -169,6 +167,12 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.GroupID(); !ok {
+		return &ValidationError{Name: "group_id", err: errors.New(`ent: missing required field "User.group_id"`)}
+	}
+	if _, ok := uc.mutation.GroupsID(); !ok {
+		return &ValidationError{Name: "groups", err: errors.New(`ent: missing required edge "User.groups"`)}
+	}
 	return nil
 }
 
@@ -214,7 +218,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.Salt = value
 	}
 	if value, ok := uc.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt, value)
+		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
 		_node.Status = value
 	}
 	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
@@ -263,7 +267,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.group_users = &nodes[0]
+		_node.GroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

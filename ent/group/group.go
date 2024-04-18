@@ -14,6 +14,8 @@ const (
 	FieldID = "id"
 	// FieldGroupName holds the string denoting the group_name field in the database.
 	FieldGroupName = "group_name"
+	// FieldRootGroupID holds the string denoting the root_group_id field in the database.
+	FieldRootGroupID = "root_group_id"
 	// EdgeAdmins holds the string denoting the admins edge name in mutations.
 	EdgeAdmins = "admins"
 	// EdgeContestants holds the string denoting the contestants edge name in mutations.
@@ -49,27 +51,22 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
-	UsersColumn = "group_users"
+	UsersColumn = "group_id"
 	// RootGroupTable is the table that holds the root_group relation/edge.
 	RootGroupTable = "groups"
 	// RootGroupColumn is the table column denoting the root_group relation/edge.
-	RootGroupColumn = "group_subgroups"
+	RootGroupColumn = "root_group_id"
 	// SubgroupsTable is the table that holds the subgroups relation/edge.
 	SubgroupsTable = "groups"
 	// SubgroupsColumn is the table column denoting the subgroups relation/edge.
-	SubgroupsColumn = "group_subgroups"
+	SubgroupsColumn = "root_group_id"
 )
 
 // Columns holds all SQL columns for group fields.
 var Columns = []string{
 	FieldID,
 	FieldGroupName,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "groups"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"group_subgroups",
+	FieldRootGroupID,
 }
 
 var (
@@ -91,17 +88,14 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
 	// DefaultGroupName holds the default value on creation for the "group_name" field.
 	DefaultGroupName string
+	// DefaultRootGroupID holds the default value on creation for the "root_group_id" field.
+	DefaultRootGroupID int
 )
 
 // OrderOption defines the ordering options for the Group queries.
@@ -115,6 +109,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByGroupName orders the results by the group_name field.
 func ByGroupName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGroupName, opts...).ToFunc()
+}
+
+// ByRootGroupID orders the results by the root_group_id field.
+func ByRootGroupID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRootGroupID, opts...).ToFunc()
 }
 
 // ByAdminsCount orders the results by admins count.

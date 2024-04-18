@@ -23,7 +23,6 @@ type LoginSessionQuery struct {
 	inters     []Interceptor
 	predicates []predicate.LoginSession
 	withUsers  *UserQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -369,18 +368,11 @@ func (lsq *LoginSessionQuery) prepareQuery(ctx context.Context) error {
 func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*LoginSession, error) {
 	var (
 		nodes       = []*LoginSession{}
-		withFKs     = lsq.withFKs
 		_spec       = lsq.querySpec()
 		loadedTypes = [1]bool{
 			lsq.withUsers != nil,
 		}
 	)
-	if lsq.withUsers != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, loginsession.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*LoginSession).scanValues(nil, columns)
 	}
@@ -412,10 +404,7 @@ func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, n
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*LoginSession)
 	for i := range nodes {
-		if nodes[i].user_login_sessions == nil {
-			continue
-		}
-		fk := *nodes[i].user_login_sessions
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -432,7 +421,7 @@ func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, n
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_login_sessions" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -465,6 +454,9 @@ func (lsq *LoginSessionQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != loginsession.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if lsq.withUsers != nil {
+			_spec.Node.AddColumnOnce(loginsession.FieldUserID)
 		}
 	}
 	if ps := lsq.predicates; len(ps) > 0 {

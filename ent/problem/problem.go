@@ -42,14 +42,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "problemcase" package.
 	ProblemCasesInverseTable = "problem_cases"
 	// ProblemCasesColumn is the table column denoting the problem_cases relation/edge.
-	ProblemCasesColumn = "problem_problem_cases"
+	ProblemCasesColumn = "problem_id"
 	// SubmissionTable is the table that holds the submission relation/edge.
 	SubmissionTable = "submit"
 	// SubmissionInverseTable is the table name for the Submit entity.
 	// It exists in this package in order to avoid circular dependency with the "submit" package.
 	SubmissionInverseTable = "submit"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
-	SubmissionColumn = "problem_submission"
+	SubmissionColumn = "problem_id"
 	// ContestsTable is the table that holds the contests relation/edge. The primary key declared below.
 	ContestsTable = "contest_problems"
 	// ContestsInverseTable is the table name for the Contest entity.
@@ -95,13 +95,13 @@ func ValidColumn(column string) bool {
 
 var (
 	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int) error
+	PointValidator func(int16) error
 	// DefaultCaseVersion holds the default value on creation for the "case_version" field.
-	DefaultCaseVersion int
+	DefaultCaseVersion int16
 	// CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	CaseVersionValidator func(int) error
+	CaseVersionValidator func(int16) error
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
-	IndexValidator func(int) error
+	IndexValidator func(int16) error
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
 )

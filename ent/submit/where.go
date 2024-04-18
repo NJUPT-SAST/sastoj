@@ -61,12 +61,12 @@ func Code(v string) predicate.Submit {
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v int) predicate.Submit {
+func Status(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldStatus, v))
 }
 
 // Point applies equality check predicate on the "point" field. It's identical to PointEQ.
-func Point(v int) predicate.Submit {
+func Point(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldPoint, v))
 }
 
@@ -91,8 +91,18 @@ func Language(v string) predicate.Submit {
 }
 
 // CaseVersion applies equality check predicate on the "case_version" field. It's identical to CaseVersionEQ.
-func CaseVersion(v int) predicate.Submit {
+func CaseVersion(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldCaseVersion, v))
+}
+
+// ProblemID applies equality check predicate on the "problem_id" field. It's identical to ProblemIDEQ.
+func ProblemID(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldEQ(FieldProblemID, v))
+}
+
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldEQ(FieldUserID, v))
 }
 
 // CodeEQ applies the EQ predicate on the "code" field.
@@ -161,82 +171,82 @@ func CodeContainsFold(v string) predicate.Submit {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v int) predicate.Submit {
+func StatusEQ(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldStatus, v))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v int) predicate.Submit {
+func StatusNEQ(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldStatus, v))
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...int) predicate.Submit {
+func StatusIn(vs ...int8) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldStatus, vs...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...int) predicate.Submit {
+func StatusNotIn(vs ...int8) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v int) predicate.Submit {
+func StatusGT(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldStatus, v))
 }
 
 // StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v int) predicate.Submit {
+func StatusGTE(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldStatus, v))
 }
 
 // StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v int) predicate.Submit {
+func StatusLT(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldStatus, v))
 }
 
 // StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v int) predicate.Submit {
+func StatusLTE(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldStatus, v))
 }
 
 // PointEQ applies the EQ predicate on the "point" field.
-func PointEQ(v int) predicate.Submit {
+func PointEQ(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldPoint, v))
 }
 
 // PointNEQ applies the NEQ predicate on the "point" field.
-func PointNEQ(v int) predicate.Submit {
+func PointNEQ(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldPoint, v))
 }
 
 // PointIn applies the In predicate on the "point" field.
-func PointIn(vs ...int) predicate.Submit {
+func PointIn(vs ...int16) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldPoint, vs...))
 }
 
 // PointNotIn applies the NotIn predicate on the "point" field.
-func PointNotIn(vs ...int) predicate.Submit {
+func PointNotIn(vs ...int16) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldPoint, vs...))
 }
 
 // PointGT applies the GT predicate on the "point" field.
-func PointGT(v int) predicate.Submit {
+func PointGT(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldPoint, v))
 }
 
 // PointGTE applies the GTE predicate on the "point" field.
-func PointGTE(v int) predicate.Submit {
+func PointGTE(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldPoint, v))
 }
 
 // PointLT applies the LT predicate on the "point" field.
-func PointLT(v int) predicate.Submit {
+func PointLT(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldPoint, v))
 }
 
 // PointLTE applies the LTE predicate on the "point" field.
-func PointLTE(v int) predicate.Submit {
+func PointLTE(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldPoint, v))
 }
 
@@ -426,43 +436,83 @@ func LanguageContainsFold(v string) predicate.Submit {
 }
 
 // CaseVersionEQ applies the EQ predicate on the "case_version" field.
-func CaseVersionEQ(v int) predicate.Submit {
+func CaseVersionEQ(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldCaseVersion, v))
 }
 
 // CaseVersionNEQ applies the NEQ predicate on the "case_version" field.
-func CaseVersionNEQ(v int) predicate.Submit {
+func CaseVersionNEQ(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldCaseVersion, v))
 }
 
 // CaseVersionIn applies the In predicate on the "case_version" field.
-func CaseVersionIn(vs ...int) predicate.Submit {
+func CaseVersionIn(vs ...int8) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldCaseVersion, vs...))
 }
 
 // CaseVersionNotIn applies the NotIn predicate on the "case_version" field.
-func CaseVersionNotIn(vs ...int) predicate.Submit {
+func CaseVersionNotIn(vs ...int8) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldCaseVersion, vs...))
 }
 
 // CaseVersionGT applies the GT predicate on the "case_version" field.
-func CaseVersionGT(v int) predicate.Submit {
+func CaseVersionGT(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldCaseVersion, v))
 }
 
 // CaseVersionGTE applies the GTE predicate on the "case_version" field.
-func CaseVersionGTE(v int) predicate.Submit {
+func CaseVersionGTE(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldCaseVersion, v))
 }
 
 // CaseVersionLT applies the LT predicate on the "case_version" field.
-func CaseVersionLT(v int) predicate.Submit {
+func CaseVersionLT(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldCaseVersion, v))
 }
 
 // CaseVersionLTE applies the LTE predicate on the "case_version" field.
-func CaseVersionLTE(v int) predicate.Submit {
+func CaseVersionLTE(v int8) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldCaseVersion, v))
+}
+
+// ProblemIDEQ applies the EQ predicate on the "problem_id" field.
+func ProblemIDEQ(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldEQ(FieldProblemID, v))
+}
+
+// ProblemIDNEQ applies the NEQ predicate on the "problem_id" field.
+func ProblemIDNEQ(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldNEQ(FieldProblemID, v))
+}
+
+// ProblemIDIn applies the In predicate on the "problem_id" field.
+func ProblemIDIn(vs ...int) predicate.Submit {
+	return predicate.Submit(sql.FieldIn(FieldProblemID, vs...))
+}
+
+// ProblemIDNotIn applies the NotIn predicate on the "problem_id" field.
+func ProblemIDNotIn(vs ...int) predicate.Submit {
+	return predicate.Submit(sql.FieldNotIn(FieldProblemID, vs...))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int) predicate.Submit {
+	return predicate.Submit(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int) predicate.Submit {
+	return predicate.Submit(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int) predicate.Submit {
+	return predicate.Submit(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // HasSubmitCases applies the HasEdge predicate on the "submit_cases" edge.

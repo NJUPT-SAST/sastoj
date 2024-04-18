@@ -22,9 +22,9 @@ type Submit struct {
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// Status holds the value of the "status" field.
-	Status int `json:"status,omitempty"`
+	Status int8 `json:"status,omitempty"`
 	// Point holds the value of the "point" field.
-	Point int `json:"point,omitempty"`
+	Point int16 `json:"point,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// TotalTime holds the value of the "total_time" field.
@@ -34,13 +34,15 @@ type Submit struct {
 	// Language holds the value of the "language" field.
 	Language string `json:"language,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
-	CaseVersion int `json:"case_version,omitempty"`
+	CaseVersion int8 `json:"case_version,omitempty"`
+	// ProblemID holds the value of the "problem_id" field.
+	ProblemID int `json:"problem_id,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitQuery when eager-loading is set.
-	Edges              SubmitEdges `json:"edges"`
-	problem_submission *int
-	user_submission    *int
-	selectValues       sql.SelectValues
+	Edges        SubmitEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // SubmitEdges holds the relations/edges for other nodes in the graph.
@@ -96,16 +98,12 @@ func (*Submit) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submit.FieldID, submit.FieldStatus, submit.FieldPoint, submit.FieldTotalTime, submit.FieldMaxMemory, submit.FieldCaseVersion:
+		case submit.FieldID, submit.FieldStatus, submit.FieldPoint, submit.FieldTotalTime, submit.FieldMaxMemory, submit.FieldCaseVersion, submit.FieldProblemID, submit.FieldUserID:
 			values[i] = new(sql.NullInt64)
 		case submit.FieldCode, submit.FieldLanguage:
 			values[i] = new(sql.NullString)
 		case submit.FieldCreateTime:
 			values[i] = new(sql.NullTime)
-		case submit.ForeignKeys[0]: // problem_submission
-			values[i] = new(sql.NullInt64)
-		case submit.ForeignKeys[1]: // user_submission
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -137,13 +135,13 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.Status = int(value.Int64)
+				s.Status = int8(value.Int64)
 			}
 		case submit.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
-				s.Point = int(value.Int64)
+				s.Point = int16(value.Int64)
 			}
 		case submit.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -173,21 +171,19 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field case_version", values[i])
 			} else if value.Valid {
-				s.CaseVersion = int(value.Int64)
+				s.CaseVersion = int8(value.Int64)
 			}
-		case submit.ForeignKeys[0]:
+		case submit.FieldProblemID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_submission", value)
+				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
-				s.problem_submission = new(int)
-				*s.problem_submission = int(value.Int64)
+				s.ProblemID = int(value.Int64)
 			}
-		case submit.ForeignKeys[1]:
+		case submit.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_submission", value)
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				s.user_submission = new(int)
-				*s.user_submission = int(value.Int64)
+				s.UserID = int(value.Int64)
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -263,6 +259,12 @@ func (s *Submit) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("case_version=")
 	builder.WriteString(fmt.Sprintf("%v", s.CaseVersion))
+	builder.WriteString(", ")
+	builder.WriteString("problem_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.ProblemID))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

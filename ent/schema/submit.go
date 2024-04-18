@@ -25,13 +25,15 @@ func (Submit) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
 		field.Text("code"),
-		field.Int("status").NonNegative(),
-		field.Int("point").NonNegative(),
+		field.Int8("status").NonNegative(),
+		field.Int16("point").NonNegative(),
 		field.Time("create_time").Default(time.Now()),
 		field.Int("total_time").NonNegative(),
 		field.Int("max_memory").NonNegative(),
 		field.String("language"),
-		field.Int("case_version").Positive(),
+		field.Int8("case_version").Positive(),
+		field.Int("problem_id"),
+		field.Int("user_id"),
 	}
 }
 
@@ -39,7 +41,7 @@ func (Submit) Fields() []ent.Field {
 func (Submit) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("submit_cases", SubmitCase.Type),
-		edge.From("problems", Problem.Type).Ref("submission").Unique(),
-		edge.From("users", User.Type).Ref("submission").Unique(),
+		edge.From("problems", Problem.Type).Ref("submission").Field("problem_id").Unique().Required(),
+		edge.From("users", User.Type).Ref("submission").Field("user_id").Unique().Required(),
 	}
 }

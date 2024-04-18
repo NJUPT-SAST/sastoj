@@ -36,19 +36,19 @@ func (pc *ProblemCreate) SetContent(s string) *ProblemCreate {
 }
 
 // SetPoint sets the "point" field.
-func (pc *ProblemCreate) SetPoint(i int) *ProblemCreate {
+func (pc *ProblemCreate) SetPoint(i int16) *ProblemCreate {
 	pc.mutation.SetPoint(i)
 	return pc
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (pc *ProblemCreate) SetCaseVersion(i int) *ProblemCreate {
+func (pc *ProblemCreate) SetCaseVersion(i int16) *ProblemCreate {
 	pc.mutation.SetCaseVersion(i)
 	return pc
 }
 
 // SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableCaseVersion(i *int) *ProblemCreate {
+func (pc *ProblemCreate) SetNillableCaseVersion(i *int16) *ProblemCreate {
 	if i != nil {
 		pc.SetCaseVersion(*i)
 	}
@@ -56,7 +56,7 @@ func (pc *ProblemCreate) SetNillableCaseVersion(i *int) *ProblemCreate {
 }
 
 // SetIndex sets the "index" field.
-func (pc *ProblemCreate) SetIndex(i int) *ProblemCreate {
+func (pc *ProblemCreate) SetIndex(i int16) *ProblemCreate {
 	pc.mutation.SetIndex(i)
 	return pc
 }
@@ -271,15 +271,15 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.Content = value
 	}
 	if value, ok := pc.mutation.Point(); ok {
-		_spec.SetField(problem.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problem.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
 	if value, ok := pc.mutation.CaseVersion(); ok {
-		_spec.SetField(problem.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(problem.FieldCaseVersion, field.TypeInt16, value)
 		_node.CaseVersion = value
 	}
 	if value, ok := pc.mutation.Index(); ok {
-		_spec.SetField(problem.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
 	}
 	if value, ok := pc.mutation.IsDeleted(); ok {

@@ -73,14 +73,14 @@ func (uu *UserUpdate) SetNillableSalt(s *string) *UserUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (uu *UserUpdate) SetStatus(i int) *UserUpdate {
+func (uu *UserUpdate) SetStatus(i int16) *UserUpdate {
 	uu.mutation.ResetStatus()
 	uu.mutation.SetStatus(i)
 	return uu
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableStatus(i *int) *UserUpdate {
+func (uu *UserUpdate) SetNillableStatus(i *int16) *UserUpdate {
 	if i != nil {
 		uu.SetStatus(*i)
 	}
@@ -88,8 +88,22 @@ func (uu *UserUpdate) SetNillableStatus(i *int) *UserUpdate {
 }
 
 // AddStatus adds i to the "status" field.
-func (uu *UserUpdate) AddStatus(i int) *UserUpdate {
+func (uu *UserUpdate) AddStatus(i int16) *UserUpdate {
 	uu.mutation.AddStatus(i)
+	return uu
+}
+
+// SetGroupID sets the "group_id" field.
+func (uu *UserUpdate) SetGroupID(i int) *UserUpdate {
+	uu.mutation.SetGroupID(i)
+	return uu
+}
+
+// SetNillableGroupID sets the "group_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableGroupID(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetGroupID(*i)
+	}
 	return uu
 }
 
@@ -126,14 +140,6 @@ func (uu *UserUpdate) AddLoginSessions(l ...*LoginSession) *UserUpdate {
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
 func (uu *UserUpdate) SetGroupsID(id int) *UserUpdate {
 	uu.mutation.SetGroupsID(id)
-	return uu
-}
-
-// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableGroupsID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetGroupsID(*id)
-	}
 	return uu
 }
 
@@ -229,6 +235,9 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
 	}
+	if _, ok := uu.mutation.GroupsID(); uu.mutation.GroupsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.groups"`)
+	}
 	return nil
 }
 
@@ -254,10 +263,10 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt, value)
+		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := uu.mutation.AddedStatus(); ok {
-		_spec.AddField(user.FieldStatus, field.TypeInt, value)
+		_spec.AddField(user.FieldStatus, field.TypeInt16, value)
 	}
 	if uu.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -441,14 +450,14 @@ func (uuo *UserUpdateOne) SetNillableSalt(s *string) *UserUpdateOne {
 }
 
 // SetStatus sets the "status" field.
-func (uuo *UserUpdateOne) SetStatus(i int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetStatus(i int16) *UserUpdateOne {
 	uuo.mutation.ResetStatus()
 	uuo.mutation.SetStatus(i)
 	return uuo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableStatus(i *int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetNillableStatus(i *int16) *UserUpdateOne {
 	if i != nil {
 		uuo.SetStatus(*i)
 	}
@@ -456,8 +465,22 @@ func (uuo *UserUpdateOne) SetNillableStatus(i *int) *UserUpdateOne {
 }
 
 // AddStatus adds i to the "status" field.
-func (uuo *UserUpdateOne) AddStatus(i int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddStatus(i int16) *UserUpdateOne {
 	uuo.mutation.AddStatus(i)
+	return uuo
+}
+
+// SetGroupID sets the "group_id" field.
+func (uuo *UserUpdateOne) SetGroupID(i int) *UserUpdateOne {
+	uuo.mutation.SetGroupID(i)
+	return uuo
+}
+
+// SetNillableGroupID sets the "group_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableGroupID(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetGroupID(*i)
+	}
 	return uuo
 }
 
@@ -494,14 +517,6 @@ func (uuo *UserUpdateOne) AddLoginSessions(l ...*LoginSession) *UserUpdateOne {
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
 func (uuo *UserUpdateOne) SetGroupsID(id int) *UserUpdateOne {
 	uuo.mutation.SetGroupsID(id)
-	return uuo
-}
-
-// SetNillableGroupsID sets the "groups" edge to the Group entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableGroupsID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetGroupsID(*id)
-	}
 	return uuo
 }
 
@@ -610,6 +625,9 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
 	}
+	if _, ok := uuo.mutation.GroupsID(); uuo.mutation.GroupsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.groups"`)
+	}
 	return nil
 }
 
@@ -652,10 +670,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt, value)
+		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
 	}
 	if value, ok := uuo.mutation.AddedStatus(); ok {
-		_spec.AddField(user.FieldStatus, field.TypeInt, value)
+		_spec.AddField(user.FieldStatus, field.TypeInt16, value)
 	}
 	if uuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{

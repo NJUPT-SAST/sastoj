@@ -30,13 +30,13 @@ func (sc *SubmitCreate) SetCode(s string) *SubmitCreate {
 }
 
 // SetStatus sets the "status" field.
-func (sc *SubmitCreate) SetStatus(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetStatus(i int8) *SubmitCreate {
 	sc.mutation.SetStatus(i)
 	return sc
 }
 
 // SetPoint sets the "point" field.
-func (sc *SubmitCreate) SetPoint(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetPoint(i int16) *SubmitCreate {
 	sc.mutation.SetPoint(i)
 	return sc
 }
@@ -74,8 +74,20 @@ func (sc *SubmitCreate) SetLanguage(s string) *SubmitCreate {
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (sc *SubmitCreate) SetCaseVersion(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetCaseVersion(i int8) *SubmitCreate {
 	sc.mutation.SetCaseVersion(i)
+	return sc
+}
+
+// SetProblemID sets the "problem_id" field.
+func (sc *SubmitCreate) SetProblemID(i int) *SubmitCreate {
+	sc.mutation.SetProblemID(i)
+	return sc
+}
+
+// SetUserID sets the "user_id" field.
+func (sc *SubmitCreate) SetUserID(i int) *SubmitCreate {
+	sc.mutation.SetUserID(i)
 	return sc
 }
 
@@ -106,14 +118,6 @@ func (sc *SubmitCreate) SetProblemsID(id int) *SubmitCreate {
 	return sc
 }
 
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (sc *SubmitCreate) SetNillableProblemsID(id *int) *SubmitCreate {
-	if id != nil {
-		sc = sc.SetProblemsID(*id)
-	}
-	return sc
-}
-
 // SetProblems sets the "problems" edge to the Problem entity.
 func (sc *SubmitCreate) SetProblems(p *Problem) *SubmitCreate {
 	return sc.SetProblemsID(p.ID)
@@ -122,14 +126,6 @@ func (sc *SubmitCreate) SetProblems(p *Problem) *SubmitCreate {
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (sc *SubmitCreate) SetUsersID(id int) *SubmitCreate {
 	sc.mutation.SetUsersID(id)
-	return sc
-}
-
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (sc *SubmitCreate) SetNillableUsersID(id *int) *SubmitCreate {
-	if id != nil {
-		sc = sc.SetUsersID(*id)
-	}
 	return sc
 }
 
@@ -230,6 +226,18 @@ func (sc *SubmitCreate) check() error {
 			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submit.case_version": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.ProblemID(); !ok {
+		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "Submit.problem_id"`)}
+	}
+	if _, ok := sc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Submit.user_id"`)}
+	}
+	if _, ok := sc.mutation.ProblemsID(); !ok {
+		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "Submit.problems"`)}
+	}
+	if _, ok := sc.mutation.UsersID(); !ok {
+		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "Submit.users"`)}
+	}
 	return nil
 }
 
@@ -267,11 +275,11 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_node.Code = value
 	}
 	if value, ok := sc.mutation.Status(); ok {
-		_spec.SetField(submit.FieldStatus, field.TypeInt, value)
+		_spec.SetField(submit.FieldStatus, field.TypeInt8, value)
 		_node.Status = value
 	}
 	if value, ok := sc.mutation.Point(); ok {
-		_spec.SetField(submit.FieldPoint, field.TypeInt, value)
+		_spec.SetField(submit.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
 	if value, ok := sc.mutation.CreateTime(); ok {
@@ -291,7 +299,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_node.Language = value
 	}
 	if value, ok := sc.mutation.CaseVersion(); ok {
-		_spec.SetField(submit.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(submit.FieldCaseVersion, field.TypeInt8, value)
 		_node.CaseVersion = value
 	}
 	if nodes := sc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
@@ -324,7 +332,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.problem_submission = &nodes[0]
+		_node.ProblemID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.UsersIDs(); len(nodes) > 0 {
@@ -341,7 +349,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_submission = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

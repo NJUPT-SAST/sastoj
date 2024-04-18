@@ -18,11 +18,12 @@ type Group struct {
 	ID int `json:"id,omitempty"`
 	// GroupName holds the value of the "group_name" field.
 	GroupName string `json:"group_name,omitempty"`
+	// RootGroupID holds the value of the "root_group_id" field.
+	RootGroupID int `json:"root_group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
-	Edges           GroupEdges `json:"edges"`
-	group_subgroups *int
-	selectValues    sql.SelectValues
+	Edges        GroupEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // GroupEdges holds the relations/edges for other nodes in the graph.
@@ -107,12 +108,10 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case group.FieldID:
+		case group.FieldID, group.FieldRootGroupID:
 			values[i] = new(sql.NullInt64)
 		case group.FieldGroupName:
 			values[i] = new(sql.NullString)
-		case group.ForeignKeys[0]: // group_subgroups
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -140,12 +139,11 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				gr.GroupName = value.String
 			}
-		case group.ForeignKeys[0]:
+		case group.FieldRootGroupID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field group_subgroups", value)
+				return fmt.Errorf("unexpected type %T for field root_group_id", values[i])
 			} else if value.Valid {
-				gr.group_subgroups = new(int)
-				*gr.group_subgroups = int(value.Int64)
+				gr.RootGroupID = int(value.Int64)
 			}
 		default:
 			gr.selectValues.Set(columns[i], values[i])
@@ -215,6 +213,9 @@ func (gr *Group) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", gr.ID))
 	builder.WriteString("group_name=")
 	builder.WriteString(gr.GroupName)
+	builder.WriteString(", ")
+	builder.WriteString("root_group_id=")
+	builder.WriteString(fmt.Sprintf("%v", gr.RootGroupID))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -28,7 +28,6 @@ type UserQuery struct {
 	withSubmission    *SubmitQuery
 	withLoginSessions *LoginSessionQuery
 	withGroups        *GroupQuery
-	withFKs           bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -442,7 +441,6 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [3]bool{
 			uq.withSubmission != nil,
@@ -450,12 +448,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			uq.withGroups != nil,
 		}
 	)
-	if uq.withGroups != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -507,7 +499,9 @@ func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nod
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submit.FieldUserID)
+	}
 	query.Where(predicate.Submit(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.SubmissionColumn), fks...))
 	}))
@@ -516,13 +510,10 @@ func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nod
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_submission
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_submission" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UserID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_submission" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -538,7 +529,9 @@ func (uq *UserQuery) loadLoginSessions(ctx context.Context, query *LoginSessionQ
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(loginsession.FieldUserID)
+	}
 	query.Where(predicate.LoginSession(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.LoginSessionsColumn), fks...))
 	}))
@@ -547,13 +540,10 @@ func (uq *UserQuery) loadLoginSessions(ctx context.Context, query *LoginSessionQ
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_login_sessions
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_login_sessions" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UserID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_login_sessions" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -563,10 +553,7 @@ func (uq *UserQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*User)
 	for i := range nodes {
-		if nodes[i].group_users == nil {
-			continue
-		}
-		fk := *nodes[i].group_users
+		fk := nodes[i].GroupID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -583,7 +570,7 @@ func (uq *UserQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "group_users" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "group_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -616,6 +603,9 @@ func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != user.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if uq.withGroups != nil {
+			_spec.Node.AddColumnOnce(user.FieldGroupID)
 		}
 	}
 	if ps := uq.predicates; len(ps) > 0 {

@@ -46,14 +46,14 @@ func (su *SubmitUpdate) SetNillableCode(s *string) *SubmitUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (su *SubmitUpdate) SetStatus(i int) *SubmitUpdate {
+func (su *SubmitUpdate) SetStatus(i int8) *SubmitUpdate {
 	su.mutation.ResetStatus()
 	su.mutation.SetStatus(i)
 	return su
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (su *SubmitUpdate) SetNillableStatus(i *int) *SubmitUpdate {
+func (su *SubmitUpdate) SetNillableStatus(i *int8) *SubmitUpdate {
 	if i != nil {
 		su.SetStatus(*i)
 	}
@@ -61,20 +61,20 @@ func (su *SubmitUpdate) SetNillableStatus(i *int) *SubmitUpdate {
 }
 
 // AddStatus adds i to the "status" field.
-func (su *SubmitUpdate) AddStatus(i int) *SubmitUpdate {
+func (su *SubmitUpdate) AddStatus(i int8) *SubmitUpdate {
 	su.mutation.AddStatus(i)
 	return su
 }
 
 // SetPoint sets the "point" field.
-func (su *SubmitUpdate) SetPoint(i int) *SubmitUpdate {
+func (su *SubmitUpdate) SetPoint(i int16) *SubmitUpdate {
 	su.mutation.ResetPoint()
 	su.mutation.SetPoint(i)
 	return su
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (su *SubmitUpdate) SetNillablePoint(i *int) *SubmitUpdate {
+func (su *SubmitUpdate) SetNillablePoint(i *int16) *SubmitUpdate {
 	if i != nil {
 		su.SetPoint(*i)
 	}
@@ -82,7 +82,7 @@ func (su *SubmitUpdate) SetNillablePoint(i *int) *SubmitUpdate {
 }
 
 // AddPoint adds i to the "point" field.
-func (su *SubmitUpdate) AddPoint(i int) *SubmitUpdate {
+func (su *SubmitUpdate) AddPoint(i int16) *SubmitUpdate {
 	su.mutation.AddPoint(i)
 	return su
 }
@@ -158,14 +158,14 @@ func (su *SubmitUpdate) SetNillableLanguage(s *string) *SubmitUpdate {
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (su *SubmitUpdate) SetCaseVersion(i int) *SubmitUpdate {
+func (su *SubmitUpdate) SetCaseVersion(i int8) *SubmitUpdate {
 	su.mutation.ResetCaseVersion()
 	su.mutation.SetCaseVersion(i)
 	return su
 }
 
 // SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
-func (su *SubmitUpdate) SetNillableCaseVersion(i *int) *SubmitUpdate {
+func (su *SubmitUpdate) SetNillableCaseVersion(i *int8) *SubmitUpdate {
 	if i != nil {
 		su.SetCaseVersion(*i)
 	}
@@ -173,8 +173,36 @@ func (su *SubmitUpdate) SetNillableCaseVersion(i *int) *SubmitUpdate {
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (su *SubmitUpdate) AddCaseVersion(i int) *SubmitUpdate {
+func (su *SubmitUpdate) AddCaseVersion(i int8) *SubmitUpdate {
 	su.mutation.AddCaseVersion(i)
+	return su
+}
+
+// SetProblemID sets the "problem_id" field.
+func (su *SubmitUpdate) SetProblemID(i int) *SubmitUpdate {
+	su.mutation.SetProblemID(i)
+	return su
+}
+
+// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
+func (su *SubmitUpdate) SetNillableProblemID(i *int) *SubmitUpdate {
+	if i != nil {
+		su.SetProblemID(*i)
+	}
+	return su
+}
+
+// SetUserID sets the "user_id" field.
+func (su *SubmitUpdate) SetUserID(i int) *SubmitUpdate {
+	su.mutation.SetUserID(i)
+	return su
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (su *SubmitUpdate) SetNillableUserID(i *int) *SubmitUpdate {
+	if i != nil {
+		su.SetUserID(*i)
+	}
 	return su
 }
 
@@ -199,14 +227,6 @@ func (su *SubmitUpdate) SetProblemsID(id int) *SubmitUpdate {
 	return su
 }
 
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (su *SubmitUpdate) SetNillableProblemsID(id *int) *SubmitUpdate {
-	if id != nil {
-		su = su.SetProblemsID(*id)
-	}
-	return su
-}
-
 // SetProblems sets the "problems" edge to the Problem entity.
 func (su *SubmitUpdate) SetProblems(p *Problem) *SubmitUpdate {
 	return su.SetProblemsID(p.ID)
@@ -215,14 +235,6 @@ func (su *SubmitUpdate) SetProblems(p *Problem) *SubmitUpdate {
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (su *SubmitUpdate) SetUsersID(id int) *SubmitUpdate {
 	su.mutation.SetUsersID(id)
-	return su
-}
-
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (su *SubmitUpdate) SetNillableUsersID(id *int) *SubmitUpdate {
-	if id != nil {
-		su = su.SetUsersID(*id)
-	}
 	return su
 }
 
@@ -323,6 +335,12 @@ func (su *SubmitUpdate) check() error {
 			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submit.case_version": %w`, err)}
 		}
 	}
+	if _, ok := su.mutation.ProblemsID(); su.mutation.ProblemsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Submit.problems"`)
+	}
+	if _, ok := su.mutation.UsersID(); su.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Submit.users"`)
+	}
 	return nil
 }
 
@@ -342,16 +360,16 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(submit.FieldCode, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Status(); ok {
-		_spec.SetField(submit.FieldStatus, field.TypeInt, value)
+		_spec.SetField(submit.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := su.mutation.AddedStatus(); ok {
-		_spec.AddField(submit.FieldStatus, field.TypeInt, value)
+		_spec.AddField(submit.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := su.mutation.Point(); ok {
-		_spec.SetField(submit.FieldPoint, field.TypeInt, value)
+		_spec.SetField(submit.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := su.mutation.AddedPoint(); ok {
-		_spec.AddField(submit.FieldPoint, field.TypeInt, value)
+		_spec.AddField(submit.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := su.mutation.CreateTime(); ok {
 		_spec.SetField(submit.FieldCreateTime, field.TypeTime, value)
@@ -372,10 +390,10 @@ func (su *SubmitUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(submit.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := su.mutation.CaseVersion(); ok {
-		_spec.SetField(submit.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(submit.FieldCaseVersion, field.TypeInt8, value)
 	}
 	if value, ok := su.mutation.AddedCaseVersion(); ok {
-		_spec.AddField(submit.FieldCaseVersion, field.TypeInt, value)
+		_spec.AddField(submit.FieldCaseVersion, field.TypeInt8, value)
 	}
 	if su.mutation.SubmitCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -515,14 +533,14 @@ func (suo *SubmitUpdateOne) SetNillableCode(s *string) *SubmitUpdateOne {
 }
 
 // SetStatus sets the "status" field.
-func (suo *SubmitUpdateOne) SetStatus(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetStatus(i int8) *SubmitUpdateOne {
 	suo.mutation.ResetStatus()
 	suo.mutation.SetStatus(i)
 	return suo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableStatus(i *int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetNillableStatus(i *int8) *SubmitUpdateOne {
 	if i != nil {
 		suo.SetStatus(*i)
 	}
@@ -530,20 +548,20 @@ func (suo *SubmitUpdateOne) SetNillableStatus(i *int) *SubmitUpdateOne {
 }
 
 // AddStatus adds i to the "status" field.
-func (suo *SubmitUpdateOne) AddStatus(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) AddStatus(i int8) *SubmitUpdateOne {
 	suo.mutation.AddStatus(i)
 	return suo
 }
 
 // SetPoint sets the "point" field.
-func (suo *SubmitUpdateOne) SetPoint(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetPoint(i int16) *SubmitUpdateOne {
 	suo.mutation.ResetPoint()
 	suo.mutation.SetPoint(i)
 	return suo
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillablePoint(i *int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetNillablePoint(i *int16) *SubmitUpdateOne {
 	if i != nil {
 		suo.SetPoint(*i)
 	}
@@ -551,7 +569,7 @@ func (suo *SubmitUpdateOne) SetNillablePoint(i *int) *SubmitUpdateOne {
 }
 
 // AddPoint adds i to the "point" field.
-func (suo *SubmitUpdateOne) AddPoint(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) AddPoint(i int16) *SubmitUpdateOne {
 	suo.mutation.AddPoint(i)
 	return suo
 }
@@ -627,14 +645,14 @@ func (suo *SubmitUpdateOne) SetNillableLanguage(s *string) *SubmitUpdateOne {
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (suo *SubmitUpdateOne) SetCaseVersion(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetCaseVersion(i int8) *SubmitUpdateOne {
 	suo.mutation.ResetCaseVersion()
 	suo.mutation.SetCaseVersion(i)
 	return suo
 }
 
 // SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableCaseVersion(i *int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) SetNillableCaseVersion(i *int8) *SubmitUpdateOne {
 	if i != nil {
 		suo.SetCaseVersion(*i)
 	}
@@ -642,8 +660,36 @@ func (suo *SubmitUpdateOne) SetNillableCaseVersion(i *int) *SubmitUpdateOne {
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (suo *SubmitUpdateOne) AddCaseVersion(i int) *SubmitUpdateOne {
+func (suo *SubmitUpdateOne) AddCaseVersion(i int8) *SubmitUpdateOne {
 	suo.mutation.AddCaseVersion(i)
+	return suo
+}
+
+// SetProblemID sets the "problem_id" field.
+func (suo *SubmitUpdateOne) SetProblemID(i int) *SubmitUpdateOne {
+	suo.mutation.SetProblemID(i)
+	return suo
+}
+
+// SetNillableProblemID sets the "problem_id" field if the given value is not nil.
+func (suo *SubmitUpdateOne) SetNillableProblemID(i *int) *SubmitUpdateOne {
+	if i != nil {
+		suo.SetProblemID(*i)
+	}
+	return suo
+}
+
+// SetUserID sets the "user_id" field.
+func (suo *SubmitUpdateOne) SetUserID(i int) *SubmitUpdateOne {
+	suo.mutation.SetUserID(i)
+	return suo
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (suo *SubmitUpdateOne) SetNillableUserID(i *int) *SubmitUpdateOne {
+	if i != nil {
+		suo.SetUserID(*i)
+	}
 	return suo
 }
 
@@ -668,14 +714,6 @@ func (suo *SubmitUpdateOne) SetProblemsID(id int) *SubmitUpdateOne {
 	return suo
 }
 
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableProblemsID(id *int) *SubmitUpdateOne {
-	if id != nil {
-		suo = suo.SetProblemsID(*id)
-	}
-	return suo
-}
-
 // SetProblems sets the "problems" edge to the Problem entity.
 func (suo *SubmitUpdateOne) SetProblems(p *Problem) *SubmitUpdateOne {
 	return suo.SetProblemsID(p.ID)
@@ -684,14 +722,6 @@ func (suo *SubmitUpdateOne) SetProblems(p *Problem) *SubmitUpdateOne {
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (suo *SubmitUpdateOne) SetUsersID(id int) *SubmitUpdateOne {
 	suo.mutation.SetUsersID(id)
-	return suo
-}
-
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (suo *SubmitUpdateOne) SetNillableUsersID(id *int) *SubmitUpdateOne {
-	if id != nil {
-		suo = suo.SetUsersID(*id)
-	}
 	return suo
 }
 
@@ -805,6 +835,12 @@ func (suo *SubmitUpdateOne) check() error {
 			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submit.case_version": %w`, err)}
 		}
 	}
+	if _, ok := suo.mutation.ProblemsID(); suo.mutation.ProblemsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Submit.problems"`)
+	}
+	if _, ok := suo.mutation.UsersID(); suo.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Submit.users"`)
+	}
 	return nil
 }
 
@@ -841,16 +877,16 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		_spec.SetField(submit.FieldCode, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Status(); ok {
-		_spec.SetField(submit.FieldStatus, field.TypeInt, value)
+		_spec.SetField(submit.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := suo.mutation.AddedStatus(); ok {
-		_spec.AddField(submit.FieldStatus, field.TypeInt, value)
+		_spec.AddField(submit.FieldStatus, field.TypeInt8, value)
 	}
 	if value, ok := suo.mutation.Point(); ok {
-		_spec.SetField(submit.FieldPoint, field.TypeInt, value)
+		_spec.SetField(submit.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := suo.mutation.AddedPoint(); ok {
-		_spec.AddField(submit.FieldPoint, field.TypeInt, value)
+		_spec.AddField(submit.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := suo.mutation.CreateTime(); ok {
 		_spec.SetField(submit.FieldCreateTime, field.TypeTime, value)
@@ -871,10 +907,10 @@ func (suo *SubmitUpdateOne) sqlSave(ctx context.Context) (_node *Submit, err err
 		_spec.SetField(submit.FieldLanguage, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.CaseVersion(); ok {
-		_spec.SetField(submit.FieldCaseVersion, field.TypeInt, value)
+		_spec.SetField(submit.FieldCaseVersion, field.TypeInt8, value)
 	}
 	if value, ok := suo.mutation.AddedCaseVersion(); ok {
-		_spec.AddField(submit.FieldCaseVersion, field.TypeInt, value)
+		_spec.AddField(submit.FieldCaseVersion, field.TypeInt8, value)
 	}
 	if suo.mutation.SubmitCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{

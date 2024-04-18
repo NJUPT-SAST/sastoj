@@ -18,12 +18,12 @@ func (Contest) Fields() []ent.Field {
 		field.Int("id").Unique(),
 		field.String("title"),
 		field.String("description"),
-		field.Int("status").NonNegative(),
-		field.Int("type").Positive(),
+		field.Int16("status").NonNegative(),
+		field.Int16("type").Positive(),
 		field.Time("start_time"),
 		field.Time("end_time"),
 		field.String("language"),
-		field.Int("extra_time").NonNegative(),
+		field.Int16("extra_time").Default(0).NonNegative(),
 		field.Time("create_time").Default(time.Now()),
 	}
 }

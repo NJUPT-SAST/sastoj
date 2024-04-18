@@ -70,8 +70,13 @@ func Salt(v string) predicate.User {
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v int) predicate.User {
+func Status(v int16) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldStatus, v))
+}
+
+// GroupID applies equality check predicate on the "group_id" field. It's identical to GroupIDEQ.
+func GroupID(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupID, v))
 }
 
 // UsernameEQ applies the EQ predicate on the "username" field.
@@ -270,43 +275,63 @@ func SaltContainsFold(v string) predicate.User {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v int) predicate.User {
+func StatusEQ(v int16) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldStatus, v))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v int) predicate.User {
+func StatusNEQ(v int16) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldStatus, v))
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...int) predicate.User {
+func StatusIn(vs ...int16) predicate.User {
 	return predicate.User(sql.FieldIn(FieldStatus, vs...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...int) predicate.User {
+func StatusNotIn(vs ...int16) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v int) predicate.User {
+func StatusGT(v int16) predicate.User {
 	return predicate.User(sql.FieldGT(FieldStatus, v))
 }
 
 // StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v int) predicate.User {
+func StatusGTE(v int16) predicate.User {
 	return predicate.User(sql.FieldGTE(FieldStatus, v))
 }
 
 // StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v int) predicate.User {
+func StatusLT(v int16) predicate.User {
 	return predicate.User(sql.FieldLT(FieldStatus, v))
 }
 
 // StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v int) predicate.User {
+func StatusLTE(v int16) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldStatus, v))
+}
+
+// GroupIDEQ applies the EQ predicate on the "group_id" field.
+func GroupIDEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupID, v))
+}
+
+// GroupIDNEQ applies the NEQ predicate on the "group_id" field.
+func GroupIDNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldGroupID, v))
+}
+
+// GroupIDIn applies the In predicate on the "group_id" field.
+func GroupIDIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldGroupID, vs...))
+}
+
+// GroupIDNotIn applies the NotIn predicate on the "group_id" field.
+func GroupIDNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldGroupID, vs...))
 }
 
 // HasSubmission applies the HasEdge predicate on the "submission" edge.

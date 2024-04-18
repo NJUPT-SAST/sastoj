@@ -43,17 +43,23 @@ func (lsu *LoginSessionUpdate) SetNillableCreateTime(t *time.Time) *LoginSession
 	return lsu
 }
 
-// SetUsersID sets the "users" edge to the User entity by ID.
-func (lsu *LoginSessionUpdate) SetUsersID(id int) *LoginSessionUpdate {
-	lsu.mutation.SetUsersID(id)
+// SetUserID sets the "user_id" field.
+func (lsu *LoginSessionUpdate) SetUserID(i int) *LoginSessionUpdate {
+	lsu.mutation.SetUserID(i)
 	return lsu
 }
 
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (lsu *LoginSessionUpdate) SetNillableUsersID(id *int) *LoginSessionUpdate {
-	if id != nil {
-		lsu = lsu.SetUsersID(*id)
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (lsu *LoginSessionUpdate) SetNillableUserID(i *int) *LoginSessionUpdate {
+	if i != nil {
+		lsu.SetUserID(*i)
 	}
+	return lsu
+}
+
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (lsu *LoginSessionUpdate) SetUsersID(id int) *LoginSessionUpdate {
+	lsu.mutation.SetUsersID(id)
 	return lsu
 }
 
@@ -100,7 +106,18 @@ func (lsu *LoginSessionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (lsu *LoginSessionUpdate) check() error {
+	if _, ok := lsu.mutation.UsersID(); lsu.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "LoginSession.users"`)
+	}
+	return nil
+}
+
 func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := lsu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
 	if ps := lsu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -175,17 +192,23 @@ func (lsuo *LoginSessionUpdateOne) SetNillableCreateTime(t *time.Time) *LoginSes
 	return lsuo
 }
 
-// SetUsersID sets the "users" edge to the User entity by ID.
-func (lsuo *LoginSessionUpdateOne) SetUsersID(id int) *LoginSessionUpdateOne {
-	lsuo.mutation.SetUsersID(id)
+// SetUserID sets the "user_id" field.
+func (lsuo *LoginSessionUpdateOne) SetUserID(i int) *LoginSessionUpdateOne {
+	lsuo.mutation.SetUserID(i)
 	return lsuo
 }
 
-// SetNillableUsersID sets the "users" edge to the User entity by ID if the given value is not nil.
-func (lsuo *LoginSessionUpdateOne) SetNillableUsersID(id *int) *LoginSessionUpdateOne {
-	if id != nil {
-		lsuo = lsuo.SetUsersID(*id)
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (lsuo *LoginSessionUpdateOne) SetNillableUserID(i *int) *LoginSessionUpdateOne {
+	if i != nil {
+		lsuo.SetUserID(*i)
 	}
+	return lsuo
+}
+
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (lsuo *LoginSessionUpdateOne) SetUsersID(id int) *LoginSessionUpdateOne {
+	lsuo.mutation.SetUsersID(id)
 	return lsuo
 }
 
@@ -245,7 +268,18 @@ func (lsuo *LoginSessionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (lsuo *LoginSessionUpdateOne) check() error {
+	if _, ok := lsuo.mutation.UsersID(); lsuo.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "LoginSession.users"`)
+	}
+	return nil
+}
+
 func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSession, err error) {
+	if err := lsuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
 	id, ok := lsuo.mutation.ID()
 	if !ok {

@@ -18,18 +18,19 @@ type ProblemCase struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// Point holds the value of the "point" field.
-	Point int `json:"point,omitempty"`
+	Point int16 `json:"point,omitempty"`
 	// Index holds the value of the "index" field.
-	Index int `json:"index,omitempty"`
+	Index int16 `json:"index,omitempty"`
 	// 是否自动均分
 	IsAuto bool `json:"is_auto,omitempty"`
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
+	// ProblemID holds the value of the "problem_id" field.
+	ProblemID int `json:"problem_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemCaseQuery when eager-loading is set.
-	Edges                 ProblemCaseEdges `json:"edges"`
-	problem_problem_cases *int
-	selectValues          sql.SelectValues
+	Edges        ProblemCaseEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // ProblemCaseEdges holds the relations/edges for other nodes in the graph.
@@ -72,9 +73,7 @@ func (*ProblemCase) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problemcase.FieldIsAuto, problemcase.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
-		case problemcase.FieldID, problemcase.FieldPoint, problemcase.FieldIndex:
-			values[i] = new(sql.NullInt64)
-		case problemcase.ForeignKeys[0]: // problem_problem_cases
+		case problemcase.FieldID, problemcase.FieldPoint, problemcase.FieldIndex, problemcase.FieldProblemID:
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -101,13 +100,13 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
-				pc.Point = int(value.Int64)
+				pc.Point = int16(value.Int64)
 			}
 		case problemcase.FieldIndex:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field index", values[i])
 			} else if value.Valid {
-				pc.Index = int(value.Int64)
+				pc.Index = int16(value.Int64)
 			}
 		case problemcase.FieldIsAuto:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -121,12 +120,11 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pc.IsDeleted = value.Bool
 			}
-		case problemcase.ForeignKeys[0]:
+		case problemcase.FieldProblemID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_problem_cases", value)
+				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
-				pc.problem_problem_cases = new(int)
-				*pc.problem_problem_cases = int(value.Int64)
+				pc.ProblemID = int(value.Int64)
 			}
 		default:
 			pc.selectValues.Set(columns[i], values[i])
@@ -185,6 +183,9 @@ func (pc *ProblemCase) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_deleted=")
 	builder.WriteString(fmt.Sprintf("%v", pc.IsDeleted))
+	builder.WriteString(", ")
+	builder.WriteString("problem_id=")
+	builder.WriteString(fmt.Sprintf("%v", pc.ProblemID))
 	builder.WriteByte(')')
 	return builder.String()
 }

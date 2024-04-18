@@ -17,9 +17,9 @@ func (Problem) Fields() []ent.Field {
 		field.Int("id").Unique(),
 		field.String("title"),
 		field.String("content"),
-		field.Int("point").NonNegative(),
-		field.Int("case_version").Positive().Default(1),
-		field.Int("index").Positive(),
+		field.Int16("point").NonNegative(),
+		field.Int16("case_version").Positive().Default(1),
+		field.Int16("index").Positive(),
 		field.Bool("is_deleted").Default(false),
 		field.String("config"),
 	}

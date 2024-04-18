@@ -24,11 +24,12 @@ type User struct {
 	// Salt holds the value of the "salt" field.
 	Salt string `json:"salt,omitempty"`
 	// Status holds the value of the "status" field.
-	Status int `json:"status,omitempty"`
+	Status int16 `json:"status,omitempty"`
+	// GroupID holds the value of the "group_id" field.
+	GroupID int `json:"group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
-	group_users  *int
 	selectValues sql.SelectValues
 }
 
@@ -81,12 +82,10 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldStatus:
+		case user.FieldID, user.FieldStatus, user.FieldGroupID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldUsername, user.FieldPassword, user.FieldSalt:
 			values[i] = new(sql.NullString)
-		case user.ForeignKeys[0]: // group_users
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -130,14 +129,13 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				u.Status = int(value.Int64)
+				u.Status = int16(value.Int64)
 			}
-		case user.ForeignKeys[0]:
+		case user.FieldGroupID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field group_users", value)
+				return fmt.Errorf("unexpected type %T for field group_id", values[i])
 			} else if value.Valid {
-				u.group_users = new(int)
-				*u.group_users = int(value.Int64)
+				u.GroupID = int(value.Int64)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -201,6 +199,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", u.Status))
+	builder.WriteString(", ")
+	builder.WriteString("group_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.GroupID))
 	builder.WriteByte(')')
 	return builder.String()
 }

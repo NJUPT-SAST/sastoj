@@ -49,15 +49,15 @@ type ContestMutation struct {
 	id              *int
 	title           *string
 	description     *string
-	status          *int
-	addstatus       *int
-	_type           *int
-	add_type        *int
+	status          *int16
+	addstatus       *int16
+	_type           *int16
+	add_type        *int16
 	start_time      *time.Time
 	end_time        *time.Time
 	language        *string
-	extra_time      *int
-	addextra_time   *int
+	extra_time      *int16
+	addextra_time   *int16
 	create_time     *time.Time
 	clearedFields   map[string]struct{}
 	problems        map[int]struct{}
@@ -251,13 +251,13 @@ func (m *ContestMutation) ResetDescription() {
 }
 
 // SetStatus sets the "status" field.
-func (m *ContestMutation) SetStatus(i int) {
+func (m *ContestMutation) SetStatus(i int16) {
 	m.status = &i
 	m.addstatus = nil
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *ContestMutation) Status() (r int, exists bool) {
+func (m *ContestMutation) Status() (r int16, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -268,7 +268,7 @@ func (m *ContestMutation) Status() (r int, exists bool) {
 // OldStatus returns the old "status" field's value of the Contest entity.
 // If the Contest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContestMutation) OldStatus(ctx context.Context) (v int, err error) {
+func (m *ContestMutation) OldStatus(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -283,7 +283,7 @@ func (m *ContestMutation) OldStatus(ctx context.Context) (v int, err error) {
 }
 
 // AddStatus adds i to the "status" field.
-func (m *ContestMutation) AddStatus(i int) {
+func (m *ContestMutation) AddStatus(i int16) {
 	if m.addstatus != nil {
 		*m.addstatus += i
 	} else {
@@ -292,7 +292,7 @@ func (m *ContestMutation) AddStatus(i int) {
 }
 
 // AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *ContestMutation) AddedStatus() (r int, exists bool) {
+func (m *ContestMutation) AddedStatus() (r int16, exists bool) {
 	v := m.addstatus
 	if v == nil {
 		return
@@ -307,13 +307,13 @@ func (m *ContestMutation) ResetStatus() {
 }
 
 // SetType sets the "type" field.
-func (m *ContestMutation) SetType(i int) {
+func (m *ContestMutation) SetType(i int16) {
 	m._type = &i
 	m.add_type = nil
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *ContestMutation) GetType() (r int, exists bool) {
+func (m *ContestMutation) GetType() (r int16, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -324,7 +324,7 @@ func (m *ContestMutation) GetType() (r int, exists bool) {
 // OldType returns the old "type" field's value of the Contest entity.
 // If the Contest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContestMutation) OldType(ctx context.Context) (v int, err error) {
+func (m *ContestMutation) OldType(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -339,7 +339,7 @@ func (m *ContestMutation) OldType(ctx context.Context) (v int, err error) {
 }
 
 // AddType adds i to the "type" field.
-func (m *ContestMutation) AddType(i int) {
+func (m *ContestMutation) AddType(i int16) {
 	if m.add_type != nil {
 		*m.add_type += i
 	} else {
@@ -348,7 +348,7 @@ func (m *ContestMutation) AddType(i int) {
 }
 
 // AddedType returns the value that was added to the "type" field in this mutation.
-func (m *ContestMutation) AddedType() (r int, exists bool) {
+func (m *ContestMutation) AddedType() (r int16, exists bool) {
 	v := m.add_type
 	if v == nil {
 		return
@@ -471,13 +471,13 @@ func (m *ContestMutation) ResetLanguage() {
 }
 
 // SetExtraTime sets the "extra_time" field.
-func (m *ContestMutation) SetExtraTime(i int) {
+func (m *ContestMutation) SetExtraTime(i int16) {
 	m.extra_time = &i
 	m.addextra_time = nil
 }
 
 // ExtraTime returns the value of the "extra_time" field in the mutation.
-func (m *ContestMutation) ExtraTime() (r int, exists bool) {
+func (m *ContestMutation) ExtraTime() (r int16, exists bool) {
 	v := m.extra_time
 	if v == nil {
 		return
@@ -488,7 +488,7 @@ func (m *ContestMutation) ExtraTime() (r int, exists bool) {
 // OldExtraTime returns the old "extra_time" field's value of the Contest entity.
 // If the Contest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContestMutation) OldExtraTime(ctx context.Context) (v int, err error) {
+func (m *ContestMutation) OldExtraTime(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldExtraTime is only allowed on UpdateOne operations")
 	}
@@ -503,7 +503,7 @@ func (m *ContestMutation) OldExtraTime(ctx context.Context) (v int, err error) {
 }
 
 // AddExtraTime adds i to the "extra_time" field.
-func (m *ContestMutation) AddExtraTime(i int) {
+func (m *ContestMutation) AddExtraTime(i int16) {
 	if m.addextra_time != nil {
 		*m.addextra_time += i
 	} else {
@@ -512,7 +512,7 @@ func (m *ContestMutation) AddExtraTime(i int) {
 }
 
 // AddedExtraTime returns the value that was added to the "extra_time" field in this mutation.
-func (m *ContestMutation) AddedExtraTime() (r int, exists bool) {
+func (m *ContestMutation) AddedExtraTime() (r int16, exists bool) {
 	v := m.addextra_time
 	if v == nil {
 		return
@@ -863,14 +863,14 @@ func (m *ContestMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case contest.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
 		return nil
 	case contest.FieldType:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -898,7 +898,7 @@ func (m *ContestMutation) SetField(name string, value ent.Value) error {
 		m.SetLanguage(v)
 		return nil
 	case contest.FieldExtraTime:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -952,21 +952,21 @@ func (m *ContestMutation) AddedField(name string) (ent.Value, bool) {
 func (m *ContestMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case contest.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddStatus(v)
 		return nil
 	case contest.FieldType:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddType(v)
 		return nil
 	case contest.FieldExtraTime:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1336,6 +1336,42 @@ func (m *GroupMutation) ResetGroupName() {
 	m.group_name = nil
 }
 
+// SetRootGroupID sets the "root_group_id" field.
+func (m *GroupMutation) SetRootGroupID(i int) {
+	m.root_group = &i
+}
+
+// RootGroupID returns the value of the "root_group_id" field in the mutation.
+func (m *GroupMutation) RootGroupID() (r int, exists bool) {
+	v := m.root_group
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRootGroupID returns the old "root_group_id" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldRootGroupID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRootGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRootGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRootGroupID: %w", err)
+	}
+	return oldValue.RootGroupID, nil
+}
+
+// ResetRootGroupID resets all changes to the "root_group_id" field.
+func (m *GroupMutation) ResetRootGroupID() {
+	m.root_group = nil
+}
+
 // AddAdminIDs adds the "admins" edge to the Contest entity by ids.
 func (m *GroupMutation) AddAdminIDs(ids ...int) {
 	if m.admins == nil {
@@ -1552,27 +1588,15 @@ func (m *GroupMutation) ResetUsers() {
 	m.removedusers = nil
 }
 
-// SetRootGroupID sets the "root_group" edge to the Group entity by id.
-func (m *GroupMutation) SetRootGroupID(id int) {
-	m.root_group = &id
-}
-
 // ClearRootGroup clears the "root_group" edge to the Group entity.
 func (m *GroupMutation) ClearRootGroup() {
 	m.clearedroot_group = true
+	m.clearedFields[group.FieldRootGroupID] = struct{}{}
 }
 
 // RootGroupCleared reports if the "root_group" edge to the Group entity was cleared.
 func (m *GroupMutation) RootGroupCleared() bool {
 	return m.clearedroot_group
-}
-
-// RootGroupID returns the "root_group" edge ID in the mutation.
-func (m *GroupMutation) RootGroupID() (id int, exists bool) {
-	if m.root_group != nil {
-		return *m.root_group, true
-	}
-	return
 }
 
 // RootGroupIDs returns the "root_group" edge IDs in the mutation.
@@ -1679,9 +1703,12 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.group_name != nil {
 		fields = append(fields, group.FieldGroupName)
+	}
+	if m.root_group != nil {
+		fields = append(fields, group.FieldRootGroupID)
 	}
 	return fields
 }
@@ -1693,6 +1720,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldGroupName:
 		return m.GroupName()
+	case group.FieldRootGroupID:
+		return m.RootGroupID()
 	}
 	return nil, false
 }
@@ -1704,6 +1733,8 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case group.FieldGroupName:
 		return m.OldGroupName(ctx)
+	case group.FieldRootGroupID:
+		return m.OldRootGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Group field %s", name)
 }
@@ -1720,6 +1751,13 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGroupName(v)
 		return nil
+	case group.FieldRootGroupID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRootGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
 }
@@ -1727,13 +1765,16 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *GroupMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -1771,6 +1812,9 @@ func (m *GroupMutation) ResetField(name string) error {
 	switch name {
 	case group.FieldGroupName:
 		m.ResetGroupName()
+		return nil
+	case group.FieldRootGroupID:
+		m.ResetRootGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -2137,6 +2181,42 @@ func (m *LoginSessionMutation) ResetCreateTime() {
 	m.create_time = nil
 }
 
+// SetUserID sets the "user_id" field.
+func (m *LoginSessionMutation) SetUserID(i int) {
+	m.users = &i
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *LoginSessionMutation) UserID() (r int, exists bool) {
+	v := m.users
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the LoginSession entity.
+// If the LoginSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginSessionMutation) OldUserID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *LoginSessionMutation) ResetUserID() {
+	m.users = nil
+}
+
 // SetUsersID sets the "users" edge to the User entity by id.
 func (m *LoginSessionMutation) SetUsersID(id int) {
 	m.users = &id
@@ -2145,6 +2225,7 @@ func (m *LoginSessionMutation) SetUsersID(id int) {
 // ClearUsers clears the "users" edge to the User entity.
 func (m *LoginSessionMutation) ClearUsers() {
 	m.clearedusers = true
+	m.clearedFields[loginsession.FieldUserID] = struct{}{}
 }
 
 // UsersCleared reports if the "users" edge to the User entity was cleared.
@@ -2210,9 +2291,12 @@ func (m *LoginSessionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LoginSessionMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.create_time != nil {
 		fields = append(fields, loginsession.FieldCreateTime)
+	}
+	if m.users != nil {
+		fields = append(fields, loginsession.FieldUserID)
 	}
 	return fields
 }
@@ -2224,6 +2308,8 @@ func (m *LoginSessionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case loginsession.FieldCreateTime:
 		return m.CreateTime()
+	case loginsession.FieldUserID:
+		return m.UserID()
 	}
 	return nil, false
 }
@@ -2235,6 +2321,8 @@ func (m *LoginSessionMutation) OldField(ctx context.Context, name string) (ent.V
 	switch name {
 	case loginsession.FieldCreateTime:
 		return m.OldCreateTime(ctx)
+	case loginsession.FieldUserID:
+		return m.OldUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown LoginSession field %s", name)
 }
@@ -2251,6 +2339,13 @@ func (m *LoginSessionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCreateTime(v)
 		return nil
+	case loginsession.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown LoginSession field %s", name)
 }
@@ -2258,13 +2353,16 @@ func (m *LoginSessionMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *LoginSessionMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *LoginSessionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -2302,6 +2400,9 @@ func (m *LoginSessionMutation) ResetField(name string) error {
 	switch name {
 	case loginsession.FieldCreateTime:
 		m.ResetCreateTime()
+		return nil
+	case loginsession.FieldUserID:
+		m.ResetUserID()
 		return nil
 	}
 	return fmt.Errorf("unknown LoginSession field %s", name)
@@ -2389,12 +2490,12 @@ type ProblemMutation struct {
 	id                   *int
 	title                *string
 	content              *string
-	point                *int
-	addpoint             *int
-	case_version         *int
-	addcase_version      *int
-	index                *int
-	addindex             *int
+	point                *int16
+	addpoint             *int16
+	case_version         *int16
+	addcase_version      *int16
+	index                *int16
+	addindex             *int16
 	is_deleted           *bool
 	_config              *string
 	clearedFields        map[string]struct{}
@@ -2592,13 +2693,13 @@ func (m *ProblemMutation) ResetContent() {
 }
 
 // SetPoint sets the "point" field.
-func (m *ProblemMutation) SetPoint(i int) {
+func (m *ProblemMutation) SetPoint(i int16) {
 	m.point = &i
 	m.addpoint = nil
 }
 
 // Point returns the value of the "point" field in the mutation.
-func (m *ProblemMutation) Point() (r int, exists bool) {
+func (m *ProblemMutation) Point() (r int16, exists bool) {
 	v := m.point
 	if v == nil {
 		return
@@ -2609,7 +2710,7 @@ func (m *ProblemMutation) Point() (r int, exists bool) {
 // OldPoint returns the old "point" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldPoint(ctx context.Context) (v int, err error) {
+func (m *ProblemMutation) OldPoint(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPoint is only allowed on UpdateOne operations")
 	}
@@ -2624,7 +2725,7 @@ func (m *ProblemMutation) OldPoint(ctx context.Context) (v int, err error) {
 }
 
 // AddPoint adds i to the "point" field.
-func (m *ProblemMutation) AddPoint(i int) {
+func (m *ProblemMutation) AddPoint(i int16) {
 	if m.addpoint != nil {
 		*m.addpoint += i
 	} else {
@@ -2633,7 +2734,7 @@ func (m *ProblemMutation) AddPoint(i int) {
 }
 
 // AddedPoint returns the value that was added to the "point" field in this mutation.
-func (m *ProblemMutation) AddedPoint() (r int, exists bool) {
+func (m *ProblemMutation) AddedPoint() (r int16, exists bool) {
 	v := m.addpoint
 	if v == nil {
 		return
@@ -2648,13 +2749,13 @@ func (m *ProblemMutation) ResetPoint() {
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (m *ProblemMutation) SetCaseVersion(i int) {
+func (m *ProblemMutation) SetCaseVersion(i int16) {
 	m.case_version = &i
 	m.addcase_version = nil
 }
 
 // CaseVersion returns the value of the "case_version" field in the mutation.
-func (m *ProblemMutation) CaseVersion() (r int, exists bool) {
+func (m *ProblemMutation) CaseVersion() (r int16, exists bool) {
 	v := m.case_version
 	if v == nil {
 		return
@@ -2665,7 +2766,7 @@ func (m *ProblemMutation) CaseVersion() (r int, exists bool) {
 // OldCaseVersion returns the old "case_version" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldCaseVersion(ctx context.Context) (v int, err error) {
+func (m *ProblemMutation) OldCaseVersion(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCaseVersion is only allowed on UpdateOne operations")
 	}
@@ -2680,7 +2781,7 @@ func (m *ProblemMutation) OldCaseVersion(ctx context.Context) (v int, err error)
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (m *ProblemMutation) AddCaseVersion(i int) {
+func (m *ProblemMutation) AddCaseVersion(i int16) {
 	if m.addcase_version != nil {
 		*m.addcase_version += i
 	} else {
@@ -2689,7 +2790,7 @@ func (m *ProblemMutation) AddCaseVersion(i int) {
 }
 
 // AddedCaseVersion returns the value that was added to the "case_version" field in this mutation.
-func (m *ProblemMutation) AddedCaseVersion() (r int, exists bool) {
+func (m *ProblemMutation) AddedCaseVersion() (r int16, exists bool) {
 	v := m.addcase_version
 	if v == nil {
 		return
@@ -2704,13 +2805,13 @@ func (m *ProblemMutation) ResetCaseVersion() {
 }
 
 // SetIndex sets the "index" field.
-func (m *ProblemMutation) SetIndex(i int) {
+func (m *ProblemMutation) SetIndex(i int16) {
 	m.index = &i
 	m.addindex = nil
 }
 
 // Index returns the value of the "index" field in the mutation.
-func (m *ProblemMutation) Index() (r int, exists bool) {
+func (m *ProblemMutation) Index() (r int16, exists bool) {
 	v := m.index
 	if v == nil {
 		return
@@ -2721,7 +2822,7 @@ func (m *ProblemMutation) Index() (r int, exists bool) {
 // OldIndex returns the old "index" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldIndex(ctx context.Context) (v int, err error) {
+func (m *ProblemMutation) OldIndex(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldIndex is only allowed on UpdateOne operations")
 	}
@@ -2736,7 +2837,7 @@ func (m *ProblemMutation) OldIndex(ctx context.Context) (v int, err error) {
 }
 
 // AddIndex adds i to the "index" field.
-func (m *ProblemMutation) AddIndex(i int) {
+func (m *ProblemMutation) AddIndex(i int16) {
 	if m.addindex != nil {
 		*m.addindex += i
 	} else {
@@ -2745,7 +2846,7 @@ func (m *ProblemMutation) AddIndex(i int) {
 }
 
 // AddedIndex returns the value that was added to the "index" field in this mutation.
-func (m *ProblemMutation) AddedIndex() (r int, exists bool) {
+func (m *ProblemMutation) AddedIndex() (r int16, exists bool) {
 	v := m.addindex
 	if v == nil {
 		return
@@ -3172,21 +3273,21 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		m.SetContent(v)
 		return nil
 	case problem.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPoint(v)
 		return nil
 	case problem.FieldCaseVersion:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCaseVersion(v)
 		return nil
 	case problem.FieldIndex:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3247,21 +3348,21 @@ func (m *ProblemMutation) AddedField(name string) (ent.Value, bool) {
 func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case problem.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPoint(v)
 		return nil
 	case problem.FieldCaseVersion:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCaseVersion(v)
 		return nil
 	case problem.FieldIndex:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3487,10 +3588,10 @@ type ProblemCaseMutation struct {
 	op                  Op
 	typ                 string
 	id                  *int
-	point               *int
-	addpoint            *int
-	index               *int
-	addindex            *int
+	point               *int16
+	addpoint            *int16
+	index               *int16
+	addindex            *int16
 	is_auto             *bool
 	is_deleted          *bool
 	clearedFields       map[string]struct{}
@@ -3609,13 +3710,13 @@ func (m *ProblemCaseMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetPoint sets the "point" field.
-func (m *ProblemCaseMutation) SetPoint(i int) {
+func (m *ProblemCaseMutation) SetPoint(i int16) {
 	m.point = &i
 	m.addpoint = nil
 }
 
 // Point returns the value of the "point" field in the mutation.
-func (m *ProblemCaseMutation) Point() (r int, exists bool) {
+func (m *ProblemCaseMutation) Point() (r int16, exists bool) {
 	v := m.point
 	if v == nil {
 		return
@@ -3626,7 +3727,7 @@ func (m *ProblemCaseMutation) Point() (r int, exists bool) {
 // OldPoint returns the old "point" field's value of the ProblemCase entity.
 // If the ProblemCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemCaseMutation) OldPoint(ctx context.Context) (v int, err error) {
+func (m *ProblemCaseMutation) OldPoint(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPoint is only allowed on UpdateOne operations")
 	}
@@ -3641,7 +3742,7 @@ func (m *ProblemCaseMutation) OldPoint(ctx context.Context) (v int, err error) {
 }
 
 // AddPoint adds i to the "point" field.
-func (m *ProblemCaseMutation) AddPoint(i int) {
+func (m *ProblemCaseMutation) AddPoint(i int16) {
 	if m.addpoint != nil {
 		*m.addpoint += i
 	} else {
@@ -3650,7 +3751,7 @@ func (m *ProblemCaseMutation) AddPoint(i int) {
 }
 
 // AddedPoint returns the value that was added to the "point" field in this mutation.
-func (m *ProblemCaseMutation) AddedPoint() (r int, exists bool) {
+func (m *ProblemCaseMutation) AddedPoint() (r int16, exists bool) {
 	v := m.addpoint
 	if v == nil {
 		return
@@ -3665,13 +3766,13 @@ func (m *ProblemCaseMutation) ResetPoint() {
 }
 
 // SetIndex sets the "index" field.
-func (m *ProblemCaseMutation) SetIndex(i int) {
+func (m *ProblemCaseMutation) SetIndex(i int16) {
 	m.index = &i
 	m.addindex = nil
 }
 
 // Index returns the value of the "index" field in the mutation.
-func (m *ProblemCaseMutation) Index() (r int, exists bool) {
+func (m *ProblemCaseMutation) Index() (r int16, exists bool) {
 	v := m.index
 	if v == nil {
 		return
@@ -3682,7 +3783,7 @@ func (m *ProblemCaseMutation) Index() (r int, exists bool) {
 // OldIndex returns the old "index" field's value of the ProblemCase entity.
 // If the ProblemCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemCaseMutation) OldIndex(ctx context.Context) (v int, err error) {
+func (m *ProblemCaseMutation) OldIndex(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldIndex is only allowed on UpdateOne operations")
 	}
@@ -3697,7 +3798,7 @@ func (m *ProblemCaseMutation) OldIndex(ctx context.Context) (v int, err error) {
 }
 
 // AddIndex adds i to the "index" field.
-func (m *ProblemCaseMutation) AddIndex(i int) {
+func (m *ProblemCaseMutation) AddIndex(i int16) {
 	if m.addindex != nil {
 		*m.addindex += i
 	} else {
@@ -3706,7 +3807,7 @@ func (m *ProblemCaseMutation) AddIndex(i int) {
 }
 
 // AddedIndex returns the value that was added to the "index" field in this mutation.
-func (m *ProblemCaseMutation) AddedIndex() (r int, exists bool) {
+func (m *ProblemCaseMutation) AddedIndex() (r int16, exists bool) {
 	v := m.addindex
 	if v == nil {
 		return
@@ -3792,6 +3893,42 @@ func (m *ProblemCaseMutation) ResetIsDeleted() {
 	m.is_deleted = nil
 }
 
+// SetProblemID sets the "problem_id" field.
+func (m *ProblemCaseMutation) SetProblemID(i int) {
+	m.problems = &i
+}
+
+// ProblemID returns the value of the "problem_id" field in the mutation.
+func (m *ProblemCaseMutation) ProblemID() (r int, exists bool) {
+	v := m.problems
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProblemID returns the old "problem_id" field's value of the ProblemCase entity.
+// If the ProblemCase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemCaseMutation) OldProblemID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProblemID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProblemID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProblemID: %w", err)
+	}
+	return oldValue.ProblemID, nil
+}
+
+// ResetProblemID resets all changes to the "problem_id" field.
+func (m *ProblemCaseMutation) ResetProblemID() {
+	m.problems = nil
+}
+
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
 func (m *ProblemCaseMutation) AddSubmitCaseIDs(ids ...int) {
 	if m.submit_cases == nil {
@@ -3854,6 +3991,7 @@ func (m *ProblemCaseMutation) SetProblemsID(id int) {
 // ClearProblems clears the "problems" edge to the Problem entity.
 func (m *ProblemCaseMutation) ClearProblems() {
 	m.clearedproblems = true
+	m.clearedFields[problemcase.FieldProblemID] = struct{}{}
 }
 
 // ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
@@ -3919,7 +4057,7 @@ func (m *ProblemCaseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemCaseMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.point != nil {
 		fields = append(fields, problemcase.FieldPoint)
 	}
@@ -3931,6 +4069,9 @@ func (m *ProblemCaseMutation) Fields() []string {
 	}
 	if m.is_deleted != nil {
 		fields = append(fields, problemcase.FieldIsDeleted)
+	}
+	if m.problems != nil {
+		fields = append(fields, problemcase.FieldProblemID)
 	}
 	return fields
 }
@@ -3948,6 +4089,8 @@ func (m *ProblemCaseMutation) Field(name string) (ent.Value, bool) {
 		return m.IsAuto()
 	case problemcase.FieldIsDeleted:
 		return m.IsDeleted()
+	case problemcase.FieldProblemID:
+		return m.ProblemID()
 	}
 	return nil, false
 }
@@ -3965,6 +4108,8 @@ func (m *ProblemCaseMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldIsAuto(ctx)
 	case problemcase.FieldIsDeleted:
 		return m.OldIsDeleted(ctx)
+	case problemcase.FieldProblemID:
+		return m.OldProblemID(ctx)
 	}
 	return nil, fmt.Errorf("unknown ProblemCase field %s", name)
 }
@@ -3975,14 +4120,14 @@ func (m *ProblemCaseMutation) OldField(ctx context.Context, name string) (ent.Va
 func (m *ProblemCaseMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case problemcase.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPoint(v)
 		return nil
 	case problemcase.FieldIndex:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4001,6 +4146,13 @@ func (m *ProblemCaseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsDeleted(v)
+		return nil
+	case problemcase.FieldProblemID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProblemID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase field %s", name)
@@ -4038,14 +4190,14 @@ func (m *ProblemCaseMutation) AddedField(name string) (ent.Value, bool) {
 func (m *ProblemCaseMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case problemcase.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPoint(v)
 		return nil
 	case problemcase.FieldIndex:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4089,6 +4241,9 @@ func (m *ProblemCaseMutation) ResetField(name string) error {
 		return nil
 	case problemcase.FieldIsDeleted:
 		m.ResetIsDeleted()
+		return nil
+	case problemcase.FieldProblemID:
+		m.ResetProblemID()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase field %s", name)
@@ -4203,18 +4358,18 @@ type SubmitMutation struct {
 	typ                 string
 	id                  *int
 	code                *string
-	status              *int
-	addstatus           *int
-	point               *int
-	addpoint            *int
+	status              *int8
+	addstatus           *int8
+	point               *int16
+	addpoint            *int16
 	create_time         *time.Time
 	total_time          *int
 	addtotal_time       *int
 	max_memory          *int
 	addmax_memory       *int
 	language            *string
-	case_version        *int
-	addcase_version     *int
+	case_version        *int8
+	addcase_version     *int8
 	clearedFields       map[string]struct{}
 	submit_cases        map[int]struct{}
 	removedsubmit_cases map[int]struct{}
@@ -4369,13 +4524,13 @@ func (m *SubmitMutation) ResetCode() {
 }
 
 // SetStatus sets the "status" field.
-func (m *SubmitMutation) SetStatus(i int) {
+func (m *SubmitMutation) SetStatus(i int8) {
 	m.status = &i
 	m.addstatus = nil
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *SubmitMutation) Status() (r int, exists bool) {
+func (m *SubmitMutation) Status() (r int8, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -4386,7 +4541,7 @@ func (m *SubmitMutation) Status() (r int, exists bool) {
 // OldStatus returns the old "status" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldStatus(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldStatus(ctx context.Context) (v int8, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -4401,7 +4556,7 @@ func (m *SubmitMutation) OldStatus(ctx context.Context) (v int, err error) {
 }
 
 // AddStatus adds i to the "status" field.
-func (m *SubmitMutation) AddStatus(i int) {
+func (m *SubmitMutation) AddStatus(i int8) {
 	if m.addstatus != nil {
 		*m.addstatus += i
 	} else {
@@ -4410,7 +4565,7 @@ func (m *SubmitMutation) AddStatus(i int) {
 }
 
 // AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *SubmitMutation) AddedStatus() (r int, exists bool) {
+func (m *SubmitMutation) AddedStatus() (r int8, exists bool) {
 	v := m.addstatus
 	if v == nil {
 		return
@@ -4425,13 +4580,13 @@ func (m *SubmitMutation) ResetStatus() {
 }
 
 // SetPoint sets the "point" field.
-func (m *SubmitMutation) SetPoint(i int) {
+func (m *SubmitMutation) SetPoint(i int16) {
 	m.point = &i
 	m.addpoint = nil
 }
 
 // Point returns the value of the "point" field in the mutation.
-func (m *SubmitMutation) Point() (r int, exists bool) {
+func (m *SubmitMutation) Point() (r int16, exists bool) {
 	v := m.point
 	if v == nil {
 		return
@@ -4442,7 +4597,7 @@ func (m *SubmitMutation) Point() (r int, exists bool) {
 // OldPoint returns the old "point" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldPoint(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldPoint(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPoint is only allowed on UpdateOne operations")
 	}
@@ -4457,7 +4612,7 @@ func (m *SubmitMutation) OldPoint(ctx context.Context) (v int, err error) {
 }
 
 // AddPoint adds i to the "point" field.
-func (m *SubmitMutation) AddPoint(i int) {
+func (m *SubmitMutation) AddPoint(i int16) {
 	if m.addpoint != nil {
 		*m.addpoint += i
 	} else {
@@ -4466,7 +4621,7 @@ func (m *SubmitMutation) AddPoint(i int) {
 }
 
 // AddedPoint returns the value that was added to the "point" field in this mutation.
-func (m *SubmitMutation) AddedPoint() (r int, exists bool) {
+func (m *SubmitMutation) AddedPoint() (r int16, exists bool) {
 	v := m.addpoint
 	if v == nil {
 		return
@@ -4665,13 +4820,13 @@ func (m *SubmitMutation) ResetLanguage() {
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (m *SubmitMutation) SetCaseVersion(i int) {
+func (m *SubmitMutation) SetCaseVersion(i int8) {
 	m.case_version = &i
 	m.addcase_version = nil
 }
 
 // CaseVersion returns the value of the "case_version" field in the mutation.
-func (m *SubmitMutation) CaseVersion() (r int, exists bool) {
+func (m *SubmitMutation) CaseVersion() (r int8, exists bool) {
 	v := m.case_version
 	if v == nil {
 		return
@@ -4682,7 +4837,7 @@ func (m *SubmitMutation) CaseVersion() (r int, exists bool) {
 // OldCaseVersion returns the old "case_version" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldCaseVersion(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldCaseVersion(ctx context.Context) (v int8, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCaseVersion is only allowed on UpdateOne operations")
 	}
@@ -4697,7 +4852,7 @@ func (m *SubmitMutation) OldCaseVersion(ctx context.Context) (v int, err error) 
 }
 
 // AddCaseVersion adds i to the "case_version" field.
-func (m *SubmitMutation) AddCaseVersion(i int) {
+func (m *SubmitMutation) AddCaseVersion(i int8) {
 	if m.addcase_version != nil {
 		*m.addcase_version += i
 	} else {
@@ -4706,7 +4861,7 @@ func (m *SubmitMutation) AddCaseVersion(i int) {
 }
 
 // AddedCaseVersion returns the value that was added to the "case_version" field in this mutation.
-func (m *SubmitMutation) AddedCaseVersion() (r int, exists bool) {
+func (m *SubmitMutation) AddedCaseVersion() (r int8, exists bool) {
 	v := m.addcase_version
 	if v == nil {
 		return
@@ -4718,6 +4873,78 @@ func (m *SubmitMutation) AddedCaseVersion() (r int, exists bool) {
 func (m *SubmitMutation) ResetCaseVersion() {
 	m.case_version = nil
 	m.addcase_version = nil
+}
+
+// SetProblemID sets the "problem_id" field.
+func (m *SubmitMutation) SetProblemID(i int) {
+	m.problems = &i
+}
+
+// ProblemID returns the value of the "problem_id" field in the mutation.
+func (m *SubmitMutation) ProblemID() (r int, exists bool) {
+	v := m.problems
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProblemID returns the old "problem_id" field's value of the Submit entity.
+// If the Submit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubmitMutation) OldProblemID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProblemID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProblemID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProblemID: %w", err)
+	}
+	return oldValue.ProblemID, nil
+}
+
+// ResetProblemID resets all changes to the "problem_id" field.
+func (m *SubmitMutation) ResetProblemID() {
+	m.problems = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *SubmitMutation) SetUserID(i int) {
+	m.users = &i
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *SubmitMutation) UserID() (r int, exists bool) {
+	v := m.users
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Submit entity.
+// If the Submit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubmitMutation) OldUserID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *SubmitMutation) ResetUserID() {
+	m.users = nil
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
@@ -4782,6 +5009,7 @@ func (m *SubmitMutation) SetProblemsID(id int) {
 // ClearProblems clears the "problems" edge to the Problem entity.
 func (m *SubmitMutation) ClearProblems() {
 	m.clearedproblems = true
+	m.clearedFields[submit.FieldProblemID] = struct{}{}
 }
 
 // ProblemsCleared reports if the "problems" edge to the Problem entity was cleared.
@@ -4821,6 +5049,7 @@ func (m *SubmitMutation) SetUsersID(id int) {
 // ClearUsers clears the "users" edge to the User entity.
 func (m *SubmitMutation) ClearUsers() {
 	m.clearedusers = true
+	m.clearedFields[submit.FieldUserID] = struct{}{}
 }
 
 // UsersCleared reports if the "users" edge to the User entity was cleared.
@@ -4886,7 +5115,7 @@ func (m *SubmitMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubmitMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.code != nil {
 		fields = append(fields, submit.FieldCode)
 	}
@@ -4910,6 +5139,12 @@ func (m *SubmitMutation) Fields() []string {
 	}
 	if m.case_version != nil {
 		fields = append(fields, submit.FieldCaseVersion)
+	}
+	if m.problems != nil {
+		fields = append(fields, submit.FieldProblemID)
+	}
+	if m.users != nil {
+		fields = append(fields, submit.FieldUserID)
 	}
 	return fields
 }
@@ -4935,6 +5170,10 @@ func (m *SubmitMutation) Field(name string) (ent.Value, bool) {
 		return m.Language()
 	case submit.FieldCaseVersion:
 		return m.CaseVersion()
+	case submit.FieldProblemID:
+		return m.ProblemID()
+	case submit.FieldUserID:
+		return m.UserID()
 	}
 	return nil, false
 }
@@ -4960,6 +5199,10 @@ func (m *SubmitMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldLanguage(ctx)
 	case submit.FieldCaseVersion:
 		return m.OldCaseVersion(ctx)
+	case submit.FieldProblemID:
+		return m.OldProblemID(ctx)
+	case submit.FieldUserID:
+		return m.OldUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Submit field %s", name)
 }
@@ -4977,14 +5220,14 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCode(v)
 		return nil
 	case submit.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
 		return nil
 	case submit.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5019,11 +5262,25 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetLanguage(v)
 		return nil
 	case submit.FieldCaseVersion:
-		v, ok := value.(int)
+		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCaseVersion(v)
+		return nil
+	case submit.FieldProblemID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProblemID(v)
+		return nil
+	case submit.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Submit field %s", name)
@@ -5076,14 +5333,14 @@ func (m *SubmitMutation) AddedField(name string) (ent.Value, bool) {
 func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case submit.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddStatus(v)
 		return nil
 	case submit.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5104,7 +5361,7 @@ func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 		m.AddMaxMemory(v)
 		return nil
 	case submit.FieldCaseVersion:
-		v, ok := value.(int)
+		v, ok := value.(int8)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5160,6 +5417,12 @@ func (m *SubmitMutation) ResetField(name string) error {
 		return nil
 	case submit.FieldCaseVersion:
 		m.ResetCaseVersion()
+		return nil
+	case submit.FieldProblemID:
+		m.ResetProblemID()
+		return nil
+	case submit.FieldUserID:
+		m.ResetUserID()
 		return nil
 	}
 	return fmt.Errorf("unknown Submit field %s", name)
@@ -5291,10 +5554,10 @@ type SubmitCaseMutation struct {
 	op                   Op
 	typ                  string
 	id                   *int
-	state                *int
-	addstate             *int
-	point                *int
-	addpoint             *int
+	state                *int16
+	addstate             *int16
+	point                *int16
+	addpoint             *int16
 	message              *string
 	time                 *int
 	addtime              *int
@@ -5415,13 +5678,13 @@ func (m *SubmitCaseMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetState sets the "state" field.
-func (m *SubmitCaseMutation) SetState(i int) {
+func (m *SubmitCaseMutation) SetState(i int16) {
 	m.state = &i
 	m.addstate = nil
 }
 
 // State returns the value of the "state" field in the mutation.
-func (m *SubmitCaseMutation) State() (r int, exists bool) {
+func (m *SubmitCaseMutation) State() (r int16, exists bool) {
 	v := m.state
 	if v == nil {
 		return
@@ -5432,7 +5695,7 @@ func (m *SubmitCaseMutation) State() (r int, exists bool) {
 // OldState returns the old "state" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldState(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldState(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldState is only allowed on UpdateOne operations")
 	}
@@ -5447,7 +5710,7 @@ func (m *SubmitCaseMutation) OldState(ctx context.Context) (v int, err error) {
 }
 
 // AddState adds i to the "state" field.
-func (m *SubmitCaseMutation) AddState(i int) {
+func (m *SubmitCaseMutation) AddState(i int16) {
 	if m.addstate != nil {
 		*m.addstate += i
 	} else {
@@ -5456,7 +5719,7 @@ func (m *SubmitCaseMutation) AddState(i int) {
 }
 
 // AddedState returns the value that was added to the "state" field in this mutation.
-func (m *SubmitCaseMutation) AddedState() (r int, exists bool) {
+func (m *SubmitCaseMutation) AddedState() (r int16, exists bool) {
 	v := m.addstate
 	if v == nil {
 		return
@@ -5471,13 +5734,13 @@ func (m *SubmitCaseMutation) ResetState() {
 }
 
 // SetPoint sets the "point" field.
-func (m *SubmitCaseMutation) SetPoint(i int) {
+func (m *SubmitCaseMutation) SetPoint(i int16) {
 	m.point = &i
 	m.addpoint = nil
 }
 
 // Point returns the value of the "point" field in the mutation.
-func (m *SubmitCaseMutation) Point() (r int, exists bool) {
+func (m *SubmitCaseMutation) Point() (r int16, exists bool) {
 	v := m.point
 	if v == nil {
 		return
@@ -5488,7 +5751,7 @@ func (m *SubmitCaseMutation) Point() (r int, exists bool) {
 // OldPoint returns the old "point" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldPoint(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldPoint(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPoint is only allowed on UpdateOne operations")
 	}
@@ -5503,7 +5766,7 @@ func (m *SubmitCaseMutation) OldPoint(ctx context.Context) (v int, err error) {
 }
 
 // AddPoint adds i to the "point" field.
-func (m *SubmitCaseMutation) AddPoint(i int) {
+func (m *SubmitCaseMutation) AddPoint(i int16) {
 	if m.addpoint != nil {
 		*m.addpoint += i
 	} else {
@@ -5512,7 +5775,7 @@ func (m *SubmitCaseMutation) AddPoint(i int) {
 }
 
 // AddedPoint returns the value that was added to the "point" field in this mutation.
-func (m *SubmitCaseMutation) AddedPoint() (r int, exists bool) {
+func (m *SubmitCaseMutation) AddedPoint() (r int16, exists bool) {
 	v := m.addpoint
 	if v == nil {
 		return
@@ -5674,6 +5937,78 @@ func (m *SubmitCaseMutation) ResetMemory() {
 	m.addmemory = nil
 }
 
+// SetSubmitID sets the "submit_id" field.
+func (m *SubmitCaseMutation) SetSubmitID(i int) {
+	m.submission = &i
+}
+
+// SubmitID returns the value of the "submit_id" field in the mutation.
+func (m *SubmitCaseMutation) SubmitID() (r int, exists bool) {
+	v := m.submission
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubmitID returns the old "submit_id" field's value of the SubmitCase entity.
+// If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubmitCaseMutation) OldSubmitID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubmitID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubmitID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubmitID: %w", err)
+	}
+	return oldValue.SubmitID, nil
+}
+
+// ResetSubmitID resets all changes to the "submit_id" field.
+func (m *SubmitCaseMutation) ResetSubmitID() {
+	m.submission = nil
+}
+
+// SetProblemCaseID sets the "problem_case_id" field.
+func (m *SubmitCaseMutation) SetProblemCaseID(i int) {
+	m.problem_cases = &i
+}
+
+// ProblemCaseID returns the value of the "problem_case_id" field in the mutation.
+func (m *SubmitCaseMutation) ProblemCaseID() (r int, exists bool) {
+	v := m.problem_cases
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProblemCaseID returns the old "problem_case_id" field's value of the SubmitCase entity.
+// If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubmitCaseMutation) OldProblemCaseID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProblemCaseID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProblemCaseID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProblemCaseID: %w", err)
+	}
+	return oldValue.ProblemCaseID, nil
+}
+
+// ResetProblemCaseID resets all changes to the "problem_case_id" field.
+func (m *SubmitCaseMutation) ResetProblemCaseID() {
+	m.problem_cases = nil
+}
+
 // SetSubmissionID sets the "submission" edge to the Submit entity by id.
 func (m *SubmitCaseMutation) SetSubmissionID(id int) {
 	m.submission = &id
@@ -5682,6 +6017,7 @@ func (m *SubmitCaseMutation) SetSubmissionID(id int) {
 // ClearSubmission clears the "submission" edge to the Submit entity.
 func (m *SubmitCaseMutation) ClearSubmission() {
 	m.clearedsubmission = true
+	m.clearedFields[submitcase.FieldSubmitID] = struct{}{}
 }
 
 // SubmissionCleared reports if the "submission" edge to the Submit entity was cleared.
@@ -5721,6 +6057,7 @@ func (m *SubmitCaseMutation) SetProblemCasesID(id int) {
 // ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
 func (m *SubmitCaseMutation) ClearProblemCases() {
 	m.clearedproblem_cases = true
+	m.clearedFields[submitcase.FieldProblemCaseID] = struct{}{}
 }
 
 // ProblemCasesCleared reports if the "problem_cases" edge to the ProblemCase entity was cleared.
@@ -5786,7 +6123,7 @@ func (m *SubmitCaseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubmitCaseMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 7)
 	if m.state != nil {
 		fields = append(fields, submitcase.FieldState)
 	}
@@ -5801,6 +6138,12 @@ func (m *SubmitCaseMutation) Fields() []string {
 	}
 	if m.memory != nil {
 		fields = append(fields, submitcase.FieldMemory)
+	}
+	if m.submission != nil {
+		fields = append(fields, submitcase.FieldSubmitID)
+	}
+	if m.problem_cases != nil {
+		fields = append(fields, submitcase.FieldProblemCaseID)
 	}
 	return fields
 }
@@ -5820,6 +6163,10 @@ func (m *SubmitCaseMutation) Field(name string) (ent.Value, bool) {
 		return m.Time()
 	case submitcase.FieldMemory:
 		return m.Memory()
+	case submitcase.FieldSubmitID:
+		return m.SubmitID()
+	case submitcase.FieldProblemCaseID:
+		return m.ProblemCaseID()
 	}
 	return nil, false
 }
@@ -5839,6 +6186,10 @@ func (m *SubmitCaseMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldTime(ctx)
 	case submitcase.FieldMemory:
 		return m.OldMemory(ctx)
+	case submitcase.FieldSubmitID:
+		return m.OldSubmitID(ctx)
+	case submitcase.FieldProblemCaseID:
+		return m.OldProblemCaseID(ctx)
 	}
 	return nil, fmt.Errorf("unknown SubmitCase field %s", name)
 }
@@ -5849,14 +6200,14 @@ func (m *SubmitCaseMutation) OldField(ctx context.Context, name string) (ent.Val
 func (m *SubmitCaseMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case submitcase.FieldState:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetState(v)
 		return nil
 	case submitcase.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5882,6 +6233,20 @@ func (m *SubmitCaseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMemory(v)
+		return nil
+	case submitcase.FieldSubmitID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubmitID(v)
+		return nil
+	case submitcase.FieldProblemCaseID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProblemCaseID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitCase field %s", name)
@@ -5929,14 +6294,14 @@ func (m *SubmitCaseMutation) AddedField(name string) (ent.Value, bool) {
 func (m *SubmitCaseMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case submitcase.FieldState:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddState(v)
 		return nil
 	case submitcase.FieldPoint:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5997,6 +6362,12 @@ func (m *SubmitCaseMutation) ResetField(name string) error {
 		return nil
 	case submitcase.FieldMemory:
 		m.ResetMemory()
+		return nil
+	case submitcase.FieldSubmitID:
+		m.ResetSubmitID()
+		return nil
+	case submitcase.FieldProblemCaseID:
+		m.ResetProblemCaseID()
 		return nil
 	}
 	return fmt.Errorf("unknown SubmitCase field %s", name)
@@ -6103,8 +6474,8 @@ type UserMutation struct {
 	username              *string
 	password              *string
 	salt                  *string
-	status                *int
-	addstatus             *int
+	status                *int16
+	addstatus             *int16
 	clearedFields         map[string]struct{}
 	submission            map[int]struct{}
 	removedsubmission     map[int]struct{}
@@ -6332,13 +6703,13 @@ func (m *UserMutation) ResetSalt() {
 }
 
 // SetStatus sets the "status" field.
-func (m *UserMutation) SetStatus(i int) {
+func (m *UserMutation) SetStatus(i int16) {
 	m.status = &i
 	m.addstatus = nil
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *UserMutation) Status() (r int, exists bool) {
+func (m *UserMutation) Status() (r int16, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -6349,7 +6720,7 @@ func (m *UserMutation) Status() (r int, exists bool) {
 // OldStatus returns the old "status" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldStatus(ctx context.Context) (v int, err error) {
+func (m *UserMutation) OldStatus(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -6364,7 +6735,7 @@ func (m *UserMutation) OldStatus(ctx context.Context) (v int, err error) {
 }
 
 // AddStatus adds i to the "status" field.
-func (m *UserMutation) AddStatus(i int) {
+func (m *UserMutation) AddStatus(i int16) {
 	if m.addstatus != nil {
 		*m.addstatus += i
 	} else {
@@ -6373,7 +6744,7 @@ func (m *UserMutation) AddStatus(i int) {
 }
 
 // AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *UserMutation) AddedStatus() (r int, exists bool) {
+func (m *UserMutation) AddedStatus() (r int16, exists bool) {
 	v := m.addstatus
 	if v == nil {
 		return
@@ -6385,6 +6756,42 @@ func (m *UserMutation) AddedStatus() (r int, exists bool) {
 func (m *UserMutation) ResetStatus() {
 	m.status = nil
 	m.addstatus = nil
+}
+
+// SetGroupID sets the "group_id" field.
+func (m *UserMutation) SetGroupID(i int) {
+	m.groups = &i
+}
+
+// GroupID returns the value of the "group_id" field in the mutation.
+func (m *UserMutation) GroupID() (r int, exists bool) {
+	v := m.groups
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupID returns the old "group_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldGroupID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupID: %w", err)
+	}
+	return oldValue.GroupID, nil
+}
+
+// ResetGroupID resets all changes to the "group_id" field.
+func (m *UserMutation) ResetGroupID() {
+	m.groups = nil
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by ids.
@@ -6503,6 +6910,7 @@ func (m *UserMutation) SetGroupsID(id int) {
 // ClearGroups clears the "groups" edge to the Group entity.
 func (m *UserMutation) ClearGroups() {
 	m.clearedgroups = true
+	m.clearedFields[user.FieldGroupID] = struct{}{}
 }
 
 // GroupsCleared reports if the "groups" edge to the Group entity was cleared.
@@ -6568,7 +6976,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.username != nil {
 		fields = append(fields, user.FieldUsername)
 	}
@@ -6580,6 +6988,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, user.FieldStatus)
+	}
+	if m.groups != nil {
+		fields = append(fields, user.FieldGroupID)
 	}
 	return fields
 }
@@ -6597,6 +7008,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Salt()
 	case user.FieldStatus:
 		return m.Status()
+	case user.FieldGroupID:
+		return m.GroupID()
 	}
 	return nil, false
 }
@@ -6614,6 +7027,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSalt(ctx)
 	case user.FieldStatus:
 		return m.OldStatus(ctx)
+	case user.FieldGroupID:
+		return m.OldGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -6645,11 +7060,18 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		m.SetSalt(v)
 		return nil
 	case user.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case user.FieldGroupID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -6682,7 +7104,7 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case user.FieldStatus:
-		v, ok := value.(int)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6726,6 +7148,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case user.FieldGroupID:
+		m.ResetGroupID()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

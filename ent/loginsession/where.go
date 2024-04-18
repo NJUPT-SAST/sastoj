@@ -60,6 +60,11 @@ func CreateTime(v time.Time) predicate.LoginSession {
 	return predicate.LoginSession(sql.FieldEQ(FieldCreateTime, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v int) predicate.LoginSession {
+	return predicate.LoginSession(sql.FieldEQ(FieldUserID, v))
+}
+
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.LoginSession {
 	return predicate.LoginSession(sql.FieldEQ(FieldCreateTime, v))
@@ -98,6 +103,26 @@ func CreateTimeLT(v time.Time) predicate.LoginSession {
 // CreateTimeLTE applies the LTE predicate on the "create_time" field.
 func CreateTimeLTE(v time.Time) predicate.LoginSession {
 	return predicate.LoginSession(sql.FieldLTE(FieldCreateTime, v))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int) predicate.LoginSession {
+	return predicate.LoginSession(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int) predicate.LoginSession {
+	return predicate.LoginSession(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int) predicate.LoginSession {
+	return predicate.LoginSession(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int) predicate.LoginSession {
+	return predicate.LoginSession(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // HasUsers applies the HasEdge predicate on the "users" edge.

@@ -16,6 +16,7 @@ func (Group) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
 		field.String("group_name").Default("unknown"),
+		field.Int("root_group_id").Default(1),
 	}
 }
 
@@ -26,6 +27,6 @@ func (Group) Edges() []ent.Edge {
 		edge.To("contestants", Contest.Type),
 		edge.To("problems", Problem.Type),
 		edge.To("users", User.Type),
-		edge.To("subgroups", Group.Type).From("root_group").Unique(),
+		edge.To("subgroups", Group.Type).From("root_group").Field("root_group_id").Unique().Required(),
 	}
 }
