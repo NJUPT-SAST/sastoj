@@ -55,54 +55,9 @@ func IDLTE(id int) predicate.LoginSession {
 	return predicate.LoginSession(sql.FieldLTE(FieldID, id))
 }
 
-// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldEQ(FieldUserID, v))
-}
-
 // CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
 func CreateTime(v time.Time) predicate.LoginSession {
 	return predicate.LoginSession(sql.FieldEQ(FieldCreateTime, v))
-}
-
-// UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldEQ(FieldUserID, v))
-}
-
-// UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldNEQ(FieldUserID, v))
-}
-
-// UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldIn(FieldUserID, vs...))
-}
-
-// UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldNotIn(FieldUserID, vs...))
-}
-
-// UserIDGT applies the GT predicate on the "user_id" field.
-func UserIDGT(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldGT(FieldUserID, v))
-}
-
-// UserIDGTE applies the GTE predicate on the "user_id" field.
-func UserIDGTE(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldGTE(FieldUserID, v))
-}
-
-// UserIDLT applies the LT predicate on the "user_id" field.
-func UserIDLT(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldLT(FieldUserID, v))
-}
-
-// UserIDLTE applies the LTE predicate on the "user_id" field.
-func UserIDLTE(v int) predicate.LoginSession {
-	return predicate.LoginSession(sql.FieldLTE(FieldUserID, v))
 }
 
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
@@ -150,7 +105,7 @@ func HasUsers() predicate.LoginSession {
 	return predicate.LoginSession(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

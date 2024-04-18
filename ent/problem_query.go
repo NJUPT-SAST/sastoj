@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"math"
 	"sastoj/ent/contest"
+	"sastoj/ent/group"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/problemjudge"
 	"sastoj/ent/submit"
 
 	"entgo.io/ent/dialect/sql"
@@ -22,15 +22,14 @@ import (
 // ProblemQuery is the builder for querying Problem entities.
 type ProblemQuery struct {
 	config
-	ctx               *QueryContext
-	order             []problem.OrderOption
-	inters            []Interceptor
-	predicates        []predicate.Problem
-	withContests      *ContestQuery
-	withProblemCases  *ProblemCaseQuery
-	withProblemJudges *ProblemJudgeQuery
-	withSubmission    *SubmitQuery
-	withFKs           bool
+	ctx              *QueryContext
+	order            []problem.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Problem
+	withProblemCases *ProblemCaseQuery
+	withSubmission   *SubmitQuery
+	withContests     *ContestQuery
+	withGroups       *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -67,28 +66,6 @@ func (pq *ProblemQuery) Order(o ...problem.OrderOption) *ProblemQuery {
 	return pq
 }
 
-// QueryContests chains the current query on the "contests" edge.
-func (pq *ProblemQuery) QueryContests() *ContestQuery {
-	query := (&ContestClient{config: pq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := pq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := pq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problem.Table, problem.FieldID, selector),
-			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryProblemCases chains the current query on the "problem_cases" edge.
 func (pq *ProblemQuery) QueryProblemCases() *ProblemCaseQuery {
 	query := (&ProblemCaseClient{config: pq.config}).Query()
@@ -111,28 +88,6 @@ func (pq *ProblemQuery) QueryProblemCases() *ProblemCaseQuery {
 	return query
 }
 
-// QueryProblemJudges chains the current query on the "problem_judges" edge.
-func (pq *ProblemQuery) QueryProblemJudges() *ProblemJudgeQuery {
-	query := (&ProblemJudgeClient{config: pq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := pq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := pq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problem.Table, problem.FieldID, selector),
-			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, problem.ProblemJudgesTable, problem.ProblemJudgesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QuerySubmission chains the current query on the "submission" edge.
 func (pq *ProblemQuery) QuerySubmission() *SubmitQuery {
 	query := (&SubmitClient{config: pq.config}).Query()
@@ -148,6 +103,50 @@ func (pq *ProblemQuery) QuerySubmission() *SubmitQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(submit.Table, submit.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionTable, problem.SubmissionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContests chains the current query on the "contests" edge.
+func (pq *ProblemQuery) QueryContests() *ContestQuery {
+	query := (&ContestClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, problem.ContestsTable, problem.ContestsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGroups chains the current query on the "groups" edge.
+func (pq *ProblemQuery) QueryGroups() *GroupQuery {
+	query := (&GroupClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, problem.GroupsTable, problem.GroupsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -342,30 +341,19 @@ func (pq *ProblemQuery) Clone() *ProblemQuery {
 		return nil
 	}
 	return &ProblemQuery{
-		config:            pq.config,
-		ctx:               pq.ctx.Clone(),
-		order:             append([]problem.OrderOption{}, pq.order...),
-		inters:            append([]Interceptor{}, pq.inters...),
-		predicates:        append([]predicate.Problem{}, pq.predicates...),
-		withContests:      pq.withContests.Clone(),
-		withProblemCases:  pq.withProblemCases.Clone(),
-		withProblemJudges: pq.withProblemJudges.Clone(),
-		withSubmission:    pq.withSubmission.Clone(),
+		config:           pq.config,
+		ctx:              pq.ctx.Clone(),
+		order:            append([]problem.OrderOption{}, pq.order...),
+		inters:           append([]Interceptor{}, pq.inters...),
+		predicates:       append([]predicate.Problem{}, pq.predicates...),
+		withProblemCases: pq.withProblemCases.Clone(),
+		withSubmission:   pq.withSubmission.Clone(),
+		withContests:     pq.withContests.Clone(),
+		withGroups:       pq.withGroups.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
 	}
-}
-
-// WithContests tells the query-builder to eager-load the nodes that are connected to
-// the "contests" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProblemQuery) WithContests(opts ...func(*ContestQuery)) *ProblemQuery {
-	query := (&ContestClient{config: pq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	pq.withContests = query
-	return pq
 }
 
 // WithProblemCases tells the query-builder to eager-load the nodes that are connected to
@@ -379,17 +367,6 @@ func (pq *ProblemQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *Probl
 	return pq
 }
 
-// WithProblemJudges tells the query-builder to eager-load the nodes that are connected to
-// the "problem_judges" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProblemQuery) WithProblemJudges(opts ...func(*ProblemJudgeQuery)) *ProblemQuery {
-	query := (&ProblemJudgeClient{config: pq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	pq.withProblemJudges = query
-	return pq
-}
-
 // WithSubmission tells the query-builder to eager-load the nodes that are connected to
 // the "submission" edge. The optional arguments are used to configure the query builder of the edge.
 func (pq *ProblemQuery) WithSubmission(opts ...func(*SubmitQuery)) *ProblemQuery {
@@ -398,6 +375,28 @@ func (pq *ProblemQuery) WithSubmission(opts ...func(*SubmitQuery)) *ProblemQuery
 		opt(query)
 	}
 	pq.withSubmission = query
+	return pq
+}
+
+// WithContests tells the query-builder to eager-load the nodes that are connected to
+// the "contests" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithContests(opts ...func(*ContestQuery)) *ProblemQuery {
+	query := (&ContestClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withContests = query
+	return pq
+}
+
+// WithGroups tells the query-builder to eager-load the nodes that are connected to
+// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithGroups(opts ...func(*GroupQuery)) *ProblemQuery {
+	query := (&GroupClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withGroups = query
 	return pq
 }
 
@@ -478,21 +477,14 @@ func (pq *ProblemQuery) prepareQuery(ctx context.Context) error {
 func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Problem, error) {
 	var (
 		nodes       = []*Problem{}
-		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [4]bool{
-			pq.withContests != nil,
 			pq.withProblemCases != nil,
-			pq.withProblemJudges != nil,
 			pq.withSubmission != nil,
+			pq.withContests != nil,
+			pq.withGroups != nil,
 		}
 	)
-	if pq.withContests != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, problem.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Problem).scanValues(nil, columns)
 	}
@@ -511,23 +503,10 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := pq.withContests; query != nil {
-		if err := pq.loadContests(ctx, query, nodes, nil,
-			func(n *Problem, e *Contest) { n.Edges.Contests = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := pq.withProblemCases; query != nil {
 		if err := pq.loadProblemCases(ctx, query, nodes,
 			func(n *Problem) { n.Edges.ProblemCases = []*ProblemCase{} },
 			func(n *Problem, e *ProblemCase) { n.Edges.ProblemCases = append(n.Edges.ProblemCases, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := pq.withProblemJudges; query != nil {
-		if err := pq.loadProblemJudges(ctx, query, nodes,
-			func(n *Problem) { n.Edges.ProblemJudges = []*ProblemJudge{} },
-			func(n *Problem, e *ProblemJudge) { n.Edges.ProblemJudges = append(n.Edges.ProblemJudges, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -538,41 +517,23 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			return nil, err
 		}
 	}
+	if query := pq.withContests; query != nil {
+		if err := pq.loadContests(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Contests = []*Contest{} },
+			func(n *Problem, e *Contest) { n.Edges.Contests = append(n.Edges.Contests, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withGroups; query != nil {
+		if err := pq.loadGroups(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Groups = []*Group{} },
+			func(n *Problem, e *Group) { n.Edges.Groups = append(n.Edges.Groups, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (pq *ProblemQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Contest)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Problem)
-	for i := range nodes {
-		if nodes[i].contest_problems == nil {
-			continue
-		}
-		fk := *nodes[i].contest_problems
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(contest.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "contest_problems" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ProblemCase)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Problem)
@@ -599,37 +560,6 @@ func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCase
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "problem_problem_cases" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (pq *ProblemQuery) loadProblemJudges(ctx context.Context, query *ProblemJudgeQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ProblemJudge)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.ProblemJudge(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(problem.ProblemJudgesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.problem_problem_judges
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "problem_problem_judges" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "problem_problem_judges" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -663,6 +593,128 @@ func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, 
 			return fmt.Errorf(`unexpected referenced foreign-key "problem_submission" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (pq *ProblemQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Contest)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Problem)
+	nids := make(map[int]map[*Problem]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(problem.ContestsTable)
+		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(problem.ContestsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(problem.ContestsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(problem.ContestsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Problem]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Contest](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "contests" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Problem)
+	nids := make(map[int]map[*Problem]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(problem.GroupsTable)
+		s.Join(joinT).On(s.C(group.FieldID), joinT.C(problem.GroupsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(problem.GroupsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(problem.GroupsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Problem]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Group](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "groups" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

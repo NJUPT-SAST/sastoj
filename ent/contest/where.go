@@ -65,9 +65,9 @@ func Description(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldDescription, v))
 }
 
-// State applies equality check predicate on the "state" field. It's identical to StateEQ.
-func State(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldEQ(FieldState, v))
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStatus, v))
 }
 
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
@@ -230,44 +230,44 @@ func DescriptionContainsFold(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// StateEQ applies the EQ predicate on the "state" field.
-func StateEQ(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldEQ(FieldState, v))
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStatus, v))
 }
 
-// StateNEQ applies the NEQ predicate on the "state" field.
-func StateNEQ(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldNEQ(FieldState, v))
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldStatus, v))
 }
 
-// StateIn applies the In predicate on the "state" field.
-func StateIn(vs ...int) predicate.Contest {
-	return predicate.Contest(sql.FieldIn(FieldState, vs...))
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...int) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldStatus, vs...))
 }
 
-// StateNotIn applies the NotIn predicate on the "state" field.
-func StateNotIn(vs ...int) predicate.Contest {
-	return predicate.Contest(sql.FieldNotIn(FieldState, vs...))
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...int) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// StateGT applies the GT predicate on the "state" field.
-func StateGT(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldGT(FieldState, v))
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldStatus, v))
 }
 
-// StateGTE applies the GTE predicate on the "state" field.
-func StateGTE(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldGTE(FieldState, v))
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldStatus, v))
 }
 
-// StateLT applies the LT predicate on the "state" field.
-func StateLT(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldLT(FieldState, v))
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldStatus, v))
 }
 
-// StateLTE applies the LTE predicate on the "state" field.
-func StateLTE(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldLTE(FieldState, v))
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v int) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldStatus, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
@@ -535,35 +535,12 @@ func CreateTimeLTE(v time.Time) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldCreateTime, v))
 }
 
-// HasContestGroup applies the HasEdge predicate on the "contest_group" edge.
-func HasContestGroup() predicate.Contest {
-	return predicate.Contest(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasContestGroupWith applies the HasEdge predicate on the "contest_group" edge with a given conditions (other predicates).
-func HasContestGroupWith(preds ...predicate.ContestGroup) predicate.Contest {
-	return predicate.Contest(func(s *sql.Selector) {
-		step := newContestGroupStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasProblems applies the HasEdge predicate on the "problems" edge.
 func HasProblems() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ProblemsTable, ProblemsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -573,6 +550,52 @@ func HasProblems() predicate.Contest {
 func HasProblemsWith(preds ...predicate.Problem) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := newProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContest applies the HasEdge predicate on the "contest" edge.
+func HasContest() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ContestTable, ContestPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestWith applies the HasEdge predicate on the "contest" edge with a given conditions (other predicates).
+func HasContestWith(preds ...predicate.Group) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newContestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasManage applies the HasEdge predicate on the "manage" edge.
+func HasManage() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManageTable, ManagePrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasManageWith applies the HasEdge predicate on the "manage" edge with a given conditions (other predicates).
+func HasManageWith(preds ...predicate.Group) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newManageStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

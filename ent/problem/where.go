@@ -69,11 +69,6 @@ func Point(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldPoint, v))
 }
 
-// ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
-}
-
 // CaseVersion applies equality check predicate on the "case_version" field. It's identical to CaseVersionEQ.
 func CaseVersion(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCaseVersion, v))
@@ -264,46 +259,6 @@ func PointLTE(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldPoint, v))
 }
 
-// ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
-}
-
-// ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldContestID, v))
-}
-
-// ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldContestID, vs...))
-}
-
-// ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldContestID, vs...))
-}
-
-// ContestIDGT applies the GT predicate on the "contest_id" field.
-func ContestIDGT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldContestID, v))
-}
-
-// ContestIDGTE applies the GTE predicate on the "contest_id" field.
-func ContestIDGTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldContestID, v))
-}
-
-// ContestIDLT applies the LT predicate on the "contest_id" field.
-func ContestIDLT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldContestID, v))
-}
-
-// ContestIDLTE applies the LTE predicate on the "contest_id" field.
-func ContestIDLTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldContestID, v))
-}
-
 // CaseVersionEQ applies the EQ predicate on the "case_version" field.
 func CaseVersionEQ(v int) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCaseVersion, v))
@@ -459,29 +414,6 @@ func ConfigContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldConfig, v))
 }
 
-// HasContests applies the HasEdge predicate on the "contests" edge.
-func HasContests() predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
-func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := newContestsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasProblemCases applies the HasEdge predicate on the "problem_cases" edge.
 func HasProblemCases() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -505,29 +437,6 @@ func HasProblemCasesWith(preds ...predicate.ProblemCase) predicate.Problem {
 	})
 }
 
-// HasProblemJudges applies the HasEdge predicate on the "problem_judges" edge.
-func HasProblemJudges() predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemJudgesTable, ProblemJudgesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProblemJudgesWith applies the HasEdge predicate on the "problem_judges" edge with a given conditions (other predicates).
-func HasProblemJudgesWith(preds ...predicate.ProblemJudge) predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := newProblemJudgesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasSubmission applies the HasEdge predicate on the "submission" edge.
 func HasSubmission() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -543,6 +452,52 @@ func HasSubmission() predicate.Problem {
 func HasSubmissionWith(preds ...predicate.Submit) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newSubmissionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContests applies the HasEdge predicate on the "contests" edge.
+func HasContests() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ContestsTable, ContestsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
+func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.Group) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -21,8 +21,8 @@ type Contest struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// State holds the value of the "state" field.
-	State int `json:"state,omitempty"`
+	// Status holds the value of the "status" field.
+	Status int `json:"status,omitempty"`
 	// Type holds the value of the "type" field.
 	Type int `json:"type,omitempty"`
 	// StartTime holds the value of the "start_time" field.
@@ -43,31 +43,42 @@ type Contest struct {
 
 // ContestEdges holds the relations/edges for other nodes in the graph.
 type ContestEdges struct {
-	// ContestGroup holds the value of the contest_group edge.
-	ContestGroup []*ContestGroup `json:"contest_group,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
+	// Contest holds the value of the contest edge.
+	Contest []*Group `json:"contest,omitempty"`
+	// Manage holds the value of the manage edge.
+	Manage []*Group `json:"manage,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// ContestGroupOrErr returns the ContestGroup value or an error if the edge
-// was not loaded in eager-loading.
-func (e ContestEdges) ContestGroupOrErr() ([]*ContestGroup, error) {
-	if e.loadedTypes[0] {
-		return e.ContestGroup, nil
-	}
-	return nil, &NotLoadedError{edge: "contest_group"}
+	loadedTypes [3]bool
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading.
 func (e ContestEdges) ProblemsOrErr() ([]*Problem, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.Problems, nil
 	}
 	return nil, &NotLoadedError{edge: "problems"}
+}
+
+// ContestOrErr returns the Contest value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ContestOrErr() ([]*Group, error) {
+	if e.loadedTypes[1] {
+		return e.Contest, nil
+	}
+	return nil, &NotLoadedError{edge: "contest"}
+}
+
+// ManageOrErr returns the Manage value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ManageOrErr() ([]*Group, error) {
+	if e.loadedTypes[2] {
+		return e.Manage, nil
+	}
+	return nil, &NotLoadedError{edge: "manage"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -75,7 +86,7 @@ func (*Contest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case contest.FieldID, contest.FieldState, contest.FieldType, contest.FieldExtraTime:
+		case contest.FieldID, contest.FieldStatus, contest.FieldType, contest.FieldExtraTime:
 			values[i] = new(sql.NullInt64)
 		case contest.FieldTitle, contest.FieldDescription, contest.FieldLanguage:
 			values[i] = new(sql.NullString)
@@ -114,11 +125,11 @@ func (c *Contest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Description = value.String
 			}
-		case contest.FieldState:
+		case contest.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field state", values[i])
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				c.State = int(value.Int64)
+				c.Status = int(value.Int64)
 			}
 		case contest.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -169,14 +180,19 @@ func (c *Contest) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
 }
 
-// QueryContestGroup queries the "contest_group" edge of the Contest entity.
-func (c *Contest) QueryContestGroup() *ContestGroupQuery {
-	return NewContestClient(c.config).QueryContestGroup(c)
-}
-
 // QueryProblems queries the "problems" edge of the Contest entity.
 func (c *Contest) QueryProblems() *ProblemQuery {
 	return NewContestClient(c.config).QueryProblems(c)
+}
+
+// QueryContest queries the "contest" edge of the Contest entity.
+func (c *Contest) QueryContest() *GroupQuery {
+	return NewContestClient(c.config).QueryContest(c)
+}
+
+// QueryManage queries the "manage" edge of the Contest entity.
+func (c *Contest) QueryManage() *GroupQuery {
+	return NewContestClient(c.config).QueryManage(c)
 }
 
 // Update returns a builder for updating this Contest.
@@ -208,8 +224,8 @@ func (c *Contest) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(c.Description)
 	builder.WriteString(", ")
-	builder.WriteString("state=")
-	builder.WriteString(fmt.Sprintf("%v", c.State))
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", c.Status))
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", c.Type))

@@ -22,8 +22,10 @@ func (Group) Fields() []ent.Field {
 // Edges of the Group.
 func (Group) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.To("admins", Contest.Type),
+		edge.To("contestants", Contest.Type),
+		edge.To("problems", Problem.Type),
 		edge.To("users", User.Type),
-		edge.To("contest_group", ContestGroup.Type),
-		edge.To("problem_judges", ProblemJudge.Type),
+		edge.To("subgroups", Group.Type).From("root_group").Unique(),
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"time"
 )
 
 // Contest holds the schema definition for the Contest entity.
@@ -17,20 +18,21 @@ func (Contest) Fields() []ent.Field {
 		field.Int("id").Unique(),
 		field.String("title"),
 		field.String("description"),
-		field.Int("state").Positive(),
+		field.Int("status").NonNegative(),
 		field.Int("type").Positive(),
 		field.Time("start_time"),
 		field.Time("end_time"),
 		field.String("language"),
-		field.Int("extra_time").Positive(),
-		field.Time("create_time"),
+		field.Int("extra_time").NonNegative(),
+		field.Time("create_time").Default(time.Now()),
 	}
 }
 
 // Edges of the Contest.
 func (Contest) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("contest_group", ContestGroup.Type),
 		edge.To("problems", Problem.Type),
+		edge.From("contest", Group.Type).Ref("contestants"),
+		edge.From("manage", Group.Type).Ref("admins"),
 	}
 }

@@ -15,13 +15,11 @@ type SubmitCase struct {
 func (SubmitCase) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
-		field.Int("submit_id").Positive(),
-		field.Int("case_id").Positive(),
 		field.Int("state").Positive(),
-		field.Int("point"),
+		field.Int("point").NonNegative(),
 		field.Text("message"),
-		field.Int("time"),
-		field.Int("memory"),
+		field.Int("time").NonNegative(),
+		field.Int("memory").NonNegative(),
 	}
 }
 

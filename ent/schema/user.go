@@ -18,17 +18,15 @@ func (User) Fields() []ent.Field {
 		field.String("username").Default("unknown"),
 		field.String("password"),
 		field.String("salt"),
-		field.Int("state").Positive(),
-		field.Int("group_id").Positive(),
+		field.Int("status").NonNegative(),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("submit_judge", SubmitJudge.Type),
-		edge.From("groups", Group.Type).Ref("users").Unique(),
 		edge.To("submission", Submit.Type),
-		edge.To("login_session", LoginSession.Type),
+		edge.To("login_sessions", LoginSession.Type),
+		edge.From("groups", Group.Type).Ref("users").Unique(),
 	}
 }

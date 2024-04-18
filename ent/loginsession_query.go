@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 	"sastoj/ent/loginsession"
@@ -24,6 +23,7 @@ type LoginSessionQuery struct {
 	inters     []Interceptor
 	predicates []predicate.LoginSession
 	withUsers  *UserQuery
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,7 +74,7 @@ func (lsq *LoginSessionQuery) QueryUsers() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(loginsession.Table, loginsession.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, loginsession.UsersTable, loginsession.UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, loginsession.UsersTable, loginsession.UsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(lsq.driver.Dialect(), step)
 		return fromU, nil
@@ -298,12 +298,12 @@ func (lsq *LoginSessionQuery) WithUsers(opts ...func(*UserQuery)) *LoginSessionQ
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.LoginSession.Query().
-//		GroupBy(loginsession.FieldUserID).
+//		GroupBy(loginsession.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (lsq *LoginSessionQuery) GroupBy(field string, fields ...string) *LoginSessionGroupBy {
@@ -321,11 +321,11 @@ func (lsq *LoginSessionQuery) GroupBy(field string, fields ...string) *LoginSess
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.LoginSession.Query().
-//		Select(loginsession.FieldUserID).
+//		Select(loginsession.FieldCreateTime).
 //		Scan(ctx, &v)
 func (lsq *LoginSessionQuery) Select(fields ...string) *LoginSessionSelect {
 	lsq.ctx.Fields = append(lsq.ctx.Fields, fields...)
@@ -369,11 +369,18 @@ func (lsq *LoginSessionQuery) prepareQuery(ctx context.Context) error {
 func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*LoginSession, error) {
 	var (
 		nodes       = []*LoginSession{}
+		withFKs     = lsq.withFKs
 		_spec       = lsq.querySpec()
 		loadedTypes = [1]bool{
 			lsq.withUsers != nil,
 		}
 	)
+	if lsq.withUsers != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, loginsession.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*LoginSession).scanValues(nil, columns)
 	}
@@ -393,9 +400,8 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		return nodes, nil
 	}
 	if query := lsq.withUsers; query != nil {
-		if err := lsq.loadUsers(ctx, query, nodes,
-			func(n *LoginSession) { n.Edges.Users = []*User{} },
-			func(n *LoginSession, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
+		if err := lsq.loadUsers(ctx, query, nodes, nil,
+			func(n *LoginSession, e *User) { n.Edges.Users = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -403,62 +409,33 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 }
 
 func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*LoginSession, init func(*LoginSession), assign func(*LoginSession, *User)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*LoginSession)
-	nids := make(map[int]map[*LoginSession]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*LoginSession)
+	for i := range nodes {
+		if nodes[i].user_login_sessions == nil {
+			continue
 		}
+		fk := *nodes[i].user_login_sessions
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(loginsession.UsersTable)
-		s.Join(joinT).On(s.C(user.FieldID), joinT.C(loginsession.UsersPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(loginsession.UsersPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(loginsession.UsersPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*LoginSession]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*User](ctx, query, qr, query.inters)
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_login_sessions" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil

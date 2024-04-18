@@ -9,9 +9,6 @@ import (
 // Contest is the predicate function for contest builders.
 type Contest func(*sql.Selector)
 
-// ContestGroup is the predicate function for contestgroup builders.
-type ContestGroup func(*sql.Selector)
-
 // Group is the predicate function for group builders.
 type Group func(*sql.Selector)
 
@@ -24,17 +21,11 @@ type Problem func(*sql.Selector)
 // ProblemCase is the predicate function for problemcase builders.
 type ProblemCase func(*sql.Selector)
 
-// ProblemJudge is the predicate function for problemjudge builders.
-type ProblemJudge func(*sql.Selector)
-
 // Submit is the predicate function for submit builders.
 type Submit func(*sql.Selector)
 
 // SubmitCase is the predicate function for submitcase builders.
 type SubmitCase func(*sql.Selector)
-
-// SubmitJudge is the predicate function for submitjudge builders.
-type SubmitJudge func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

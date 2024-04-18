@@ -9,7 +9,6 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/submit"
-	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -49,15 +48,9 @@ func (uc *UserCreate) SetSalt(s string) *UserCreate {
 	return uc
 }
 
-// SetState sets the "state" field.
-func (uc *UserCreate) SetState(i int) *UserCreate {
-	uc.mutation.SetState(i)
-	return uc
-}
-
-// SetGroupID sets the "group_id" field.
-func (uc *UserCreate) SetGroupID(i int) *UserCreate {
-	uc.mutation.SetGroupID(i)
+// SetStatus sets the "status" field.
+func (uc *UserCreate) SetStatus(i int) *UserCreate {
+	uc.mutation.SetStatus(i)
 	return uc
 }
 
@@ -67,19 +60,34 @@ func (uc *UserCreate) SetID(i int) *UserCreate {
 	return uc
 }
 
-// AddSubmitJudgeIDs adds the "submit_judge" edge to the SubmitJudge entity by IDs.
-func (uc *UserCreate) AddSubmitJudgeIDs(ids ...int) *UserCreate {
-	uc.mutation.AddSubmitJudgeIDs(ids...)
+// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+func (uc *UserCreate) AddSubmissionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddSubmissionIDs(ids...)
 	return uc
 }
 
-// AddSubmitJudge adds the "submit_judge" edges to the SubmitJudge entity.
-func (uc *UserCreate) AddSubmitJudge(s ...*SubmitJudge) *UserCreate {
+// AddSubmission adds the "submission" edges to the Submit entity.
+func (uc *UserCreate) AddSubmission(s ...*Submit) *UserCreate {
 	ids := make([]int, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return uc.AddSubmitJudgeIDs(ids...)
+	return uc.AddSubmissionIDs(ids...)
+}
+
+// AddLoginSessionIDs adds the "login_sessions" edge to the LoginSession entity by IDs.
+func (uc *UserCreate) AddLoginSessionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddLoginSessionIDs(ids...)
+	return uc
+}
+
+// AddLoginSessions adds the "login_sessions" edges to the LoginSession entity.
+func (uc *UserCreate) AddLoginSessions(l ...*LoginSession) *UserCreate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uc.AddLoginSessionIDs(ids...)
 }
 
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
@@ -99,36 +107,6 @@ func (uc *UserCreate) SetNillableGroupsID(id *int) *UserCreate {
 // SetGroups sets the "groups" edge to the Group entity.
 func (uc *UserCreate) SetGroups(g *Group) *UserCreate {
 	return uc.SetGroupsID(g.ID)
-}
-
-// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
-func (uc *UserCreate) AddSubmissionIDs(ids ...int) *UserCreate {
-	uc.mutation.AddSubmissionIDs(ids...)
-	return uc
-}
-
-// AddSubmission adds the "submission" edges to the Submit entity.
-func (uc *UserCreate) AddSubmission(s ...*Submit) *UserCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return uc.AddSubmissionIDs(ids...)
-}
-
-// AddLoginSessionIDs adds the "login_session" edge to the LoginSession entity by IDs.
-func (uc *UserCreate) AddLoginSessionIDs(ids ...int) *UserCreate {
-	uc.mutation.AddLoginSessionIDs(ids...)
-	return uc
-}
-
-// AddLoginSession adds the "login_session" edges to the LoginSession entity.
-func (uc *UserCreate) AddLoginSession(l ...*LoginSession) *UserCreate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return uc.AddLoginSessionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -183,20 +161,12 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Salt(); !ok {
 		return &ValidationError{Name: "salt", err: errors.New(`ent: missing required field "User.salt"`)}
 	}
-	if _, ok := uc.mutation.State(); !ok {
-		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "User.state"`)}
+	if _, ok := uc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "User.status"`)}
 	}
-	if v, ok := uc.mutation.State(); ok {
-		if err := user.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "User.state": %w`, err)}
-		}
-	}
-	if _, ok := uc.mutation.GroupID(); !ok {
-		return &ValidationError{Name: "group_id", err: errors.New(`ent: missing required field "User.group_id"`)}
-	}
-	if v, ok := uc.mutation.GroupID(); ok {
-		if err := user.GroupIDValidator(v); err != nil {
-			return &ValidationError{Name: "group_id", err: fmt.Errorf(`ent: validator failed for field "User.group_id": %w`, err)}
+	if v, ok := uc.mutation.Status(); ok {
+		if err := user.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
 	}
 	return nil
@@ -243,23 +213,35 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 		_node.Salt = value
 	}
-	if value, ok := uc.mutation.State(); ok {
-		_spec.SetField(user.FieldState, field.TypeInt, value)
-		_node.State = value
+	if value, ok := uc.mutation.Status(); ok {
+		_spec.SetField(user.FieldStatus, field.TypeInt, value)
+		_node.Status = value
 	}
-	if value, ok := uc.mutation.GroupID(); ok {
-		_spec.SetField(user.FieldGroupID, field.TypeInt, value)
-		_node.GroupID = value
-	}
-	if nodes := uc.mutation.SubmitJudgeIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.SubmitJudgeTable,
-			Columns: []string{user.SubmitJudgeColumn},
+			Table:   user.SubmissionTable,
+			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitjudge.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.LoginSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginSessionsTable,
+			Columns: []string{user.LoginSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -282,38 +264,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.group_users = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.SubmissionTable,
-			Columns: []string{user.SubmissionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.LoginSessionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.LoginSessionTable,
-			Columns: user.LoginSessionPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

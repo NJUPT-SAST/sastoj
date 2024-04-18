@@ -54,16 +54,6 @@ func IDLTE(id int) predicate.SubmitCase {
 	return predicate.SubmitCase(sql.FieldLTE(FieldID, id))
 }
 
-// SubmitID applies equality check predicate on the "submit_id" field. It's identical to SubmitIDEQ.
-func SubmitID(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldEQ(FieldSubmitID, v))
-}
-
-// CaseID applies equality check predicate on the "case_id" field. It's identical to CaseIDEQ.
-func CaseID(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldEQ(FieldCaseID, v))
-}
-
 // State applies equality check predicate on the "state" field. It's identical to StateEQ.
 func State(v int) predicate.SubmitCase {
 	return predicate.SubmitCase(sql.FieldEQ(FieldState, v))
@@ -87,86 +77,6 @@ func Time(v int) predicate.SubmitCase {
 // Memory applies equality check predicate on the "memory" field. It's identical to MemoryEQ.
 func Memory(v int) predicate.SubmitCase {
 	return predicate.SubmitCase(sql.FieldEQ(FieldMemory, v))
-}
-
-// SubmitIDEQ applies the EQ predicate on the "submit_id" field.
-func SubmitIDEQ(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldEQ(FieldSubmitID, v))
-}
-
-// SubmitIDNEQ applies the NEQ predicate on the "submit_id" field.
-func SubmitIDNEQ(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldNEQ(FieldSubmitID, v))
-}
-
-// SubmitIDIn applies the In predicate on the "submit_id" field.
-func SubmitIDIn(vs ...int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldIn(FieldSubmitID, vs...))
-}
-
-// SubmitIDNotIn applies the NotIn predicate on the "submit_id" field.
-func SubmitIDNotIn(vs ...int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldNotIn(FieldSubmitID, vs...))
-}
-
-// SubmitIDGT applies the GT predicate on the "submit_id" field.
-func SubmitIDGT(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldGT(FieldSubmitID, v))
-}
-
-// SubmitIDGTE applies the GTE predicate on the "submit_id" field.
-func SubmitIDGTE(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldGTE(FieldSubmitID, v))
-}
-
-// SubmitIDLT applies the LT predicate on the "submit_id" field.
-func SubmitIDLT(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldLT(FieldSubmitID, v))
-}
-
-// SubmitIDLTE applies the LTE predicate on the "submit_id" field.
-func SubmitIDLTE(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldLTE(FieldSubmitID, v))
-}
-
-// CaseIDEQ applies the EQ predicate on the "case_id" field.
-func CaseIDEQ(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldEQ(FieldCaseID, v))
-}
-
-// CaseIDNEQ applies the NEQ predicate on the "case_id" field.
-func CaseIDNEQ(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldNEQ(FieldCaseID, v))
-}
-
-// CaseIDIn applies the In predicate on the "case_id" field.
-func CaseIDIn(vs ...int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldIn(FieldCaseID, vs...))
-}
-
-// CaseIDNotIn applies the NotIn predicate on the "case_id" field.
-func CaseIDNotIn(vs ...int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldNotIn(FieldCaseID, vs...))
-}
-
-// CaseIDGT applies the GT predicate on the "case_id" field.
-func CaseIDGT(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldGT(FieldCaseID, v))
-}
-
-// CaseIDGTE applies the GTE predicate on the "case_id" field.
-func CaseIDGTE(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldGTE(FieldCaseID, v))
-}
-
-// CaseIDLT applies the LT predicate on the "case_id" field.
-func CaseIDLT(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldLT(FieldCaseID, v))
-}
-
-// CaseIDLTE applies the LTE predicate on the "case_id" field.
-func CaseIDLTE(v int) predicate.SubmitCase {
-	return predicate.SubmitCase(sql.FieldLTE(FieldCaseID, v))
 }
 
 // StateEQ applies the EQ predicate on the "state" field.

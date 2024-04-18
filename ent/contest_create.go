@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
+	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"time"
 
@@ -34,9 +34,9 @@ func (cc *ContestCreate) SetDescription(s string) *ContestCreate {
 	return cc
 }
 
-// SetState sets the "state" field.
-func (cc *ContestCreate) SetState(i int) *ContestCreate {
-	cc.mutation.SetState(i)
+// SetStatus sets the "status" field.
+func (cc *ContestCreate) SetStatus(i int) *ContestCreate {
+	cc.mutation.SetStatus(i)
 	return cc
 }
 
@@ -76,25 +76,18 @@ func (cc *ContestCreate) SetCreateTime(t time.Time) *ContestCreate {
 	return cc
 }
 
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (cc *ContestCreate) SetNillableCreateTime(t *time.Time) *ContestCreate {
+	if t != nil {
+		cc.SetCreateTime(*t)
+	}
+	return cc
+}
+
 // SetID sets the "id" field.
 func (cc *ContestCreate) SetID(i int) *ContestCreate {
 	cc.mutation.SetID(i)
 	return cc
-}
-
-// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
-func (cc *ContestCreate) AddContestGroupIDs(ids ...int) *ContestCreate {
-	cc.mutation.AddContestGroupIDs(ids...)
-	return cc
-}
-
-// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
-func (cc *ContestCreate) AddContestGroup(c ...*ContestGroup) *ContestCreate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cc.AddContestGroupIDs(ids...)
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
@@ -112,6 +105,36 @@ func (cc *ContestCreate) AddProblems(p ...*Problem) *ContestCreate {
 	return cc.AddProblemIDs(ids...)
 }
 
+// AddContestIDs adds the "contest" edge to the Group entity by IDs.
+func (cc *ContestCreate) AddContestIDs(ids ...int) *ContestCreate {
+	cc.mutation.AddContestIDs(ids...)
+	return cc
+}
+
+// AddContest adds the "contest" edges to the Group entity.
+func (cc *ContestCreate) AddContest(g ...*Group) *ContestCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cc.AddContestIDs(ids...)
+}
+
+// AddManageIDs adds the "manage" edge to the Group entity by IDs.
+func (cc *ContestCreate) AddManageIDs(ids ...int) *ContestCreate {
+	cc.mutation.AddManageIDs(ids...)
+	return cc
+}
+
+// AddManage adds the "manage" edges to the Group entity.
+func (cc *ContestCreate) AddManage(g ...*Group) *ContestCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cc.AddManageIDs(ids...)
+}
+
 // Mutation returns the ContestMutation object of the builder.
 func (cc *ContestCreate) Mutation() *ContestMutation {
 	return cc.mutation
@@ -119,6 +142,7 @@ func (cc *ContestCreate) Mutation() *ContestMutation {
 
 // Save creates the Contest in the database.
 func (cc *ContestCreate) Save(ctx context.Context) (*Contest, error) {
+	cc.defaults()
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -144,6 +168,14 @@ func (cc *ContestCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *ContestCreate) defaults() {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		v := contest.DefaultCreateTime
+		cc.mutation.SetCreateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *ContestCreate) check() error {
 	if _, ok := cc.mutation.Title(); !ok {
@@ -152,12 +184,12 @@ func (cc *ContestCreate) check() error {
 	if _, ok := cc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Contest.description"`)}
 	}
-	if _, ok := cc.mutation.State(); !ok {
-		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Contest.state"`)}
+	if _, ok := cc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Contest.status"`)}
 	}
-	if v, ok := cc.mutation.State(); ok {
-		if err := contest.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
+	if v, ok := cc.mutation.Status(); ok {
+		if err := contest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
 	if _, ok := cc.mutation.GetType(); !ok {
@@ -228,9 +260,9 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := cc.mutation.State(); ok {
-		_spec.SetField(contest.FieldState, field.TypeInt, value)
-		_node.State = value
+	if value, ok := cc.mutation.Status(); ok {
+		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
+		_node.Status = value
 	}
 	if value, ok := cc.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt, value)
@@ -256,15 +288,15 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
 	}
-	if nodes := cc.mutation.ContestGroupIDs(); len(nodes) > 0 {
+	if nodes := cc.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
+			Table:   contest.ProblemsTable,
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -272,15 +304,31 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cc.mutation.ProblemsIDs(); len(nodes) > 0 {
+	if nodes := cc.mutation.ContestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ManageIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -309,6 +357,7 @@ func (ccb *ContestCreateBulk) Save(ctx context.Context) ([]*Contest, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ContestMutation)
 				if !ok {

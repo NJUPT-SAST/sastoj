@@ -12,10 +12,6 @@ const (
 	Label = "submit_case"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldSubmitID holds the string denoting the submit_id field in the database.
-	FieldSubmitID = "submit_id"
-	// FieldCaseID holds the string denoting the case_id field in the database.
-	FieldCaseID = "case_id"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
 	// FieldPoint holds the string denoting the point field in the database.
@@ -51,8 +47,6 @@ const (
 // Columns holds all SQL columns for submitcase fields.
 var Columns = []string{
 	FieldID,
-	FieldSubmitID,
-	FieldCaseID,
 	FieldState,
 	FieldPoint,
 	FieldMessage,
@@ -83,12 +77,14 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// SubmitIDValidator is a validator for the "submit_id" field. It is called by the builders before save.
-	SubmitIDValidator func(int) error
-	// CaseIDValidator is a validator for the "case_id" field. It is called by the builders before save.
-	CaseIDValidator func(int) error
 	// StateValidator is a validator for the "state" field. It is called by the builders before save.
 	StateValidator func(int) error
+	// PointValidator is a validator for the "point" field. It is called by the builders before save.
+	PointValidator func(int) error
+	// TimeValidator is a validator for the "time" field. It is called by the builders before save.
+	TimeValidator func(int) error
+	// MemoryValidator is a validator for the "memory" field. It is called by the builders before save.
+	MemoryValidator func(int) error
 )
 
 // OrderOption defines the ordering options for the SubmitCase queries.
@@ -97,16 +93,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// BySubmitID orders the results by the submit_id field.
-func BySubmitID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSubmitID, opts...).ToFunc()
-}
-
-// ByCaseID orders the results by the case_id field.
-func ByCaseID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCaseID, opts...).ToFunc()
 }
 
 // ByState orders the results by the state field.

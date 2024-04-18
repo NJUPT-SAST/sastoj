@@ -334,12 +334,12 @@ func (scq *SubmitCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *S
 // Example:
 //
 //	var v []struct {
-//		SubmitID int `json:"submit_id,omitempty"`
+//		State int `json:"state,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.SubmitCase.Query().
-//		GroupBy(submitcase.FieldSubmitID).
+//		GroupBy(submitcase.FieldState).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (scq *SubmitCaseQuery) GroupBy(field string, fields ...string) *SubmitCaseGroupBy {
@@ -357,11 +357,11 @@ func (scq *SubmitCaseQuery) GroupBy(field string, fields ...string) *SubmitCaseG
 // Example:
 //
 //	var v []struct {
-//		SubmitID int `json:"submit_id,omitempty"`
+//		State int `json:"state,omitempty"`
 //	}
 //
 //	client.SubmitCase.Query().
-//		Select(submitcase.FieldSubmitID).
+//		Select(submitcase.FieldState).
 //		Scan(ctx, &v)
 func (scq *SubmitCaseQuery) Select(fields ...string) *SubmitCaseSelect {
 	scq.ctx.Fields = append(scq.ctx.Fields, fields...)

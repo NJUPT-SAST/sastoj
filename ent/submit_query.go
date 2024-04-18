@@ -11,7 +11,6 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/submit"
 	"sastoj/ent/submitcase"
-	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -26,10 +25,9 @@ type SubmitQuery struct {
 	order           []submit.OrderOption
 	inters          []Interceptor
 	predicates      []predicate.Submit
-	withUsers       *UserQuery
-	withProblems    *ProblemQuery
-	withSubmitJudge *SubmitJudgeQuery
 	withSubmitCases *SubmitCaseQuery
+	withProblems    *ProblemQuery
+	withUsers       *UserQuery
 	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -67,9 +65,9 @@ func (sq *SubmitQuery) Order(o ...submit.OrderOption) *SubmitQuery {
 	return sq
 }
 
-// QueryUsers chains the current query on the "users" edge.
-func (sq *SubmitQuery) QueryUsers() *UserQuery {
-	query := (&UserClient{config: sq.config}).Query()
+// QuerySubmitCases chains the current query on the "submit_cases" edge.
+func (sq *SubmitQuery) QuerySubmitCases() *SubmitCaseQuery {
+	query := (&SubmitCaseClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -80,8 +78,8 @@ func (sq *SubmitQuery) QueryUsers() *UserQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
+			sqlgraph.To(submitcase.Table, submitcase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -111,9 +109,9 @@ func (sq *SubmitQuery) QueryProblems() *ProblemQuery {
 	return query
 }
 
-// QuerySubmitJudge chains the current query on the "submit_judge" edge.
-func (sq *SubmitQuery) QuerySubmitJudge() *SubmitJudgeQuery {
-	query := (&SubmitJudgeClient{config: sq.config}).Query()
+// QueryUsers chains the current query on the "users" edge.
+func (sq *SubmitQuery) QueryUsers() *UserQuery {
+	query := (&UserClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -124,30 +122,8 @@ func (sq *SubmitQuery) QuerySubmitJudge() *SubmitJudgeQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, selector),
-			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitJudgeTable, submit.SubmitJudgeColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QuerySubmitCases chains the current query on the "submit_cases" edge.
-func (sq *SubmitQuery) QuerySubmitCases() *SubmitCaseQuery {
-	query := (&SubmitCaseClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submit.Table, submit.FieldID, selector),
-			sqlgraph.To(submitcase.Table, submitcase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -347,24 +323,23 @@ func (sq *SubmitQuery) Clone() *SubmitQuery {
 		order:           append([]submit.OrderOption{}, sq.order...),
 		inters:          append([]Interceptor{}, sq.inters...),
 		predicates:      append([]predicate.Submit{}, sq.predicates...),
-		withUsers:       sq.withUsers.Clone(),
-		withProblems:    sq.withProblems.Clone(),
-		withSubmitJudge: sq.withSubmitJudge.Clone(),
 		withSubmitCases: sq.withSubmitCases.Clone(),
+		withProblems:    sq.withProblems.Clone(),
+		withUsers:       sq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
 }
 
-// WithUsers tells the query-builder to eager-load the nodes that are connected to
-// the "users" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithUsers(opts ...func(*UserQuery)) *SubmitQuery {
-	query := (&UserClient{config: sq.config}).Query()
+// WithSubmitCases tells the query-builder to eager-load the nodes that are connected to
+// the "submit_cases" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SubmitQuery) WithSubmitCases(opts ...func(*SubmitCaseQuery)) *SubmitQuery {
+	query := (&SubmitCaseClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withUsers = query
+	sq.withSubmitCases = query
 	return sq
 }
 
@@ -379,25 +354,14 @@ func (sq *SubmitQuery) WithProblems(opts ...func(*ProblemQuery)) *SubmitQuery {
 	return sq
 }
 
-// WithSubmitJudge tells the query-builder to eager-load the nodes that are connected to
-// the "submit_judge" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithSubmitJudge(opts ...func(*SubmitJudgeQuery)) *SubmitQuery {
-	query := (&SubmitJudgeClient{config: sq.config}).Query()
+// WithUsers tells the query-builder to eager-load the nodes that are connected to
+// the "users" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SubmitQuery) WithUsers(opts ...func(*UserQuery)) *SubmitQuery {
+	query := (&UserClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withSubmitJudge = query
-	return sq
-}
-
-// WithSubmitCases tells the query-builder to eager-load the nodes that are connected to
-// the "submit_cases" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithSubmitCases(opts ...func(*SubmitCaseQuery)) *SubmitQuery {
-	query := (&SubmitCaseClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withSubmitCases = query
+	sq.withUsers = query
 	return sq
 }
 
@@ -407,12 +371,12 @@ func (sq *SubmitQuery) WithSubmitCases(opts ...func(*SubmitCaseQuery)) *SubmitQu
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		Code string `json:"code,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Submit.Query().
-//		GroupBy(submit.FieldUserID).
+//		GroupBy(submit.FieldCode).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (sq *SubmitQuery) GroupBy(field string, fields ...string) *SubmitGroupBy {
@@ -430,11 +394,11 @@ func (sq *SubmitQuery) GroupBy(field string, fields ...string) *SubmitGroupBy {
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		Code string `json:"code,omitempty"`
 //	}
 //
 //	client.Submit.Query().
-//		Select(submit.FieldUserID).
+//		Select(submit.FieldCode).
 //		Scan(ctx, &v)
 func (sq *SubmitQuery) Select(fields ...string) *SubmitSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)
@@ -480,14 +444,13 @@ func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submi
 		nodes       = []*Submit{}
 		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
-		loadedTypes = [4]bool{
-			sq.withUsers != nil,
-			sq.withProblems != nil,
-			sq.withSubmitJudge != nil,
+		loadedTypes = [3]bool{
 			sq.withSubmitCases != nil,
+			sq.withProblems != nil,
+			sq.withUsers != nil,
 		}
 	)
-	if sq.withUsers != nil || sq.withProblems != nil {
+	if sq.withProblems != nil || sq.withUsers != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -511,9 +474,10 @@ func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submi
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withUsers; query != nil {
-		if err := sq.loadUsers(ctx, query, nodes, nil,
-			func(n *Submit, e *User) { n.Edges.Users = e }); err != nil {
+	if query := sq.withSubmitCases; query != nil {
+		if err := sq.loadSubmitCases(ctx, query, nodes,
+			func(n *Submit) { n.Edges.SubmitCases = []*SubmitCase{} },
+			func(n *Submit, e *SubmitCase) { n.Edges.SubmitCases = append(n.Edges.SubmitCases, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -523,52 +487,43 @@ func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submi
 			return nil, err
 		}
 	}
-	if query := sq.withSubmitJudge; query != nil {
-		if err := sq.loadSubmitJudge(ctx, query, nodes,
-			func(n *Submit) { n.Edges.SubmitJudge = []*SubmitJudge{} },
-			func(n *Submit, e *SubmitJudge) { n.Edges.SubmitJudge = append(n.Edges.SubmitJudge, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withSubmitCases; query != nil {
-		if err := sq.loadSubmitCases(ctx, query, nodes,
-			func(n *Submit) { n.Edges.SubmitCases = []*SubmitCase{} },
-			func(n *Submit, e *SubmitCase) { n.Edges.SubmitCases = append(n.Edges.SubmitCases, e) }); err != nil {
+	if query := sq.withUsers; query != nil {
+		if err := sq.loadUsers(ctx, query, nodes, nil,
+			func(n *Submit, e *User) { n.Edges.Users = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Submit)
+func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *SubmitCase)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Submit)
 	for i := range nodes {
-		if nodes[i].user_submission == nil {
-			continue
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		fk := *nodes[i].user_submission
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(user.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(submit.SubmitCasesColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.submit_submit_cases
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "submit_submit_cases" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_submission" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "submit_submit_cases" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -604,65 +559,35 @@ func (sq *SubmitQuery) loadProblems(ctx context.Context, query *ProblemQuery, no
 	}
 	return nil
 }
-func (sq *SubmitQuery) loadSubmitJudge(ctx context.Context, query *SubmitJudgeQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *SubmitJudge)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Submit)
+func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *User)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Submit)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
+		if nodes[i].user_submission == nil {
+			continue
 		}
+		fk := *nodes[i].user_submission
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.withFKs = true
-	query.Where(predicate.SubmitJudge(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(submit.SubmitJudgeColumn), fks...))
-	}))
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.submit_submit_judge
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "submit_submit_judge" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "submit_submit_judge" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_submission" returned %v`, n.ID)
 		}
-		assign(node, n)
-	}
-	return nil
-}
-func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *SubmitCase)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Submit)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
-	}
-	query.withFKs = true
-	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(submit.SubmitCasesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.submit_submit_cases
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "submit_submit_cases" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "submit_submit_cases" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }

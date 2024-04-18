@@ -18,10 +18,6 @@ type SubmitCase struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// SubmitID holds the value of the "submit_id" field.
-	SubmitID int `json:"submit_id,omitempty"`
-	// CaseID holds the value of the "case_id" field.
-	CaseID int `json:"case_id,omitempty"`
 	// State holds the value of the "state" field.
 	State int `json:"state,omitempty"`
 	// Point holds the value of the "point" field.
@@ -82,7 +78,7 @@ func (*SubmitCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submitcase.FieldID, submitcase.FieldSubmitID, submitcase.FieldCaseID, submitcase.FieldState, submitcase.FieldPoint, submitcase.FieldTime, submitcase.FieldMemory:
+		case submitcase.FieldID, submitcase.FieldState, submitcase.FieldPoint, submitcase.FieldTime, submitcase.FieldMemory:
 			values[i] = new(sql.NullInt64)
 		case submitcase.FieldMessage:
 			values[i] = new(sql.NullString)
@@ -111,18 +107,6 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			sc.ID = int(value.Int64)
-		case submitcase.FieldSubmitID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field submit_id", values[i])
-			} else if value.Valid {
-				sc.SubmitID = int(value.Int64)
-			}
-		case submitcase.FieldCaseID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field case_id", values[i])
-			} else if value.Valid {
-				sc.CaseID = int(value.Int64)
-			}
 		case submitcase.FieldState:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
@@ -213,12 +197,6 @@ func (sc *SubmitCase) String() string {
 	var builder strings.Builder
 	builder.WriteString("SubmitCase(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", sc.ID))
-	builder.WriteString("submit_id=")
-	builder.WriteString(fmt.Sprintf("%v", sc.SubmitID))
-	builder.WriteString(", ")
-	builder.WriteString("case_id=")
-	builder.WriteString(fmt.Sprintf("%v", sc.CaseID))
-	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", sc.State))
 	builder.WriteString(", ")

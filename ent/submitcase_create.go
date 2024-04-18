@@ -21,18 +21,6 @@ type SubmitCaseCreate struct {
 	hooks    []Hook
 }
 
-// SetSubmitID sets the "submit_id" field.
-func (scc *SubmitCaseCreate) SetSubmitID(i int) *SubmitCaseCreate {
-	scc.mutation.SetSubmitID(i)
-	return scc
-}
-
-// SetCaseID sets the "case_id" field.
-func (scc *SubmitCaseCreate) SetCaseID(i int) *SubmitCaseCreate {
-	scc.mutation.SetCaseID(i)
-	return scc
-}
-
 // SetState sets the "state" field.
 func (scc *SubmitCaseCreate) SetState(i int) *SubmitCaseCreate {
 	scc.mutation.SetState(i)
@@ -141,22 +129,6 @@ func (scc *SubmitCaseCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (scc *SubmitCaseCreate) check() error {
-	if _, ok := scc.mutation.SubmitID(); !ok {
-		return &ValidationError{Name: "submit_id", err: errors.New(`ent: missing required field "SubmitCase.submit_id"`)}
-	}
-	if v, ok := scc.mutation.SubmitID(); ok {
-		if err := submitcase.SubmitIDValidator(v); err != nil {
-			return &ValidationError{Name: "submit_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.submit_id": %w`, err)}
-		}
-	}
-	if _, ok := scc.mutation.CaseID(); !ok {
-		return &ValidationError{Name: "case_id", err: errors.New(`ent: missing required field "SubmitCase.case_id"`)}
-	}
-	if v, ok := scc.mutation.CaseID(); ok {
-		if err := submitcase.CaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "case_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.case_id": %w`, err)}
-		}
-	}
 	if _, ok := scc.mutation.State(); !ok {
 		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "SubmitCase.state"`)}
 	}
@@ -168,14 +140,29 @@ func (scc *SubmitCaseCreate) check() error {
 	if _, ok := scc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "SubmitCase.point"`)}
 	}
+	if v, ok := scc.mutation.Point(); ok {
+		if err := submitcase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.point": %w`, err)}
+		}
+	}
 	if _, ok := scc.mutation.Message(); !ok {
 		return &ValidationError{Name: "message", err: errors.New(`ent: missing required field "SubmitCase.message"`)}
 	}
 	if _, ok := scc.mutation.Time(); !ok {
 		return &ValidationError{Name: "time", err: errors.New(`ent: missing required field "SubmitCase.time"`)}
 	}
+	if v, ok := scc.mutation.Time(); ok {
+		if err := submitcase.TimeValidator(v); err != nil {
+			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.time": %w`, err)}
+		}
+	}
 	if _, ok := scc.mutation.Memory(); !ok {
 		return &ValidationError{Name: "memory", err: errors.New(`ent: missing required field "SubmitCase.memory"`)}
+	}
+	if v, ok := scc.mutation.Memory(); ok {
+		if err := submitcase.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.memory": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -208,14 +195,6 @@ func (scc *SubmitCaseCreate) createSpec() (*SubmitCase, *sqlgraph.CreateSpec) {
 	if id, ok := scc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
-	}
-	if value, ok := scc.mutation.SubmitID(); ok {
-		_spec.SetField(submitcase.FieldSubmitID, field.TypeInt, value)
-		_node.SubmitID = value
-	}
-	if value, ok := scc.mutation.CaseID(); ok {
-		_spec.SetField(submitcase.FieldCaseID, field.TypeInt, value)
-		_node.CaseID = value
 	}
 	if value, ok := scc.mutation.State(); ok {
 		_spec.SetField(submitcase.FieldState, field.TypeInt, value)

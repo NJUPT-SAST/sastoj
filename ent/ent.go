@@ -8,15 +8,12 @@ import (
 	"fmt"
 	"reflect"
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/problemjudge"
 	"sastoj/ent/submit"
 	"sastoj/ent/submitcase"
-	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 	"sync"
 
@@ -84,15 +81,12 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			contest.Table:      contest.ValidColumn,
-			contestgroup.Table: contestgroup.ValidColumn,
 			group.Table:        group.ValidColumn,
 			loginsession.Table: loginsession.ValidColumn,
 			problem.Table:      problem.ValidColumn,
 			problemcase.Table:  problemcase.ValidColumn,
-			problemjudge.Table: problemjudge.ValidColumn,
 			submit.Table:       submit.ValidColumn,
 			submitcase.Table:   submitcase.ValidColumn,
-			submitjudge.Table:  submitjudge.ValidColumn,
 			user.Table:         user.ValidColumn,
 		})
 	})

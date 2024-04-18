@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"time"
 )
 
 // Submit holds the schema definition for the Submit entity.
@@ -23,25 +24,22 @@ func (Submit) Annotations() []schema.Annotation {
 func (Submit) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
-		field.Int("user_id").Positive(),
-		field.Int("problem_id").Positive(),
 		field.Text("code"),
-		field.Int("state"),
-		field.Int("point"),
-		field.Time("create_time"),
-		field.Time("total_time"),
-		field.Int("max_memory"),
+		field.Int("status").NonNegative(),
+		field.Int("point").NonNegative(),
+		field.Time("create_time").Default(time.Now()),
+		field.Int("total_time").NonNegative(),
+		field.Int("max_memory").NonNegative(),
 		field.String("language"),
-		field.Int("case_version"),
+		field.Int("case_version").Positive(),
 	}
 }
 
 // Edges of the Submit.
 func (Submit) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("users", User.Type).Ref("submission").Unique(),
-		edge.From("problems", Problem.Type).Ref("submission").Unique(),
-		edge.To("submit_judge", SubmitJudge.Type),
 		edge.To("submit_cases", SubmitCase.Type),
+		edge.From("problems", Problem.Type).Ref("submission").Unique(),
+		edge.From("users", User.Type).Ref("submission").Unique(),
 	}
 }

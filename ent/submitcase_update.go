@@ -29,48 +29,6 @@ func (scu *SubmitCaseUpdate) Where(ps ...predicate.SubmitCase) *SubmitCaseUpdate
 	return scu
 }
 
-// SetSubmitID sets the "submit_id" field.
-func (scu *SubmitCaseUpdate) SetSubmitID(i int) *SubmitCaseUpdate {
-	scu.mutation.ResetSubmitID()
-	scu.mutation.SetSubmitID(i)
-	return scu
-}
-
-// SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableSubmitID(i *int) *SubmitCaseUpdate {
-	if i != nil {
-		scu.SetSubmitID(*i)
-	}
-	return scu
-}
-
-// AddSubmitID adds i to the "submit_id" field.
-func (scu *SubmitCaseUpdate) AddSubmitID(i int) *SubmitCaseUpdate {
-	scu.mutation.AddSubmitID(i)
-	return scu
-}
-
-// SetCaseID sets the "case_id" field.
-func (scu *SubmitCaseUpdate) SetCaseID(i int) *SubmitCaseUpdate {
-	scu.mutation.ResetCaseID()
-	scu.mutation.SetCaseID(i)
-	return scu
-}
-
-// SetNillableCaseID sets the "case_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableCaseID(i *int) *SubmitCaseUpdate {
-	if i != nil {
-		scu.SetCaseID(*i)
-	}
-	return scu
-}
-
-// AddCaseID adds i to the "case_id" field.
-func (scu *SubmitCaseUpdate) AddCaseID(i int) *SubmitCaseUpdate {
-	scu.mutation.AddCaseID(i)
-	return scu
-}
-
 // SetState sets the "state" field.
 func (scu *SubmitCaseUpdate) SetState(i int) *SubmitCaseUpdate {
 	scu.mutation.ResetState()
@@ -253,19 +211,24 @@ func (scu *SubmitCaseUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (scu *SubmitCaseUpdate) check() error {
-	if v, ok := scu.mutation.SubmitID(); ok {
-		if err := submitcase.SubmitIDValidator(v); err != nil {
-			return &ValidationError{Name: "submit_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.submit_id": %w`, err)}
-		}
-	}
-	if v, ok := scu.mutation.CaseID(); ok {
-		if err := submitcase.CaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "case_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.case_id": %w`, err)}
-		}
-	}
 	if v, ok := scu.mutation.State(); ok {
 		if err := submitcase.StateValidator(v); err != nil {
 			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.state": %w`, err)}
+		}
+	}
+	if v, ok := scu.mutation.Point(); ok {
+		if err := submitcase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.point": %w`, err)}
+		}
+	}
+	if v, ok := scu.mutation.Time(); ok {
+		if err := submitcase.TimeValidator(v); err != nil {
+			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.time": %w`, err)}
+		}
+	}
+	if v, ok := scu.mutation.Memory(); ok {
+		if err := submitcase.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.memory": %w`, err)}
 		}
 	}
 	return nil
@@ -282,18 +245,6 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := scu.mutation.SubmitID(); ok {
-		_spec.SetField(submitcase.FieldSubmitID, field.TypeInt, value)
-	}
-	if value, ok := scu.mutation.AddedSubmitID(); ok {
-		_spec.AddField(submitcase.FieldSubmitID, field.TypeInt, value)
-	}
-	if value, ok := scu.mutation.CaseID(); ok {
-		_spec.SetField(submitcase.FieldCaseID, field.TypeInt, value)
-	}
-	if value, ok := scu.mutation.AddedCaseID(); ok {
-		_spec.AddField(submitcase.FieldCaseID, field.TypeInt, value)
 	}
 	if value, ok := scu.mutation.State(); ok {
 		_spec.SetField(submitcase.FieldState, field.TypeInt, value)
@@ -398,48 +349,6 @@ type SubmitCaseUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SubmitCaseMutation
-}
-
-// SetSubmitID sets the "submit_id" field.
-func (scuo *SubmitCaseUpdateOne) SetSubmitID(i int) *SubmitCaseUpdateOne {
-	scuo.mutation.ResetSubmitID()
-	scuo.mutation.SetSubmitID(i)
-	return scuo
-}
-
-// SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(i *int) *SubmitCaseUpdateOne {
-	if i != nil {
-		scuo.SetSubmitID(*i)
-	}
-	return scuo
-}
-
-// AddSubmitID adds i to the "submit_id" field.
-func (scuo *SubmitCaseUpdateOne) AddSubmitID(i int) *SubmitCaseUpdateOne {
-	scuo.mutation.AddSubmitID(i)
-	return scuo
-}
-
-// SetCaseID sets the "case_id" field.
-func (scuo *SubmitCaseUpdateOne) SetCaseID(i int) *SubmitCaseUpdateOne {
-	scuo.mutation.ResetCaseID()
-	scuo.mutation.SetCaseID(i)
-	return scuo
-}
-
-// SetNillableCaseID sets the "case_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableCaseID(i *int) *SubmitCaseUpdateOne {
-	if i != nil {
-		scuo.SetCaseID(*i)
-	}
-	return scuo
-}
-
-// AddCaseID adds i to the "case_id" field.
-func (scuo *SubmitCaseUpdateOne) AddCaseID(i int) *SubmitCaseUpdateOne {
-	scuo.mutation.AddCaseID(i)
-	return scuo
 }
 
 // SetState sets the "state" field.
@@ -637,19 +546,24 @@ func (scuo *SubmitCaseUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (scuo *SubmitCaseUpdateOne) check() error {
-	if v, ok := scuo.mutation.SubmitID(); ok {
-		if err := submitcase.SubmitIDValidator(v); err != nil {
-			return &ValidationError{Name: "submit_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.submit_id": %w`, err)}
-		}
-	}
-	if v, ok := scuo.mutation.CaseID(); ok {
-		if err := submitcase.CaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "case_id", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.case_id": %w`, err)}
-		}
-	}
 	if v, ok := scuo.mutation.State(); ok {
 		if err := submitcase.StateValidator(v); err != nil {
 			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.state": %w`, err)}
+		}
+	}
+	if v, ok := scuo.mutation.Point(); ok {
+		if err := submitcase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.point": %w`, err)}
+		}
+	}
+	if v, ok := scuo.mutation.Time(); ok {
+		if err := submitcase.TimeValidator(v); err != nil {
+			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.time": %w`, err)}
+		}
+	}
+	if v, ok := scuo.mutation.Memory(); ok {
+		if err := submitcase.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.memory": %w`, err)}
 		}
 	}
 	return nil
@@ -683,18 +597,6 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := scuo.mutation.SubmitID(); ok {
-		_spec.SetField(submitcase.FieldSubmitID, field.TypeInt, value)
-	}
-	if value, ok := scuo.mutation.AddedSubmitID(); ok {
-		_spec.AddField(submitcase.FieldSubmitID, field.TypeInt, value)
-	}
-	if value, ok := scuo.mutation.CaseID(); ok {
-		_spec.SetField(submitcase.FieldCaseID, field.TypeInt, value)
-	}
-	if value, ok := scuo.mutation.AddedCaseID(); ok {
-		_spec.AddField(submitcase.FieldCaseID, field.TypeInt, value)
 	}
 	if value, ok := scuo.mutation.State(); ok {
 		_spec.SetField(submitcase.FieldState, field.TypeInt, value)

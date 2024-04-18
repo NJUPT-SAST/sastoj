@@ -7,9 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/contest"
+	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/problemjudge"
 	"sastoj/ent/submit"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -41,15 +41,17 @@ func (pc *ProblemCreate) SetPoint(i int) *ProblemCreate {
 	return pc
 }
 
-// SetContestID sets the "contest_id" field.
-func (pc *ProblemCreate) SetContestID(i int) *ProblemCreate {
-	pc.mutation.SetContestID(i)
-	return pc
-}
-
 // SetCaseVersion sets the "case_version" field.
 func (pc *ProblemCreate) SetCaseVersion(i int) *ProblemCreate {
 	pc.mutation.SetCaseVersion(i)
+	return pc
+}
+
+// SetNillableCaseVersion sets the "case_version" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableCaseVersion(i *int) *ProblemCreate {
+	if i != nil {
+		pc.SetCaseVersion(*i)
+	}
 	return pc
 }
 
@@ -85,25 +87,6 @@ func (pc *ProblemCreate) SetID(i int) *ProblemCreate {
 	return pc
 }
 
-// SetContestsID sets the "contests" edge to the Contest entity by ID.
-func (pc *ProblemCreate) SetContestsID(id int) *ProblemCreate {
-	pc.mutation.SetContestsID(id)
-	return pc
-}
-
-// SetNillableContestsID sets the "contests" edge to the Contest entity by ID if the given value is not nil.
-func (pc *ProblemCreate) SetNillableContestsID(id *int) *ProblemCreate {
-	if id != nil {
-		pc = pc.SetContestsID(*id)
-	}
-	return pc
-}
-
-// SetContests sets the "contests" edge to the Contest entity.
-func (pc *ProblemCreate) SetContests(c *Contest) *ProblemCreate {
-	return pc.SetContestsID(c.ID)
-}
-
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
 func (pc *ProblemCreate) AddProblemCaseIDs(ids ...int) *ProblemCreate {
 	pc.mutation.AddProblemCaseIDs(ids...)
@@ -119,21 +102,6 @@ func (pc *ProblemCreate) AddProblemCases(p ...*ProblemCase) *ProblemCreate {
 	return pc.AddProblemCaseIDs(ids...)
 }
 
-// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by IDs.
-func (pc *ProblemCreate) AddProblemJudgeIDs(ids ...int) *ProblemCreate {
-	pc.mutation.AddProblemJudgeIDs(ids...)
-	return pc
-}
-
-// AddProblemJudges adds the "problem_judges" edges to the ProblemJudge entity.
-func (pc *ProblemCreate) AddProblemJudges(p ...*ProblemJudge) *ProblemCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return pc.AddProblemJudgeIDs(ids...)
-}
-
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
 func (pc *ProblemCreate) AddSubmissionIDs(ids ...int) *ProblemCreate {
 	pc.mutation.AddSubmissionIDs(ids...)
@@ -147,6 +115,36 @@ func (pc *ProblemCreate) AddSubmission(s ...*Submit) *ProblemCreate {
 		ids[i] = s[i].ID
 	}
 	return pc.AddSubmissionIDs(ids...)
+}
+
+// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
+func (pc *ProblemCreate) AddContestIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddContestIDs(ids...)
+	return pc
+}
+
+// AddContests adds the "contests" edges to the Contest entity.
+func (pc *ProblemCreate) AddContests(c ...*Contest) *ProblemCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pc.AddContestIDs(ids...)
+}
+
+// AddGroupIDs adds the "groups" edge to the Group entity by IDs.
+func (pc *ProblemCreate) AddGroupIDs(ids ...int) *ProblemCreate {
+	pc.mutation.AddGroupIDs(ids...)
+	return pc
+}
+
+// AddGroups adds the "groups" edges to the Group entity.
+func (pc *ProblemCreate) AddGroups(g ...*Group) *ProblemCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return pc.AddGroupIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -184,6 +182,10 @@ func (pc *ProblemCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (pc *ProblemCreate) defaults() {
+	if _, ok := pc.mutation.CaseVersion(); !ok {
+		v := problem.DefaultCaseVersion
+		pc.mutation.SetCaseVersion(v)
+	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		v := problem.DefaultIsDeleted
 		pc.mutation.SetIsDeleted(v)
@@ -201,14 +203,26 @@ func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Problem.point"`)}
 	}
-	if _, ok := pc.mutation.ContestID(); !ok {
-		return &ValidationError{Name: "contest_id", err: errors.New(`ent: missing required field "Problem.contest_id"`)}
+	if v, ok := pc.mutation.Point(); ok {
+		if err := problem.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Problem.point": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.CaseVersion(); !ok {
 		return &ValidationError{Name: "case_version", err: errors.New(`ent: missing required field "Problem.case_version"`)}
 	}
+	if v, ok := pc.mutation.CaseVersion(); ok {
+		if err := problem.CaseVersionValidator(v); err != nil {
+			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Problem.case_version": %w`, err)}
+		}
+	}
 	if _, ok := pc.mutation.Index(); !ok {
 		return &ValidationError{Name: "index", err: errors.New(`ent: missing required field "Problem.index"`)}
+	}
+	if v, ok := pc.mutation.Index(); ok {
+		if err := problem.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "Problem.is_deleted"`)}
@@ -260,10 +274,6 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldPoint, field.TypeInt, value)
 		_node.Point = value
 	}
-	if value, ok := pc.mutation.ContestID(); ok {
-		_spec.SetField(problem.FieldContestID, field.TypeInt, value)
-		_node.ContestID = value
-	}
 	if value, ok := pc.mutation.CaseVersion(); ok {
 		_spec.SetField(problem.FieldCaseVersion, field.TypeInt, value)
 		_node.CaseVersion = value
@@ -279,23 +289,6 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Config(); ok {
 		_spec.SetField(problem.FieldConfig, field.TypeString, value)
 		_node.Config = value
-	}
-	if nodes := pc.mutation.ContestsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   problem.ContestsTable,
-			Columns: []string{problem.ContestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.contest_problems = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -313,22 +306,6 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.ProblemJudgesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   problem.ProblemJudgesTable,
-			Columns: []string{problem.ProblemJudgesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemjudge.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := pc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -338,6 +315,38 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.ContestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   problem.ContestsTable,
+			Columns: problem.ContestsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.GroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   problem.GroupsTable,
+			Columns: problem.GroupsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

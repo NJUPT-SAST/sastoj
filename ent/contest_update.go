@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
+	"sastoj/ent/group"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"time"
@@ -58,24 +58,24 @@ func (cu *ContestUpdate) SetNillableDescription(s *string) *ContestUpdate {
 	return cu
 }
 
-// SetState sets the "state" field.
-func (cu *ContestUpdate) SetState(i int) *ContestUpdate {
-	cu.mutation.ResetState()
-	cu.mutation.SetState(i)
+// SetStatus sets the "status" field.
+func (cu *ContestUpdate) SetStatus(i int) *ContestUpdate {
+	cu.mutation.ResetStatus()
+	cu.mutation.SetStatus(i)
 	return cu
 }
 
-// SetNillableState sets the "state" field if the given value is not nil.
-func (cu *ContestUpdate) SetNillableState(i *int) *ContestUpdate {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cu *ContestUpdate) SetNillableStatus(i *int) *ContestUpdate {
 	if i != nil {
-		cu.SetState(*i)
+		cu.SetStatus(*i)
 	}
 	return cu
 }
 
-// AddState adds i to the "state" field.
-func (cu *ContestUpdate) AddState(i int) *ContestUpdate {
-	cu.mutation.AddState(i)
+// AddStatus adds i to the "status" field.
+func (cu *ContestUpdate) AddStatus(i int) *ContestUpdate {
+	cu.mutation.AddStatus(i)
 	return cu
 }
 
@@ -177,21 +177,6 @@ func (cu *ContestUpdate) SetNillableCreateTime(t *time.Time) *ContestUpdate {
 	return cu
 }
 
-// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
-func (cu *ContestUpdate) AddContestGroupIDs(ids ...int) *ContestUpdate {
-	cu.mutation.AddContestGroupIDs(ids...)
-	return cu
-}
-
-// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
-func (cu *ContestUpdate) AddContestGroup(c ...*ContestGroup) *ContestUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cu.AddContestGroupIDs(ids...)
-}
-
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
 func (cu *ContestUpdate) AddProblemIDs(ids ...int) *ContestUpdate {
 	cu.mutation.AddProblemIDs(ids...)
@@ -207,30 +192,39 @@ func (cu *ContestUpdate) AddProblems(p ...*Problem) *ContestUpdate {
 	return cu.AddProblemIDs(ids...)
 }
 
+// AddContestIDs adds the "contest" edge to the Group entity by IDs.
+func (cu *ContestUpdate) AddContestIDs(ids ...int) *ContestUpdate {
+	cu.mutation.AddContestIDs(ids...)
+	return cu
+}
+
+// AddContest adds the "contest" edges to the Group entity.
+func (cu *ContestUpdate) AddContest(g ...*Group) *ContestUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cu.AddContestIDs(ids...)
+}
+
+// AddManageIDs adds the "manage" edge to the Group entity by IDs.
+func (cu *ContestUpdate) AddManageIDs(ids ...int) *ContestUpdate {
+	cu.mutation.AddManageIDs(ids...)
+	return cu
+}
+
+// AddManage adds the "manage" edges to the Group entity.
+func (cu *ContestUpdate) AddManage(g ...*Group) *ContestUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cu.AddManageIDs(ids...)
+}
+
 // Mutation returns the ContestMutation object of the builder.
 func (cu *ContestUpdate) Mutation() *ContestMutation {
 	return cu.mutation
-}
-
-// ClearContestGroup clears all "contest_group" edges to the ContestGroup entity.
-func (cu *ContestUpdate) ClearContestGroup() *ContestUpdate {
-	cu.mutation.ClearContestGroup()
-	return cu
-}
-
-// RemoveContestGroupIDs removes the "contest_group" edge to ContestGroup entities by IDs.
-func (cu *ContestUpdate) RemoveContestGroupIDs(ids ...int) *ContestUpdate {
-	cu.mutation.RemoveContestGroupIDs(ids...)
-	return cu
-}
-
-// RemoveContestGroup removes "contest_group" edges to ContestGroup entities.
-func (cu *ContestUpdate) RemoveContestGroup(c ...*ContestGroup) *ContestUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cu.RemoveContestGroupIDs(ids...)
 }
 
 // ClearProblems clears all "problems" edges to the Problem entity.
@@ -252,6 +246,48 @@ func (cu *ContestUpdate) RemoveProblems(p ...*Problem) *ContestUpdate {
 		ids[i] = p[i].ID
 	}
 	return cu.RemoveProblemIDs(ids...)
+}
+
+// ClearContest clears all "contest" edges to the Group entity.
+func (cu *ContestUpdate) ClearContest() *ContestUpdate {
+	cu.mutation.ClearContest()
+	return cu
+}
+
+// RemoveContestIDs removes the "contest" edge to Group entities by IDs.
+func (cu *ContestUpdate) RemoveContestIDs(ids ...int) *ContestUpdate {
+	cu.mutation.RemoveContestIDs(ids...)
+	return cu
+}
+
+// RemoveContest removes "contest" edges to Group entities.
+func (cu *ContestUpdate) RemoveContest(g ...*Group) *ContestUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cu.RemoveContestIDs(ids...)
+}
+
+// ClearManage clears all "manage" edges to the Group entity.
+func (cu *ContestUpdate) ClearManage() *ContestUpdate {
+	cu.mutation.ClearManage()
+	return cu
+}
+
+// RemoveManageIDs removes the "manage" edge to Group entities by IDs.
+func (cu *ContestUpdate) RemoveManageIDs(ids ...int) *ContestUpdate {
+	cu.mutation.RemoveManageIDs(ids...)
+	return cu
+}
+
+// RemoveManage removes "manage" edges to Group entities.
+func (cu *ContestUpdate) RemoveManage(g ...*Group) *ContestUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cu.RemoveManageIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -283,9 +319,9 @@ func (cu *ContestUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cu *ContestUpdate) check() error {
-	if v, ok := cu.mutation.State(); ok {
-		if err := contest.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
+	if v, ok := cu.mutation.Status(); ok {
+		if err := contest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
 	if v, ok := cu.mutation.GetType(); ok {
@@ -319,11 +355,11 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.Description(); ok {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := cu.mutation.State(); ok {
-		_spec.SetField(contest.FieldState, field.TypeInt, value)
+	if value, ok := cu.mutation.Status(); ok {
+		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
 	}
-	if value, ok := cu.mutation.AddedState(); ok {
-		_spec.AddField(contest.FieldState, field.TypeInt, value)
+	if value, ok := cu.mutation.AddedStatus(); ok {
+		_spec.AddField(contest.FieldStatus, field.TypeInt, value)
 	}
 	if value, ok := cu.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt, value)
@@ -349,57 +385,12 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.CreateTime(); ok {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)
 	}
-	if cu.mutation.ContestGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.RemovedContestGroupIDs(); len(nodes) > 0 && !cu.mutation.ContestGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.ContestGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if cu.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -409,10 +400,10 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := cu.mutation.RemovedProblemsIDs(); len(nodes) > 0 && !cu.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -425,13 +416,103 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := cu.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedContestIDs(); len(nodes) > 0 && !cu.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.ContestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.ManageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedManageIDs(); len(nodes) > 0 && !cu.mutation.ManageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.ManageIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -487,24 +568,24 @@ func (cuo *ContestUpdateOne) SetNillableDescription(s *string) *ContestUpdateOne
 	return cuo
 }
 
-// SetState sets the "state" field.
-func (cuo *ContestUpdateOne) SetState(i int) *ContestUpdateOne {
-	cuo.mutation.ResetState()
-	cuo.mutation.SetState(i)
+// SetStatus sets the "status" field.
+func (cuo *ContestUpdateOne) SetStatus(i int) *ContestUpdateOne {
+	cuo.mutation.ResetStatus()
+	cuo.mutation.SetStatus(i)
 	return cuo
 }
 
-// SetNillableState sets the "state" field if the given value is not nil.
-func (cuo *ContestUpdateOne) SetNillableState(i *int) *ContestUpdateOne {
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cuo *ContestUpdateOne) SetNillableStatus(i *int) *ContestUpdateOne {
 	if i != nil {
-		cuo.SetState(*i)
+		cuo.SetStatus(*i)
 	}
 	return cuo
 }
 
-// AddState adds i to the "state" field.
-func (cuo *ContestUpdateOne) AddState(i int) *ContestUpdateOne {
-	cuo.mutation.AddState(i)
+// AddStatus adds i to the "status" field.
+func (cuo *ContestUpdateOne) AddStatus(i int) *ContestUpdateOne {
+	cuo.mutation.AddStatus(i)
 	return cuo
 }
 
@@ -606,21 +687,6 @@ func (cuo *ContestUpdateOne) SetNillableCreateTime(t *time.Time) *ContestUpdateO
 	return cuo
 }
 
-// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
-func (cuo *ContestUpdateOne) AddContestGroupIDs(ids ...int) *ContestUpdateOne {
-	cuo.mutation.AddContestGroupIDs(ids...)
-	return cuo
-}
-
-// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
-func (cuo *ContestUpdateOne) AddContestGroup(c ...*ContestGroup) *ContestUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cuo.AddContestGroupIDs(ids...)
-}
-
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
 func (cuo *ContestUpdateOne) AddProblemIDs(ids ...int) *ContestUpdateOne {
 	cuo.mutation.AddProblemIDs(ids...)
@@ -636,30 +702,39 @@ func (cuo *ContestUpdateOne) AddProblems(p ...*Problem) *ContestUpdateOne {
 	return cuo.AddProblemIDs(ids...)
 }
 
+// AddContestIDs adds the "contest" edge to the Group entity by IDs.
+func (cuo *ContestUpdateOne) AddContestIDs(ids ...int) *ContestUpdateOne {
+	cuo.mutation.AddContestIDs(ids...)
+	return cuo
+}
+
+// AddContest adds the "contest" edges to the Group entity.
+func (cuo *ContestUpdateOne) AddContest(g ...*Group) *ContestUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cuo.AddContestIDs(ids...)
+}
+
+// AddManageIDs adds the "manage" edge to the Group entity by IDs.
+func (cuo *ContestUpdateOne) AddManageIDs(ids ...int) *ContestUpdateOne {
+	cuo.mutation.AddManageIDs(ids...)
+	return cuo
+}
+
+// AddManage adds the "manage" edges to the Group entity.
+func (cuo *ContestUpdateOne) AddManage(g ...*Group) *ContestUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cuo.AddManageIDs(ids...)
+}
+
 // Mutation returns the ContestMutation object of the builder.
 func (cuo *ContestUpdateOne) Mutation() *ContestMutation {
 	return cuo.mutation
-}
-
-// ClearContestGroup clears all "contest_group" edges to the ContestGroup entity.
-func (cuo *ContestUpdateOne) ClearContestGroup() *ContestUpdateOne {
-	cuo.mutation.ClearContestGroup()
-	return cuo
-}
-
-// RemoveContestGroupIDs removes the "contest_group" edge to ContestGroup entities by IDs.
-func (cuo *ContestUpdateOne) RemoveContestGroupIDs(ids ...int) *ContestUpdateOne {
-	cuo.mutation.RemoveContestGroupIDs(ids...)
-	return cuo
-}
-
-// RemoveContestGroup removes "contest_group" edges to ContestGroup entities.
-func (cuo *ContestUpdateOne) RemoveContestGroup(c ...*ContestGroup) *ContestUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cuo.RemoveContestGroupIDs(ids...)
 }
 
 // ClearProblems clears all "problems" edges to the Problem entity.
@@ -681,6 +756,48 @@ func (cuo *ContestUpdateOne) RemoveProblems(p ...*Problem) *ContestUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return cuo.RemoveProblemIDs(ids...)
+}
+
+// ClearContest clears all "contest" edges to the Group entity.
+func (cuo *ContestUpdateOne) ClearContest() *ContestUpdateOne {
+	cuo.mutation.ClearContest()
+	return cuo
+}
+
+// RemoveContestIDs removes the "contest" edge to Group entities by IDs.
+func (cuo *ContestUpdateOne) RemoveContestIDs(ids ...int) *ContestUpdateOne {
+	cuo.mutation.RemoveContestIDs(ids...)
+	return cuo
+}
+
+// RemoveContest removes "contest" edges to Group entities.
+func (cuo *ContestUpdateOne) RemoveContest(g ...*Group) *ContestUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cuo.RemoveContestIDs(ids...)
+}
+
+// ClearManage clears all "manage" edges to the Group entity.
+func (cuo *ContestUpdateOne) ClearManage() *ContestUpdateOne {
+	cuo.mutation.ClearManage()
+	return cuo
+}
+
+// RemoveManageIDs removes the "manage" edge to Group entities by IDs.
+func (cuo *ContestUpdateOne) RemoveManageIDs(ids ...int) *ContestUpdateOne {
+	cuo.mutation.RemoveManageIDs(ids...)
+	return cuo
+}
+
+// RemoveManage removes "manage" edges to Group entities.
+func (cuo *ContestUpdateOne) RemoveManage(g ...*Group) *ContestUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return cuo.RemoveManageIDs(ids...)
 }
 
 // Where appends a list predicates to the ContestUpdate builder.
@@ -725,9 +842,9 @@ func (cuo *ContestUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuo *ContestUpdateOne) check() error {
-	if v, ok := cuo.mutation.State(); ok {
-		if err := contest.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
+	if v, ok := cuo.mutation.Status(); ok {
+		if err := contest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
 		}
 	}
 	if v, ok := cuo.mutation.GetType(); ok {
@@ -778,11 +895,11 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 	if value, ok := cuo.mutation.Description(); ok {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := cuo.mutation.State(); ok {
-		_spec.SetField(contest.FieldState, field.TypeInt, value)
+	if value, ok := cuo.mutation.Status(); ok {
+		_spec.SetField(contest.FieldStatus, field.TypeInt, value)
 	}
-	if value, ok := cuo.mutation.AddedState(); ok {
-		_spec.AddField(contest.FieldState, field.TypeInt, value)
+	if value, ok := cuo.mutation.AddedStatus(); ok {
+		_spec.AddField(contest.FieldStatus, field.TypeInt, value)
 	}
 	if value, ok := cuo.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt, value)
@@ -808,57 +925,12 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 	if value, ok := cuo.mutation.CreateTime(); ok {
 		_spec.SetField(contest.FieldCreateTime, field.TypeTime, value)
 	}
-	if cuo.mutation.ContestGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.RemovedContestGroupIDs(); len(nodes) > 0 && !cuo.mutation.ContestGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.ContestGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   contest.ContestGroupTable,
-			Columns: []string{contest.ContestGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if cuo.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -868,10 +940,10 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 	}
 	if nodes := cuo.mutation.RemovedProblemsIDs(); len(nodes) > 0 && !cuo.mutation.ProblemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
@@ -884,13 +956,103 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 	}
 	if nodes := cuo.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: []string{contest.ProblemsColumn},
+			Columns: contest.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedContestIDs(); len(nodes) > 0 && !cuo.mutation.ContestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.ContestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ContestTable,
+			Columns: contest.ContestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.ManageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedManageIDs(); len(nodes) > 0 && !cuo.mutation.ManageCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.ManageIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   contest.ManageTable,
+			Columns: contest.ManagePrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"time"
 )
 
 // LoginSession holds the schema definition for the LoginSession entity.
@@ -23,14 +24,13 @@ func (LoginSession) Annotations() []schema.Annotation {
 func (LoginSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").Unique(),
-		field.Int("user_id").Positive(),
-		field.Time("create_time"),
+		field.Time("create_time").Default(time.Now()),
 	}
 }
 
 // Edges of the LoginSession.
 func (LoginSession) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("users", User.Type).Ref("login_session"),
+		edge.From("users", User.Type).Ref("login_sessions").Unique(),
 	}
 }

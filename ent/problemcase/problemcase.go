@@ -12,8 +12,6 @@ const (
 	Label = "problem_case"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldProblemID holds the string denoting the problem_id field in the database.
-	FieldProblemID = "problem_id"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
 	// FieldIndex holds the string denoting the index field in the database.
@@ -22,19 +20,12 @@ const (
 	FieldIsAuto = "is_auto"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
-	// EdgeProblems holds the string denoting the problems edge name in mutations.
-	EdgeProblems = "problems"
 	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
 	EdgeSubmitCases = "submit_cases"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
 	// Table holds the table name of the problemcase in the database.
 	Table = "problem_cases"
-	// ProblemsTable is the table that holds the problems relation/edge.
-	ProblemsTable = "problem_cases"
-	// ProblemsInverseTable is the table name for the Problem entity.
-	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemsInverseTable = "problems"
-	// ProblemsColumn is the table column denoting the problems relation/edge.
-	ProblemsColumn = "problem_problem_cases"
 	// SubmitCasesTable is the table that holds the submit_cases relation/edge.
 	SubmitCasesTable = "submit_cases"
 	// SubmitCasesInverseTable is the table name for the SubmitCase entity.
@@ -42,12 +33,18 @@ const (
 	SubmitCasesInverseTable = "submit_cases"
 	// SubmitCasesColumn is the table column denoting the submit_cases relation/edge.
 	SubmitCasesColumn = "problem_case_submit_cases"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "problem_cases"
+	// ProblemsInverseTable is the table name for the Problem entity.
+	// It exists in this package in order to avoid circular dependency with the "problem" package.
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "problem_problem_cases"
 )
 
 // Columns holds all SQL columns for problemcase fields.
 var Columns = []string{
 	FieldID,
-	FieldProblemID,
 	FieldPoint,
 	FieldIndex,
 	FieldIsAuto,
@@ -76,8 +73,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// ProblemIDValidator is a validator for the "problem_id" field. It is called by the builders before save.
-	ProblemIDValidator func(int) error
+	// PointValidator is a validator for the "point" field. It is called by the builders before save.
+	PointValidator func(int) error
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	IndexValidator func(int) error
 	// DefaultIsAuto holds the default value on creation for the "is_auto" field.
@@ -92,11 +89,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByProblemID orders the results by the problem_id field.
-func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
 }
 
 // ByPoint orders the results by the point field.
@@ -119,13 +111,6 @@ func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDeleted, opts...).ToFunc()
 }
 
-// ByProblemsField orders the results by problems field.
-func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
-	}
-}
-
 // BySubmitCasesCount orders the results by submit_cases count.
 func BySubmitCasesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -139,17 +124,24 @@ func BySubmitCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSubmitCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newProblemsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
-	)
+
+// ByProblemsField orders the results by problems field.
+func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
+	}
 }
 func newSubmitCasesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SubmitCasesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
+	)
+}
+func newProblemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
 	)
 }
