@@ -11,47 +11,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Contest {
+func ID(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Contest {
+func IDEQ(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Contest {
+func IDNEQ(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Contest {
+func IDIn(ids ...int64) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Contest {
+func IDNotIn(ids ...int64) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Contest {
+func IDGT(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Contest {
+func IDGTE(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Contest {
+func IDLT(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Contest {
+func IDLTE(id int64) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldID, id))
 }
 
@@ -65,13 +65,13 @@ func Description(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldDescription, v))
 }
 
-// State applies equality check predicate on the "state" field. It's identical to StateEQ.
-func State(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldEQ(FieldState, v))
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStatus, v))
 }
 
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
-func Type(v int) predicate.Contest {
+func Type(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldType, v))
 }
 
@@ -91,7 +91,7 @@ func Language(v string) predicate.Contest {
 }
 
 // ExtraTime applies equality check predicate on the "extra_time" field. It's identical to ExtraTimeEQ.
-func ExtraTime(v int) predicate.Contest {
+func ExtraTime(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldExtraTime, v))
 }
 
@@ -230,83 +230,83 @@ func DescriptionContainsFold(v string) predicate.Contest {
 	return predicate.Contest(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// StateEQ applies the EQ predicate on the "state" field.
-func StateEQ(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldEQ(FieldState, v))
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldEQ(FieldStatus, v))
 }
 
-// StateNEQ applies the NEQ predicate on the "state" field.
-func StateNEQ(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldNEQ(FieldState, v))
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldNEQ(FieldStatus, v))
 }
 
-// StateIn applies the In predicate on the "state" field.
-func StateIn(vs ...int) predicate.Contest {
-	return predicate.Contest(sql.FieldIn(FieldState, vs...))
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...int16) predicate.Contest {
+	return predicate.Contest(sql.FieldIn(FieldStatus, vs...))
 }
 
-// StateNotIn applies the NotIn predicate on the "state" field.
-func StateNotIn(vs ...int) predicate.Contest {
-	return predicate.Contest(sql.FieldNotIn(FieldState, vs...))
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...int16) predicate.Contest {
+	return predicate.Contest(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// StateGT applies the GT predicate on the "state" field.
-func StateGT(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldGT(FieldState, v))
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldGT(FieldStatus, v))
 }
 
-// StateGTE applies the GTE predicate on the "state" field.
-func StateGTE(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldGTE(FieldState, v))
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldGTE(FieldStatus, v))
 }
 
-// StateLT applies the LT predicate on the "state" field.
-func StateLT(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldLT(FieldState, v))
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldLT(FieldStatus, v))
 }
 
-// StateLTE applies the LTE predicate on the "state" field.
-func StateLTE(v int) predicate.Contest {
-	return predicate.Contest(sql.FieldLTE(FieldState, v))
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v int16) predicate.Contest {
+	return predicate.Contest(sql.FieldLTE(FieldStatus, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v int) predicate.Contest {
+func TypeEQ(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldType, v))
 }
 
 // TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v int) predicate.Contest {
+func TypeNEQ(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldType, v))
 }
 
 // TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...int) predicate.Contest {
+func TypeIn(vs ...int16) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldType, vs...))
 }
 
 // TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...int) predicate.Contest {
+func TypeNotIn(vs ...int16) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldType, vs...))
 }
 
 // TypeGT applies the GT predicate on the "type" field.
-func TypeGT(v int) predicate.Contest {
+func TypeGT(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldGT(FieldType, v))
 }
 
 // TypeGTE applies the GTE predicate on the "type" field.
-func TypeGTE(v int) predicate.Contest {
+func TypeGTE(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldGTE(FieldType, v))
 }
 
 // TypeLT applies the LT predicate on the "type" field.
-func TypeLT(v int) predicate.Contest {
+func TypeLT(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldLT(FieldType, v))
 }
 
 // TypeLTE applies the LTE predicate on the "type" field.
-func TypeLTE(v int) predicate.Contest {
+func TypeLTE(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldType, v))
 }
 
@@ -456,42 +456,42 @@ func LanguageContainsFold(v string) predicate.Contest {
 }
 
 // ExtraTimeEQ applies the EQ predicate on the "extra_time" field.
-func ExtraTimeEQ(v int) predicate.Contest {
+func ExtraTimeEQ(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldEQ(FieldExtraTime, v))
 }
 
 // ExtraTimeNEQ applies the NEQ predicate on the "extra_time" field.
-func ExtraTimeNEQ(v int) predicate.Contest {
+func ExtraTimeNEQ(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldNEQ(FieldExtraTime, v))
 }
 
 // ExtraTimeIn applies the In predicate on the "extra_time" field.
-func ExtraTimeIn(vs ...int) predicate.Contest {
+func ExtraTimeIn(vs ...int16) predicate.Contest {
 	return predicate.Contest(sql.FieldIn(FieldExtraTime, vs...))
 }
 
 // ExtraTimeNotIn applies the NotIn predicate on the "extra_time" field.
-func ExtraTimeNotIn(vs ...int) predicate.Contest {
+func ExtraTimeNotIn(vs ...int16) predicate.Contest {
 	return predicate.Contest(sql.FieldNotIn(FieldExtraTime, vs...))
 }
 
 // ExtraTimeGT applies the GT predicate on the "extra_time" field.
-func ExtraTimeGT(v int) predicate.Contest {
+func ExtraTimeGT(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldGT(FieldExtraTime, v))
 }
 
 // ExtraTimeGTE applies the GTE predicate on the "extra_time" field.
-func ExtraTimeGTE(v int) predicate.Contest {
+func ExtraTimeGTE(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldGTE(FieldExtraTime, v))
 }
 
 // ExtraTimeLT applies the LT predicate on the "extra_time" field.
-func ExtraTimeLT(v int) predicate.Contest {
+func ExtraTimeLT(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldLT(FieldExtraTime, v))
 }
 
 // ExtraTimeLTE applies the LTE predicate on the "extra_time" field.
-func ExtraTimeLTE(v int) predicate.Contest {
+func ExtraTimeLTE(v int16) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldExtraTime, v))
 }
 
@@ -535,29 +535,6 @@ func CreateTimeLTE(v time.Time) predicate.Contest {
 	return predicate.Contest(sql.FieldLTE(FieldCreateTime, v))
 }
 
-// HasContestGroup applies the HasEdge predicate on the "contest_group" edge.
-func HasContestGroup() predicate.Contest {
-	return predicate.Contest(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasContestGroupWith applies the HasEdge predicate on the "contest_group" edge with a given conditions (other predicates).
-func HasContestGroupWith(preds ...predicate.ContestGroup) predicate.Contest {
-	return predicate.Contest(func(s *sql.Selector) {
-		step := newContestGroupStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasProblems applies the HasEdge predicate on the "problems" edge.
 func HasProblems() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
@@ -573,6 +550,52 @@ func HasProblems() predicate.Contest {
 func HasProblemsWith(preds ...predicate.Problem) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := newProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContest applies the HasEdge predicate on the "contest" edge.
+func HasContest() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ContestTable, ContestPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestWith applies the HasEdge predicate on the "contest" edge with a given conditions (other predicates).
+func HasContestWith(preds ...predicate.Group) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newContestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasManage applies the HasEdge predicate on the "manage" edge.
+func HasManage() predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ManageTable, ManagePrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasManageWith applies the HasEdge predicate on the "manage" edge with a given conditions (other predicates).
+func HasManageWith(preds ...predicate.Group) predicate.Contest {
+	return predicate.Contest(func(s *sql.Selector) {
+		step := newManageStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

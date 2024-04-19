@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 	"sastoj/ent/loginsession"
@@ -74,7 +73,7 @@ func (lsq *LoginSessionQuery) QueryUsers() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(loginsession.Table, loginsession.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, loginsession.UsersTable, loginsession.UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, loginsession.UsersTable, loginsession.UsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(lsq.driver.Dialect(), step)
 		return fromU, nil
@@ -106,8 +105,8 @@ func (lsq *LoginSessionQuery) FirstX(ctx context.Context) *LoginSession {
 
 // FirstID returns the first LoginSession ID from the query.
 // Returns a *NotFoundError when no LoginSession ID was found.
-func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = lsq.Limit(1).IDs(setContextOp(ctx, lsq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +118,7 @@ func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (lsq *LoginSessionQuery) FirstIDX(ctx context.Context) int {
+func (lsq *LoginSessionQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := lsq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +156,8 @@ func (lsq *LoginSessionQuery) OnlyX(ctx context.Context) *LoginSession {
 // OnlyID is like Only, but returns the only LoginSession ID in the query.
 // Returns a *NotSingularError when more than one LoginSession ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = lsq.Limit(2).IDs(setContextOp(ctx, lsq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +173,7 @@ func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (lsq *LoginSessionQuery) OnlyIDX(ctx context.Context) int {
+func (lsq *LoginSessionQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := lsq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +201,7 @@ func (lsq *LoginSessionQuery) AllX(ctx context.Context) []*LoginSession {
 }
 
 // IDs executes the query and returns a list of LoginSession IDs.
-func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if lsq.ctx.Unique == nil && lsq.path != nil {
 		lsq.Unique(true)
 	}
@@ -214,7 +213,7 @@ func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (lsq *LoginSessionQuery) IDsX(ctx context.Context) []int {
+func (lsq *LoginSessionQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := lsq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -298,12 +297,12 @@ func (lsq *LoginSessionQuery) WithUsers(opts ...func(*UserQuery)) *LoginSessionQ
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.LoginSession.Query().
-//		GroupBy(loginsession.FieldUserID).
+//		GroupBy(loginsession.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (lsq *LoginSessionQuery) GroupBy(field string, fields ...string) *LoginSessionGroupBy {
@@ -321,11 +320,11 @@ func (lsq *LoginSessionQuery) GroupBy(field string, fields ...string) *LoginSess
 // Example:
 //
 //	var v []struct {
-//		UserID int `json:"user_id,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.LoginSession.Query().
-//		Select(loginsession.FieldUserID).
+//		Select(loginsession.FieldCreateTime).
 //		Scan(ctx, &v)
 func (lsq *LoginSessionQuery) Select(fields ...string) *LoginSessionSelect {
 	lsq.ctx.Fields = append(lsq.ctx.Fields, fields...)
@@ -393,9 +392,8 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		return nodes, nil
 	}
 	if query := lsq.withUsers; query != nil {
-		if err := lsq.loadUsers(ctx, query, nodes,
-			func(n *LoginSession) { n.Edges.Users = []*User{} },
-			func(n *LoginSession, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
+		if err := lsq.loadUsers(ctx, query, nodes, nil,
+			func(n *LoginSession, e *User) { n.Edges.Users = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -403,62 +401,30 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 }
 
 func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*LoginSession, init func(*LoginSession), assign func(*LoginSession, *User)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*LoginSession)
-	nids := make(map[int]map[*LoginSession]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*LoginSession)
+	for i := range nodes {
+		fk := nodes[i].UserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
 		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(loginsession.UsersTable)
-		s.Join(joinT).On(s.C(user.FieldID), joinT.C(loginsession.UsersPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(loginsession.UsersPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(loginsession.UsersPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*LoginSession]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*User](ctx, query, qr, query.inters)
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil
@@ -474,7 +440,7 @@ func (lsq *LoginSessionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (lsq *LoginSessionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	_spec.From = lsq.sql
 	if unique := lsq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -488,6 +454,9 @@ func (lsq *LoginSessionQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != loginsession.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if lsq.withUsers != nil {
+			_spec.Node.AddColumnOnce(loginsession.FieldUserID)
 		}
 	}
 	if ps := lsq.predicates; len(ps) > 0 {

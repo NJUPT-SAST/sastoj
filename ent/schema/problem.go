@@ -14,24 +14,24 @@ type Problem struct {
 // Fields of the Problem.
 func (Problem) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.String("title"),
 		field.String("content"),
-		field.Int("point"),
-		field.Int("contest_id"),
-		field.Int("case_version"),
-		field.Int("index"),
+		field.Int16("point").NonNegative(),
+		field.Int16("case_version").Default(1),
+		field.Int16("index").Positive(),
 		field.Bool("is_deleted").Default(false),
 		field.String("config"),
+		field.Int64("contest_id"),
 	}
 }
 
 // Edges of the Problem.
 func (Problem) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("contests", Contest.Type).Ref("problems").Unique(),
 		edge.To("problem_cases", ProblemCase.Type),
-		edge.To("problem_judges", ProblemJudge.Type),
 		edge.To("submission", Submit.Type),
+		edge.From("contests", Contest.Type).Ref("problems").Field("contest_id").Unique().Required(),
+		edge.From("groups", Group.Type).Ref("problems"),
 	}
 }

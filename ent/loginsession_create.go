@@ -21,37 +21,41 @@ type LoginSessionCreate struct {
 	hooks    []Hook
 }
 
-// SetUserID sets the "user_id" field.
-func (lsc *LoginSessionCreate) SetUserID(i int) *LoginSessionCreate {
-	lsc.mutation.SetUserID(i)
-	return lsc
-}
-
 // SetCreateTime sets the "create_time" field.
 func (lsc *LoginSessionCreate) SetCreateTime(t time.Time) *LoginSessionCreate {
 	lsc.mutation.SetCreateTime(t)
 	return lsc
 }
 
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (lsc *LoginSessionCreate) SetNillableCreateTime(t *time.Time) *LoginSessionCreate {
+	if t != nil {
+		lsc.SetCreateTime(*t)
+	}
+	return lsc
+}
+
+// SetUserID sets the "user_id" field.
+func (lsc *LoginSessionCreate) SetUserID(i int64) *LoginSessionCreate {
+	lsc.mutation.SetUserID(i)
+	return lsc
+}
+
 // SetID sets the "id" field.
-func (lsc *LoginSessionCreate) SetID(i int) *LoginSessionCreate {
+func (lsc *LoginSessionCreate) SetID(i int64) *LoginSessionCreate {
 	lsc.mutation.SetID(i)
 	return lsc
 }
 
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (lsc *LoginSessionCreate) AddUserIDs(ids ...int) *LoginSessionCreate {
-	lsc.mutation.AddUserIDs(ids...)
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (lsc *LoginSessionCreate) SetUsersID(id int64) *LoginSessionCreate {
+	lsc.mutation.SetUsersID(id)
 	return lsc
 }
 
-// AddUsers adds the "users" edges to the User entity.
-func (lsc *LoginSessionCreate) AddUsers(u ...*User) *LoginSessionCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return lsc.AddUserIDs(ids...)
+// SetUsers sets the "users" edge to the User entity.
+func (lsc *LoginSessionCreate) SetUsers(u *User) *LoginSessionCreate {
+	return lsc.SetUsersID(u.ID)
 }
 
 // Mutation returns the LoginSessionMutation object of the builder.
@@ -61,6 +65,7 @@ func (lsc *LoginSessionCreate) Mutation() *LoginSessionMutation {
 
 // Save creates the LoginSession in the database.
 func (lsc *LoginSessionCreate) Save(ctx context.Context) (*LoginSession, error) {
+	lsc.defaults()
 	return withHooks(ctx, lsc.sqlSave, lsc.mutation, lsc.hooks)
 }
 
@@ -86,18 +91,24 @@ func (lsc *LoginSessionCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (lsc *LoginSessionCreate) defaults() {
+	if _, ok := lsc.mutation.CreateTime(); !ok {
+		v := loginsession.DefaultCreateTime
+		lsc.mutation.SetCreateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (lsc *LoginSessionCreate) check() error {
+	if _, ok := lsc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "LoginSession.create_time"`)}
+	}
 	if _, ok := lsc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "LoginSession.user_id"`)}
 	}
-	if v, ok := lsc.mutation.UserID(); ok {
-		if err := loginsession.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "LoginSession.user_id": %w`, err)}
-		}
-	}
-	if _, ok := lsc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "LoginSession.create_time"`)}
+	if _, ok := lsc.mutation.UsersID(); !ok {
+		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "LoginSession.users"`)}
 	}
 	return nil
 }
@@ -115,7 +126,7 @@ func (lsc *LoginSessionCreate) sqlSave(ctx context.Context) (*LoginSession, erro
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	lsc.mutation.id = &_node.ID
 	lsc.mutation.done = true
@@ -125,15 +136,11 @@ func (lsc *LoginSessionCreate) sqlSave(ctx context.Context) (*LoginSession, erro
 func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec) {
 	var (
 		_node = &LoginSession{config: lsc.config}
-		_spec = sqlgraph.NewCreateSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	)
 	if id, ok := lsc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
-	}
-	if value, ok := lsc.mutation.UserID(); ok {
-		_spec.SetField(loginsession.FieldUserID, field.TypeInt, value)
-		_node.UserID = value
 	}
 	if value, ok := lsc.mutation.CreateTime(); ok {
 		_spec.SetField(loginsession.FieldCreateTime, field.TypeTime, value)
@@ -141,18 +148,19 @@ func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec
 	}
 	if nodes := lsc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   loginsession.UsersTable,
-			Columns: loginsession.UsersPrimaryKey,
+			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -176,6 +184,7 @@ func (lscb *LoginSessionCreateBulk) Save(ctx context.Context) ([]*LoginSession, 
 	for i := range lscb.builders {
 		func(i int, root context.Context) {
 			builder := lscb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LoginSessionMutation)
 				if !ok {
@@ -204,7 +213,7 @@ func (lscb *LoginSessionCreateBulk) Save(ctx context.Context) ([]*LoginSession, 
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

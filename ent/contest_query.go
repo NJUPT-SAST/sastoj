@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"math"
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
+	"sastoj/ent/group"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 
@@ -20,12 +20,13 @@ import (
 // ContestQuery is the builder for querying Contest entities.
 type ContestQuery struct {
 	config
-	ctx              *QueryContext
-	order            []contest.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Contest
-	withContestGroup *ContestGroupQuery
-	withProblems     *ProblemQuery
+	ctx          *QueryContext
+	order        []contest.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Contest
+	withProblems *ProblemQuery
+	withContest  *GroupQuery
+	withManage   *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,28 +63,6 @@ func (cq *ContestQuery) Order(o ...contest.OrderOption) *ContestQuery {
 	return cq
 }
 
-// QueryContestGroup chains the current query on the "contest_group" edge.
-func (cq *ContestQuery) QueryContestGroup() *ContestGroupQuery {
-	query := (&ContestGroupClient{config: cq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := cq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := cq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(contest.Table, contest.FieldID, selector),
-			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestGroupTable, contest.ContestGroupColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryProblems chains the current query on the "problems" edge.
 func (cq *ContestQuery) QueryProblems() *ProblemQuery {
 	query := (&ProblemClient{config: cq.config}).Query()
@@ -99,6 +78,50 @@ func (cq *ContestQuery) QueryProblems() *ProblemQuery {
 			sqlgraph.From(contest.Table, contest.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContest chains the current query on the "contest" edge.
+func (cq *ContestQuery) QueryContest() *GroupQuery {
+	query := (&GroupClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, contest.ContestTable, contest.ContestPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryManage chains the current query on the "manage" edge.
+func (cq *ContestQuery) QueryManage() *GroupQuery {
+	query := (&GroupClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, contest.ManageTable, contest.ManagePrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -130,8 +153,8 @@ func (cq *ContestQuery) FirstX(ctx context.Context) *Contest {
 
 // FirstID returns the first Contest ID from the query.
 // Returns a *NotFoundError when no Contest ID was found.
-func (cq *ContestQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *ContestQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = cq.Limit(1).IDs(setContextOp(ctx, cq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -143,7 +166,7 @@ func (cq *ContestQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (cq *ContestQuery) FirstIDX(ctx context.Context) int {
+func (cq *ContestQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := cq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -181,8 +204,8 @@ func (cq *ContestQuery) OnlyX(ctx context.Context) *Contest {
 // OnlyID is like Only, but returns the only Contest ID in the query.
 // Returns a *NotSingularError when more than one Contest ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (cq *ContestQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *ContestQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = cq.Limit(2).IDs(setContextOp(ctx, cq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -198,7 +221,7 @@ func (cq *ContestQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (cq *ContestQuery) OnlyIDX(ctx context.Context) int {
+func (cq *ContestQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := cq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -226,7 +249,7 @@ func (cq *ContestQuery) AllX(ctx context.Context) []*Contest {
 }
 
 // IDs executes the query and returns a list of Contest IDs.
-func (cq *ContestQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (cq *ContestQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if cq.ctx.Unique == nil && cq.path != nil {
 		cq.Unique(true)
 	}
@@ -238,7 +261,7 @@ func (cq *ContestQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (cq *ContestQuery) IDsX(ctx context.Context) []int {
+func (cq *ContestQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := cq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -293,28 +316,18 @@ func (cq *ContestQuery) Clone() *ContestQuery {
 		return nil
 	}
 	return &ContestQuery{
-		config:           cq.config,
-		ctx:              cq.ctx.Clone(),
-		order:            append([]contest.OrderOption{}, cq.order...),
-		inters:           append([]Interceptor{}, cq.inters...),
-		predicates:       append([]predicate.Contest{}, cq.predicates...),
-		withContestGroup: cq.withContestGroup.Clone(),
-		withProblems:     cq.withProblems.Clone(),
+		config:       cq.config,
+		ctx:          cq.ctx.Clone(),
+		order:        append([]contest.OrderOption{}, cq.order...),
+		inters:       append([]Interceptor{}, cq.inters...),
+		predicates:   append([]predicate.Contest{}, cq.predicates...),
+		withProblems: cq.withProblems.Clone(),
+		withContest:  cq.withContest.Clone(),
+		withManage:   cq.withManage.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
-}
-
-// WithContestGroup tells the query-builder to eager-load the nodes that are connected to
-// the "contest_group" edge. The optional arguments are used to configure the query builder of the edge.
-func (cq *ContestQuery) WithContestGroup(opts ...func(*ContestGroupQuery)) *ContestQuery {
-	query := (&ContestGroupClient{config: cq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	cq.withContestGroup = query
-	return cq
 }
 
 // WithProblems tells the query-builder to eager-load the nodes that are connected to
@@ -325,6 +338,28 @@ func (cq *ContestQuery) WithProblems(opts ...func(*ProblemQuery)) *ContestQuery 
 		opt(query)
 	}
 	cq.withProblems = query
+	return cq
+}
+
+// WithContest tells the query-builder to eager-load the nodes that are connected to
+// the "contest" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *ContestQuery) WithContest(opts ...func(*GroupQuery)) *ContestQuery {
+	query := (&GroupClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withContest = query
+	return cq
+}
+
+// WithManage tells the query-builder to eager-load the nodes that are connected to
+// the "manage" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *ContestQuery) WithManage(opts ...func(*GroupQuery)) *ContestQuery {
+	query := (&GroupClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withManage = query
 	return cq
 }
 
@@ -406,9 +441,10 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	var (
 		nodes       = []*Contest{}
 		_spec       = cq.querySpec()
-		loadedTypes = [2]bool{
-			cq.withContestGroup != nil,
+		loadedTypes = [3]bool{
 			cq.withProblems != nil,
+			cq.withContest != nil,
+			cq.withManage != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -429,13 +465,6 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := cq.withContestGroup; query != nil {
-		if err := cq.loadContestGroup(ctx, query, nodes,
-			func(n *Contest) { n.Edges.ContestGroup = []*ContestGroup{} },
-			func(n *Contest, e *ContestGroup) { n.Edges.ContestGroup = append(n.Edges.ContestGroup, e) }); err != nil {
-			return nil, err
-		}
-	}
 	if query := cq.withProblems; query != nil {
 		if err := cq.loadProblems(ctx, query, nodes,
 			func(n *Contest) { n.Edges.Problems = []*Problem{} },
@@ -443,43 +472,26 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 			return nil, err
 		}
 	}
+	if query := cq.withContest; query != nil {
+		if err := cq.loadContest(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Contest = []*Group{} },
+			func(n *Contest, e *Group) { n.Edges.Contest = append(n.Edges.Contest, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withManage; query != nil {
+		if err := cq.loadManage(ctx, query, nodes,
+			func(n *Contest) { n.Edges.Manage = []*Group{} },
+			func(n *Contest, e *Group) { n.Edges.Manage = append(n.Edges.Manage, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (cq *ContestQuery) loadContestGroup(ctx context.Context, query *ContestGroupQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestGroup)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.ContestGroup(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(contest.ContestGroupColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.contest_contest_group
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "contest_contest_group" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "contest_contest_group" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 func (cq *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Problem)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Contest)
+	nodeids := make(map[int64]*Contest)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -487,7 +499,9 @@ func (cq *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, n
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(problem.FieldContestID)
+	}
 	query.Where(predicate.Problem(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(contest.ProblemsColumn), fks...))
 	}))
@@ -496,15 +510,134 @@ func (cq *ContestQuery) loadProblems(ctx context.Context, query *ProblemQuery, n
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.contest_problems
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "contest_problems" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ContestID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "contest_problems" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (cq *ContestQuery) loadContest(ctx context.Context, query *GroupQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Group)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int64]*Contest)
+	nids := make(map[int64]map[*Contest]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(contest.ContestTable)
+		s.Join(joinT).On(s.C(group.FieldID), joinT.C(contest.ContestPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(contest.ContestPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(contest.ContestPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullInt64).Int64
+				inValue := values[1].(*sql.NullInt64).Int64
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Contest]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Group](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "contest" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (cq *ContestQuery) loadManage(ctx context.Context, query *GroupQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *Group)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int64]*Contest)
+	nids := make(map[int64]map[*Contest]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(contest.ManageTable)
+		s.Join(joinT).On(s.C(group.FieldID), joinT.C(contest.ManagePrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(contest.ManagePrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(contest.ManagePrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullInt64).Int64
+				inValue := values[1].(*sql.NullInt64).Int64
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Contest]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Group](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "manage" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
@@ -519,7 +652,7 @@ func (cq *ContestQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (cq *ContestQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(contest.Table, contest.Columns, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64))
 	_spec.From = cq.sql
 	if unique := cq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

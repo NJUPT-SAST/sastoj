@@ -3,6 +3,8 @@
 package contest
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -16,8 +18,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldState holds the string denoting the state field in the database.
-	FieldState = "state"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldStartTime holds the string denoting the start_time field in the database.
@@ -30,26 +32,31 @@ const (
 	FieldExtraTime = "extra_time"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
-	// EdgeContestGroup holds the string denoting the contest_group edge name in mutations.
-	EdgeContestGroup = "contest_group"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
+	// EdgeContest holds the string denoting the contest edge name in mutations.
+	EdgeContest = "contest"
+	// EdgeManage holds the string denoting the manage edge name in mutations.
+	EdgeManage = "manage"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
-	// ContestGroupTable is the table that holds the contest_group relation/edge.
-	ContestGroupTable = "contest_group"
-	// ContestGroupInverseTable is the table name for the ContestGroup entity.
-	// It exists in this package in order to avoid circular dependency with the "contestgroup" package.
-	ContestGroupInverseTable = "contest_group"
-	// ContestGroupColumn is the table column denoting the contest_group relation/edge.
-	ContestGroupColumn = "contest_contest_group"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "problems"
 	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemsInverseTable = "problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
-	ProblemsColumn = "contest_problems"
+	ProblemsColumn = "contest_id"
+	// ContestTable is the table that holds the contest relation/edge. The primary key declared below.
+	ContestTable = "group_contestants"
+	// ContestInverseTable is the table name for the Group entity.
+	// It exists in this package in order to avoid circular dependency with the "group" package.
+	ContestInverseTable = "groups"
+	// ManageTable is the table that holds the manage relation/edge. The primary key declared below.
+	ManageTable = "group_admins"
+	// ManageInverseTable is the table name for the Group entity.
+	// It exists in this package in order to avoid circular dependency with the "group" package.
+	ManageInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for contest fields.
@@ -57,7 +64,7 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldDescription,
-	FieldState,
+	FieldStatus,
 	FieldType,
 	FieldStartTime,
 	FieldEndTime,
@@ -65,6 +72,15 @@ var Columns = []string{
 	FieldExtraTime,
 	FieldCreateTime,
 }
+
+var (
+	// ContestPrimaryKey and ContestColumn2 are the table columns denoting the
+	// primary key for the contest relation (M2M).
+	ContestPrimaryKey = []string{"group_id", "contest_id"}
+	// ManagePrimaryKey and ManageColumn2 are the table columns denoting the
+	// primary key for the manage relation (M2M).
+	ManagePrimaryKey = []string{"group_id", "contest_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -77,12 +93,16 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// StateValidator is a validator for the "state" field. It is called by the builders before save.
-	StateValidator func(int) error
+	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	StatusValidator func(int16) error
 	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	TypeValidator func(int) error
+	TypeValidator func(int16) error
+	// DefaultExtraTime holds the default value on creation for the "extra_time" field.
+	DefaultExtraTime int16
 	// ExtraTimeValidator is a validator for the "extra_time" field. It is called by the builders before save.
-	ExtraTimeValidator func(int) error
+	ExtraTimeValidator func(int16) error
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime time.Time
 )
 
 // OrderOption defines the ordering options for the Contest queries.
@@ -103,9 +123,9 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByState orders the results by the state field.
-func ByState(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldState, opts...).ToFunc()
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByType orders the results by the type field.
@@ -138,20 +158,6 @@ func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
 }
 
-// ByContestGroupCount orders the results by contest_group count.
-func ByContestGroupCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newContestGroupStep(), opts...)
-	}
-}
-
-// ByContestGroup orders the results by contest_group terms.
-func ByContestGroup(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestGroupStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByProblemsCount orders the results by problems count.
 func ByProblemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -165,17 +171,52 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newContestGroupStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestGroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
-	)
+
+// ByContestCount orders the results by contest count.
+func ByContestCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestStep(), opts...)
+	}
+}
+
+// ByContest orders the results by contest terms.
+func ByContest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByManageCount orders the results by manage count.
+func ByManageCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newManageStep(), opts...)
+	}
+}
+
+// ByManage orders the results by manage terms.
+func ByManage(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newManageStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
+	)
+}
+func newContestStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ContestTable, ContestPrimaryKey...),
+	)
+}
+func newManageStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ManageInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ManageTable, ManagePrimaryKey...),
 	)
 }

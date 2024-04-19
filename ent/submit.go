@@ -18,61 +18,53 @@ import (
 type Submit struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
-	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
-	// State holds the value of the "state" field.
-	State int `json:"state,omitempty"`
+	// Status holds the value of the "status" field.
+	Status int16 `json:"status,omitempty"`
 	// Point holds the value of the "point" field.
-	Point int `json:"point,omitempty"`
+	Point int16 `json:"point,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// TotalTime holds the value of the "total_time" field.
-	TotalTime time.Time `json:"total_time,omitempty"`
+	TotalTime int32 `json:"total_time,omitempty"`
 	// MaxMemory holds the value of the "max_memory" field.
-	MaxMemory int `json:"max_memory,omitempty"`
+	MaxMemory int32 `json:"max_memory,omitempty"`
 	// Language holds the value of the "language" field.
 	Language string `json:"language,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
-	CaseVersion int `json:"case_version,omitempty"`
+	CaseVersion int8 `json:"case_version,omitempty"`
+	// ProblemID holds the value of the "problem_id" field.
+	ProblemID int64 `json:"problem_id,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int64 `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitQuery when eager-loading is set.
-	Edges              SubmitEdges `json:"edges"`
-	problem_submission *int
-	user_submission    *int
-	selectValues       sql.SelectValues
+	Edges        SubmitEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // SubmitEdges holds the relations/edges for other nodes in the graph.
 type SubmitEdges struct {
-	// Users holds the value of the users edge.
-	Users *User `json:"users,omitempty"`
-	// Problems holds the value of the problems edge.
-	Problems *Problem `json:"problems,omitempty"`
-	// SubmitJudge holds the value of the submit_judge edge.
-	SubmitJudge []*SubmitJudge `json:"submit_judge,omitempty"`
 	// SubmitCases holds the value of the submit_cases edge.
 	SubmitCases []*SubmitCase `json:"submit_cases,omitempty"`
+	// Problems holds the value of the problems edge.
+	Problems *Problem `json:"problems,omitempty"`
+	// Users holds the value of the users edge.
+	Users *User `json:"users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [3]bool
 }
 
-// UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SubmitEdges) UsersOrErr() (*User, error) {
+// SubmitCasesOrErr returns the SubmitCases value or an error if the edge
+// was not loaded in eager-loading.
+func (e SubmitEdges) SubmitCasesOrErr() ([]*SubmitCase, error) {
 	if e.loadedTypes[0] {
-		if e.Users == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
-		return e.Users, nil
+		return e.SubmitCases, nil
 	}
-	return nil, &NotLoadedError{edge: "users"}
+	return nil, &NotLoadedError{edge: "submit_cases"}
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -88,22 +80,17 @@ func (e SubmitEdges) ProblemsOrErr() (*Problem, error) {
 	return nil, &NotLoadedError{edge: "problems"}
 }
 
-// SubmitJudgeOrErr returns the SubmitJudge value or an error if the edge
-// was not loaded in eager-loading.
-func (e SubmitEdges) SubmitJudgeOrErr() ([]*SubmitJudge, error) {
+// UsersOrErr returns the Users value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SubmitEdges) UsersOrErr() (*User, error) {
 	if e.loadedTypes[2] {
-		return e.SubmitJudge, nil
+		if e.Users == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
+		return e.Users, nil
 	}
-	return nil, &NotLoadedError{edge: "submit_judge"}
-}
-
-// SubmitCasesOrErr returns the SubmitCases value or an error if the edge
-// was not loaded in eager-loading.
-func (e SubmitEdges) SubmitCasesOrErr() ([]*SubmitCase, error) {
-	if e.loadedTypes[3] {
-		return e.SubmitCases, nil
-	}
-	return nil, &NotLoadedError{edge: "submit_cases"}
+	return nil, &NotLoadedError{edge: "users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -111,16 +98,12 @@ func (*Submit) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submit.FieldID, submit.FieldUserID, submit.FieldProblemID, submit.FieldState, submit.FieldPoint, submit.FieldMaxMemory, submit.FieldCaseVersion:
+		case submit.FieldID, submit.FieldStatus, submit.FieldPoint, submit.FieldTotalTime, submit.FieldMaxMemory, submit.FieldCaseVersion, submit.FieldProblemID, submit.FieldUserID:
 			values[i] = new(sql.NullInt64)
 		case submit.FieldCode, submit.FieldLanguage:
 			values[i] = new(sql.NullString)
-		case submit.FieldCreateTime, submit.FieldTotalTime:
+		case submit.FieldCreateTime:
 			values[i] = new(sql.NullTime)
-		case submit.ForeignKeys[0]: // problem_submission
-			values[i] = new(sql.NullInt64)
-		case submit.ForeignKeys[1]: // user_submission
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -141,36 +124,24 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			s.ID = int(value.Int64)
-		case submit.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				s.UserID = int(value.Int64)
-			}
-		case submit.FieldProblemID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
-			} else if value.Valid {
-				s.ProblemID = int(value.Int64)
-			}
+			s.ID = int64(value.Int64)
 		case submit.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				s.Code = value.String
 			}
-		case submit.FieldState:
+		case submit.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field state", values[i])
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.State = int(value.Int64)
+				s.Status = int16(value.Int64)
 			}
 		case submit.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
-				s.Point = int(value.Int64)
+				s.Point = int16(value.Int64)
 			}
 		case submit.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -179,16 +150,16 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 				s.CreateTime = value.Time
 			}
 		case submit.FieldTotalTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_time", values[i])
 			} else if value.Valid {
-				s.TotalTime = value.Time
+				s.TotalTime = int32(value.Int64)
 			}
 		case submit.FieldMaxMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_memory", values[i])
 			} else if value.Valid {
-				s.MaxMemory = int(value.Int64)
+				s.MaxMemory = int32(value.Int64)
 			}
 		case submit.FieldLanguage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -200,21 +171,19 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field case_version", values[i])
 			} else if value.Valid {
-				s.CaseVersion = int(value.Int64)
+				s.CaseVersion = int8(value.Int64)
 			}
-		case submit.ForeignKeys[0]:
+		case submit.FieldProblemID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field problem_submission", value)
+				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
-				s.problem_submission = new(int)
-				*s.problem_submission = int(value.Int64)
+				s.ProblemID = value.Int64
 			}
-		case submit.ForeignKeys[1]:
+		case submit.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_submission", value)
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				s.user_submission = new(int)
-				*s.user_submission = int(value.Int64)
+				s.UserID = value.Int64
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -229,9 +198,9 @@ func (s *Submit) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QueryUsers queries the "users" edge of the Submit entity.
-func (s *Submit) QueryUsers() *UserQuery {
-	return NewSubmitClient(s.config).QueryUsers(s)
+// QuerySubmitCases queries the "submit_cases" edge of the Submit entity.
+func (s *Submit) QuerySubmitCases() *SubmitCaseQuery {
+	return NewSubmitClient(s.config).QuerySubmitCases(s)
 }
 
 // QueryProblems queries the "problems" edge of the Submit entity.
@@ -239,14 +208,9 @@ func (s *Submit) QueryProblems() *ProblemQuery {
 	return NewSubmitClient(s.config).QueryProblems(s)
 }
 
-// QuerySubmitJudge queries the "submit_judge" edge of the Submit entity.
-func (s *Submit) QuerySubmitJudge() *SubmitJudgeQuery {
-	return NewSubmitClient(s.config).QuerySubmitJudge(s)
-}
-
-// QuerySubmitCases queries the "submit_cases" edge of the Submit entity.
-func (s *Submit) QuerySubmitCases() *SubmitCaseQuery {
-	return NewSubmitClient(s.config).QuerySubmitCases(s)
+// QueryUsers queries the "users" edge of the Submit entity.
+func (s *Submit) QueryUsers() *UserQuery {
+	return NewSubmitClient(s.config).QueryUsers(s)
 }
 
 // Update returns a builder for updating this Submit.
@@ -272,17 +236,11 @@ func (s *Submit) String() string {
 	var builder strings.Builder
 	builder.WriteString("Submit(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
-	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.UserID))
-	builder.WriteString(", ")
-	builder.WriteString("problem_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.ProblemID))
-	builder.WriteString(", ")
 	builder.WriteString("code=")
 	builder.WriteString(s.Code)
 	builder.WriteString(", ")
-	builder.WriteString("state=")
-	builder.WriteString(fmt.Sprintf("%v", s.State))
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", s.Status))
 	builder.WriteString(", ")
 	builder.WriteString("point=")
 	builder.WriteString(fmt.Sprintf("%v", s.Point))
@@ -291,7 +249,7 @@ func (s *Submit) String() string {
 	builder.WriteString(s.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("total_time=")
-	builder.WriteString(s.TotalTime.Format(time.ANSIC))
+	builder.WriteString(fmt.Sprintf("%v", s.TotalTime))
 	builder.WriteString(", ")
 	builder.WriteString("max_memory=")
 	builder.WriteString(fmt.Sprintf("%v", s.MaxMemory))
@@ -301,6 +259,12 @@ func (s *Submit) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("case_version=")
 	builder.WriteString(fmt.Sprintf("%v", s.CaseVersion))
+	builder.WriteString(", ")
+	builder.WriteString("problem_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.ProblemID))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

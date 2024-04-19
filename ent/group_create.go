@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sastoj/ent/contestgroup"
+	"sastoj/ent/contest"
 	"sastoj/ent/group"
-	"sastoj/ent/problemjudge"
+	"sastoj/ent/problem"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -36,55 +36,104 @@ func (gc *GroupCreate) SetNillableGroupName(s *string) *GroupCreate {
 	return gc
 }
 
+// SetRootGroupID sets the "root_group_id" field.
+func (gc *GroupCreate) SetRootGroupID(i int64) *GroupCreate {
+	gc.mutation.SetRootGroupID(i)
+	return gc
+}
+
+// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableRootGroupID(i *int64) *GroupCreate {
+	if i != nil {
+		gc.SetRootGroupID(*i)
+	}
+	return gc
+}
+
 // SetID sets the "id" field.
-func (gc *GroupCreate) SetID(i int) *GroupCreate {
+func (gc *GroupCreate) SetID(i int64) *GroupCreate {
 	gc.mutation.SetID(i)
 	return gc
 }
 
+// AddAdminIDs adds the "admins" edge to the Contest entity by IDs.
+func (gc *GroupCreate) AddAdminIDs(ids ...int64) *GroupCreate {
+	gc.mutation.AddAdminIDs(ids...)
+	return gc
+}
+
+// AddAdmins adds the "admins" edges to the Contest entity.
+func (gc *GroupCreate) AddAdmins(c ...*Contest) *GroupCreate {
+	ids := make([]int64, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return gc.AddAdminIDs(ids...)
+}
+
+// AddContestantIDs adds the "contestants" edge to the Contest entity by IDs.
+func (gc *GroupCreate) AddContestantIDs(ids ...int64) *GroupCreate {
+	gc.mutation.AddContestantIDs(ids...)
+	return gc
+}
+
+// AddContestants adds the "contestants" edges to the Contest entity.
+func (gc *GroupCreate) AddContestants(c ...*Contest) *GroupCreate {
+	ids := make([]int64, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return gc.AddContestantIDs(ids...)
+}
+
+// AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
+func (gc *GroupCreate) AddProblemIDs(ids ...int64) *GroupCreate {
+	gc.mutation.AddProblemIDs(ids...)
+	return gc
+}
+
+// AddProblems adds the "problems" edges to the Problem entity.
+func (gc *GroupCreate) AddProblems(p ...*Problem) *GroupCreate {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gc.AddProblemIDs(ids...)
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (gc *GroupCreate) AddUserIDs(ids ...int) *GroupCreate {
+func (gc *GroupCreate) AddUserIDs(ids ...int64) *GroupCreate {
 	gc.mutation.AddUserIDs(ids...)
 	return gc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
-	ids := make([]int, len(u))
+	ids := make([]int64, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
 	return gc.AddUserIDs(ids...)
 }
 
-// AddContestGroupIDs adds the "contest_group" edge to the ContestGroup entity by IDs.
-func (gc *GroupCreate) AddContestGroupIDs(ids ...int) *GroupCreate {
-	gc.mutation.AddContestGroupIDs(ids...)
+// SetRootGroup sets the "root_group" edge to the Group entity.
+func (gc *GroupCreate) SetRootGroup(g *Group) *GroupCreate {
+	return gc.SetRootGroupID(g.ID)
+}
+
+// AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
+func (gc *GroupCreate) AddSubgroupIDs(ids ...int64) *GroupCreate {
+	gc.mutation.AddSubgroupIDs(ids...)
 	return gc
 }
 
-// AddContestGroup adds the "contest_group" edges to the ContestGroup entity.
-func (gc *GroupCreate) AddContestGroup(c ...*ContestGroup) *GroupCreate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+// AddSubgroups adds the "subgroups" edges to the Group entity.
+func (gc *GroupCreate) AddSubgroups(g ...*Group) *GroupCreate {
+	ids := make([]int64, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return gc.AddContestGroupIDs(ids...)
-}
-
-// AddProblemJudgeIDs adds the "problem_judges" edge to the ProblemJudge entity by IDs.
-func (gc *GroupCreate) AddProblemJudgeIDs(ids ...int) *GroupCreate {
-	gc.mutation.AddProblemJudgeIDs(ids...)
-	return gc
-}
-
-// AddProblemJudges adds the "problem_judges" edges to the ProblemJudge entity.
-func (gc *GroupCreate) AddProblemJudges(p ...*ProblemJudge) *GroupCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return gc.AddProblemJudgeIDs(ids...)
+	return gc.AddSubgroupIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -126,12 +175,22 @@ func (gc *GroupCreate) defaults() {
 		v := group.DefaultGroupName
 		gc.mutation.SetGroupName(v)
 	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		v := group.DefaultRootGroupID
+		gc.mutation.SetRootGroupID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (gc *GroupCreate) check() error {
 	if _, ok := gc.mutation.GroupName(); !ok {
 		return &ValidationError{Name: "group_name", err: errors.New(`ent: missing required field "Group.group_name"`)}
+	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		return &ValidationError{Name: "root_group_id", err: errors.New(`ent: missing required field "Group.root_group_id"`)}
+	}
+	if _, ok := gc.mutation.RootGroupID(); !ok {
+		return &ValidationError{Name: "root_group", err: errors.New(`ent: missing required edge "Group.root_group"`)}
 	}
 	return nil
 }
@@ -149,7 +208,7 @@ func (gc *GroupCreate) sqlSave(ctx context.Context) (*Group, error) {
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	gc.mutation.id = &_node.ID
 	gc.mutation.done = true
@@ -159,7 +218,7 @@ func (gc *GroupCreate) sqlSave(ctx context.Context) (*Group, error) {
 func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Group{config: gc.config}
-		_spec = sqlgraph.NewCreateSpec(group.Table, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(group.Table, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64))
 	)
 	if id, ok := gc.mutation.ID(); ok {
 		_node.ID = id
@@ -169,6 +228,54 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		_spec.SetField(group.FieldGroupName, field.TypeString, value)
 		_node.GroupName = value
 	}
+	if nodes := gc.mutation.AdminsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   group.AdminsTable,
+			Columns: group.AdminsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.ContestantsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   group.ContestantsTable,
+			Columns: group.ContestantsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.ProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   group.ProblemsTable,
+			Columns: group.ProblemsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := gc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -177,7 +284,7 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -185,31 +292,32 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := gc.mutation.ContestGroupIDs(); len(nodes) > 0 {
+	if nodes := gc.mutation.RootGroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.ContestGroupTable,
-			Columns: []string{group.ContestGroupColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   group.RootGroupTable,
+			Columns: []string{group.RootGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contestgroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.RootGroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := gc.mutation.ProblemJudgesIDs(); len(nodes) > 0 {
+	if nodes := gc.mutation.SubgroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   group.ProblemJudgesTable,
-			Columns: []string{group.ProblemJudgesColumn},
+			Table:   group.SubgroupsTable,
+			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemjudge.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -267,7 +375,7 @@ func (gcb *GroupCreateBulk) Save(ctx context.Context) ([]*Group, error) {
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

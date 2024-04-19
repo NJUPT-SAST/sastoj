@@ -18,8 +18,6 @@ const (
 	FieldContent = "content"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
-	// FieldContestID holds the string denoting the contest_id field in the database.
-	FieldContestID = "contest_id"
 	// FieldCaseVersion holds the string denoting the case_version field in the database.
 	FieldCaseVersion = "case_version"
 	// FieldIndex holds the string denoting the index field in the database.
@@ -28,44 +26,44 @@ const (
 	FieldIsDeleted = "is_deleted"
 	// FieldConfig holds the string denoting the config field in the database.
 	FieldConfig = "config"
-	// EdgeContests holds the string denoting the contests edge name in mutations.
-	EdgeContests = "contests"
+	// FieldContestID holds the string denoting the contest_id field in the database.
+	FieldContestID = "contest_id"
 	// EdgeProblemCases holds the string denoting the problem_cases edge name in mutations.
 	EdgeProblemCases = "problem_cases"
-	// EdgeProblemJudges holds the string denoting the problem_judges edge name in mutations.
-	EdgeProblemJudges = "problem_judges"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
+	// EdgeContests holds the string denoting the contests edge name in mutations.
+	EdgeContests = "contests"
+	// EdgeGroups holds the string denoting the groups edge name in mutations.
+	EdgeGroups = "groups"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
-	// ContestsTable is the table that holds the contests relation/edge.
-	ContestsTable = "problems"
-	// ContestsInverseTable is the table name for the Contest entity.
-	// It exists in this package in order to avoid circular dependency with the "contest" package.
-	ContestsInverseTable = "contests"
-	// ContestsColumn is the table column denoting the contests relation/edge.
-	ContestsColumn = "contest_problems"
 	// ProblemCasesTable is the table that holds the problem_cases relation/edge.
 	ProblemCasesTable = "problem_cases"
 	// ProblemCasesInverseTable is the table name for the ProblemCase entity.
 	// It exists in this package in order to avoid circular dependency with the "problemcase" package.
 	ProblemCasesInverseTable = "problem_cases"
 	// ProblemCasesColumn is the table column denoting the problem_cases relation/edge.
-	ProblemCasesColumn = "problem_problem_cases"
-	// ProblemJudgesTable is the table that holds the problem_judges relation/edge.
-	ProblemJudgesTable = "problem_judges"
-	// ProblemJudgesInverseTable is the table name for the ProblemJudge entity.
-	// It exists in this package in order to avoid circular dependency with the "problemjudge" package.
-	ProblemJudgesInverseTable = "problem_judges"
-	// ProblemJudgesColumn is the table column denoting the problem_judges relation/edge.
-	ProblemJudgesColumn = "problem_problem_judges"
+	ProblemCasesColumn = "problem_id"
 	// SubmissionTable is the table that holds the submission relation/edge.
 	SubmissionTable = "submit"
 	// SubmissionInverseTable is the table name for the Submit entity.
 	// It exists in this package in order to avoid circular dependency with the "submit" package.
 	SubmissionInverseTable = "submit"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
-	SubmissionColumn = "problem_submission"
+	SubmissionColumn = "problem_id"
+	// ContestsTable is the table that holds the contests relation/edge.
+	ContestsTable = "problems"
+	// ContestsInverseTable is the table name for the Contest entity.
+	// It exists in this package in order to avoid circular dependency with the "contest" package.
+	ContestsInverseTable = "contests"
+	// ContestsColumn is the table column denoting the contests relation/edge.
+	ContestsColumn = "contest_id"
+	// GroupsTable is the table that holds the groups relation/edge. The primary key declared below.
+	GroupsTable = "group_problems"
+	// GroupsInverseTable is the table name for the Group entity.
+	// It exists in this package in order to avoid circular dependency with the "group" package.
+	GroupsInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -74,18 +72,18 @@ var Columns = []string{
 	FieldTitle,
 	FieldContent,
 	FieldPoint,
-	FieldContestID,
 	FieldCaseVersion,
 	FieldIndex,
 	FieldIsDeleted,
 	FieldConfig,
+	FieldContestID,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "problems"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"contest_problems",
-}
+var (
+	// GroupsPrimaryKey and GroupsColumn2 are the table columns denoting the
+	// primary key for the groups relation (M2M).
+	GroupsPrimaryKey = []string{"group_id", "problem_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -94,15 +92,16 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
+	// PointValidator is a validator for the "point" field. It is called by the builders before save.
+	PointValidator func(int16) error
+	// DefaultCaseVersion holds the default value on creation for the "case_version" field.
+	DefaultCaseVersion int16
+	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
+	IndexValidator func(int16) error
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
 )
@@ -130,11 +129,6 @@ func ByPoint(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPoint, opts...).ToFunc()
 }
 
-// ByContestID orders the results by the contest_id field.
-func ByContestID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldContestID, opts...).ToFunc()
-}
-
 // ByCaseVersion orders the results by the case_version field.
 func ByCaseVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCaseVersion, opts...).ToFunc()
@@ -155,11 +149,9 @@ func ByConfig(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldConfig, opts...).ToFunc()
 }
 
-// ByContestsField orders the results by contests field.
-func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), sql.OrderByField(field, opts...))
-	}
+// ByContestID orders the results by the contest_id field.
+func ByContestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContestID, opts...).ToFunc()
 }
 
 // ByProblemCasesCount orders the results by problem_cases count.
@@ -176,20 +168,6 @@ func ByProblemCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByProblemJudgesCount orders the results by problem_judges count.
-func ByProblemJudgesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newProblemJudgesStep(), opts...)
-	}
-}
-
-// ByProblemJudges orders the results by problem_judges terms.
-func ByProblemJudges(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemJudgesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // BySubmissionCount orders the results by submission count.
 func BySubmissionCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -203,12 +181,26 @@ func BySubmission(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSubmissionStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newContestsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
-	)
+
+// ByContestsField orders the results by contests field.
+func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByGroupsCount orders the results by groups count.
+func ByGroupsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGroupsStep(), opts...)
+	}
+}
+
+// ByGroups orders the results by groups terms.
+func ByGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newProblemCasesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -217,17 +209,24 @@ func newProblemCasesStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemCasesTable, ProblemCasesColumn),
 	)
 }
-func newProblemJudgesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemJudgesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ProblemJudgesTable, ProblemJudgesColumn),
-	)
-}
 func newSubmissionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SubmissionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionTable, SubmissionColumn),
+	)
+}
+func newContestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+	)
+}
+func newGroupsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
 	)
 }

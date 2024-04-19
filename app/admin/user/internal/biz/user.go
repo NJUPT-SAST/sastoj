@@ -12,20 +12,20 @@ var (
 
 // User is a User model.
 type User struct {
-	ID       int
+	ID       int64
 	Username string
 	Password string
 	Salt     string
-	State    int
-	GroupID  int
+	Status   int32
+	GroupID  int64
 }
 
 // UserRepo is a Greater repo.
 type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
-	Update(context.Context, *User) (*int, error)
-	FindByID(context.Context, int) (*User, error)
-	ListPages(ctx context.Context, current int, size int) ([]*User, error)
+	Update(context.Context, *User) (*int64, error)
+	FindByID(context.Context, int64) (*User, error)
+	ListPages(ctx context.Context, current int64, size int64) ([]*User, error)
 }
 
 // UserUsecase is a User usecase.
@@ -56,14 +56,14 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, u *User) (bool, error) {
 	}
 	return true, nil
 }
-func (uc *UserUsecase) GetUser(ctx context.Context, id int) (*User, error) {
+func (uc *UserUsecase) GetUser(ctx context.Context, id int64) (*User, error) {
 	res, err := uc.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
-func (uc *UserUsecase) ListUser(ctx context.Context, current int, size int) ([]*User, error) {
+func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64) ([]*User, error) {
 	uc.log.WithContext(ctx).Infof("ListUser: %v", current)
 	res, err := uc.repo.ListPages(ctx, current, size)
 	if err != nil {

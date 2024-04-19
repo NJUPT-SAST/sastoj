@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"sastoj/ent/loginsession"
+	"sastoj/ent/user"
 	"strings"
 	"time"
 
@@ -16,11 +17,11 @@ import (
 type LoginSession struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int64 `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LoginSessionQuery when eager-loading is set.
 	Edges        LoginSessionEdges `json:"edges"`
@@ -30,16 +31,20 @@ type LoginSession struct {
 // LoginSessionEdges holds the relations/edges for other nodes in the graph.
 type LoginSessionEdges struct {
 	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
+	Users *User `json:"users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading.
-func (e LoginSessionEdges) UsersOrErr() ([]*User, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e LoginSessionEdges) UsersOrErr() (*User, error) {
 	if e.loadedTypes[0] {
+		if e.Users == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
 		return e.Users, nil
 	}
 	return nil, &NotLoadedError{edge: "users"}
@@ -74,18 +79,18 @@ func (ls *LoginSession) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			ls.ID = int(value.Int64)
-		case loginsession.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				ls.UserID = int(value.Int64)
-			}
+			ls.ID = int64(value.Int64)
 		case loginsession.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
 				ls.CreateTime = value.Time
+			}
+		case loginsession.FieldUserID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value.Valid {
+				ls.UserID = value.Int64
 			}
 		default:
 			ls.selectValues.Set(columns[i], values[i])
@@ -128,11 +133,11 @@ func (ls *LoginSession) String() string {
 	var builder strings.Builder
 	builder.WriteString("LoginSession(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ls.ID))
-	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", ls.UserID))
-	builder.WriteString(", ")
 	builder.WriteString("create_time=")
 	builder.WriteString(ls.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", ls.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }
