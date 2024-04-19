@@ -3,6 +3,8 @@
 package loginsession
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -12,10 +14,10 @@ const (
 	Label = "login_session"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
 	// Table holds the table name of the loginsession in the database.
@@ -26,20 +28,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
-	UsersColumn = "user_login_session"
+	UsersColumn = "user_id"
 )
 
 // Columns holds all SQL columns for loginsession fields.
 var Columns = []string{
 	FieldID,
-	FieldUserID,
 	FieldCreateTime,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "login_session"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_login_session",
+	FieldUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -49,17 +45,12 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
-	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	UserIDValidator func(int) error
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime time.Time
 )
 
 // OrderOption defines the ordering options for the LoginSession queries.
@@ -70,14 +61,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByUserID orders the results by the user_id field.
-func ByUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserID, opts...).ToFunc()
-}
-
 // ByCreateTime orders the results by the create_time field.
 func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
+}
+
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByUsersField orders the results by users field.

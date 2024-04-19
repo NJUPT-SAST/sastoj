@@ -51,7 +51,7 @@ message UpdateUserRequest {
 	int64 id = 1;
 	string username = 2;
 	string password = 3;
-	int64 state = 4;
+	int32 status = 4;
 }
 message UpdateUserReply {
 	bool success = 1;

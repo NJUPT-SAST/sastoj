@@ -9,14 +9,14 @@ type Problem struct {
 	ID      int64
 	Title   string
 	Content string
-	Point   int
-	Index   int
+	Point   int32
+	Index   int32
 }
 
 type ProblemRepo interface {
-	ListProblem(ctx context.Context, contestID int) ([]*Problem, error)
-	GetProblem(ctx context.Context, problemID, contestID int) (*Problem, error)
-	GetProblemCaseVer(ctx context.Context, problemId int) (int, error)
+	ListProblem(ctx context.Context, contestID int64) ([]*Problem, error)
+	GetProblem(ctx context.Context, problemID, contestID int64) (*Problem, error)
+	GetProblemCaseVer(ctx context.Context, problemId int64) (int32, error)
 }
 
 type ProblemUsecase struct {
@@ -28,7 +28,7 @@ func NewProblemUsecase(repo ProblemRepo, logger log.Logger) *ProblemUsecase {
 	return &ProblemUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *ProblemUsecase) ListProblem(ctx context.Context, contestID int) ([]*Problem, error) {
+func (uc *ProblemUsecase) ListProblem(ctx context.Context, contestID int64) ([]*Problem, error) {
 	problems, err := uc.repo.ListProblem(ctx, contestID)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (uc *ProblemUsecase) ListProblem(ctx context.Context, contestID int) ([]*Pr
 	return problems, nil
 }
 
-func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int, problemID int) (*Problem, error) {
+func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int64, problemID int64) (*Problem, error) {
 	problem, err := uc.repo.GetProblem(ctx, contestID, problemID)
 	if err != nil {
 		return nil, err
@@ -44,6 +44,6 @@ func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int, problem
 	return problem, nil
 }
 
-func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int) (int, error) {
+func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int64) (int32, error) {
 	return uc.repo.GetProblemCaseVer(ctx, problemId)
 }

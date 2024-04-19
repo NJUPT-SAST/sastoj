@@ -24,9 +24,8 @@ type ProblemCaseQuery struct {
 	order           []problemcase.OrderOption
 	inters          []Interceptor
 	predicates      []predicate.ProblemCase
-	withProblems    *ProblemQuery
 	withSubmitCases *SubmitCaseQuery
-	withFKs         bool
+	withProblems    *ProblemQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -63,28 +62,6 @@ func (pcq *ProblemCaseQuery) Order(o ...problemcase.OrderOption) *ProblemCaseQue
 	return pcq
 }
 
-// QueryProblems chains the current query on the "problems" edge.
-func (pcq *ProblemCaseQuery) QueryProblems() *ProblemQuery {
-	query := (&ProblemClient{config: pcq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := pcq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := pcq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problemcase.Table, problemcase.FieldID, selector),
-			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemsTable, problemcase.ProblemsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(pcq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QuerySubmitCases chains the current query on the "submit_cases" edge.
 func (pcq *ProblemCaseQuery) QuerySubmitCases() *SubmitCaseQuery {
 	query := (&SubmitCaseClient{config: pcq.config}).Query()
@@ -100,6 +77,28 @@ func (pcq *ProblemCaseQuery) QuerySubmitCases() *SubmitCaseQuery {
 			sqlgraph.From(problemcase.Table, problemcase.FieldID, selector),
 			sqlgraph.To(submitcase.Table, submitcase.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problemcase.SubmitCasesTable, problemcase.SubmitCasesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pcq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProblems chains the current query on the "problems" edge.
+func (pcq *ProblemCaseQuery) QueryProblems() *ProblemQuery {
+	query := (&ProblemClient{config: pcq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pcq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pcq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problemcase.Table, problemcase.FieldID, selector),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemsTable, problemcase.ProblemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pcq.driver.Dialect(), step)
 		return fromU, nil
@@ -131,8 +130,8 @@ func (pcq *ProblemCaseQuery) FirstX(ctx context.Context) *ProblemCase {
 
 // FirstID returns the first ProblemCase ID from the query.
 // Returns a *NotFoundError when no ProblemCase ID was found.
-func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pcq.Limit(1).IDs(setContextOp(ctx, pcq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -144,7 +143,7 @@ func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) FirstIDX(ctx context.Context) int {
+func (pcq *ProblemCaseQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := pcq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -182,8 +181,8 @@ func (pcq *ProblemCaseQuery) OnlyX(ctx context.Context) *ProblemCase {
 // OnlyID is like Only, but returns the only ProblemCase ID in the query.
 // Returns a *NotSingularError when more than one ProblemCase ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pcq.Limit(2).IDs(setContextOp(ctx, pcq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -199,7 +198,7 @@ func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) OnlyIDX(ctx context.Context) int {
+func (pcq *ProblemCaseQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := pcq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -227,7 +226,7 @@ func (pcq *ProblemCaseQuery) AllX(ctx context.Context) []*ProblemCase {
 }
 
 // IDs executes the query and returns a list of ProblemCase IDs.
-func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if pcq.ctx.Unique == nil && pcq.path != nil {
 		pcq.Unique(true)
 	}
@@ -239,7 +238,7 @@ func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) IDsX(ctx context.Context) []int {
+func (pcq *ProblemCaseQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := pcq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -299,23 +298,12 @@ func (pcq *ProblemCaseQuery) Clone() *ProblemCaseQuery {
 		order:           append([]problemcase.OrderOption{}, pcq.order...),
 		inters:          append([]Interceptor{}, pcq.inters...),
 		predicates:      append([]predicate.ProblemCase{}, pcq.predicates...),
-		withProblems:    pcq.withProblems.Clone(),
 		withSubmitCases: pcq.withSubmitCases.Clone(),
+		withProblems:    pcq.withProblems.Clone(),
 		// clone intermediate query.
 		sql:  pcq.sql.Clone(),
 		path: pcq.path,
 	}
-}
-
-// WithProblems tells the query-builder to eager-load the nodes that are connected to
-// the "problems" edge. The optional arguments are used to configure the query builder of the edge.
-func (pcq *ProblemCaseQuery) WithProblems(opts ...func(*ProblemQuery)) *ProblemCaseQuery {
-	query := (&ProblemClient{config: pcq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	pcq.withProblems = query
-	return pcq
 }
 
 // WithSubmitCases tells the query-builder to eager-load the nodes that are connected to
@@ -329,18 +317,29 @@ func (pcq *ProblemCaseQuery) WithSubmitCases(opts ...func(*SubmitCaseQuery)) *Pr
 	return pcq
 }
 
+// WithProblems tells the query-builder to eager-load the nodes that are connected to
+// the "problems" edge. The optional arguments are used to configure the query builder of the edge.
+func (pcq *ProblemCaseQuery) WithProblems(opts ...func(*ProblemQuery)) *ProblemCaseQuery {
+	query := (&ProblemClient{config: pcq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pcq.withProblems = query
+	return pcq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		ProblemID int `json:"problem_id,omitempty"`
+//		Point int16 `json:"point,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ProblemCase.Query().
-//		GroupBy(problemcase.FieldProblemID).
+//		GroupBy(problemcase.FieldPoint).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (pcq *ProblemCaseQuery) GroupBy(field string, fields ...string) *ProblemCaseGroupBy {
@@ -358,11 +357,11 @@ func (pcq *ProblemCaseQuery) GroupBy(field string, fields ...string) *ProblemCas
 // Example:
 //
 //	var v []struct {
-//		ProblemID int `json:"problem_id,omitempty"`
+//		Point int16 `json:"point,omitempty"`
 //	}
 //
 //	client.ProblemCase.Query().
-//		Select(problemcase.FieldProblemID).
+//		Select(problemcase.FieldPoint).
 //		Scan(ctx, &v)
 func (pcq *ProblemCaseQuery) Select(fields ...string) *ProblemCaseSelect {
 	pcq.ctx.Fields = append(pcq.ctx.Fields, fields...)
@@ -406,19 +405,12 @@ func (pcq *ProblemCaseQuery) prepareQuery(ctx context.Context) error {
 func (pcq *ProblemCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ProblemCase, error) {
 	var (
 		nodes       = []*ProblemCase{}
-		withFKs     = pcq.withFKs
 		_spec       = pcq.querySpec()
 		loadedTypes = [2]bool{
-			pcq.withProblems != nil,
 			pcq.withSubmitCases != nil,
+			pcq.withProblems != nil,
 		}
 	)
-	if pcq.withProblems != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, problemcase.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ProblemCase).scanValues(nil, columns)
 	}
@@ -437,12 +429,6 @@ func (pcq *ProblemCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := pcq.withProblems; query != nil {
-		if err := pcq.loadProblems(ctx, query, nodes, nil,
-			func(n *ProblemCase, e *Problem) { n.Edges.Problems = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := pcq.withSubmitCases; query != nil {
 		if err := pcq.loadSubmitCases(ctx, query, nodes,
 			func(n *ProblemCase) { n.Edges.SubmitCases = []*SubmitCase{} },
@@ -450,17 +436,50 @@ func (pcq *ProblemCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := pcq.withProblems; query != nil {
+		if err := pcq.loadProblems(ctx, query, nodes, nil,
+			func(n *ProblemCase, e *Problem) { n.Edges.Problems = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (pcq *ProblemCaseQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *Problem)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ProblemCase)
+func (pcq *ProblemCaseQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *SubmitCase)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*ProblemCase)
 	for i := range nodes {
-		if nodes[i].problem_problem_cases == nil {
-			continue
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		fk := *nodes[i].problem_problem_cases
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submitcase.FieldProblemCaseID)
+	}
+	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(problemcase.SubmitCasesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProblemCaseID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "problem_case_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (pcq *ProblemCaseQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *Problem)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*ProblemCase)
+	for i := range nodes {
+		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -477,42 +496,11 @@ func (pcq *ProblemCaseQuery) loadProblems(ctx context.Context, query *ProblemQue
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_problem_cases" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "problem_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
-	}
-	return nil
-}
-func (pcq *ProblemCaseQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *SubmitCase)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*ProblemCase)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(problemcase.SubmitCasesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.problem_case_submit_cases
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "problem_case_submit_cases" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "problem_case_submit_cases" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }
@@ -527,7 +515,7 @@ func (pcq *ProblemCaseQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (pcq *ProblemCaseQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	_spec.From = pcq.sql
 	if unique := pcq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -541,6 +529,9 @@ func (pcq *ProblemCaseQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != problemcase.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if pcq.withProblems != nil {
+			_spec.Node.AddColumnOnce(problemcase.FieldProblemID)
 		}
 	}
 	if ps := pcq.predicates; len(ps) > 0 {

@@ -6,7 +6,7 @@ import (
 )
 
 func (s *UserContestService) GetProblems(ctx context.Context, req *pb.GetProblemsRequest) (*pb.GetProblemsReply, error) {
-	rv, err := s.problemUc.ListProblem(ctx, int(req.ContestId))
+	rv, err := s.problemUc.ListProblem(ctx, req.ContestId)
 	if err != nil {
 		return &pb.GetProblemsReply{}, err
 	}
@@ -15,15 +15,15 @@ func (s *UserContestService) GetProblems(ctx context.Context, req *pb.GetProblem
 		reply.Problems = append(reply.Problems, &pb.GetProblemsReply_Problem{
 			Id:    p.ID,
 			Title: p.Title,
-			Point: int32(p.Point),
-			Index: int32(p.Index),
+			Point: p.Point,
+			Index: p.Index,
 		})
 	}
 	return reply, nil
 }
 
 func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemRequest) (*pb.GetProblemReply, error) {
-	rv, err := s.problemUc.GetProblem(ctx, int(req.ProblemId), int(req.ContestId))
+	rv, err := s.problemUc.GetProblem(ctx, req.ProblemId, req.ContestId)
 	if err != nil {
 		return &pb.GetProblemReply{}, err
 	}
@@ -31,10 +31,10 @@ func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemR
 		Id:      rv.ID,
 		Title:   rv.Title,
 		Content: rv.Content,
-		Point:   int32(rv.Point),
+		Point:   rv.Point,
 	}, nil
 }
 
-func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int) (int, error) {
+func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int32, error) {
 	return s.problemUc.GetProblemCaseVer(ctx, problemId)
 }

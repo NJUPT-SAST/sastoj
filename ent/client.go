@@ -12,15 +12,12 @@ import (
 	"sastoj/ent/migrate"
 
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/problemjudge"
 	"sastoj/ent/submit"
 	"sastoj/ent/submitcase"
-	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent"
@@ -36,8 +33,6 @@ type Client struct {
 	Schema *migrate.Schema
 	// Contest is the client for interacting with the Contest builders.
 	Contest *ContestClient
-	// ContestGroup is the client for interacting with the ContestGroup builders.
-	ContestGroup *ContestGroupClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// LoginSession is the client for interacting with the LoginSession builders.
@@ -46,14 +41,10 @@ type Client struct {
 	Problem *ProblemClient
 	// ProblemCase is the client for interacting with the ProblemCase builders.
 	ProblemCase *ProblemCaseClient
-	// ProblemJudge is the client for interacting with the ProblemJudge builders.
-	ProblemJudge *ProblemJudgeClient
 	// Submit is the client for interacting with the Submit builders.
 	Submit *SubmitClient
 	// SubmitCase is the client for interacting with the SubmitCase builders.
 	SubmitCase *SubmitCaseClient
-	// SubmitJudge is the client for interacting with the SubmitJudge builders.
-	SubmitJudge *SubmitJudgeClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -68,15 +59,12 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Contest = NewContestClient(c.config)
-	c.ContestGroup = NewContestGroupClient(c.config)
 	c.Group = NewGroupClient(c.config)
 	c.LoginSession = NewLoginSessionClient(c.config)
 	c.Problem = NewProblemClient(c.config)
 	c.ProblemCase = NewProblemCaseClient(c.config)
-	c.ProblemJudge = NewProblemJudgeClient(c.config)
 	c.Submit = NewSubmitClient(c.config)
 	c.SubmitCase = NewSubmitCaseClient(c.config)
-	c.SubmitJudge = NewSubmitJudgeClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -171,15 +159,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:          ctx,
 		config:       cfg,
 		Contest:      NewContestClient(cfg),
-		ContestGroup: NewContestGroupClient(cfg),
 		Group:        NewGroupClient(cfg),
 		LoginSession: NewLoginSessionClient(cfg),
 		Problem:      NewProblemClient(cfg),
 		ProblemCase:  NewProblemCaseClient(cfg),
-		ProblemJudge: NewProblemJudgeClient(cfg),
 		Submit:       NewSubmitClient(cfg),
 		SubmitCase:   NewSubmitCaseClient(cfg),
-		SubmitJudge:  NewSubmitJudgeClient(cfg),
 		User:         NewUserClient(cfg),
 	}, nil
 }
@@ -201,15 +186,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:          ctx,
 		config:       cfg,
 		Contest:      NewContestClient(cfg),
-		ContestGroup: NewContestGroupClient(cfg),
 		Group:        NewGroupClient(cfg),
 		LoginSession: NewLoginSessionClient(cfg),
 		Problem:      NewProblemClient(cfg),
 		ProblemCase:  NewProblemCaseClient(cfg),
-		ProblemJudge: NewProblemJudgeClient(cfg),
 		Submit:       NewSubmitClient(cfg),
 		SubmitCase:   NewSubmitCaseClient(cfg),
-		SubmitJudge:  NewSubmitJudgeClient(cfg),
 		User:         NewUserClient(cfg),
 	}, nil
 }
@@ -240,8 +222,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Contest, c.ContestGroup, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
-		c.ProblemJudge, c.Submit, c.SubmitCase, c.SubmitJudge, c.User,
+		c.Contest, c.Group, c.LoginSession, c.Problem, c.ProblemCase, c.Submit,
+		c.SubmitCase, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -251,8 +233,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Contest, c.ContestGroup, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
-		c.ProblemJudge, c.Submit, c.SubmitCase, c.SubmitJudge, c.User,
+		c.Contest, c.Group, c.LoginSession, c.Problem, c.ProblemCase, c.Submit,
+		c.SubmitCase, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -263,8 +245,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *ContestMutation:
 		return c.Contest.mutate(ctx, m)
-	case *ContestGroupMutation:
-		return c.ContestGroup.mutate(ctx, m)
 	case *GroupMutation:
 		return c.Group.mutate(ctx, m)
 	case *LoginSessionMutation:
@@ -273,14 +253,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Problem.mutate(ctx, m)
 	case *ProblemCaseMutation:
 		return c.ProblemCase.mutate(ctx, m)
-	case *ProblemJudgeMutation:
-		return c.ProblemJudge.mutate(ctx, m)
 	case *SubmitMutation:
 		return c.Submit.mutate(ctx, m)
 	case *SubmitCaseMutation:
 		return c.SubmitCase.mutate(ctx, m)
-	case *SubmitJudgeMutation:
-		return c.SubmitJudge.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -349,7 +325,7 @@ func (c *ContestClient) UpdateOne(co *Contest) *ContestUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ContestClient) UpdateOneID(id int) *ContestUpdateOne {
+func (c *ContestClient) UpdateOneID(id int64) *ContestUpdateOne {
 	mutation := newContestMutation(c.config, OpUpdateOne, withContestID(id))
 	return &ContestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -366,7 +342,7 @@ func (c *ContestClient) DeleteOne(co *Contest) *ContestDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ContestClient) DeleteOneID(id int) *ContestDeleteOne {
+func (c *ContestClient) DeleteOneID(id int64) *ContestDeleteOne {
 	builder := c.Delete().Where(contest.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -383,33 +359,17 @@ func (c *ContestClient) Query() *ContestQuery {
 }
 
 // Get returns a Contest entity by its id.
-func (c *ContestClient) Get(ctx context.Context, id int) (*Contest, error) {
+func (c *ContestClient) Get(ctx context.Context, id int64) (*Contest, error) {
 	return c.Query().Where(contest.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ContestClient) GetX(ctx context.Context, id int) *Contest {
+func (c *ContestClient) GetX(ctx context.Context, id int64) *Contest {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryContestGroup queries the contest_group edge of a Contest.
-func (c *ContestClient) QueryContestGroup(co *Contest) *ContestGroupQuery {
-	query := (&ContestGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(contest.Table, contest.FieldID, id),
-			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestGroupTable, contest.ContestGroupColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QueryProblems queries the problems edge of a Contest.
@@ -421,6 +381,38 @@ func (c *ContestClient) QueryProblems(co *Contest) *ProblemQuery {
 			sqlgraph.From(contest.Table, contest.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, contest.ProblemsTable, contest.ProblemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContest queries the contest edge of a Contest.
+func (c *ContestClient) QueryContest(co *Contest) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, contest.ContestTable, contest.ContestPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryManage queries the manage edge of a Contest.
+func (c *ContestClient) QueryManage(co *Contest) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, contest.ManageTable, contest.ManagePrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -450,171 +442,6 @@ func (c *ContestClient) mutate(ctx context.Context, m *ContestMutation) (Value, 
 		return (&ContestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Contest mutation op: %q", m.Op())
-	}
-}
-
-// ContestGroupClient is a client for the ContestGroup schema.
-type ContestGroupClient struct {
-	config
-}
-
-// NewContestGroupClient returns a client for the ContestGroup from the given config.
-func NewContestGroupClient(c config) *ContestGroupClient {
-	return &ContestGroupClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `contestgroup.Hooks(f(g(h())))`.
-func (c *ContestGroupClient) Use(hooks ...Hook) {
-	c.hooks.ContestGroup = append(c.hooks.ContestGroup, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `contestgroup.Intercept(f(g(h())))`.
-func (c *ContestGroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ContestGroup = append(c.inters.ContestGroup, interceptors...)
-}
-
-// Create returns a builder for creating a ContestGroup entity.
-func (c *ContestGroupClient) Create() *ContestGroupCreate {
-	mutation := newContestGroupMutation(c.config, OpCreate)
-	return &ContestGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ContestGroup entities.
-func (c *ContestGroupClient) CreateBulk(builders ...*ContestGroupCreate) *ContestGroupCreateBulk {
-	return &ContestGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ContestGroupClient) MapCreateBulk(slice any, setFunc func(*ContestGroupCreate, int)) *ContestGroupCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ContestGroupCreateBulk{err: fmt.Errorf("calling to ContestGroupClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ContestGroupCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ContestGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ContestGroup.
-func (c *ContestGroupClient) Update() *ContestGroupUpdate {
-	mutation := newContestGroupMutation(c.config, OpUpdate)
-	return &ContestGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ContestGroupClient) UpdateOne(cg *ContestGroup) *ContestGroupUpdateOne {
-	mutation := newContestGroupMutation(c.config, OpUpdateOne, withContestGroup(cg))
-	return &ContestGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ContestGroupClient) UpdateOneID(id int) *ContestGroupUpdateOne {
-	mutation := newContestGroupMutation(c.config, OpUpdateOne, withContestGroupID(id))
-	return &ContestGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ContestGroup.
-func (c *ContestGroupClient) Delete() *ContestGroupDelete {
-	mutation := newContestGroupMutation(c.config, OpDelete)
-	return &ContestGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ContestGroupClient) DeleteOne(cg *ContestGroup) *ContestGroupDeleteOne {
-	return c.DeleteOneID(cg.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ContestGroupClient) DeleteOneID(id int) *ContestGroupDeleteOne {
-	builder := c.Delete().Where(contestgroup.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ContestGroupDeleteOne{builder}
-}
-
-// Query returns a query builder for ContestGroup.
-func (c *ContestGroupClient) Query() *ContestGroupQuery {
-	return &ContestGroupQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeContestGroup},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a ContestGroup entity by its id.
-func (c *ContestGroupClient) Get(ctx context.Context, id int) (*ContestGroup, error) {
-	return c.Query().Where(contestgroup.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ContestGroupClient) GetX(ctx context.Context, id int) *ContestGroup {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryContests queries the contests edge of a ContestGroup.
-func (c *ContestGroupClient) QueryContests(cg *ContestGroup) *ContestQuery {
-	query := (&ContestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := cg.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, id),
-			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.ContestsTable, contestgroup.ContestsColumn),
-		)
-		fromV = sqlgraph.Neighbors(cg.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGroups queries the groups edge of a ContestGroup.
-func (c *ContestGroupClient) QueryGroups(cg *ContestGroup) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := cg.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(contestgroup.Table, contestgroup.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, contestgroup.GroupsTable, contestgroup.GroupsColumn),
-		)
-		fromV = sqlgraph.Neighbors(cg.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ContestGroupClient) Hooks() []Hook {
-	return c.hooks.ContestGroup
-}
-
-// Interceptors returns the client interceptors.
-func (c *ContestGroupClient) Interceptors() []Interceptor {
-	return c.inters.ContestGroup
-}
-
-func (c *ContestGroupClient) mutate(ctx context.Context, m *ContestGroupMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ContestGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ContestGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ContestGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ContestGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown ContestGroup mutation op: %q", m.Op())
 	}
 }
 
@@ -679,7 +506,7 @@ func (c *GroupClient) UpdateOne(gr *Group) *GroupUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GroupClient) UpdateOneID(id int) *GroupUpdateOne {
+func (c *GroupClient) UpdateOneID(id int64) *GroupUpdateOne {
 	mutation := newGroupMutation(c.config, OpUpdateOne, withGroupID(id))
 	return &GroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -696,7 +523,7 @@ func (c *GroupClient) DeleteOne(gr *Group) *GroupDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GroupClient) DeleteOneID(id int) *GroupDeleteOne {
+func (c *GroupClient) DeleteOneID(id int64) *GroupDeleteOne {
 	builder := c.Delete().Where(group.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -713,17 +540,65 @@ func (c *GroupClient) Query() *GroupQuery {
 }
 
 // Get returns a Group entity by its id.
-func (c *GroupClient) Get(ctx context.Context, id int) (*Group, error) {
+func (c *GroupClient) Get(ctx context.Context, id int64) (*Group, error) {
 	return c.Query().Where(group.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GroupClient) GetX(ctx context.Context, id int) *Group {
+func (c *GroupClient) GetX(ctx context.Context, id int64) *Group {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryAdmins queries the admins edge of a Group.
+func (c *GroupClient) QueryAdmins(gr *Group) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, group.AdminsTable, group.AdminsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContestants queries the contestants edge of a Group.
+func (c *GroupClient) QueryContestants(gr *Group) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, group.ContestantsTable, group.ContestantsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblems queries the problems edge of a Group.
+func (c *GroupClient) QueryProblems(gr *Group) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, group.ProblemsTable, group.ProblemsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryUsers queries the users edge of a Group.
@@ -742,15 +617,15 @@ func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
 	return query
 }
 
-// QueryContestGroup queries the contest_group edge of a Group.
-func (c *GroupClient) QueryContestGroup(gr *Group) *ContestGroupQuery {
-	query := (&ContestGroupClient{config: c.config}).Query()
+// QueryRootGroup queries the root_group edge of a Group.
+func (c *GroupClient) QueryRootGroup(gr *Group) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := gr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(contestgroup.Table, contestgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, group.ContestGroupTable, group.ContestGroupColumn),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, group.RootGroupTable, group.RootGroupColumn),
 		)
 		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
 		return fromV, nil
@@ -758,15 +633,15 @@ func (c *GroupClient) QueryContestGroup(gr *Group) *ContestGroupQuery {
 	return query
 }
 
-// QueryProblemJudges queries the problem_judges edge of a Group.
-func (c *GroupClient) QueryProblemJudges(gr *Group) *ProblemJudgeQuery {
-	query := (&ProblemJudgeClient{config: c.config}).Query()
+// QuerySubgroups queries the subgroups edge of a Group.
+func (c *GroupClient) QuerySubgroups(gr *Group) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := gr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, group.ProblemJudgesTable, group.ProblemJudgesColumn),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, group.SubgroupsTable, group.SubgroupsColumn),
 		)
 		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
 		return fromV, nil
@@ -860,7 +735,7 @@ func (c *LoginSessionClient) UpdateOne(ls *LoginSession) *LoginSessionUpdateOne 
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *LoginSessionClient) UpdateOneID(id int) *LoginSessionUpdateOne {
+func (c *LoginSessionClient) UpdateOneID(id int64) *LoginSessionUpdateOne {
 	mutation := newLoginSessionMutation(c.config, OpUpdateOne, withLoginSessionID(id))
 	return &LoginSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -877,7 +752,7 @@ func (c *LoginSessionClient) DeleteOne(ls *LoginSession) *LoginSessionDeleteOne 
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *LoginSessionClient) DeleteOneID(id int) *LoginSessionDeleteOne {
+func (c *LoginSessionClient) DeleteOneID(id int64) *LoginSessionDeleteOne {
 	builder := c.Delete().Where(loginsession.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -894,12 +769,12 @@ func (c *LoginSessionClient) Query() *LoginSessionQuery {
 }
 
 // Get returns a LoginSession entity by its id.
-func (c *LoginSessionClient) Get(ctx context.Context, id int) (*LoginSession, error) {
+func (c *LoginSessionClient) Get(ctx context.Context, id int64) (*LoginSession, error) {
 	return c.Query().Where(loginsession.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *LoginSessionClient) GetX(ctx context.Context, id int) *LoginSession {
+func (c *LoginSessionClient) GetX(ctx context.Context, id int64) *LoginSession {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1009,7 +884,7 @@ func (c *ProblemClient) UpdateOne(pr *Problem) *ProblemUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ProblemClient) UpdateOneID(id int) *ProblemUpdateOne {
+func (c *ProblemClient) UpdateOneID(id int64) *ProblemUpdateOne {
 	mutation := newProblemMutation(c.config, OpUpdateOne, withProblemID(id))
 	return &ProblemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1026,7 +901,7 @@ func (c *ProblemClient) DeleteOne(pr *Problem) *ProblemDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProblemClient) DeleteOneID(id int) *ProblemDeleteOne {
+func (c *ProblemClient) DeleteOneID(id int64) *ProblemDeleteOne {
 	builder := c.Delete().Where(problem.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1043,33 +918,17 @@ func (c *ProblemClient) Query() *ProblemQuery {
 }
 
 // Get returns a Problem entity by its id.
-func (c *ProblemClient) Get(ctx context.Context, id int) (*Problem, error) {
+func (c *ProblemClient) Get(ctx context.Context, id int64) (*Problem, error) {
 	return c.Query().Where(problem.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ProblemClient) GetX(ctx context.Context, id int) *Problem {
+func (c *ProblemClient) GetX(ctx context.Context, id int64) *Problem {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryContests queries the contests edge of a Problem.
-func (c *ProblemClient) QueryContests(pr *Problem) *ContestQuery {
-	query := (&ContestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problem.Table, problem.FieldID, id),
-			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QueryProblemCases queries the problem_cases edge of a Problem.
@@ -1088,22 +947,6 @@ func (c *ProblemClient) QueryProblemCases(pr *Problem) *ProblemCaseQuery {
 	return query
 }
 
-// QueryProblemJudges queries the problem_judges edge of a Problem.
-func (c *ProblemClient) QueryProblemJudges(pr *Problem) *ProblemJudgeQuery {
-	query := (&ProblemJudgeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problem.Table, problem.FieldID, id),
-			sqlgraph.To(problemjudge.Table, problemjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, problem.ProblemJudgesTable, problem.ProblemJudgesColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QuerySubmission queries the submission edge of a Problem.
 func (c *ProblemClient) QuerySubmission(pr *Problem) *SubmitQuery {
 	query := (&SubmitClient{config: c.config}).Query()
@@ -1113,6 +956,38 @@ func (c *ProblemClient) QuerySubmission(pr *Problem) *SubmitQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(submit.Table, submit.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionTable, problem.SubmissionColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryContests queries the contests edge of a Problem.
+func (c *ProblemClient) QueryContests(pr *Problem) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGroups queries the groups edge of a Problem.
+func (c *ProblemClient) QueryGroups(pr *Problem) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, problem.GroupsTable, problem.GroupsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1206,7 +1081,7 @@ func (c *ProblemCaseClient) UpdateOne(pc *ProblemCase) *ProblemCaseUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ProblemCaseClient) UpdateOneID(id int) *ProblemCaseUpdateOne {
+func (c *ProblemCaseClient) UpdateOneID(id int64) *ProblemCaseUpdateOne {
 	mutation := newProblemCaseMutation(c.config, OpUpdateOne, withProblemCaseID(id))
 	return &ProblemCaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1223,7 +1098,7 @@ func (c *ProblemCaseClient) DeleteOne(pc *ProblemCase) *ProblemCaseDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProblemCaseClient) DeleteOneID(id int) *ProblemCaseDeleteOne {
+func (c *ProblemCaseClient) DeleteOneID(id int64) *ProblemCaseDeleteOne {
 	builder := c.Delete().Where(problemcase.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1240,33 +1115,17 @@ func (c *ProblemCaseClient) Query() *ProblemCaseQuery {
 }
 
 // Get returns a ProblemCase entity by its id.
-func (c *ProblemCaseClient) Get(ctx context.Context, id int) (*ProblemCase, error) {
+func (c *ProblemCaseClient) Get(ctx context.Context, id int64) (*ProblemCase, error) {
 	return c.Query().Where(problemcase.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ProblemCaseClient) GetX(ctx context.Context, id int) *ProblemCase {
+func (c *ProblemCaseClient) GetX(ctx context.Context, id int64) *ProblemCase {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryProblems queries the problems edge of a ProblemCase.
-func (c *ProblemCaseClient) QueryProblems(pc *ProblemCase) *ProblemQuery {
-	query := (&ProblemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
-			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemsTable, problemcase.ProblemsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QuerySubmitCases queries the submit_cases edge of a ProblemCase.
@@ -1278,6 +1137,22 @@ func (c *ProblemCaseClient) QuerySubmitCases(pc *ProblemCase) *SubmitCaseQuery {
 			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
 			sqlgraph.To(submitcase.Table, submitcase.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problemcase.SubmitCasesTable, problemcase.SubmitCasesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProblems queries the problems edge of a ProblemCase.
+func (c *ProblemCaseClient) QueryProblems(pc *ProblemCase) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemsTable, problemcase.ProblemsColumn),
 		)
 		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
 		return fromV, nil
@@ -1307,171 +1182,6 @@ func (c *ProblemCaseClient) mutate(ctx context.Context, m *ProblemCaseMutation) 
 		return (&ProblemCaseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown ProblemCase mutation op: %q", m.Op())
-	}
-}
-
-// ProblemJudgeClient is a client for the ProblemJudge schema.
-type ProblemJudgeClient struct {
-	config
-}
-
-// NewProblemJudgeClient returns a client for the ProblemJudge from the given config.
-func NewProblemJudgeClient(c config) *ProblemJudgeClient {
-	return &ProblemJudgeClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `problemjudge.Hooks(f(g(h())))`.
-func (c *ProblemJudgeClient) Use(hooks ...Hook) {
-	c.hooks.ProblemJudge = append(c.hooks.ProblemJudge, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `problemjudge.Intercept(f(g(h())))`.
-func (c *ProblemJudgeClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ProblemJudge = append(c.inters.ProblemJudge, interceptors...)
-}
-
-// Create returns a builder for creating a ProblemJudge entity.
-func (c *ProblemJudgeClient) Create() *ProblemJudgeCreate {
-	mutation := newProblemJudgeMutation(c.config, OpCreate)
-	return &ProblemJudgeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ProblemJudge entities.
-func (c *ProblemJudgeClient) CreateBulk(builders ...*ProblemJudgeCreate) *ProblemJudgeCreateBulk {
-	return &ProblemJudgeCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ProblemJudgeClient) MapCreateBulk(slice any, setFunc func(*ProblemJudgeCreate, int)) *ProblemJudgeCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ProblemJudgeCreateBulk{err: fmt.Errorf("calling to ProblemJudgeClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ProblemJudgeCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ProblemJudgeCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ProblemJudge.
-func (c *ProblemJudgeClient) Update() *ProblemJudgeUpdate {
-	mutation := newProblemJudgeMutation(c.config, OpUpdate)
-	return &ProblemJudgeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ProblemJudgeClient) UpdateOne(pj *ProblemJudge) *ProblemJudgeUpdateOne {
-	mutation := newProblemJudgeMutation(c.config, OpUpdateOne, withProblemJudge(pj))
-	return &ProblemJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ProblemJudgeClient) UpdateOneID(id int) *ProblemJudgeUpdateOne {
-	mutation := newProblemJudgeMutation(c.config, OpUpdateOne, withProblemJudgeID(id))
-	return &ProblemJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ProblemJudge.
-func (c *ProblemJudgeClient) Delete() *ProblemJudgeDelete {
-	mutation := newProblemJudgeMutation(c.config, OpDelete)
-	return &ProblemJudgeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ProblemJudgeClient) DeleteOne(pj *ProblemJudge) *ProblemJudgeDeleteOne {
-	return c.DeleteOneID(pj.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProblemJudgeClient) DeleteOneID(id int) *ProblemJudgeDeleteOne {
-	builder := c.Delete().Where(problemjudge.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ProblemJudgeDeleteOne{builder}
-}
-
-// Query returns a query builder for ProblemJudge.
-func (c *ProblemJudgeClient) Query() *ProblemJudgeQuery {
-	return &ProblemJudgeQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeProblemJudge},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a ProblemJudge entity by its id.
-func (c *ProblemJudgeClient) Get(ctx context.Context, id int) (*ProblemJudge, error) {
-	return c.Query().Where(problemjudge.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ProblemJudgeClient) GetX(ctx context.Context, id int) *ProblemJudge {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryGroups queries the groups edge of a ProblemJudge.
-func (c *ProblemJudgeClient) QueryGroups(pj *ProblemJudge) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pj.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.GroupsTable, problemjudge.GroupsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pj.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProblems queries the problems edge of a ProblemJudge.
-func (c *ProblemJudgeClient) QueryProblems(pj *ProblemJudge) *ProblemQuery {
-	query := (&ProblemClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pj.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problemjudge.Table, problemjudge.FieldID, id),
-			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problemjudge.ProblemsTable, problemjudge.ProblemsColumn),
-		)
-		fromV = sqlgraph.Neighbors(pj.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ProblemJudgeClient) Hooks() []Hook {
-	return c.hooks.ProblemJudge
-}
-
-// Interceptors returns the client interceptors.
-func (c *ProblemJudgeClient) Interceptors() []Interceptor {
-	return c.inters.ProblemJudge
-}
-
-func (c *ProblemJudgeClient) mutate(ctx context.Context, m *ProblemJudgeMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ProblemJudgeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ProblemJudgeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ProblemJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ProblemJudgeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown ProblemJudge mutation op: %q", m.Op())
 	}
 }
 
@@ -1536,7 +1246,7 @@ func (c *SubmitClient) UpdateOne(s *Submit) *SubmitUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SubmitClient) UpdateOneID(id int) *SubmitUpdateOne {
+func (c *SubmitClient) UpdateOneID(id int64) *SubmitUpdateOne {
 	mutation := newSubmitMutation(c.config, OpUpdateOne, withSubmitID(id))
 	return &SubmitUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1553,7 +1263,7 @@ func (c *SubmitClient) DeleteOne(s *Submit) *SubmitDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SubmitClient) DeleteOneID(id int) *SubmitDeleteOne {
+func (c *SubmitClient) DeleteOneID(id int64) *SubmitDeleteOne {
 	builder := c.Delete().Where(submit.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1570,12 +1280,12 @@ func (c *SubmitClient) Query() *SubmitQuery {
 }
 
 // Get returns a Submit entity by its id.
-func (c *SubmitClient) Get(ctx context.Context, id int) (*Submit, error) {
+func (c *SubmitClient) Get(ctx context.Context, id int64) (*Submit, error) {
 	return c.Query().Where(submit.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SubmitClient) GetX(ctx context.Context, id int) *Submit {
+func (c *SubmitClient) GetX(ctx context.Context, id int64) *Submit {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1583,15 +1293,15 @@ func (c *SubmitClient) GetX(ctx context.Context, id int) *Submit {
 	return obj
 }
 
-// QueryUsers queries the users edge of a Submit.
-func (c *SubmitClient) QueryUsers(s *Submit) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
+// QuerySubmitCases queries the submit_cases edge of a Submit.
+func (c *SubmitClient) QuerySubmitCases(s *Submit) *SubmitCaseQuery {
+	query := (&SubmitCaseClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
+			sqlgraph.To(submitcase.Table, submitcase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1615,31 +1325,15 @@ func (c *SubmitClient) QueryProblems(s *Submit) *ProblemQuery {
 	return query
 }
 
-// QuerySubmitJudge queries the submit_judge edge of a Submit.
-func (c *SubmitClient) QuerySubmitJudge(s *Submit) *SubmitJudgeQuery {
-	query := (&SubmitJudgeClient{config: c.config}).Query()
+// QueryUsers queries the users edge of a Submit.
+func (c *SubmitClient) QueryUsers(s *Submit) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submit.Table, submit.FieldID, id),
-			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitJudgeTable, submit.SubmitJudgeColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySubmitCases queries the submit_cases edge of a Submit.
-func (c *SubmitClient) QuerySubmitCases(s *Submit) *SubmitCaseQuery {
-	query := (&SubmitCaseClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submit.Table, submit.FieldID, id),
-			sqlgraph.To(submitcase.Table, submitcase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1733,7 +1427,7 @@ func (c *SubmitCaseClient) UpdateOne(sc *SubmitCase) *SubmitCaseUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SubmitCaseClient) UpdateOneID(id int) *SubmitCaseUpdateOne {
+func (c *SubmitCaseClient) UpdateOneID(id int64) *SubmitCaseUpdateOne {
 	mutation := newSubmitCaseMutation(c.config, OpUpdateOne, withSubmitCaseID(id))
 	return &SubmitCaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1750,7 +1444,7 @@ func (c *SubmitCaseClient) DeleteOne(sc *SubmitCase) *SubmitCaseDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SubmitCaseClient) DeleteOneID(id int) *SubmitCaseDeleteOne {
+func (c *SubmitCaseClient) DeleteOneID(id int64) *SubmitCaseDeleteOne {
 	builder := c.Delete().Where(submitcase.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1767,12 +1461,12 @@ func (c *SubmitCaseClient) Query() *SubmitCaseQuery {
 }
 
 // Get returns a SubmitCase entity by its id.
-func (c *SubmitCaseClient) Get(ctx context.Context, id int) (*SubmitCase, error) {
+func (c *SubmitCaseClient) Get(ctx context.Context, id int64) (*SubmitCase, error) {
 	return c.Query().Where(submitcase.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SubmitCaseClient) GetX(ctx context.Context, id int) *SubmitCase {
+func (c *SubmitCaseClient) GetX(ctx context.Context, id int64) *SubmitCase {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1837,171 +1531,6 @@ func (c *SubmitCaseClient) mutate(ctx context.Context, m *SubmitCaseMutation) (V
 	}
 }
 
-// SubmitJudgeClient is a client for the SubmitJudge schema.
-type SubmitJudgeClient struct {
-	config
-}
-
-// NewSubmitJudgeClient returns a client for the SubmitJudge from the given config.
-func NewSubmitJudgeClient(c config) *SubmitJudgeClient {
-	return &SubmitJudgeClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `submitjudge.Hooks(f(g(h())))`.
-func (c *SubmitJudgeClient) Use(hooks ...Hook) {
-	c.hooks.SubmitJudge = append(c.hooks.SubmitJudge, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `submitjudge.Intercept(f(g(h())))`.
-func (c *SubmitJudgeClient) Intercept(interceptors ...Interceptor) {
-	c.inters.SubmitJudge = append(c.inters.SubmitJudge, interceptors...)
-}
-
-// Create returns a builder for creating a SubmitJudge entity.
-func (c *SubmitJudgeClient) Create() *SubmitJudgeCreate {
-	mutation := newSubmitJudgeMutation(c.config, OpCreate)
-	return &SubmitJudgeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of SubmitJudge entities.
-func (c *SubmitJudgeClient) CreateBulk(builders ...*SubmitJudgeCreate) *SubmitJudgeCreateBulk {
-	return &SubmitJudgeCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *SubmitJudgeClient) MapCreateBulk(slice any, setFunc func(*SubmitJudgeCreate, int)) *SubmitJudgeCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &SubmitJudgeCreateBulk{err: fmt.Errorf("calling to SubmitJudgeClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*SubmitJudgeCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &SubmitJudgeCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for SubmitJudge.
-func (c *SubmitJudgeClient) Update() *SubmitJudgeUpdate {
-	mutation := newSubmitJudgeMutation(c.config, OpUpdate)
-	return &SubmitJudgeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *SubmitJudgeClient) UpdateOne(sj *SubmitJudge) *SubmitJudgeUpdateOne {
-	mutation := newSubmitJudgeMutation(c.config, OpUpdateOne, withSubmitJudge(sj))
-	return &SubmitJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *SubmitJudgeClient) UpdateOneID(id int) *SubmitJudgeUpdateOne {
-	mutation := newSubmitJudgeMutation(c.config, OpUpdateOne, withSubmitJudgeID(id))
-	return &SubmitJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for SubmitJudge.
-func (c *SubmitJudgeClient) Delete() *SubmitJudgeDelete {
-	mutation := newSubmitJudgeMutation(c.config, OpDelete)
-	return &SubmitJudgeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *SubmitJudgeClient) DeleteOne(sj *SubmitJudge) *SubmitJudgeDeleteOne {
-	return c.DeleteOneID(sj.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SubmitJudgeClient) DeleteOneID(id int) *SubmitJudgeDeleteOne {
-	builder := c.Delete().Where(submitjudge.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &SubmitJudgeDeleteOne{builder}
-}
-
-// Query returns a query builder for SubmitJudge.
-func (c *SubmitJudgeClient) Query() *SubmitJudgeQuery {
-	return &SubmitJudgeQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeSubmitJudge},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a SubmitJudge entity by its id.
-func (c *SubmitJudgeClient) Get(ctx context.Context, id int) (*SubmitJudge, error) {
-	return c.Query().Where(submitjudge.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *SubmitJudgeClient) GetX(ctx context.Context, id int) *SubmitJudge {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QuerySubmission queries the submission edge of a SubmitJudge.
-func (c *SubmitJudgeClient) QuerySubmission(sj *SubmitJudge) *SubmitQuery {
-	query := (&SubmitClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sj.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, id),
-			sqlgraph.To(submit.Table, submit.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.SubmissionTable, submitjudge.SubmissionColumn),
-		)
-		fromV = sqlgraph.Neighbors(sj.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsers queries the users edge of a SubmitJudge.
-func (c *SubmitJudgeClient) QueryUsers(sj *SubmitJudge) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sj.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submitjudge.Table, submitjudge.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submitjudge.UsersTable, submitjudge.UsersColumn),
-		)
-		fromV = sqlgraph.Neighbors(sj.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *SubmitJudgeClient) Hooks() []Hook {
-	return c.hooks.SubmitJudge
-}
-
-// Interceptors returns the client interceptors.
-func (c *SubmitJudgeClient) Interceptors() []Interceptor {
-	return c.inters.SubmitJudge
-}
-
-func (c *SubmitJudgeClient) mutate(ctx context.Context, m *SubmitJudgeMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&SubmitJudgeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&SubmitJudgeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&SubmitJudgeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&SubmitJudgeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown SubmitJudge mutation op: %q", m.Op())
-	}
-}
-
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -2063,7 +1592,7 @@ func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+func (c *UserClient) UpdateOneID(id int64) *UserUpdateOne {
 	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -2080,7 +1609,7 @@ func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+func (c *UserClient) DeleteOneID(id int64) *UserDeleteOne {
 	builder := c.Delete().Where(user.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -2097,49 +1626,17 @@ func (c *UserClient) Query() *UserQuery {
 }
 
 // Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+func (c *UserClient) Get(ctx context.Context, id int64) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
+func (c *UserClient) GetX(ctx context.Context, id int64) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
-}
-
-// QuerySubmitJudge queries the submit_judge edge of a User.
-func (c *UserClient) QuerySubmitJudge(u *User) *SubmitJudgeQuery {
-	query := (&SubmitJudgeClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmitJudgeTable, user.SubmitJudgeColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGroups queries the groups edge of a User.
-func (c *UserClient) QueryGroups(u *User) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // QuerySubmission queries the submission edge of a User.
@@ -2158,15 +1655,31 @@ func (c *UserClient) QuerySubmission(u *User) *SubmitQuery {
 	return query
 }
 
-// QueryLoginSession queries the login_session edge of a User.
-func (c *UserClient) QueryLoginSession(u *User) *LoginSessionQuery {
+// QueryLoginSessions queries the login_sessions edge of a User.
+func (c *UserClient) QueryLoginSessions(u *User) *LoginSessionQuery {
 	query := (&LoginSessionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(loginsession.Table, loginsession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionTable, user.LoginSessionColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionsTable, user.LoginSessionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGroups queries the groups edge of a User.
+func (c *UserClient) QueryGroups(u *User) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -2202,11 +1715,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Contest, ContestGroup, Group, LoginSession, Problem, ProblemCase, ProblemJudge,
-		Submit, SubmitCase, SubmitJudge, User []ent.Hook
+		Contest, Group, LoginSession, Problem, ProblemCase, Submit, SubmitCase,
+		User []ent.Hook
 	}
 	inters struct {
-		Contest, ContestGroup, Group, LoginSession, Problem, ProblemCase, ProblemJudge,
-		Submit, SubmitCase, SubmitJudge, User []ent.Interceptor
+		Contest, Group, LoginSession, Problem, ProblemCase, Submit, SubmitCase,
+		User []ent.Interceptor
 	}
 )

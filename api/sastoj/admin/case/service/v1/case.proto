@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package api.sastoj.admin.case.service.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "sastoj//api/sastoj/admin/case/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.admin.case.service.v1";
+
+service CaseService {
+  rpc CreateCases(CreateCasesRequest) returns (CreateCasesReply){
+    option (google.api.http) = {post: "/case/{problem_id}" body: "*"};
+  };
+  rpc UpdateCase(UpdateCaseRequest) returns (UpdateCaseReply){
+    option (google.api.http) = {put: "/case" body: "*"};
+  };
+  rpc DeleteCasesByCaseIds(DeleteCaseByCaseIdsRequest) returns (DeleteCaseByCaseIdsReply){
+    option (google.api.http) = {put: "/case/delete" body: "*"};
+  };
+  rpc DeleteCasesByProblemId(DeleteCasesByProblemIdRequest) returns (DeleteCasesByProblemIdReply){
+    option (google.api.http) = {delete: "/case/{problem_id}"};
+  };
+  rpc GetCases(GetCasesRequest) returns (GetCasesReply) {
+    option (google.api.http) = {get: "/case/{problem_id}"};
+  }
+}
+
+message Case {
+  int64 id = 1;
+  int32 point = 2;
+  int32 index = 3;
+  bool is_auto = 4;
+}
+
+message CreateCasesRequest {
+  int64 problem_id = 1;
+  repeated Case requests = 2;
+}
+message CreateCasesReply {
+  repeated int64 ids = 1;
+}
+
+message UpdateCaseRequest {
+  int64 id = 1;
+  int32 point = 2;
+  int32 index = 3;
+  bool is_auto = 4;
+  int64 problem_id = 5;
+}
+message UpdateCaseReply {}
+
+message DeleteCaseByCaseIdsRequest {
+  repeated int64 ids = 1;
+}
+message DeleteCaseByCaseIdsReply {}
+
+message DeleteCasesByProblemIdRequest{
+  int64 problem_id = 1;
+}
+message DeleteCasesByProblemIdReply{}
+
+message GetCasesRequest {
+  int64 problem_id = 1;
+}
+message GetCasesReply {
+  repeated Case results = 1;
+}

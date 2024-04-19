@@ -21,20 +21,14 @@ type ProblemCaseCreate struct {
 	hooks    []Hook
 }
 
-// SetProblemID sets the "problem_id" field.
-func (pcc *ProblemCaseCreate) SetProblemID(i int) *ProblemCaseCreate {
-	pcc.mutation.SetProblemID(i)
-	return pcc
-}
-
 // SetPoint sets the "point" field.
-func (pcc *ProblemCaseCreate) SetPoint(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetPoint(i int16) *ProblemCaseCreate {
 	pcc.mutation.SetPoint(i)
 	return pcc
 }
 
 // SetIndex sets the "index" field.
-func (pcc *ProblemCaseCreate) SetIndex(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetIndex(i int16) *ProblemCaseCreate {
 	pcc.mutation.SetIndex(i)
 	return pcc
 }
@@ -67,44 +61,42 @@ func (pcc *ProblemCaseCreate) SetNillableIsDeleted(b *bool) *ProblemCaseCreate {
 	return pcc
 }
 
+// SetProblemID sets the "problem_id" field.
+func (pcc *ProblemCaseCreate) SetProblemID(i int64) *ProblemCaseCreate {
+	pcc.mutation.SetProblemID(i)
+	return pcc
+}
+
 // SetID sets the "id" field.
-func (pcc *ProblemCaseCreate) SetID(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetID(i int64) *ProblemCaseCreate {
 	pcc.mutation.SetID(i)
 	return pcc
 }
 
-// SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (pcc *ProblemCaseCreate) SetProblemsID(id int) *ProblemCaseCreate {
-	pcc.mutation.SetProblemsID(id)
-	return pcc
-}
-
-// SetNillableProblemsID sets the "problems" edge to the Problem entity by ID if the given value is not nil.
-func (pcc *ProblemCaseCreate) SetNillableProblemsID(id *int) *ProblemCaseCreate {
-	if id != nil {
-		pcc = pcc.SetProblemsID(*id)
-	}
-	return pcc
-}
-
-// SetProblems sets the "problems" edge to the Problem entity.
-func (pcc *ProblemCaseCreate) SetProblems(p *Problem) *ProblemCaseCreate {
-	return pcc.SetProblemsID(p.ID)
-}
-
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (pcc *ProblemCaseCreate) AddSubmitCaseIDs(ids ...int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) AddSubmitCaseIDs(ids ...int64) *ProblemCaseCreate {
 	pcc.mutation.AddSubmitCaseIDs(ids...)
 	return pcc
 }
 
 // AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
 func (pcc *ProblemCaseCreate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseCreate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
 	return pcc.AddSubmitCaseIDs(ids...)
+}
+
+// SetProblemsID sets the "problems" edge to the Problem entity by ID.
+func (pcc *ProblemCaseCreate) SetProblemsID(id int64) *ProblemCaseCreate {
+	pcc.mutation.SetProblemsID(id)
+	return pcc
+}
+
+// SetProblems sets the "problems" edge to the Problem entity.
+func (pcc *ProblemCaseCreate) SetProblems(p *Problem) *ProblemCaseCreate {
+	return pcc.SetProblemsID(p.ID)
 }
 
 // Mutation returns the ProblemCaseMutation object of the builder.
@@ -154,16 +146,13 @@ func (pcc *ProblemCaseCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (pcc *ProblemCaseCreate) check() error {
-	if _, ok := pcc.mutation.ProblemID(); !ok {
-		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "ProblemCase.problem_id"`)}
-	}
-	if v, ok := pcc.mutation.ProblemID(); ok {
-		if err := problemcase.ProblemIDValidator(v); err != nil {
-			return &ValidationError{Name: "problem_id", err: fmt.Errorf(`ent: validator failed for field "ProblemCase.problem_id": %w`, err)}
-		}
-	}
 	if _, ok := pcc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "ProblemCase.point"`)}
+	}
+	if v, ok := pcc.mutation.Point(); ok {
+		if err := problemcase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "ProblemCase.point": %w`, err)}
+		}
 	}
 	if _, ok := pcc.mutation.Index(); !ok {
 		return &ValidationError{Name: "index", err: errors.New(`ent: missing required field "ProblemCase.index"`)}
@@ -178,6 +167,12 @@ func (pcc *ProblemCaseCreate) check() error {
 	}
 	if _, ok := pcc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "ProblemCase.is_deleted"`)}
+	}
+	if _, ok := pcc.mutation.ProblemID(); !ok {
+		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "ProblemCase.problem_id"`)}
+	}
+	if _, ok := pcc.mutation.ProblemsID(); !ok {
+		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "ProblemCase.problems"`)}
 	}
 	return nil
 }
@@ -195,7 +190,7 @@ func (pcc *ProblemCaseCreate) sqlSave(ctx context.Context) (*ProblemCase, error)
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	pcc.mutation.id = &_node.ID
 	pcc.mutation.done = true
@@ -205,22 +200,18 @@ func (pcc *ProblemCaseCreate) sqlSave(ctx context.Context) (*ProblemCase, error)
 func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ProblemCase{config: pcc.config}
-		_spec = sqlgraph.NewCreateSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	)
 	if id, ok := pcc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := pcc.mutation.ProblemID(); ok {
-		_spec.SetField(problemcase.FieldProblemID, field.TypeInt, value)
-		_node.ProblemID = value
-	}
 	if value, ok := pcc.mutation.Point(); ok {
-		_spec.SetField(problemcase.FieldPoint, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
 	if value, ok := pcc.mutation.Index(); ok {
-		_spec.SetField(problemcase.FieldIndex, field.TypeInt, value)
+		_spec.SetField(problemcase.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
 	}
 	if value, ok := pcc.mutation.IsAuto(); ok {
@@ -231,23 +222,6 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		_spec.SetField(problemcase.FieldIsDeleted, field.TypeBool, value)
 		_node.IsDeleted = value
 	}
-	if nodes := pcc.mutation.ProblemsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   problemcase.ProblemsTable,
-			Columns: []string{problemcase.ProblemsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.problem_problem_cases = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := pcc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -256,12 +230,29 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pcc.mutation.ProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problemcase.ProblemsTable,
+			Columns: []string{problemcase.ProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ProblemID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -314,7 +305,7 @@ func (pccb *ProblemCaseCreateBulk) Save(ctx context.Context) ([]*ProblemCase, er
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

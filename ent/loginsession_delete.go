@@ -40,7 +40,7 @@ func (lsd *LoginSessionDelete) ExecX(ctx context.Context) int {
 }
 
 func (lsd *LoginSessionDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	if ps := lsd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

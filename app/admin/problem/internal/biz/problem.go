@@ -45,7 +45,7 @@ func NewProblemUsecase(repo ProblemRepo, logger log.Logger) *ProblemUsecase {
 
 // CreateProblem creates a Problem, and returns the new Problem.
 func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *Problem) (*Problem, error) {
-	//TODO check validation of problem: (code?)
+	//TODO: check validation of problem: (code?) and check case version by the start time of the contest.
 	uc.log.WithContext(ctx).Infof("CreateProblem: %v", g)
 	rv, err := uc.repo.Save(ctx, g)
 	if err != nil {
@@ -56,7 +56,7 @@ func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *Problem) (*Probl
 }
 
 func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, g *Problem) (bool, error) {
-	//TODO check validation of problem: (code?)
+	//TODO: check validation of problem: (code?) and check case version by the start time of the contest.
 	uc.log.WithContext(ctx).Infof("UpdateProblem: %v", g)
 	rv, err := uc.repo.Update(ctx, g)
 	if err != nil || *rv == 0 {

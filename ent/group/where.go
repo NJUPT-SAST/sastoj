@@ -10,53 +10,58 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Group {
+func ID(id int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Group {
+func IDEQ(id int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Group {
+func IDNEQ(id int64) predicate.Group {
 	return predicate.Group(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Group {
+func IDIn(ids ...int64) predicate.Group {
 	return predicate.Group(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Group {
+func IDNotIn(ids ...int64) predicate.Group {
 	return predicate.Group(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Group {
+func IDGT(id int64) predicate.Group {
 	return predicate.Group(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Group {
+func IDGTE(id int64) predicate.Group {
 	return predicate.Group(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Group {
+func IDLT(id int64) predicate.Group {
 	return predicate.Group(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Group {
+func IDLTE(id int64) predicate.Group {
 	return predicate.Group(sql.FieldLTE(FieldID, id))
 }
 
 // GroupName applies equality check predicate on the "group_name" field. It's identical to GroupNameEQ.
 func GroupName(v string) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldGroupName, v))
+}
+
+// RootGroupID applies equality check predicate on the "root_group_id" field. It's identical to RootGroupIDEQ.
+func RootGroupID(v int64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
 }
 
 // GroupNameEQ applies the EQ predicate on the "group_name" field.
@@ -124,6 +129,95 @@ func GroupNameContainsFold(v string) predicate.Group {
 	return predicate.Group(sql.FieldContainsFold(FieldGroupName, v))
 }
 
+// RootGroupIDEQ applies the EQ predicate on the "root_group_id" field.
+func RootGroupIDEQ(v int64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
+}
+
+// RootGroupIDNEQ applies the NEQ predicate on the "root_group_id" field.
+func RootGroupIDNEQ(v int64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldRootGroupID, v))
+}
+
+// RootGroupIDIn applies the In predicate on the "root_group_id" field.
+func RootGroupIDIn(vs ...int64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldRootGroupID, vs...))
+}
+
+// RootGroupIDNotIn applies the NotIn predicate on the "root_group_id" field.
+func RootGroupIDNotIn(vs ...int64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldRootGroupID, vs...))
+}
+
+// HasAdmins applies the HasEdge predicate on the "admins" edge.
+func HasAdmins() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, AdminsTable, AdminsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdminsWith applies the HasEdge predicate on the "admins" edge with a given conditions (other predicates).
+func HasAdminsWith(preds ...predicate.Contest) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := newAdminsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContestants applies the HasEdge predicate on the "contestants" edge.
+func HasContestants() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ContestantsTable, ContestantsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestantsWith applies the HasEdge predicate on the "contestants" edge with a given conditions (other predicates).
+func HasContestantsWith(preds ...predicate.Contest) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := newContestantsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProblems applies the HasEdge predicate on the "problems" edge.
+func HasProblems() predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ProblemsTable, ProblemsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProblemsWith applies the HasEdge predicate on the "problems" edge with a given conditions (other predicates).
+func HasProblemsWith(preds ...predicate.Problem) predicate.Group {
+	return predicate.Group(func(s *sql.Selector) {
+		step := newProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUsers applies the HasEdge predicate on the "users" edge.
 func HasUsers() predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
@@ -147,21 +241,21 @@ func HasUsersWith(preds ...predicate.User) predicate.Group {
 	})
 }
 
-// HasContestGroup applies the HasEdge predicate on the "contest_group" edge.
-func HasContestGroup() predicate.Group {
+// HasRootGroup applies the HasEdge predicate on the "root_group" edge.
+func HasRootGroup() predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ContestGroupTable, ContestGroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, RootGroupTable, RootGroupColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasContestGroupWith applies the HasEdge predicate on the "contest_group" edge with a given conditions (other predicates).
-func HasContestGroupWith(preds ...predicate.ContestGroup) predicate.Group {
+// HasRootGroupWith applies the HasEdge predicate on the "root_group" edge with a given conditions (other predicates).
+func HasRootGroupWith(preds ...predicate.Group) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
-		step := newContestGroupStep()
+		step := newRootGroupStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -170,21 +264,21 @@ func HasContestGroupWith(preds ...predicate.ContestGroup) predicate.Group {
 	})
 }
 
-// HasProblemJudges applies the HasEdge predicate on the "problem_judges" edge.
-func HasProblemJudges() predicate.Group {
+// HasSubgroups applies the HasEdge predicate on the "subgroups" edge.
+func HasSubgroups() predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemJudgesTable, ProblemJudgesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubgroupsTable, SubgroupsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProblemJudgesWith applies the HasEdge predicate on the "problem_judges" edge with a given conditions (other predicates).
-func HasProblemJudgesWith(preds ...predicate.ProblemJudge) predicate.Group {
+// HasSubgroupsWith applies the HasEdge predicate on the "subgroups" edge with a given conditions (other predicates).
+func HasSubgroupsWith(preds ...predicate.Group) predicate.Group {
 	return predicate.Group(func(s *sql.Selector) {
-		step := newProblemJudgesStep()
+		step := newSubgroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

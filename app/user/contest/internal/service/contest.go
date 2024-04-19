@@ -19,12 +19,12 @@ func (s *UserContestService) ListContest(ctx context.Context, _ *pb.ListContestR
 			Id:          p.ID,
 			Title:       p.Title,
 			Description: p.Description,
-			State:       int32(p.State),
-			Type:        int32(p.Type),
+			State:       p.Status,
+			Type:        p.Type,
 			StartTime:   timestamppb.New(p.StartTime),
 			EndTime:     timestamppb.New(p.EndTime),
 			Language:    p.Language,
-			ExtraTime:   int32(p.ExtraTime),
+			ExtraTime:   p.ExtraTime,
 		})
 	}
 	return reply, nil

@@ -28,7 +28,7 @@ func (s *GroupService) CreateGroup(ctx context.Context, req *pb.CreateGroupReque
 }
 func (s *GroupService) UpdateGroup(ctx context.Context, req *pb.UpdateGroupRequest) (*pb.UpdateGroupReply, error) {
 	rv, err := s.gc.UpdateGroup(ctx, &biz.Group{
-		Id:   int(req.Id),
+		Id:   req.Id,
 		Name: req.Name,
 	})
 	if err != nil {
@@ -39,7 +39,7 @@ func (s *GroupService) UpdateGroup(ctx context.Context, req *pb.UpdateGroupReque
 	}, nil
 }
 func (s *GroupService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupRequest) (*pb.DeleteGroupReply, error) {
-	rv, err := s.gc.DeleteGroup(ctx, int(req.Id))
+	rv, err := s.gc.DeleteGroup(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *GroupService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupReque
 
 }
 func (s *GroupService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*pb.GetGroupReply, error) {
-	rv, err := s.gc.GetGroup(ctx, &biz.Group{Id: int(req.Id)})
+	rv, err := s.gc.GetGroup(ctx, &biz.Group{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (s *GroupService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*
 	}, nil
 }
 func (s *GroupService) ListGroup(ctx context.Context, req *pb.ListGroupRequest) (*pb.ListGroupReply, error) {
-	rv, err := s.gc.ListGroup(ctx, int(req.Current), int(req.Size))
+	rv, err := s.gc.ListGroup(ctx, req.Current, req.Size)
 	if err != nil {
 		return nil, err
 	}

@@ -3,6 +3,8 @@
 package submit
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -12,14 +14,10 @@ const (
 	Label = "submit"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
-	// FieldProblemID holds the string denoting the problem_id field in the database.
-	FieldProblemID = "problem_id"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
-	// FieldState holds the string denoting the state field in the database.
-	FieldState = "state"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
@@ -32,66 +30,54 @@ const (
 	FieldLanguage = "language"
 	// FieldCaseVersion holds the string denoting the case_version field in the database.
 	FieldCaseVersion = "case_version"
-	// EdgeUsers holds the string denoting the users edge name in mutations.
-	EdgeUsers = "users"
-	// EdgeProblems holds the string denoting the problems edge name in mutations.
-	EdgeProblems = "problems"
-	// EdgeSubmitJudge holds the string denoting the submit_judge edge name in mutations.
-	EdgeSubmitJudge = "submit_judge"
+	// FieldProblemID holds the string denoting the problem_id field in the database.
+	FieldProblemID = "problem_id"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
 	EdgeSubmitCases = "submit_cases"
+	// EdgeProblems holds the string denoting the problems edge name in mutations.
+	EdgeProblems = "problems"
+	// EdgeUsers holds the string denoting the users edge name in mutations.
+	EdgeUsers = "users"
 	// Table holds the table name of the submit in the database.
 	Table = "submit"
-	// UsersTable is the table that holds the users relation/edge.
-	UsersTable = "submit"
-	// UsersInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UsersInverseTable = "users"
-	// UsersColumn is the table column denoting the users relation/edge.
-	UsersColumn = "user_submission"
-	// ProblemsTable is the table that holds the problems relation/edge.
-	ProblemsTable = "submit"
-	// ProblemsInverseTable is the table name for the Problem entity.
-	// It exists in this package in order to avoid circular dependency with the "problem" package.
-	ProblemsInverseTable = "problems"
-	// ProblemsColumn is the table column denoting the problems relation/edge.
-	ProblemsColumn = "problem_submission"
-	// SubmitJudgeTable is the table that holds the submit_judge relation/edge.
-	SubmitJudgeTable = "submit_judge"
-	// SubmitJudgeInverseTable is the table name for the SubmitJudge entity.
-	// It exists in this package in order to avoid circular dependency with the "submitjudge" package.
-	SubmitJudgeInverseTable = "submit_judge"
-	// SubmitJudgeColumn is the table column denoting the submit_judge relation/edge.
-	SubmitJudgeColumn = "submit_submit_judge"
 	// SubmitCasesTable is the table that holds the submit_cases relation/edge.
 	SubmitCasesTable = "submit_cases"
 	// SubmitCasesInverseTable is the table name for the SubmitCase entity.
 	// It exists in this package in order to avoid circular dependency with the "submitcase" package.
 	SubmitCasesInverseTable = "submit_cases"
 	// SubmitCasesColumn is the table column denoting the submit_cases relation/edge.
-	SubmitCasesColumn = "submit_submit_cases"
+	SubmitCasesColumn = "submit_id"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "submit"
+	// ProblemsInverseTable is the table name for the Problem entity.
+	// It exists in this package in order to avoid circular dependency with the "problem" package.
+	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "problem_id"
+	// UsersTable is the table that holds the users relation/edge.
+	UsersTable = "submit"
+	// UsersInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UsersInverseTable = "users"
+	// UsersColumn is the table column denoting the users relation/edge.
+	UsersColumn = "user_id"
 )
 
 // Columns holds all SQL columns for submit fields.
 var Columns = []string{
 	FieldID,
-	FieldUserID,
-	FieldProblemID,
 	FieldCode,
-	FieldState,
+	FieldStatus,
 	FieldPoint,
 	FieldCreateTime,
 	FieldTotalTime,
 	FieldMaxMemory,
 	FieldLanguage,
 	FieldCaseVersion,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "submit"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"problem_submission",
-	"user_submission",
+	FieldProblemID,
+	FieldUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -101,19 +87,22 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
-	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	UserIDValidator func(int) error
-	// ProblemIDValidator is a validator for the "problem_id" field. It is called by the builders before save.
-	ProblemIDValidator func(int) error
+	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	StatusValidator func(int16) error
+	// PointValidator is a validator for the "point" field. It is called by the builders before save.
+	PointValidator func(int16) error
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime time.Time
+	// TotalTimeValidator is a validator for the "total_time" field. It is called by the builders before save.
+	TotalTimeValidator func(int32) error
+	// MaxMemoryValidator is a validator for the "max_memory" field. It is called by the builders before save.
+	MaxMemoryValidator func(int32) error
+	// CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
+	CaseVersionValidator func(int8) error
 )
 
 // OrderOption defines the ordering options for the Submit queries.
@@ -124,24 +113,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByUserID orders the results by the user_id field.
-func ByUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserID, opts...).ToFunc()
-}
-
-// ByProblemID orders the results by the problem_id field.
-func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
-}
-
 // ByCode orders the results by the code field.
 func ByCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCode, opts...).ToFunc()
 }
 
-// ByState orders the results by the state field.
-func ByState(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldState, opts...).ToFunc()
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByPoint orders the results by the point field.
@@ -174,32 +153,14 @@ func ByCaseVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCaseVersion, opts...).ToFunc()
 }
 
-// ByUsersField orders the results by users field.
-func ByUsersField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), sql.OrderByField(field, opts...))
-	}
+// ByProblemID orders the results by the problem_id field.
+func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
 }
 
-// ByProblemsField orders the results by problems field.
-func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// BySubmitJudgeCount orders the results by submit_judge count.
-func BySubmitJudgeCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSubmitJudgeStep(), opts...)
-	}
-}
-
-// BySubmitJudge orders the results by submit_judge terms.
-func BySubmitJudge(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSubmitJudgeStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // BySubmitCasesCount orders the results by submit_cases count.
@@ -215,11 +176,25 @@ func BySubmitCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSubmitCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newUsersStep() *sqlgraph.Step {
+
+// ByProblemsField orders the results by problems field.
+func ByProblemsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProblemsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByUsersField orders the results by users field.
+func ByUsersField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newSubmitCasesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UsersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
+		sqlgraph.To(SubmitCasesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
 	)
 }
 func newProblemsStep() *sqlgraph.Step {
@@ -229,17 +204,10 @@ func newProblemsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
 	)
 }
-func newSubmitJudgeStep() *sqlgraph.Step {
+func newUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SubmitJudgeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SubmitJudgeTable, SubmitJudgeColumn),
-	)
-}
-func newSubmitCasesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SubmitCasesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
+		sqlgraph.To(UsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 	)
 }

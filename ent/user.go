@@ -16,52 +16,58 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
 	// Password holds the value of the "password" field.
 	Password string `json:"password,omitempty"`
 	// Salt holds the value of the "salt" field.
 	Salt string `json:"salt,omitempty"`
-	// State holds the value of the "state" field.
-	State int `json:"state,omitempty"`
+	// Status holds the value of the "status" field.
+	Status int16 `json:"status,omitempty"`
 	// GroupID holds the value of the "group_id" field.
-	GroupID int `json:"group_id,omitempty"`
+	GroupID int64 `json:"group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
-	group_users  *int
 	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// SubmitJudge holds the value of the submit_judge edge.
-	SubmitJudge []*SubmitJudge `json:"submit_judge,omitempty"`
-	// Groups holds the value of the groups edge.
-	Groups *Group `json:"groups,omitempty"`
 	// Submission holds the value of the submission edge.
 	Submission []*Submit `json:"submission,omitempty"`
-	// LoginSession holds the value of the login_session edge.
-	LoginSession []*LoginSession `json:"login_session,omitempty"`
+	// LoginSessions holds the value of the login_sessions edge.
+	LoginSessions []*LoginSession `json:"login_sessions,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups *Group `json:"groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [3]bool
 }
 
-// SubmitJudgeOrErr returns the SubmitJudge value or an error if the edge
+// SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) SubmitJudgeOrErr() ([]*SubmitJudge, error) {
+func (e UserEdges) SubmissionOrErr() ([]*Submit, error) {
 	if e.loadedTypes[0] {
-		return e.SubmitJudge, nil
+		return e.Submission, nil
 	}
-	return nil, &NotLoadedError{edge: "submit_judge"}
+	return nil, &NotLoadedError{edge: "submission"}
+}
+
+// LoginSessionsOrErr returns the LoginSessions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) LoginSessionsOrErr() ([]*LoginSession, error) {
+	if e.loadedTypes[1] {
+		return e.LoginSessions, nil
+	}
+	return nil, &NotLoadedError{edge: "login_sessions"}
 }
 
 // GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) GroupsOrErr() (*Group, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		if e.Groups == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: group.Label}
@@ -71,35 +77,15 @@ func (e UserEdges) GroupsOrErr() (*Group, error) {
 	return nil, &NotLoadedError{edge: "groups"}
 }
 
-// SubmissionOrErr returns the Submission value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) SubmissionOrErr() ([]*Submit, error) {
-	if e.loadedTypes[2] {
-		return e.Submission, nil
-	}
-	return nil, &NotLoadedError{edge: "submission"}
-}
-
-// LoginSessionOrErr returns the LoginSession value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) LoginSessionOrErr() ([]*LoginSession, error) {
-	if e.loadedTypes[3] {
-		return e.LoginSession, nil
-	}
-	return nil, &NotLoadedError{edge: "login_session"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldState, user.FieldGroupID:
+		case user.FieldID, user.FieldStatus, user.FieldGroupID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldUsername, user.FieldPassword, user.FieldSalt:
 			values[i] = new(sql.NullString)
-		case user.ForeignKeys[0]: // group_users
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -120,7 +106,7 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			u.ID = int(value.Int64)
+			u.ID = int64(value.Int64)
 		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field username", values[i])
@@ -139,24 +125,17 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Salt = value.String
 			}
-		case user.FieldState:
+		case user.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field state", values[i])
+				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				u.State = int(value.Int64)
+				u.Status = int16(value.Int64)
 			}
 		case user.FieldGroupID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field group_id", values[i])
 			} else if value.Valid {
-				u.GroupID = int(value.Int64)
-			}
-		case user.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field group_users", value)
-			} else if value.Valid {
-				u.group_users = new(int)
-				*u.group_users = int(value.Int64)
+				u.GroupID = value.Int64
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -171,24 +150,19 @@ func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
 }
 
-// QuerySubmitJudge queries the "submit_judge" edge of the User entity.
-func (u *User) QuerySubmitJudge() *SubmitJudgeQuery {
-	return NewUserClient(u.config).QuerySubmitJudge(u)
-}
-
-// QueryGroups queries the "groups" edge of the User entity.
-func (u *User) QueryGroups() *GroupQuery {
-	return NewUserClient(u.config).QueryGroups(u)
-}
-
 // QuerySubmission queries the "submission" edge of the User entity.
 func (u *User) QuerySubmission() *SubmitQuery {
 	return NewUserClient(u.config).QuerySubmission(u)
 }
 
-// QueryLoginSession queries the "login_session" edge of the User entity.
-func (u *User) QueryLoginSession() *LoginSessionQuery {
-	return NewUserClient(u.config).QueryLoginSession(u)
+// QueryLoginSessions queries the "login_sessions" edge of the User entity.
+func (u *User) QueryLoginSessions() *LoginSessionQuery {
+	return NewUserClient(u.config).QueryLoginSessions(u)
+}
+
+// QueryGroups queries the "groups" edge of the User entity.
+func (u *User) QueryGroups() *GroupQuery {
+	return NewUserClient(u.config).QueryGroups(u)
 }
 
 // Update returns a builder for updating this User.
@@ -223,8 +197,8 @@ func (u *User) String() string {
 	builder.WriteString("salt=")
 	builder.WriteString(u.Salt)
 	builder.WriteString(", ")
-	builder.WriteString("state=")
-	builder.WriteString(fmt.Sprintf("%v", u.State))
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", u.Status))
 	builder.WriteString(", ")
 	builder.WriteString("group_id=")
 	builder.WriteString(fmt.Sprintf("%v", u.GroupID))

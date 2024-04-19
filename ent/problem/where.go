@@ -10,47 +10,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Problem {
+func ID(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Problem {
+func IDEQ(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Problem {
+func IDNEQ(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Problem {
+func IDIn(ids ...int64) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Problem {
+func IDNotIn(ids ...int64) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Problem {
+func IDGT(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Problem {
+func IDGTE(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Problem {
+func IDLT(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Problem {
+func IDLTE(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldID, id))
 }
 
@@ -65,22 +65,17 @@ func Content(v string) predicate.Problem {
 }
 
 // Point applies equality check predicate on the "point" field. It's identical to PointEQ.
-func Point(v int) predicate.Problem {
+func Point(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldPoint, v))
 }
 
-// ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
-func ContestID(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
-}
-
 // CaseVersion applies equality check predicate on the "case_version" field. It's identical to CaseVersionEQ.
-func CaseVersion(v int) predicate.Problem {
+func CaseVersion(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCaseVersion, v))
 }
 
 // Index applies equality check predicate on the "index" field. It's identical to IndexEQ.
-func Index(v int) predicate.Problem {
+func Index(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIndex, v))
 }
 
@@ -92,6 +87,11 @@ func IsDeleted(v bool) predicate.Problem {
 // Config applies equality check predicate on the "config" field. It's identical to ConfigEQ.
 func Config(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldConfig, v))
+}
+
+// ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
+func ContestID(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -225,162 +225,122 @@ func ContentContainsFold(v string) predicate.Problem {
 }
 
 // PointEQ applies the EQ predicate on the "point" field.
-func PointEQ(v int) predicate.Problem {
+func PointEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldPoint, v))
 }
 
 // PointNEQ applies the NEQ predicate on the "point" field.
-func PointNEQ(v int) predicate.Problem {
+func PointNEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldPoint, v))
 }
 
 // PointIn applies the In predicate on the "point" field.
-func PointIn(vs ...int) predicate.Problem {
+func PointIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldPoint, vs...))
 }
 
 // PointNotIn applies the NotIn predicate on the "point" field.
-func PointNotIn(vs ...int) predicate.Problem {
+func PointNotIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldPoint, vs...))
 }
 
 // PointGT applies the GT predicate on the "point" field.
-func PointGT(v int) predicate.Problem {
+func PointGT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldPoint, v))
 }
 
 // PointGTE applies the GTE predicate on the "point" field.
-func PointGTE(v int) predicate.Problem {
+func PointGTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldPoint, v))
 }
 
 // PointLT applies the LT predicate on the "point" field.
-func PointLT(v int) predicate.Problem {
+func PointLT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldPoint, v))
 }
 
 // PointLTE applies the LTE predicate on the "point" field.
-func PointLTE(v int) predicate.Problem {
+func PointLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldPoint, v))
 }
 
-// ContestIDEQ applies the EQ predicate on the "contest_id" field.
-func ContestIDEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
-}
-
-// ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
-func ContestIDNEQ(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldContestID, v))
-}
-
-// ContestIDIn applies the In predicate on the "contest_id" field.
-func ContestIDIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldContestID, vs...))
-}
-
-// ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
-func ContestIDNotIn(vs ...int) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldContestID, vs...))
-}
-
-// ContestIDGT applies the GT predicate on the "contest_id" field.
-func ContestIDGT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldContestID, v))
-}
-
-// ContestIDGTE applies the GTE predicate on the "contest_id" field.
-func ContestIDGTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldContestID, v))
-}
-
-// ContestIDLT applies the LT predicate on the "contest_id" field.
-func ContestIDLT(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldContestID, v))
-}
-
-// ContestIDLTE applies the LTE predicate on the "contest_id" field.
-func ContestIDLTE(v int) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldContestID, v))
-}
-
 // CaseVersionEQ applies the EQ predicate on the "case_version" field.
-func CaseVersionEQ(v int) predicate.Problem {
+func CaseVersionEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldCaseVersion, v))
 }
 
 // CaseVersionNEQ applies the NEQ predicate on the "case_version" field.
-func CaseVersionNEQ(v int) predicate.Problem {
+func CaseVersionNEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldCaseVersion, v))
 }
 
 // CaseVersionIn applies the In predicate on the "case_version" field.
-func CaseVersionIn(vs ...int) predicate.Problem {
+func CaseVersionIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldCaseVersion, vs...))
 }
 
 // CaseVersionNotIn applies the NotIn predicate on the "case_version" field.
-func CaseVersionNotIn(vs ...int) predicate.Problem {
+func CaseVersionNotIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldCaseVersion, vs...))
 }
 
 // CaseVersionGT applies the GT predicate on the "case_version" field.
-func CaseVersionGT(v int) predicate.Problem {
+func CaseVersionGT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldCaseVersion, v))
 }
 
 // CaseVersionGTE applies the GTE predicate on the "case_version" field.
-func CaseVersionGTE(v int) predicate.Problem {
+func CaseVersionGTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldCaseVersion, v))
 }
 
 // CaseVersionLT applies the LT predicate on the "case_version" field.
-func CaseVersionLT(v int) predicate.Problem {
+func CaseVersionLT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldCaseVersion, v))
 }
 
 // CaseVersionLTE applies the LTE predicate on the "case_version" field.
-func CaseVersionLTE(v int) predicate.Problem {
+func CaseVersionLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldCaseVersion, v))
 }
 
 // IndexEQ applies the EQ predicate on the "index" field.
-func IndexEQ(v int) predicate.Problem {
+func IndexEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIndex, v))
 }
 
 // IndexNEQ applies the NEQ predicate on the "index" field.
-func IndexNEQ(v int) predicate.Problem {
+func IndexNEQ(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldIndex, v))
 }
 
 // IndexIn applies the In predicate on the "index" field.
-func IndexIn(vs ...int) predicate.Problem {
+func IndexIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldIndex, vs...))
 }
 
 // IndexNotIn applies the NotIn predicate on the "index" field.
-func IndexNotIn(vs ...int) predicate.Problem {
+func IndexNotIn(vs ...int16) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldIndex, vs...))
 }
 
 // IndexGT applies the GT predicate on the "index" field.
-func IndexGT(v int) predicate.Problem {
+func IndexGT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldIndex, v))
 }
 
 // IndexGTE applies the GTE predicate on the "index" field.
-func IndexGTE(v int) predicate.Problem {
+func IndexGTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldIndex, v))
 }
 
 // IndexLT applies the LT predicate on the "index" field.
-func IndexLT(v int) predicate.Problem {
+func IndexLT(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldIndex, v))
 }
 
 // IndexLTE applies the LTE predicate on the "index" field.
-func IndexLTE(v int) predicate.Problem {
+func IndexLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldIndex, v))
 }
 
@@ -459,27 +419,24 @@ func ConfigContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldConfig, v))
 }
 
-// HasContests applies the HasEdge predicate on the "contests" edge.
-func HasContests() predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// ContestIDEQ applies the EQ predicate on the "contest_id" field.
+func ContestIDEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
 }
 
-// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
-func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := newContestsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
+func ContestIDNEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldContestID, v))
+}
+
+// ContestIDIn applies the In predicate on the "contest_id" field.
+func ContestIDIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldContestID, vs...))
+}
+
+// ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
+func ContestIDNotIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldContestID, vs...))
 }
 
 // HasProblemCases applies the HasEdge predicate on the "problem_cases" edge.
@@ -505,29 +462,6 @@ func HasProblemCasesWith(preds ...predicate.ProblemCase) predicate.Problem {
 	})
 }
 
-// HasProblemJudges applies the HasEdge predicate on the "problem_judges" edge.
-func HasProblemJudges() predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemJudgesTable, ProblemJudgesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProblemJudgesWith applies the HasEdge predicate on the "problem_judges" edge with a given conditions (other predicates).
-func HasProblemJudgesWith(preds ...predicate.ProblemJudge) predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := newProblemJudgesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasSubmission applies the HasEdge predicate on the "submission" edge.
 func HasSubmission() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -543,6 +477,52 @@ func HasSubmission() predicate.Problem {
 func HasSubmissionWith(preds ...predicate.Submit) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newSubmissionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasContests applies the HasEdge predicate on the "contests" edge.
+func HasContests() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
+func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newContestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.Group) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -11,7 +11,6 @@ import (
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
 	"sastoj/ent/submit"
-	"sastoj/ent/submitjudge"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -22,15 +21,13 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx              *QueryContext
-	order            []user.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.User
-	withSubmitJudge  *SubmitJudgeQuery
-	withGroups       *GroupQuery
-	withSubmission   *SubmitQuery
-	withLoginSession *LoginSessionQuery
-	withFKs          bool
+	ctx               *QueryContext
+	order             []user.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.User
+	withSubmission    *SubmitQuery
+	withLoginSessions *LoginSessionQuery
+	withGroups        *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -67,50 +64,6 @@ func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	return uq
 }
 
-// QuerySubmitJudge chains the current query on the "submit_judge" edge.
-func (uq *UserQuery) QuerySubmitJudge() *SubmitJudgeQuery {
-	query := (&SubmitJudgeClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(submitjudge.Table, submitjudge.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmitJudgeTable, user.SubmitJudgeColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryGroups chains the current query on the "groups" edge.
-func (uq *UserQuery) QueryGroups() *GroupQuery {
-	query := (&GroupClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QuerySubmission chains the current query on the "submission" edge.
 func (uq *UserQuery) QuerySubmission() *SubmitQuery {
 	query := (&SubmitClient{config: uq.config}).Query()
@@ -133,8 +86,8 @@ func (uq *UserQuery) QuerySubmission() *SubmitQuery {
 	return query
 }
 
-// QueryLoginSession chains the current query on the "login_session" edge.
-func (uq *UserQuery) QueryLoginSession() *LoginSessionQuery {
+// QueryLoginSessions chains the current query on the "login_sessions" edge.
+func (uq *UserQuery) QueryLoginSessions() *LoginSessionQuery {
 	query := (&LoginSessionClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -147,7 +100,29 @@ func (uq *UserQuery) QueryLoginSession() *LoginSessionQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(loginsession.Table, loginsession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionTable, user.LoginSessionColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionsTable, user.LoginSessionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGroups chains the current query on the "groups" edge.
+func (uq *UserQuery) QueryGroups() *GroupQuery {
+	query := (&GroupClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -179,8 +154,8 @@ func (uq *UserQuery) FirstX(ctx context.Context) *User {
 
 // FirstID returns the first User ID from the query.
 // Returns a *NotFoundError when no User ID was found.
-func (uq *UserQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *UserQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = uq.Limit(1).IDs(setContextOp(ctx, uq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -192,7 +167,7 @@ func (uq *UserQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (uq *UserQuery) FirstIDX(ctx context.Context) int {
+func (uq *UserQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := uq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -230,8 +205,8 @@ func (uq *UserQuery) OnlyX(ctx context.Context) *User {
 // OnlyID is like Only, but returns the only User ID in the query.
 // Returns a *NotSingularError when more than one User ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (uq *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *UserQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = uq.Limit(2).IDs(setContextOp(ctx, uq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -247,7 +222,7 @@ func (uq *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (uq *UserQuery) OnlyIDX(ctx context.Context) int {
+func (uq *UserQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := uq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -275,7 +250,7 @@ func (uq *UserQuery) AllX(ctx context.Context) []*User {
 }
 
 // IDs executes the query and returns a list of User IDs.
-func (uq *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (uq *UserQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if uq.ctx.Unique == nil && uq.path != nil {
 		uq.Unique(true)
 	}
@@ -287,7 +262,7 @@ func (uq *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (uq *UserQuery) IDsX(ctx context.Context) []int {
+func (uq *UserQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := uq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -342,41 +317,18 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:           uq.config,
-		ctx:              uq.ctx.Clone(),
-		order:            append([]user.OrderOption{}, uq.order...),
-		inters:           append([]Interceptor{}, uq.inters...),
-		predicates:       append([]predicate.User{}, uq.predicates...),
-		withSubmitJudge:  uq.withSubmitJudge.Clone(),
-		withGroups:       uq.withGroups.Clone(),
-		withSubmission:   uq.withSubmission.Clone(),
-		withLoginSession: uq.withLoginSession.Clone(),
+		config:            uq.config,
+		ctx:               uq.ctx.Clone(),
+		order:             append([]user.OrderOption{}, uq.order...),
+		inters:            append([]Interceptor{}, uq.inters...),
+		predicates:        append([]predicate.User{}, uq.predicates...),
+		withSubmission:    uq.withSubmission.Clone(),
+		withLoginSessions: uq.withLoginSessions.Clone(),
+		withGroups:        uq.withGroups.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
-}
-
-// WithSubmitJudge tells the query-builder to eager-load the nodes that are connected to
-// the "submit_judge" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithSubmitJudge(opts ...func(*SubmitJudgeQuery)) *UserQuery {
-	query := (&SubmitJudgeClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withSubmitJudge = query
-	return uq
-}
-
-// WithGroups tells the query-builder to eager-load the nodes that are connected to
-// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithGroups(opts ...func(*GroupQuery)) *UserQuery {
-	query := (&GroupClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withGroups = query
-	return uq
 }
 
 // WithSubmission tells the query-builder to eager-load the nodes that are connected to
@@ -390,14 +342,25 @@ func (uq *UserQuery) WithSubmission(opts ...func(*SubmitQuery)) *UserQuery {
 	return uq
 }
 
-// WithLoginSession tells the query-builder to eager-load the nodes that are connected to
-// the "login_session" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithLoginSession(opts ...func(*LoginSessionQuery)) *UserQuery {
+// WithLoginSessions tells the query-builder to eager-load the nodes that are connected to
+// the "login_sessions" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithLoginSessions(opts ...func(*LoginSessionQuery)) *UserQuery {
 	query := (&LoginSessionClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withLoginSession = query
+	uq.withLoginSessions = query
+	return uq
+}
+
+// WithGroups tells the query-builder to eager-load the nodes that are connected to
+// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithGroups(opts ...func(*GroupQuery)) *UserQuery {
+	query := (&GroupClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withGroups = query
 	return uq
 }
 
@@ -478,21 +441,13 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [4]bool{
-			uq.withSubmitJudge != nil,
-			uq.withGroups != nil,
+		loadedTypes = [3]bool{
 			uq.withSubmission != nil,
-			uq.withLoginSession != nil,
+			uq.withLoginSessions != nil,
+			uq.withGroups != nil,
 		}
 	)
-	if uq.withGroups != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -511,10 +466,17 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := uq.withSubmitJudge; query != nil {
-		if err := uq.loadSubmitJudge(ctx, query, nodes,
-			func(n *User) { n.Edges.SubmitJudge = []*SubmitJudge{} },
-			func(n *User, e *SubmitJudge) { n.Edges.SubmitJudge = append(n.Edges.SubmitJudge, e) }); err != nil {
+	if query := uq.withSubmission; query != nil {
+		if err := uq.loadSubmission(ctx, query, nodes,
+			func(n *User) { n.Edges.Submission = []*Submit{} },
+			func(n *User, e *Submit) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withLoginSessions; query != nil {
+		if err := uq.loadLoginSessions(ctx, query, nodes,
+			func(n *User) { n.Edges.LoginSessions = []*LoginSession{} },
+			func(n *User, e *LoginSession) { n.Edges.LoginSessions = append(n.Edges.LoginSessions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -524,26 +486,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withSubmission; query != nil {
-		if err := uq.loadSubmission(ctx, query, nodes,
-			func(n *User) { n.Edges.Submission = []*Submit{} },
-			func(n *User, e *Submit) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withLoginSession; query != nil {
-		if err := uq.loadLoginSession(ctx, query, nodes,
-			func(n *User) { n.Edges.LoginSession = []*LoginSession{} },
-			func(n *User, e *LoginSession) { n.Edges.LoginSession = append(n.Edges.LoginSession, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
-func (uq *UserQuery) loadSubmitJudge(ctx context.Context, query *SubmitJudgeQuery, nodes []*User, init func(*User), assign func(*User, *SubmitJudge)) error {
+func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*User, init func(*User), assign func(*User, *Submit)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
+	nodeids := make(map[int64]*User)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -551,35 +499,61 @@ func (uq *UserQuery) loadSubmitJudge(ctx context.Context, query *SubmitJudgeQuer
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
-	query.Where(predicate.SubmitJudge(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.SubmitJudgeColumn), fks...))
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(submit.FieldUserID)
+	}
+	query.Where(predicate.Submit(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.SubmissionColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_submit_judge
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_submit_judge" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UserID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_submit_judge" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadLoginSessions(ctx context.Context, query *LoginSessionQuery, nodes []*User, init func(*User), assign func(*User, *LoginSession)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(loginsession.FieldUserID)
+	}
+	query.Where(predicate.LoginSession(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.LoginSessionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
 func (uq *UserQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*User, init func(*User), assign func(*User, *Group)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*User)
 	for i := range nodes {
-		if nodes[i].group_users == nil {
-			continue
-		}
-		fk := *nodes[i].group_users
+		fk := nodes[i].GroupID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -596,73 +570,11 @@ func (uq *UserQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "group_users" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "group_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
-	}
-	return nil
-}
-func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*User, init func(*User), assign func(*User, *Submit)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Submit(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.SubmissionColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_submission
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_submission" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_submission" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadLoginSession(ctx context.Context, query *LoginSessionQuery, nodes []*User, init func(*User), assign func(*User, *LoginSession)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.LoginSession(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.LoginSessionColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_login_session
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_login_session" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_login_session" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }
@@ -677,7 +589,7 @@ func (uq *UserQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64))
 	_spec.From = uq.sql
 	if unique := uq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -691,6 +603,9 @@ func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != user.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if uq.withGroups != nil {
+			_spec.Node.AddColumnOnce(user.FieldGroupID)
 		}
 	}
 	if ps := uq.predicates; len(ps) > 0 {
