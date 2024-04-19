@@ -30,7 +30,7 @@ func (s *UserContestService) SubmitProblem(ctx context.Context, req *pb.SubmitPr
 		return nil, err
 	}
 	return &pb.SubmitProblemReply{
-		SubmitId: int64(submit),
+		SubmitId: submit,
 	}, nil
 }
 
@@ -59,8 +59,8 @@ func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmi
 		Id:        submission.ID,
 		Code:      submission.Code,
 		Language:  submission.Language,
-		Point:     submission.Point,
-		Status:    submission.Status,
+		Point:     int32(submission.Point),
+		Status:    int32(submission.Status),
 		CreatedAt: timestamppb.New(submission.CreateTime),
 		UpdatedAt: timestamppb.New(submission.CreateTime),
 		TotalTime: submission.TotalTime,

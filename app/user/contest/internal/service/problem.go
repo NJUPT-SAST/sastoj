@@ -15,8 +15,8 @@ func (s *UserContestService) GetProblems(ctx context.Context, req *pb.GetProblem
 		reply.Problems = append(reply.Problems, &pb.GetProblemsReply_Problem{
 			Id:    p.ID,
 			Title: p.Title,
-			Point: p.Point,
-			Index: p.Index,
+			Point: int32(p.Point),
+			Index: int32(p.Index),
 		})
 	}
 	return reply, nil
@@ -31,10 +31,10 @@ func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemR
 		Id:      rv.ID,
 		Title:   rv.Title,
 		Content: rv.Content,
-		Point:   rv.Point,
+		Point:   int32(rv.Point),
 	}, nil
 }
 
-func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int32, error) {
+func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	return s.problemUc.GetProblemCaseVer(ctx, problemId)
 }
