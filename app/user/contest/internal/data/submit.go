@@ -42,7 +42,7 @@ func (s submitRepo) CreatePretest(ctx context.Context, p *biz.Pretest) error {
 	return err
 }
 
-func (s submitRepo) GetSubmission(ctx context.Context, submitID int, userID int) (*biz.Submit, error) {
+func (s submitRepo) GetSubmission(ctx context.Context, submitID int64, userID int64) (*biz.Submit, error) {
 	po, err := s.data.db.Submit.Get(ctx, submitID)
 	if err != nil {
 		return nil, err
@@ -55,28 +55,28 @@ func (s submitRepo) GetSubmission(ctx context.Context, submitID int, userID int)
 		UserID:      po.UserID,
 		ProblemID:   po.ProblemID,
 		Code:        po.Code,
-		State:       po.State,
-		Point:       po.Point,
+		Status:      int32(po.Status),
+		Point:       int32(po.Point),
 		CreateTime:  po.CreateTime,
 		TotalTime:   po.TotalTime,
 		MaxMemory:   po.MaxMemory,
 		Language:    po.Language,
-		CaseVersion: po.CaseVersion,
+		CaseVersion: int32(po.CaseVersion),
 	}, nil
 }
 
-func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int, error) {
+func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64, error) {
 	po, err := s.data.db.Submit.Create().
 		SetUsersID(submit.UserID).
 		SetProblemsID(submit.ProblemID).
 		SetCode(submit.Code).
-		SetState(submit.State).
-		SetPoint(submit.Point).
+		SetStatus(int16(submit.Status)).
+		SetPoint(int16(submit.Point)).
 		SetCreateTime(submit.CreateTime).
 		SetTotalTime(submit.TotalTime).
 		SetMaxMemory(submit.MaxMemory).
 		SetLanguage(submit.Language).
-		SetCaseVersion(submit.CaseVersion).
+		SetCaseVersion(int8(submit.CaseVersion)).
 		Save(ctx)
 	if err != nil {
 		return 0, err
@@ -108,17 +108,17 @@ func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int, 
 	return po.ID, nil
 }
 
-func (s submitRepo) UpdateState(ctx context.Context, submitID int, state int) error {
+func (s submitRepo) UpdateStatus(ctx context.Context, submitID int64, status int32) error {
 	_, err := s.data.db.Submit.UpdateOneID(submitID).
-		SetState(state).
+		SetStatus(int16(status)).
 		Save(ctx)
 	return err
 }
 
 func (s submitRepo) UpdateSubmit(ctx context.Context, submit *biz.Submit) error {
 	_, err := s.data.db.Submit.UpdateOneID(submit.ID).
-		SetState(submit.State).
-		SetPoint(submit.Point).
+		SetStatus(int16(submit.Status)).
+		SetPoint(int16(submit.Point)).
 		SetTotalTime(submit.TotalTime).
 		SetMaxMemory(submit.MaxMemory).
 		Save(ctx)

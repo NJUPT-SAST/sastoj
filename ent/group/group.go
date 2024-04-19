@@ -95,7 +95,7 @@ var (
 	// DefaultGroupName holds the default value on creation for the "group_name" field.
 	DefaultGroupName string
 	// DefaultRootGroupID holds the default value on creation for the "root_group_id" field.
-	DefaultRootGroupID int
+	DefaultRootGroupID int64
 )
 
 // OrderOption defines the ordering options for the Group queries.

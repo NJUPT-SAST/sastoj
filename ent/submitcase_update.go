@@ -86,14 +86,14 @@ func (scu *SubmitCaseUpdate) SetNillableMessage(s *string) *SubmitCaseUpdate {
 }
 
 // SetTime sets the "time" field.
-func (scu *SubmitCaseUpdate) SetTime(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetTime(i int32) *SubmitCaseUpdate {
 	scu.mutation.ResetTime()
 	scu.mutation.SetTime(i)
 	return scu
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableTime(i *int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetNillableTime(i *int32) *SubmitCaseUpdate {
 	if i != nil {
 		scu.SetTime(*i)
 	}
@@ -101,20 +101,20 @@ func (scu *SubmitCaseUpdate) SetNillableTime(i *int) *SubmitCaseUpdate {
 }
 
 // AddTime adds i to the "time" field.
-func (scu *SubmitCaseUpdate) AddTime(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) AddTime(i int32) *SubmitCaseUpdate {
 	scu.mutation.AddTime(i)
 	return scu
 }
 
 // SetMemory sets the "memory" field.
-func (scu *SubmitCaseUpdate) SetMemory(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetMemory(i int32) *SubmitCaseUpdate {
 	scu.mutation.ResetMemory()
 	scu.mutation.SetMemory(i)
 	return scu
 }
 
 // SetNillableMemory sets the "memory" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableMemory(i *int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetNillableMemory(i *int32) *SubmitCaseUpdate {
 	if i != nil {
 		scu.SetMemory(*i)
 	}
@@ -122,19 +122,19 @@ func (scu *SubmitCaseUpdate) SetNillableMemory(i *int) *SubmitCaseUpdate {
 }
 
 // AddMemory adds i to the "memory" field.
-func (scu *SubmitCaseUpdate) AddMemory(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) AddMemory(i int32) *SubmitCaseUpdate {
 	scu.mutation.AddMemory(i)
 	return scu
 }
 
 // SetSubmitID sets the "submit_id" field.
-func (scu *SubmitCaseUpdate) SetSubmitID(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetSubmitID(i int64) *SubmitCaseUpdate {
 	scu.mutation.SetSubmitID(i)
 	return scu
 }
 
 // SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableSubmitID(i *int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetNillableSubmitID(i *int64) *SubmitCaseUpdate {
 	if i != nil {
 		scu.SetSubmitID(*i)
 	}
@@ -142,13 +142,13 @@ func (scu *SubmitCaseUpdate) SetNillableSubmitID(i *int) *SubmitCaseUpdate {
 }
 
 // SetProblemCaseID sets the "problem_case_id" field.
-func (scu *SubmitCaseUpdate) SetProblemCaseID(i int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetProblemCaseID(i int64) *SubmitCaseUpdate {
 	scu.mutation.SetProblemCaseID(i)
 	return scu
 }
 
 // SetNillableProblemCaseID sets the "problem_case_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableProblemCaseID(i *int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetNillableProblemCaseID(i *int64) *SubmitCaseUpdate {
 	if i != nil {
 		scu.SetProblemCaseID(*i)
 	}
@@ -156,7 +156,7 @@ func (scu *SubmitCaseUpdate) SetNillableProblemCaseID(i *int) *SubmitCaseUpdate 
 }
 
 // SetSubmissionID sets the "submission" edge to the Submit entity by ID.
-func (scu *SubmitCaseUpdate) SetSubmissionID(id int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetSubmissionID(id int64) *SubmitCaseUpdate {
 	scu.mutation.SetSubmissionID(id)
 	return scu
 }
@@ -167,7 +167,7 @@ func (scu *SubmitCaseUpdate) SetSubmission(s *Submit) *SubmitCaseUpdate {
 }
 
 // SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
-func (scu *SubmitCaseUpdate) SetProblemCasesID(id int) *SubmitCaseUpdate {
+func (scu *SubmitCaseUpdate) SetProblemCasesID(id int64) *SubmitCaseUpdate {
 	scu.mutation.SetProblemCasesID(id)
 	return scu
 }
@@ -256,7 +256,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := scu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
 	if ps := scu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -280,16 +280,16 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(submitcase.FieldMessage, field.TypeString, value)
 	}
 	if value, ok := scu.mutation.Time(); ok {
-		_spec.SetField(submitcase.FieldTime, field.TypeInt, value)
+		_spec.SetField(submitcase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.AddedTime(); ok {
-		_spec.AddField(submitcase.FieldTime, field.TypeInt, value)
+		_spec.AddField(submitcase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.Memory(); ok {
-		_spec.SetField(submitcase.FieldMemory, field.TypeInt, value)
+		_spec.SetField(submitcase.FieldMemory, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.AddedMemory(); ok {
-		_spec.AddField(submitcase.FieldMemory, field.TypeInt, value)
+		_spec.AddField(submitcase.FieldMemory, field.TypeInt32, value)
 	}
 	if scu.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -299,7 +299,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -312,7 +312,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -328,7 +328,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -341,7 +341,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -426,14 +426,14 @@ func (scuo *SubmitCaseUpdateOne) SetNillableMessage(s *string) *SubmitCaseUpdate
 }
 
 // SetTime sets the "time" field.
-func (scuo *SubmitCaseUpdateOne) SetTime(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetTime(i int32) *SubmitCaseUpdateOne {
 	scuo.mutation.ResetTime()
 	scuo.mutation.SetTime(i)
 	return scuo
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableTime(i *int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetNillableTime(i *int32) *SubmitCaseUpdateOne {
 	if i != nil {
 		scuo.SetTime(*i)
 	}
@@ -441,20 +441,20 @@ func (scuo *SubmitCaseUpdateOne) SetNillableTime(i *int) *SubmitCaseUpdateOne {
 }
 
 // AddTime adds i to the "time" field.
-func (scuo *SubmitCaseUpdateOne) AddTime(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) AddTime(i int32) *SubmitCaseUpdateOne {
 	scuo.mutation.AddTime(i)
 	return scuo
 }
 
 // SetMemory sets the "memory" field.
-func (scuo *SubmitCaseUpdateOne) SetMemory(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetMemory(i int32) *SubmitCaseUpdateOne {
 	scuo.mutation.ResetMemory()
 	scuo.mutation.SetMemory(i)
 	return scuo
 }
 
 // SetNillableMemory sets the "memory" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableMemory(i *int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetNillableMemory(i *int32) *SubmitCaseUpdateOne {
 	if i != nil {
 		scuo.SetMemory(*i)
 	}
@@ -462,19 +462,19 @@ func (scuo *SubmitCaseUpdateOne) SetNillableMemory(i *int) *SubmitCaseUpdateOne 
 }
 
 // AddMemory adds i to the "memory" field.
-func (scuo *SubmitCaseUpdateOne) AddMemory(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) AddMemory(i int32) *SubmitCaseUpdateOne {
 	scuo.mutation.AddMemory(i)
 	return scuo
 }
 
 // SetSubmitID sets the "submit_id" field.
-func (scuo *SubmitCaseUpdateOne) SetSubmitID(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetSubmitID(i int64) *SubmitCaseUpdateOne {
 	scuo.mutation.SetSubmitID(i)
 	return scuo
 }
 
 // SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(i *int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(i *int64) *SubmitCaseUpdateOne {
 	if i != nil {
 		scuo.SetSubmitID(*i)
 	}
@@ -482,13 +482,13 @@ func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(i *int) *SubmitCaseUpdateOn
 }
 
 // SetProblemCaseID sets the "problem_case_id" field.
-func (scuo *SubmitCaseUpdateOne) SetProblemCaseID(i int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetProblemCaseID(i int64) *SubmitCaseUpdateOne {
 	scuo.mutation.SetProblemCaseID(i)
 	return scuo
 }
 
 // SetNillableProblemCaseID sets the "problem_case_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableProblemCaseID(i *int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetNillableProblemCaseID(i *int64) *SubmitCaseUpdateOne {
 	if i != nil {
 		scuo.SetProblemCaseID(*i)
 	}
@@ -496,7 +496,7 @@ func (scuo *SubmitCaseUpdateOne) SetNillableProblemCaseID(i *int) *SubmitCaseUpd
 }
 
 // SetSubmissionID sets the "submission" edge to the Submit entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetSubmissionID(id int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetSubmissionID(id int64) *SubmitCaseUpdateOne {
 	scuo.mutation.SetSubmissionID(id)
 	return scuo
 }
@@ -507,7 +507,7 @@ func (scuo *SubmitCaseUpdateOne) SetSubmission(s *Submit) *SubmitCaseUpdateOne {
 }
 
 // SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetProblemCasesID(id int) *SubmitCaseUpdateOne {
+func (scuo *SubmitCaseUpdateOne) SetProblemCasesID(id int64) *SubmitCaseUpdateOne {
 	scuo.mutation.SetProblemCasesID(id)
 	return scuo
 }
@@ -609,7 +609,7 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 	if err := scuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
 	id, ok := scuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "SubmitCase.id" for update`)}
@@ -650,16 +650,16 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		_spec.SetField(submitcase.FieldMessage, field.TypeString, value)
 	}
 	if value, ok := scuo.mutation.Time(); ok {
-		_spec.SetField(submitcase.FieldTime, field.TypeInt, value)
+		_spec.SetField(submitcase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.AddedTime(); ok {
-		_spec.AddField(submitcase.FieldTime, field.TypeInt, value)
+		_spec.AddField(submitcase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.Memory(); ok {
-		_spec.SetField(submitcase.FieldMemory, field.TypeInt, value)
+		_spec.SetField(submitcase.FieldMemory, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.AddedMemory(); ok {
-		_spec.AddField(submitcase.FieldMemory, field.TypeInt, value)
+		_spec.AddField(submitcase.FieldMemory, field.TypeInt32, value)
 	}
 	if scuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -669,7 +669,7 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -682,7 +682,7 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 			Columns: []string{submitcase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -698,7 +698,7 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -711,7 +711,7 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 			Columns: []string{submitcase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

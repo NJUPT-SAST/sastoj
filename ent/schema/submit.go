@@ -23,17 +23,17 @@ func (Submit) Annotations() []schema.Annotation {
 // Fields of the Submit.
 func (Submit) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.Text("code"),
-		field.Int8("status").NonNegative(),
+		field.Int16("status").NonNegative(),
 		field.Int16("point").NonNegative(),
 		field.Time("create_time").Default(time.Now()),
-		field.Int("total_time").NonNegative(),
-		field.Int("max_memory").NonNegative(),
+		field.Int32("total_time").NonNegative(),
+		field.Int32("max_memory").NonNegative(),
 		field.String("language"),
 		field.Int8("case_version").Positive(),
-		field.Int("problem_id"),
-		field.Int("user_id"),
+		field.Int64("problem_id"),
+		field.Int64("user_id"),
 	}
 }
 

@@ -7,32 +7,32 @@ import (
 )
 
 type Submit struct {
-	ID          int       `json:"id,omitempty"`
-	UserID      int       `json:"user_id,omitempty"`
-	ProblemID   int       `json:"problem_id,omitempty"`
+	ID          int64     `json:"id,omitempty"`
+	UserID      int64     `json:"user_id,omitempty"`
+	ProblemID   int64     `json:"problem_id,omitempty"`
 	Code        string    `json:"code,omitempty"`
-	State       int       `json:"state,omitempty"`
-	Point       int       `json:"point,omitempty"`
+	Status      int32     `json:"state,omitempty"`
+	Point       int32     `json:"point,omitempty"`
 	CreateTime  time.Time `json:"create_time"`
-	TotalTime   int       `json:"total_time,omitempty"`
-	MaxMemory   int       `json:"max_memory,omitempty"`
+	TotalTime   int32     `json:"total_time,omitempty"`
+	MaxMemory   int32     `json:"max_memory,omitempty"`
 	Language    string    `json:"language,omitempty"`
-	CaseVersion int       `json:"case_version,omitempty"`
+	CaseVersion int32     `json:"case_version,omitempty"`
 }
 
 type Pretest struct {
 	ID       string `json:"id,omitempty"`
-	UserID   int    `json:"user_id,omitempty"`
+	UserID   int64  `json:"user_id,omitempty"`
 	Code     string `json:"code,omitempty"`
 	Language string `json:"language,omitempty"`
 	Input    string `json:"input,omitempty"`
 }
 
 type SubmitRepo interface {
-	CreateSubmit(ctx context.Context, submit *Submit) (int, error)
-	UpdateState(ctx context.Context, submitID int, state int) error
+	CreateSubmit(ctx context.Context, submit *Submit) (int64, error)
+	UpdateStatus(ctx context.Context, submitID int64, status int32) error
 	UpdateSubmit(ctx context.Context, submit *Submit) error
-	GetSubmission(ctx context.Context, submitID int, userID int) (*Submit, error)
+	GetSubmission(ctx context.Context, submitID int64, userID int64) (*Submit, error)
 	CreatePretest(ctx context.Context, pretest *Pretest) error
 }
 
@@ -45,7 +45,7 @@ func NewSubmitUsecase(repo SubmitRepo, logger log.Logger) *SubmitUsecase {
 	return &SubmitUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *SubmitUsecase) CreateSubmit(ctx context.Context, submit *Submit) (int, error) {
+func (uc *SubmitUsecase) CreateSubmit(ctx context.Context, submit *Submit) (int64, error) {
 	submitID, err := uc.repo.CreateSubmit(ctx, submit)
 	if err != nil {
 		return 0, err
@@ -53,15 +53,15 @@ func (uc *SubmitUsecase) CreateSubmit(ctx context.Context, submit *Submit) (int,
 	return submitID, nil
 }
 
-func (uc *SubmitUsecase) UpdateState(ctx context.Context, submitID int, state int) error {
-	return uc.repo.UpdateState(ctx, submitID, state)
+func (uc *SubmitUsecase) UpdateStatus(ctx context.Context, submitID int64, status int32) error {
+	return uc.repo.UpdateStatus(ctx, submitID, status)
 }
 
 func (uc *SubmitUsecase) UpdateSubmit(ctx context.Context, submit *Submit) error {
 	return uc.repo.UpdateSubmit(ctx, submit)
 }
 
-func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int, userID int) (*Submit, error) {
+func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int64, userID int64) (*Submit, error) {
 	return uc.repo.GetSubmission(ctx, submitID, userID)
 }
 

@@ -33,18 +33,19 @@ func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) 
 	return &biz.Group{Id: po.ID, Name: po.GroupName}, nil
 }
 
-func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*int, error) {
+func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*int64, error) {
 	res, err := r.data.db.Group.Update().
 		SetGroupName(g.Name).
-		Where(group.IDEQ(int(g.Id))).
+		Where(group.IDEQ(g.Id)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &res, nil
+	res64 := int64(res)
+	return &res64, nil
 }
 
-func (r *groupRepo) FindByID(ctx context.Context, id int) (*biz.Group, error) {
+func (r *groupRepo) FindByID(ctx context.Context, id int64) (*biz.Group, error) {
 	group, err := r.data.db.Group.Query().Where(group.IDEQ(id)).Only(ctx)
 	if err != nil {
 		return nil, err
@@ -55,8 +56,8 @@ func (r *groupRepo) FindByID(ctx context.Context, id int) (*biz.Group, error) {
 	}, nil
 }
 
-func (r *groupRepo) ListByPage(ctx context.Context, current int, size int) ([]*biz.Group, error) {
-	res, err := r.data.db.Group.Query().Limit(size).Offset((current - 1) * size).All(ctx)
+func (r *groupRepo) ListByPage(ctx context.Context, current int64, size int64) ([]*biz.Group, error) {
+	res, err := r.data.db.Group.Query().Limit(int(size)).Offset(int((current - 1) * size)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (r *groupRepo) ListByPage(ctx context.Context, current int, size int) ([]*b
 	return groups, nil
 }
 
-func (r *groupRepo) DeleteById(ctx context.Context, id int) error {
+func (r *groupRepo) DeleteById(ctx context.Context, id int64) error {
 	err := r.data.db.Group.DeleteOneID(id).Exec(ctx)
 	return err
 }

@@ -36,19 +36,19 @@ func (lsc *LoginSessionCreate) SetNillableCreateTime(t *time.Time) *LoginSession
 }
 
 // SetUserID sets the "user_id" field.
-func (lsc *LoginSessionCreate) SetUserID(i int) *LoginSessionCreate {
+func (lsc *LoginSessionCreate) SetUserID(i int64) *LoginSessionCreate {
 	lsc.mutation.SetUserID(i)
 	return lsc
 }
 
 // SetID sets the "id" field.
-func (lsc *LoginSessionCreate) SetID(i int) *LoginSessionCreate {
+func (lsc *LoginSessionCreate) SetID(i int64) *LoginSessionCreate {
 	lsc.mutation.SetID(i)
 	return lsc
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
-func (lsc *LoginSessionCreate) SetUsersID(id int) *LoginSessionCreate {
+func (lsc *LoginSessionCreate) SetUsersID(id int64) *LoginSessionCreate {
 	lsc.mutation.SetUsersID(id)
 	return lsc
 }
@@ -126,7 +126,7 @@ func (lsc *LoginSessionCreate) sqlSave(ctx context.Context) (*LoginSession, erro
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	lsc.mutation.id = &_node.ID
 	lsc.mutation.done = true
@@ -136,7 +136,7 @@ func (lsc *LoginSessionCreate) sqlSave(ctx context.Context) (*LoginSession, erro
 func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec) {
 	var (
 		_node = &LoginSession{config: lsc.config}
-		_spec = sqlgraph.NewCreateSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(loginsession.Table, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	)
 	if id, ok := lsc.mutation.ID(); ok {
 		_node.ID = id
@@ -154,7 +154,7 @@ func (lsc *LoginSessionCreate) createSpec() (*LoginSession, *sqlgraph.CreateSpec
 			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -213,7 +213,7 @@ func (lscb *LoginSessionCreateBulk) Save(ctx context.Context) ([]*LoginSession, 
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

@@ -16,7 +16,7 @@ import (
 type ProblemCase struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Point holds the value of the "point" field.
 	Point int16 `json:"point,omitempty"`
 	// Index holds the value of the "index" field.
@@ -26,7 +26,7 @@ type ProblemCase struct {
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
+	ProblemID int64 `json:"problem_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemCaseQuery when eager-loading is set.
 	Edges        ProblemCaseEdges `json:"edges"`
@@ -95,7 +95,7 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			pc.ID = int(value.Int64)
+			pc.ID = int64(value.Int64)
 		case problemcase.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
@@ -124,7 +124,7 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
-				pc.ProblemID = int(value.Int64)
+				pc.ProblemID = value.Int64
 			}
 		default:
 			pc.selectValues.Set(columns[i], values[i])

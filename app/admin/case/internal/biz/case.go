@@ -8,8 +8,8 @@ import (
 type Case struct {
 	Id        int64
 	ProblemId int64
-	Point     int64
-	Index     int64
+	Point     int32
+	Index     int32
 	IsAuto    bool
 }
 

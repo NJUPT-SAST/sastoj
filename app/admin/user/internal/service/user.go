@@ -30,20 +30,20 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
 		Password: md5Password,
-		GroupID:  int(req.GroupId),
+		GroupID:  req.GroupId,
 		Salt:     salt,
-		State:    1,
+		Status:   1,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &pb.CreateUserReply{
-		Id: int64(rv.ID),
+		Id: rv.ID,
 	}, nil
 }
 func (s *UserService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserReply, error) {
 	rv, err := s.uc.UpdateUser(ctx, &biz.User{
-		ID:       int(req.Id),
+		ID:       req.Id,
 		Username: req.Username,
 	})
 	if err != nil {
@@ -60,14 +60,14 @@ func (s *UserService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.
 	return &pb.GetUserReply{}, nil
 }
 func (s *UserService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*pb.ListUserReply, error) {
-	rv, err := s.uc.ListUser(ctx, int(req.Current), int(req.Size))
+	rv, err := s.uc.ListUser(ctx, req.Current, req.Size)
 	if err != nil {
 		return nil, err
 	}
 	var users []*pb.ListUserReply_User
 	for _, v := range rv {
 		users = append(users, &pb.ListUserReply_User{
-			Id:       int64(v.ID),
+			Id:       v.ID,
 			Username: v.Username,
 		})
 	}

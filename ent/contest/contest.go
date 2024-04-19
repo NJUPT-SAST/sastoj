@@ -40,11 +40,13 @@ const (
 	EdgeManage = "manage"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
-	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
-	ProblemsTable = "contest_problems"
+	// ProblemsTable is the table that holds the problems relation/edge.
+	ProblemsTable = "problems"
 	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemsInverseTable = "problems"
+	// ProblemsColumn is the table column denoting the problems relation/edge.
+	ProblemsColumn = "contest_id"
 	// ContestTable is the table that holds the contest relation/edge. The primary key declared below.
 	ContestTable = "group_contestants"
 	// ContestInverseTable is the table name for the Group entity.
@@ -72,9 +74,6 @@ var Columns = []string{
 }
 
 var (
-	// ProblemsPrimaryKey and ProblemsColumn2 are the table columns denoting the
-	// primary key for the problems relation (M2M).
-	ProblemsPrimaryKey = []string{"contest_id", "problem_id"}
 	// ContestPrimaryKey and ContestColumn2 are the table columns denoting the
 	// primary key for the contest relation (M2M).
 	ContestPrimaryKey = []string{"group_id", "contest_id"}
@@ -204,7 +203,7 @@ func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProblemsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, ProblemsTable, ProblemsPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
 	)
 }
 func newContestStep() *sqlgraph.Step {

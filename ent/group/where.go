@@ -10,47 +10,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Group {
+func ID(id int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Group {
+func IDEQ(id int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Group {
+func IDNEQ(id int64) predicate.Group {
 	return predicate.Group(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Group {
+func IDIn(ids ...int64) predicate.Group {
 	return predicate.Group(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Group {
+func IDNotIn(ids ...int64) predicate.Group {
 	return predicate.Group(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Group {
+func IDGT(id int64) predicate.Group {
 	return predicate.Group(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Group {
+func IDGTE(id int64) predicate.Group {
 	return predicate.Group(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Group {
+func IDLT(id int64) predicate.Group {
 	return predicate.Group(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Group {
+func IDLTE(id int64) predicate.Group {
 	return predicate.Group(sql.FieldLTE(FieldID, id))
 }
 
@@ -60,7 +60,7 @@ func GroupName(v string) predicate.Group {
 }
 
 // RootGroupID applies equality check predicate on the "root_group_id" field. It's identical to RootGroupIDEQ.
-func RootGroupID(v int) predicate.Group {
+func RootGroupID(v int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
 }
 
@@ -130,22 +130,22 @@ func GroupNameContainsFold(v string) predicate.Group {
 }
 
 // RootGroupIDEQ applies the EQ predicate on the "root_group_id" field.
-func RootGroupIDEQ(v int) predicate.Group {
+func RootGroupIDEQ(v int64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldRootGroupID, v))
 }
 
 // RootGroupIDNEQ applies the NEQ predicate on the "root_group_id" field.
-func RootGroupIDNEQ(v int) predicate.Group {
+func RootGroupIDNEQ(v int64) predicate.Group {
 	return predicate.Group(sql.FieldNEQ(FieldRootGroupID, v))
 }
 
 // RootGroupIDIn applies the In predicate on the "root_group_id" field.
-func RootGroupIDIn(vs ...int) predicate.Group {
+func RootGroupIDIn(vs ...int64) predicate.Group {
 	return predicate.Group(sql.FieldIn(FieldRootGroupID, vs...))
 }
 
 // RootGroupIDNotIn applies the NotIn predicate on the "root_group_id" field.
-func RootGroupIDNotIn(vs ...int) predicate.Group {
+func RootGroupIDNotIn(vs ...int64) predicate.Group {
 	return predicate.Group(sql.FieldNotIn(FieldRootGroupID, vs...))
 }
 

@@ -44,13 +44,13 @@ func (lsu *LoginSessionUpdate) SetNillableCreateTime(t *time.Time) *LoginSession
 }
 
 // SetUserID sets the "user_id" field.
-func (lsu *LoginSessionUpdate) SetUserID(i int) *LoginSessionUpdate {
+func (lsu *LoginSessionUpdate) SetUserID(i int64) *LoginSessionUpdate {
 	lsu.mutation.SetUserID(i)
 	return lsu
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (lsu *LoginSessionUpdate) SetNillableUserID(i *int) *LoginSessionUpdate {
+func (lsu *LoginSessionUpdate) SetNillableUserID(i *int64) *LoginSessionUpdate {
 	if i != nil {
 		lsu.SetUserID(*i)
 	}
@@ -58,7 +58,7 @@ func (lsu *LoginSessionUpdate) SetNillableUserID(i *int) *LoginSessionUpdate {
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
-func (lsu *LoginSessionUpdate) SetUsersID(id int) *LoginSessionUpdate {
+func (lsu *LoginSessionUpdate) SetUsersID(id int64) *LoginSessionUpdate {
 	lsu.mutation.SetUsersID(id)
 	return lsu
 }
@@ -118,7 +118,7 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := lsu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	if ps := lsu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -137,7 +137,7 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -150,7 +150,7 @@ func (lsu *LoginSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -193,13 +193,13 @@ func (lsuo *LoginSessionUpdateOne) SetNillableCreateTime(t *time.Time) *LoginSes
 }
 
 // SetUserID sets the "user_id" field.
-func (lsuo *LoginSessionUpdateOne) SetUserID(i int) *LoginSessionUpdateOne {
+func (lsuo *LoginSessionUpdateOne) SetUserID(i int64) *LoginSessionUpdateOne {
 	lsuo.mutation.SetUserID(i)
 	return lsuo
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (lsuo *LoginSessionUpdateOne) SetNillableUserID(i *int) *LoginSessionUpdateOne {
+func (lsuo *LoginSessionUpdateOne) SetNillableUserID(i *int64) *LoginSessionUpdateOne {
 	if i != nil {
 		lsuo.SetUserID(*i)
 	}
@@ -207,7 +207,7 @@ func (lsuo *LoginSessionUpdateOne) SetNillableUserID(i *int) *LoginSessionUpdate
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
-func (lsuo *LoginSessionUpdateOne) SetUsersID(id int) *LoginSessionUpdateOne {
+func (lsuo *LoginSessionUpdateOne) SetUsersID(id int64) *LoginSessionUpdateOne {
 	lsuo.mutation.SetUsersID(id)
 	return lsuo
 }
@@ -280,7 +280,7 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 	if err := lsuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	id, ok := lsuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "LoginSession.id" for update`)}
@@ -316,7 +316,7 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -329,7 +329,7 @@ func (lsuo *LoginSessionUpdateOne) sqlSave(ctx context.Context) (_node *LoginSes
 			Columns: []string{loginsession.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

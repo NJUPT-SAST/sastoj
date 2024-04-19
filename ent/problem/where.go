@@ -10,47 +10,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Problem {
+func ID(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Problem {
+func IDEQ(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Problem {
+func IDNEQ(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Problem {
+func IDIn(ids ...int64) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Problem {
+func IDNotIn(ids ...int64) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Problem {
+func IDGT(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Problem {
+func IDGTE(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Problem {
+func IDLT(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Problem {
+func IDLTE(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldID, id))
 }
 
@@ -87,6 +87,11 @@ func IsDeleted(v bool) predicate.Problem {
 // Config applies equality check predicate on the "config" field. It's identical to ConfigEQ.
 func Config(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldConfig, v))
+}
+
+// ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
+func ContestID(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -414,6 +419,26 @@ func ConfigContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldConfig, v))
 }
 
+// ContestIDEQ applies the EQ predicate on the "contest_id" field.
+func ContestIDEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
+}
+
+// ContestIDNEQ applies the NEQ predicate on the "contest_id" field.
+func ContestIDNEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldContestID, v))
+}
+
+// ContestIDIn applies the In predicate on the "contest_id" field.
+func ContestIDIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldContestID, vs...))
+}
+
+// ContestIDNotIn applies the NotIn predicate on the "contest_id" field.
+func ContestIDNotIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldContestID, vs...))
+}
+
 // HasProblemCases applies the HasEdge predicate on the "problem_cases" edge.
 func HasProblemCases() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -465,7 +490,7 @@ func HasContests() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, ContestsTable, ContestsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

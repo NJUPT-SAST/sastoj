@@ -3,66 +3,21 @@
 
 openapi: 3.0.3
 info:
-    title: CaseService API
+    title: User API
     version: 0.0.1
 paths:
-    /case:
-        put:
-            tags:
-                - CaseService
-            operationId: CaseService_UpdateCase
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateCaseRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UpdateCaseReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /case/delete:
-        put:
-            tags:
-                - CaseService
-            operationId: CaseService_DeleteCasesByCaseIds
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DeleteCaseByCaseIdsRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/DeleteCaseByCaseIdsReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /case/{problemId}:
+    /user:
         get:
             tags:
-                - CaseService
-            operationId: CaseService_GetCases
+                - User
+            operationId: User_ListUser
             parameters:
-                - name: problemId
-                  in: path
-                  required: true
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
                   schema:
                     type: string
             responses:
@@ -71,7 +26,30 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetCasesReply'
+                                $ref: '#/components/schemas/ListUserReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateUserReply'
                 default:
                     description: Default error response
                     content:
@@ -80,19 +58,13 @@ paths:
                                 $ref: '#/components/schemas/Status'
         post:
             tags:
-                - CaseService
-            operationId: CaseService_CreateCases
-            parameters:
-                - name: problemId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
+                - User
+            operationId: User_CreateUser
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateCasesRequest'
+                            $ref: '#/components/schemas/CreateUserRequest'
                 required: true
             responses:
                 "200":
@@ -100,7 +72,31 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateCasesReply'
+                                $ref: '#/components/schemas/CreateUserReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /user/{id}:
+        get:
+            tags:
+                - User
+            operationId: User_GetUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUserReply'
                 default:
                     description: Default error response
                     content:
@@ -109,10 +105,10 @@ paths:
                                 $ref: '#/components/schemas/Status'
         delete:
             tags:
-                - CaseService
-            operationId: CaseService_DeleteCasesByProblemId
+                - User
+            operationId: User_DeleteUser
             parameters:
-                - name: problemId
+                - name: id
                   in: path
                   required: true
                   schema:
@@ -123,7 +119,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/DeleteCasesByProblemIdReply'
+                                $ref: '#/components/schemas/DeleteUserReply'
                 default:
                     description: Default error response
                     content:
@@ -132,53 +128,32 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        Case:
+        CreateUserReply:
             type: object
             properties:
                 id:
                     type: string
-                point:
+        CreateUserRequest:
+            type: object
+            properties:
+                username:
                     type: string
-                index:
+                password:
                     type: string
-                isAuto:
+                groupId:
+                    type: string
+        DeleteUserReply:
+            type: object
+            properties:
+                success:
                     type: boolean
-        CreateCasesReply:
+        GetUserReply:
             type: object
             properties:
-                ids:
-                    type: array
-                    items:
-                        type: string
-        CreateCasesRequest:
-            type: object
-            properties:
-                problemId:
+                id:
                     type: string
-                requests:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Case'
-        DeleteCaseByCaseIdsReply:
-            type: object
-            properties: {}
-        DeleteCaseByCaseIdsRequest:
-            type: object
-            properties:
-                ids:
-                    type: array
-                    items:
-                        type: string
-        DeleteCasesByProblemIdReply:
-            type: object
-            properties: {}
-        GetCasesReply:
-            type: object
-            properties:
-                results:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Case'
+                username:
+                    type: string
         GoogleProtobufAny:
             type: object
             properties:
@@ -187,6 +162,20 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ListUserReply_User'
+        ListUserReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
         Status:
             type: object
             properties:
@@ -203,21 +192,22 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        UpdateCaseReply:
+        UpdateUserReply:
             type: object
-            properties: {}
-        UpdateCaseRequest:
+            properties:
+                success:
+                    type: boolean
+        UpdateUserRequest:
             type: object
             properties:
                 id:
                     type: string
-                point:
+                username:
                     type: string
-                index:
+                password:
                     type: string
-                isAuto:
-                    type: boolean
-                problemId:
-                    type: string
+                status:
+                    type: integer
+                    format: int32
 tags:
-    - name: CaseService
+    - name: User

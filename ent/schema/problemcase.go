@@ -14,12 +14,12 @@ type ProblemCase struct {
 // Fields of the ProblemCase.
 func (ProblemCase) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.Int16("point").NonNegative(),
 		field.Int16("index").Positive(),
 		field.Bool("is_auto").Default(false).Comment("是否自动均分"),
 		field.Bool("is_deleted").Default(false),
-		field.Int("problem_id"),
+		field.Int64("problem_id"),
 	}
 }
 

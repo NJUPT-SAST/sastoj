@@ -63,6 +63,12 @@ all:
 	make config;
 	make generate;
 
+.PHONY: db
+# generate db
+db:
+	go generate ./ent/
+	go run ./test/generatedb/main.go
+
 # show help
 help:
 	@echo ''

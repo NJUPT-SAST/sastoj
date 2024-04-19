@@ -5,7 +5,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent/contest"
-	"sastoj/ent/contestgroup"
+	"sastoj/ent/group"
+	"sastoj/ent/user"
 	"strconv"
 	"time"
 )
@@ -16,18 +17,13 @@ type contestRepo struct {
 }
 
 func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Contest, error) {
-	uPo, err := c.data.db.User.
-		Get(ctx, int(userID))
-	if err != nil {
-		return nil, err
-	}
-	gID := uPo.GroupID
-
 	po, err := c.data.db.Contest.
 		Query().
 		Where(
-			contest.HasContestGroupWith(
-				contestgroup.ID(gID),
+			contest.HasContestWith(
+				group.HasUsersWith(
+					user.IDEQ(userID),
+				),
 			),
 		).
 		All(ctx)
@@ -38,15 +34,15 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 	var ret []*biz.Contest
 	for _, v := range po {
 		ret = append(ret, &biz.Contest{
-			ID:          int64(v.ID),
+			ID:          v.ID,
 			Title:       v.Title,
 			Description: v.Description,
-			State:       v.State,
-			Type:        v.Type,
+			Status:      int32(v.Status),
+			Type:        int32(v.Type),
 			StartTime:   v.StartTime,
 			EndTime:     v.EndTime,
 			Language:    v.Language,
-			ExtraTime:   v.ExtraTime,
+			ExtraTime:   int32(v.ExtraTime),
 			CreateTime:  v.CreateTime,
 		})
 	}

@@ -124,7 +124,7 @@ func (pq *ProblemQuery) QueryContests() *ContestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, problem.ContestsTable, problem.ContestsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -178,8 +178,8 @@ func (pq *ProblemQuery) FirstX(ctx context.Context) *Problem {
 
 // FirstID returns the first Problem ID from the query.
 // Returns a *NotFoundError when no Problem ID was found.
-func (pq *ProblemQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pq *ProblemQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pq.Limit(1).IDs(setContextOp(ctx, pq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -191,7 +191,7 @@ func (pq *ProblemQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pq *ProblemQuery) FirstIDX(ctx context.Context) int {
+func (pq *ProblemQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -229,8 +229,8 @@ func (pq *ProblemQuery) OnlyX(ctx context.Context) *Problem {
 // OnlyID is like Only, but returns the only Problem ID in the query.
 // Returns a *NotSingularError when more than one Problem ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pq *ProblemQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pq *ProblemQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pq.Limit(2).IDs(setContextOp(ctx, pq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -246,7 +246,7 @@ func (pq *ProblemQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pq *ProblemQuery) OnlyIDX(ctx context.Context) int {
+func (pq *ProblemQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -274,7 +274,7 @@ func (pq *ProblemQuery) AllX(ctx context.Context) []*Problem {
 }
 
 // IDs executes the query and returns a list of Problem IDs.
-func (pq *ProblemQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (pq *ProblemQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if pq.ctx.Unique == nil && pq.path != nil {
 		pq.Unique(true)
 	}
@@ -286,7 +286,7 @@ func (pq *ProblemQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pq *ProblemQuery) IDsX(ctx context.Context) []int {
+func (pq *ProblemQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -518,9 +518,8 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 		}
 	}
 	if query := pq.withContests; query != nil {
-		if err := pq.loadContests(ctx, query, nodes,
-			func(n *Problem) { n.Edges.Contests = []*Contest{} },
-			func(n *Problem, e *Contest) { n.Edges.Contests = append(n.Edges.Contests, e) }); err != nil {
+		if err := pq.loadContests(ctx, query, nodes, nil,
+			func(n *Problem, e *Contest) { n.Edges.Contests = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -536,7 +535,7 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 
 func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *ProblemCase)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
+	nodeids := make(map[int64]*Problem)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -566,7 +565,7 @@ func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCase
 }
 func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Submit)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Problem)
+	nodeids := make(map[int64]*Problem)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -595,70 +594,38 @@ func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, 
 	return nil
 }
 func (pq *ProblemQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Contest)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Problem)
-	nids := make(map[int]map[*Problem]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Problem)
+	for i := range nodes {
+		fk := nodes[i].ContestID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
 		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(problem.ContestsTable)
-		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(problem.ContestsPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(problem.ContestsPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(problem.ContestsPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*Problem]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Contest](ctx, query, qr, query.inters)
+	query.Where(contest.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "contests" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "contest_id" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil
 }
 func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Problem)
-	nids := make(map[int]map[*Problem]struct{})
+	byID := make(map[int64]*Problem)
+	nids := make(map[int64]map[*Problem]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -690,8 +657,8 @@ func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes
 				return append([]any{new(sql.NullInt64)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := values[0].(*sql.NullInt64).Int64
+				inValue := values[1].(*sql.NullInt64).Int64
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Problem]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -727,7 +694,7 @@ func (pq *ProblemQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (pq *ProblemQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64))
 	_spec.From = pq.sql
 	if unique := pq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -741,6 +708,9 @@ func (pq *ProblemQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != problem.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if pq.withContests != nil {
+			_spec.Node.AddColumnOnce(problem.FieldContestID)
 		}
 	}
 	if ps := pq.predicates; len(ps) > 0 {

@@ -105,8 +105,8 @@ func (lsq *LoginSessionQuery) FirstX(ctx context.Context) *LoginSession {
 
 // FirstID returns the first LoginSession ID from the query.
 // Returns a *NotFoundError when no LoginSession ID was found.
-func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = lsq.Limit(1).IDs(setContextOp(ctx, lsq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -118,7 +118,7 @@ func (lsq *LoginSessionQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (lsq *LoginSessionQuery) FirstIDX(ctx context.Context) int {
+func (lsq *LoginSessionQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := lsq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -156,8 +156,8 @@ func (lsq *LoginSessionQuery) OnlyX(ctx context.Context) *LoginSession {
 // OnlyID is like Only, but returns the only LoginSession ID in the query.
 // Returns a *NotSingularError when more than one LoginSession ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = lsq.Limit(2).IDs(setContextOp(ctx, lsq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -173,7 +173,7 @@ func (lsq *LoginSessionQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (lsq *LoginSessionQuery) OnlyIDX(ctx context.Context) int {
+func (lsq *LoginSessionQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := lsq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -201,7 +201,7 @@ func (lsq *LoginSessionQuery) AllX(ctx context.Context) []*LoginSession {
 }
 
 // IDs executes the query and returns a list of LoginSession IDs.
-func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if lsq.ctx.Unique == nil && lsq.path != nil {
 		lsq.Unique(true)
 	}
@@ -213,7 +213,7 @@ func (lsq *LoginSessionQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (lsq *LoginSessionQuery) IDsX(ctx context.Context) []int {
+func (lsq *LoginSessionQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := lsq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -401,8 +401,8 @@ func (lsq *LoginSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 }
 
 func (lsq *LoginSessionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*LoginSession, init func(*LoginSession), assign func(*LoginSession, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*LoginSession)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*LoginSession)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -440,7 +440,7 @@ func (lsq *LoginSessionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (lsq *LoginSessionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(loginsession.Table, loginsession.Columns, sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64))
 	_spec.From = lsq.sql
 	if unique := lsq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

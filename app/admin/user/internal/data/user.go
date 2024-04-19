@@ -25,7 +25,7 @@ func (r *userRepo) Save(ctx context.Context, user *biz.User) (*biz.User, error) 
 		SetUsername(user.Username).
 		SetPassword(user.Password).
 		SetSalt(user.Salt).
-		SetState(user.State).
+		SetStatus(int16(user.Status)).
 		SetGroupID(user.GroupID).
 		Save(ctx)
 	if err != nil {
@@ -35,18 +35,19 @@ func (r *userRepo) Save(ctx context.Context, user *biz.User) (*biz.User, error) 
 	return user, nil
 }
 
-func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int, error) {
+func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
 	res, err := r.data.db.User.Update().
 		SetUsername(u.Username).
-		Where(user.ID(int(u.ID))).
+		Where(user.ID(u.ID)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &res, nil
+	res64 := int64(res)
+	return &res64, nil
 }
 
-func (r *userRepo) FindByID(ctx context.Context, id int) (*biz.User, error) {
+func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	res, err := r.data.db.User.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -57,8 +58,8 @@ func (r *userRepo) FindByID(ctx context.Context, id int) (*biz.User, error) {
 	}, nil
 }
 
-func (r *userRepo) ListPages(ctx context.Context, current int, size int) ([]*biz.User, error) {
-	res, err := r.data.db.User.Query().Offset((current - 1) * size).Limit(size).All(ctx)
+func (r *userRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.User, error) {
+	res, err := r.data.db.User.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -11,47 +11,47 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Submit {
+func ID(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Submit {
+func IDEQ(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Submit {
+func IDNEQ(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Submit {
+func IDIn(ids ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Submit {
+func IDNotIn(ids ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Submit {
+func IDGT(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Submit {
+func IDGTE(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Submit {
+func IDLT(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Submit {
+func IDLTE(id int64) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldID, id))
 }
 
@@ -61,7 +61,7 @@ func Code(v string) predicate.Submit {
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v int8) predicate.Submit {
+func Status(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldStatus, v))
 }
 
@@ -76,12 +76,12 @@ func CreateTime(v time.Time) predicate.Submit {
 }
 
 // TotalTime applies equality check predicate on the "total_time" field. It's identical to TotalTimeEQ.
-func TotalTime(v int) predicate.Submit {
+func TotalTime(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldTotalTime, v))
 }
 
 // MaxMemory applies equality check predicate on the "max_memory" field. It's identical to MaxMemoryEQ.
-func MaxMemory(v int) predicate.Submit {
+func MaxMemory(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldMaxMemory, v))
 }
 
@@ -96,12 +96,12 @@ func CaseVersion(v int8) predicate.Submit {
 }
 
 // ProblemID applies equality check predicate on the "problem_id" field. It's identical to ProblemIDEQ.
-func ProblemID(v int) predicate.Submit {
+func ProblemID(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldProblemID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.Submit {
+func UserID(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldUserID, v))
 }
 
@@ -171,42 +171,42 @@ func CodeContainsFold(v string) predicate.Submit {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v int8) predicate.Submit {
+func StatusEQ(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldStatus, v))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v int8) predicate.Submit {
+func StatusNEQ(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldStatus, v))
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...int8) predicate.Submit {
+func StatusIn(vs ...int16) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldStatus, vs...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...int8) predicate.Submit {
+func StatusNotIn(vs ...int16) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v int8) predicate.Submit {
+func StatusGT(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldStatus, v))
 }
 
 // StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v int8) predicate.Submit {
+func StatusGTE(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldStatus, v))
 }
 
 // StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v int8) predicate.Submit {
+func StatusLT(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldStatus, v))
 }
 
 // StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v int8) predicate.Submit {
+func StatusLTE(v int16) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldStatus, v))
 }
 
@@ -291,82 +291,82 @@ func CreateTimeLTE(v time.Time) predicate.Submit {
 }
 
 // TotalTimeEQ applies the EQ predicate on the "total_time" field.
-func TotalTimeEQ(v int) predicate.Submit {
+func TotalTimeEQ(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldTotalTime, v))
 }
 
 // TotalTimeNEQ applies the NEQ predicate on the "total_time" field.
-func TotalTimeNEQ(v int) predicate.Submit {
+func TotalTimeNEQ(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldTotalTime, v))
 }
 
 // TotalTimeIn applies the In predicate on the "total_time" field.
-func TotalTimeIn(vs ...int) predicate.Submit {
+func TotalTimeIn(vs ...int32) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeNotIn applies the NotIn predicate on the "total_time" field.
-func TotalTimeNotIn(vs ...int) predicate.Submit {
+func TotalTimeNotIn(vs ...int32) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeGT applies the GT predicate on the "total_time" field.
-func TotalTimeGT(v int) predicate.Submit {
+func TotalTimeGT(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldTotalTime, v))
 }
 
 // TotalTimeGTE applies the GTE predicate on the "total_time" field.
-func TotalTimeGTE(v int) predicate.Submit {
+func TotalTimeGTE(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldTotalTime, v))
 }
 
 // TotalTimeLT applies the LT predicate on the "total_time" field.
-func TotalTimeLT(v int) predicate.Submit {
+func TotalTimeLT(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldTotalTime, v))
 }
 
 // TotalTimeLTE applies the LTE predicate on the "total_time" field.
-func TotalTimeLTE(v int) predicate.Submit {
+func TotalTimeLTE(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldTotalTime, v))
 }
 
 // MaxMemoryEQ applies the EQ predicate on the "max_memory" field.
-func MaxMemoryEQ(v int) predicate.Submit {
+func MaxMemoryEQ(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldMaxMemory, v))
 }
 
 // MaxMemoryNEQ applies the NEQ predicate on the "max_memory" field.
-func MaxMemoryNEQ(v int) predicate.Submit {
+func MaxMemoryNEQ(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldMaxMemory, v))
 }
 
 // MaxMemoryIn applies the In predicate on the "max_memory" field.
-func MaxMemoryIn(vs ...int) predicate.Submit {
+func MaxMemoryIn(vs ...int32) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldMaxMemory, vs...))
 }
 
 // MaxMemoryNotIn applies the NotIn predicate on the "max_memory" field.
-func MaxMemoryNotIn(vs ...int) predicate.Submit {
+func MaxMemoryNotIn(vs ...int32) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldMaxMemory, vs...))
 }
 
 // MaxMemoryGT applies the GT predicate on the "max_memory" field.
-func MaxMemoryGT(v int) predicate.Submit {
+func MaxMemoryGT(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldGT(FieldMaxMemory, v))
 }
 
 // MaxMemoryGTE applies the GTE predicate on the "max_memory" field.
-func MaxMemoryGTE(v int) predicate.Submit {
+func MaxMemoryGTE(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldGTE(FieldMaxMemory, v))
 }
 
 // MaxMemoryLT applies the LT predicate on the "max_memory" field.
-func MaxMemoryLT(v int) predicate.Submit {
+func MaxMemoryLT(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldLT(FieldMaxMemory, v))
 }
 
 // MaxMemoryLTE applies the LTE predicate on the "max_memory" field.
-func MaxMemoryLTE(v int) predicate.Submit {
+func MaxMemoryLTE(v int32) predicate.Submit {
 	return predicate.Submit(sql.FieldLTE(FieldMaxMemory, v))
 }
 
@@ -476,42 +476,42 @@ func CaseVersionLTE(v int8) predicate.Submit {
 }
 
 // ProblemIDEQ applies the EQ predicate on the "problem_id" field.
-func ProblemIDEQ(v int) predicate.Submit {
+func ProblemIDEQ(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldProblemID, v))
 }
 
 // ProblemIDNEQ applies the NEQ predicate on the "problem_id" field.
-func ProblemIDNEQ(v int) predicate.Submit {
+func ProblemIDNEQ(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldProblemID, v))
 }
 
 // ProblemIDIn applies the In predicate on the "problem_id" field.
-func ProblemIDIn(vs ...int) predicate.Submit {
+func ProblemIDIn(vs ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldProblemID, vs...))
 }
 
 // ProblemIDNotIn applies the NotIn predicate on the "problem_id" field.
-func ProblemIDNotIn(vs ...int) predicate.Submit {
+func ProblemIDNotIn(vs ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldProblemID, vs...))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.Submit {
+func UserIDEQ(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.Submit {
+func UserIDNEQ(v int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.Submit {
+func UserIDIn(vs ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.Submit {
+func UserIDNotIn(vs ...int64) predicate.Submit {
 	return predicate.Submit(sql.FieldNotIn(FieldUserID, vs...))
 }
 

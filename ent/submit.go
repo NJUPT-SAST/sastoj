@@ -18,27 +18,27 @@ import (
 type Submit struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// Status holds the value of the "status" field.
-	Status int8 `json:"status,omitempty"`
+	Status int16 `json:"status,omitempty"`
 	// Point holds the value of the "point" field.
 	Point int16 `json:"point,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// TotalTime holds the value of the "total_time" field.
-	TotalTime int `json:"total_time,omitempty"`
+	TotalTime int32 `json:"total_time,omitempty"`
 	// MaxMemory holds the value of the "max_memory" field.
-	MaxMemory int `json:"max_memory,omitempty"`
+	MaxMemory int32 `json:"max_memory,omitempty"`
 	// Language holds the value of the "language" field.
 	Language string `json:"language,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
 	CaseVersion int8 `json:"case_version,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
-	ProblemID int `json:"problem_id,omitempty"`
+	ProblemID int64 `json:"problem_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID int64 `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitQuery when eager-loading is set.
 	Edges        SubmitEdges `json:"edges"`
@@ -124,7 +124,7 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			s.ID = int(value.Int64)
+			s.ID = int64(value.Int64)
 		case submit.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
@@ -135,7 +135,7 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.Status = int8(value.Int64)
+				s.Status = int16(value.Int64)
 			}
 		case submit.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -153,13 +153,13 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_time", values[i])
 			} else if value.Valid {
-				s.TotalTime = int(value.Int64)
+				s.TotalTime = int32(value.Int64)
 			}
 		case submit.FieldMaxMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_memory", values[i])
 			} else if value.Valid {
-				s.MaxMemory = int(value.Int64)
+				s.MaxMemory = int32(value.Int64)
 			}
 		case submit.FieldLanguage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -177,13 +177,13 @@ func (s *Submit) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
-				s.ProblemID = int(value.Int64)
+				s.ProblemID = value.Int64
 			}
 		case submit.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				s.UserID = int(value.Int64)
+				s.UserID = value.Int64
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])

@@ -129,8 +129,8 @@ func (scq *SubmitCaseQuery) FirstX(ctx context.Context) *SubmitCase {
 
 // FirstID returns the first SubmitCase ID from the query.
 // Returns a *NotFoundError when no SubmitCase ID was found.
-func (scq *SubmitCaseQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (scq *SubmitCaseQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = scq.Limit(1).IDs(setContextOp(ctx, scq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -142,7 +142,7 @@ func (scq *SubmitCaseQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (scq *SubmitCaseQuery) FirstIDX(ctx context.Context) int {
+func (scq *SubmitCaseQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := scq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -180,8 +180,8 @@ func (scq *SubmitCaseQuery) OnlyX(ctx context.Context) *SubmitCase {
 // OnlyID is like Only, but returns the only SubmitCase ID in the query.
 // Returns a *NotSingularError when more than one SubmitCase ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (scq *SubmitCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (scq *SubmitCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = scq.Limit(2).IDs(setContextOp(ctx, scq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -197,7 +197,7 @@ func (scq *SubmitCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (scq *SubmitCaseQuery) OnlyIDX(ctx context.Context) int {
+func (scq *SubmitCaseQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := scq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -225,7 +225,7 @@ func (scq *SubmitCaseQuery) AllX(ctx context.Context) []*SubmitCase {
 }
 
 // IDs executes the query and returns a list of SubmitCase IDs.
-func (scq *SubmitCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (scq *SubmitCaseQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if scq.ctx.Unique == nil && scq.path != nil {
 		scq.Unique(true)
 	}
@@ -237,7 +237,7 @@ func (scq *SubmitCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (scq *SubmitCaseQuery) IDsX(ctx context.Context) []int {
+func (scq *SubmitCaseQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := scq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -444,8 +444,8 @@ func (scq *SubmitCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 }
 
 func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*SubmitCase, init func(*SubmitCase), assign func(*SubmitCase, *Submit)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*SubmitCase)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*SubmitCase)
 	for i := range nodes {
 		fk := nodes[i].SubmitID
 		if _, ok := nodeids[fk]; !ok {
@@ -473,8 +473,8 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	return nil
 }
 func (scq *SubmitCaseQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*SubmitCase, init func(*SubmitCase), assign func(*SubmitCase, *ProblemCase)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*SubmitCase)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*SubmitCase)
 	for i := range nodes {
 		fk := nodes[i].ProblemCaseID
 		if _, ok := nodeids[fk]; !ok {
@@ -512,7 +512,7 @@ func (scq *SubmitCaseQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (scq *SubmitCaseQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
 	_spec.From = scq.sql
 	if unique := scq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -30,7 +30,7 @@ func (sc *SubmitCreate) SetCode(s string) *SubmitCreate {
 }
 
 // SetStatus sets the "status" field.
-func (sc *SubmitCreate) SetStatus(i int8) *SubmitCreate {
+func (sc *SubmitCreate) SetStatus(i int16) *SubmitCreate {
 	sc.mutation.SetStatus(i)
 	return sc
 }
@@ -56,13 +56,13 @@ func (sc *SubmitCreate) SetNillableCreateTime(t *time.Time) *SubmitCreate {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (sc *SubmitCreate) SetTotalTime(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetTotalTime(i int32) *SubmitCreate {
 	sc.mutation.SetTotalTime(i)
 	return sc
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (sc *SubmitCreate) SetMaxMemory(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetMaxMemory(i int32) *SubmitCreate {
 	sc.mutation.SetMaxMemory(i)
 	return sc
 }
@@ -80,32 +80,32 @@ func (sc *SubmitCreate) SetCaseVersion(i int8) *SubmitCreate {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (sc *SubmitCreate) SetProblemID(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetProblemID(i int64) *SubmitCreate {
 	sc.mutation.SetProblemID(i)
 	return sc
 }
 
 // SetUserID sets the "user_id" field.
-func (sc *SubmitCreate) SetUserID(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetUserID(i int64) *SubmitCreate {
 	sc.mutation.SetUserID(i)
 	return sc
 }
 
 // SetID sets the "id" field.
-func (sc *SubmitCreate) SetID(i int) *SubmitCreate {
+func (sc *SubmitCreate) SetID(i int64) *SubmitCreate {
 	sc.mutation.SetID(i)
 	return sc
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (sc *SubmitCreate) AddSubmitCaseIDs(ids ...int) *SubmitCreate {
+func (sc *SubmitCreate) AddSubmitCaseIDs(ids ...int64) *SubmitCreate {
 	sc.mutation.AddSubmitCaseIDs(ids...)
 	return sc
 }
 
 // AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
 func (sc *SubmitCreate) AddSubmitCases(s ...*SubmitCase) *SubmitCreate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -113,7 +113,7 @@ func (sc *SubmitCreate) AddSubmitCases(s ...*SubmitCase) *SubmitCreate {
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (sc *SubmitCreate) SetProblemsID(id int) *SubmitCreate {
+func (sc *SubmitCreate) SetProblemsID(id int64) *SubmitCreate {
 	sc.mutation.SetProblemsID(id)
 	return sc
 }
@@ -124,7 +124,7 @@ func (sc *SubmitCreate) SetProblems(p *Problem) *SubmitCreate {
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
-func (sc *SubmitCreate) SetUsersID(id int) *SubmitCreate {
+func (sc *SubmitCreate) SetUsersID(id int64) *SubmitCreate {
 	sc.mutation.SetUsersID(id)
 	return sc
 }
@@ -254,7 +254,7 @@ func (sc *SubmitCreate) sqlSave(ctx context.Context) (*Submit, error) {
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
@@ -264,7 +264,7 @@ func (sc *SubmitCreate) sqlSave(ctx context.Context) (*Submit, error) {
 func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Submit{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(submit.Table, sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(submit.Table, sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64))
 	)
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
@@ -275,7 +275,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_node.Code = value
 	}
 	if value, ok := sc.mutation.Status(); ok {
-		_spec.SetField(submit.FieldStatus, field.TypeInt8, value)
+		_spec.SetField(submit.FieldStatus, field.TypeInt16, value)
 		_node.Status = value
 	}
 	if value, ok := sc.mutation.Point(); ok {
@@ -287,11 +287,11 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		_node.CreateTime = value
 	}
 	if value, ok := sc.mutation.TotalTime(); ok {
-		_spec.SetField(submit.FieldTotalTime, field.TypeInt, value)
+		_spec.SetField(submit.FieldTotalTime, field.TypeInt32, value)
 		_node.TotalTime = value
 	}
 	if value, ok := sc.mutation.MaxMemory(); ok {
-		_spec.SetField(submit.FieldMaxMemory, field.TypeInt, value)
+		_spec.SetField(submit.FieldMaxMemory, field.TypeInt32, value)
 		_node.MaxMemory = value
 	}
 	if value, ok := sc.mutation.Language(); ok {
@@ -310,7 +310,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 			Columns: []string{submit.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -326,7 +326,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 			Columns: []string{submit.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -343,7 +343,7 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 			Columns: []string{submit.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -402,7 +402,7 @@ func (scb *SubmitCreateBulk) Save(ctx context.Context) ([]*Submit, error) {
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

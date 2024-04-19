@@ -4,6 +4,7 @@ package ent
 
 import (
 	"fmt"
+	"sastoj/ent/contest"
 	"sastoj/ent/problem"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 type Problem struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
@@ -30,6 +31,8 @@ type Problem struct {
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// Config holds the value of the "config" field.
 	Config string `json:"config,omitempty"`
+	// ContestID holds the value of the "contest_id" field.
+	ContestID int64 `json:"contest_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
 	Edges        ProblemEdges `json:"edges"`
@@ -43,7 +46,7 @@ type ProblemEdges struct {
 	// Submission holds the value of the submission edge.
 	Submission []*Submit `json:"submission,omitempty"`
 	// Contests holds the value of the contests edge.
-	Contests []*Contest `json:"contests,omitempty"`
+	Contests *Contest `json:"contests,omitempty"`
 	// Groups holds the value of the groups edge.
 	Groups []*Group `json:"groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -70,9 +73,13 @@ func (e ProblemEdges) SubmissionOrErr() ([]*Submit, error) {
 }
 
 // ContestsOrErr returns the Contests value or an error if the edge
-// was not loaded in eager-loading.
-func (e ProblemEdges) ContestsOrErr() ([]*Contest, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
 	if e.loadedTypes[2] {
+		if e.Contests == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: contest.Label}
+		}
 		return e.Contests, nil
 	}
 	return nil, &NotLoadedError{edge: "contests"}
@@ -94,7 +101,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex:
+		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID:
 			values[i] = new(sql.NullInt64)
 		case problem.FieldTitle, problem.FieldContent, problem.FieldConfig:
 			values[i] = new(sql.NullString)
@@ -118,7 +125,7 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			pr.ID = int(value.Int64)
+			pr.ID = int64(value.Int64)
 		case problem.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
@@ -160,6 +167,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field config", values[i])
 			} else if value.Valid {
 				pr.Config = value.String
+			}
+		case problem.FieldContestID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field contest_id", values[i])
+			} else if value.Valid {
+				pr.ContestID = value.Int64
 			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
@@ -237,6 +250,9 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("config=")
 	builder.WriteString(pr.Config)
+	builder.WriteString(", ")
+	builder.WriteString("contest_id=")
+	builder.WriteString(fmt.Sprintf("%v", pr.ContestID))
 	builder.WriteByte(')')
 	return builder.String()
 }

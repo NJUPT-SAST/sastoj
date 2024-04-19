@@ -62,26 +62,26 @@ func (pcc *ProblemCaseCreate) SetNillableIsDeleted(b *bool) *ProblemCaseCreate {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (pcc *ProblemCaseCreate) SetProblemID(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetProblemID(i int64) *ProblemCaseCreate {
 	pcc.mutation.SetProblemID(i)
 	return pcc
 }
 
 // SetID sets the "id" field.
-func (pcc *ProblemCaseCreate) SetID(i int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetID(i int64) *ProblemCaseCreate {
 	pcc.mutation.SetID(i)
 	return pcc
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (pcc *ProblemCaseCreate) AddSubmitCaseIDs(ids ...int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) AddSubmitCaseIDs(ids ...int64) *ProblemCaseCreate {
 	pcc.mutation.AddSubmitCaseIDs(ids...)
 	return pcc
 }
 
 // AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
 func (pcc *ProblemCaseCreate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseCreate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -89,7 +89,7 @@ func (pcc *ProblemCaseCreate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseCreat
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (pcc *ProblemCaseCreate) SetProblemsID(id int) *ProblemCaseCreate {
+func (pcc *ProblemCaseCreate) SetProblemsID(id int64) *ProblemCaseCreate {
 	pcc.mutation.SetProblemsID(id)
 	return pcc
 }
@@ -190,7 +190,7 @@ func (pcc *ProblemCaseCreate) sqlSave(ctx context.Context) (*ProblemCase, error)
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	pcc.mutation.id = &_node.ID
 	pcc.mutation.done = true
@@ -200,7 +200,7 @@ func (pcc *ProblemCaseCreate) sqlSave(ctx context.Context) (*ProblemCase, error)
 func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ProblemCase{config: pcc.config}
-		_spec = sqlgraph.NewCreateSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	)
 	if id, ok := pcc.mutation.ID(); ok {
 		_node.ID = id
@@ -230,7 +230,7 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -246,7 +246,7 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 			Columns: []string{problemcase.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -305,7 +305,7 @@ func (pccb *ProblemCaseCreateBulk) Save(ctx context.Context) ([]*ProblemCase, er
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

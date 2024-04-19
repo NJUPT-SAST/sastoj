@@ -100,13 +100,13 @@ func (pcu *ProblemCaseUpdate) SetNillableIsDeleted(b *bool) *ProblemCaseUpdate {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (pcu *ProblemCaseUpdate) SetProblemID(i int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetProblemID(i int64) *ProblemCaseUpdate {
 	pcu.mutation.SetProblemID(i)
 	return pcu
 }
 
 // SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (pcu *ProblemCaseUpdate) SetNillableProblemID(i *int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetNillableProblemID(i *int64) *ProblemCaseUpdate {
 	if i != nil {
 		pcu.SetProblemID(*i)
 	}
@@ -114,14 +114,14 @@ func (pcu *ProblemCaseUpdate) SetNillableProblemID(i *int) *ProblemCaseUpdate {
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (pcu *ProblemCaseUpdate) AddSubmitCaseIDs(ids ...int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) AddSubmitCaseIDs(ids ...int64) *ProblemCaseUpdate {
 	pcu.mutation.AddSubmitCaseIDs(ids...)
 	return pcu
 }
 
 // AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
 func (pcu *ProblemCaseUpdate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -129,7 +129,7 @@ func (pcu *ProblemCaseUpdate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseUpdat
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (pcu *ProblemCaseUpdate) SetProblemsID(id int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) SetProblemsID(id int64) *ProblemCaseUpdate {
 	pcu.mutation.SetProblemsID(id)
 	return pcu
 }
@@ -151,14 +151,14 @@ func (pcu *ProblemCaseUpdate) ClearSubmitCases() *ProblemCaseUpdate {
 }
 
 // RemoveSubmitCaseIDs removes the "submit_cases" edge to SubmitCase entities by IDs.
-func (pcu *ProblemCaseUpdate) RemoveSubmitCaseIDs(ids ...int) *ProblemCaseUpdate {
+func (pcu *ProblemCaseUpdate) RemoveSubmitCaseIDs(ids ...int64) *ProblemCaseUpdate {
 	pcu.mutation.RemoveSubmitCaseIDs(ids...)
 	return pcu
 }
 
 // RemoveSubmitCases removes "submit_cases" edges to SubmitCase entities.
 func (pcu *ProblemCaseUpdate) RemoveSubmitCases(s ...*SubmitCase) *ProblemCaseUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -220,7 +220,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := pcu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	if ps := pcu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -254,7 +254,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -267,7 +267,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -283,7 +283,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -299,7 +299,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problemcase.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -312,7 +312,7 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problemcase.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -411,13 +411,13 @@ func (pcuo *ProblemCaseUpdateOne) SetNillableIsDeleted(b *bool) *ProblemCaseUpda
 }
 
 // SetProblemID sets the "problem_id" field.
-func (pcuo *ProblemCaseUpdateOne) SetProblemID(i int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetProblemID(i int64) *ProblemCaseUpdateOne {
 	pcuo.mutation.SetProblemID(i)
 	return pcuo
 }
 
 // SetNillableProblemID sets the "problem_id" field if the given value is not nil.
-func (pcuo *ProblemCaseUpdateOne) SetNillableProblemID(i *int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetNillableProblemID(i *int64) *ProblemCaseUpdateOne {
 	if i != nil {
 		pcuo.SetProblemID(*i)
 	}
@@ -425,14 +425,14 @@ func (pcuo *ProblemCaseUpdateOne) SetNillableProblemID(i *int) *ProblemCaseUpdat
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (pcuo *ProblemCaseUpdateOne) AddSubmitCaseIDs(ids ...int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) AddSubmitCaseIDs(ids ...int64) *ProblemCaseUpdateOne {
 	pcuo.mutation.AddSubmitCaseIDs(ids...)
 	return pcuo
 }
 
 // AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
 func (pcuo *ProblemCaseUpdateOne) AddSubmitCases(s ...*SubmitCase) *ProblemCaseUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -440,7 +440,7 @@ func (pcuo *ProblemCaseUpdateOne) AddSubmitCases(s ...*SubmitCase) *ProblemCaseU
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (pcuo *ProblemCaseUpdateOne) SetProblemsID(id int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) SetProblemsID(id int64) *ProblemCaseUpdateOne {
 	pcuo.mutation.SetProblemsID(id)
 	return pcuo
 }
@@ -462,14 +462,14 @@ func (pcuo *ProblemCaseUpdateOne) ClearSubmitCases() *ProblemCaseUpdateOne {
 }
 
 // RemoveSubmitCaseIDs removes the "submit_cases" edge to SubmitCase entities by IDs.
-func (pcuo *ProblemCaseUpdateOne) RemoveSubmitCaseIDs(ids ...int) *ProblemCaseUpdateOne {
+func (pcuo *ProblemCaseUpdateOne) RemoveSubmitCaseIDs(ids ...int64) *ProblemCaseUpdateOne {
 	pcuo.mutation.RemoveSubmitCaseIDs(ids...)
 	return pcuo
 }
 
 // RemoveSubmitCases removes "submit_cases" edges to SubmitCase entities.
 func (pcuo *ProblemCaseUpdateOne) RemoveSubmitCases(s ...*SubmitCase) *ProblemCaseUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -544,7 +544,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 	if err := pcuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	id, ok := pcuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ProblemCase.id" for update`)}
@@ -595,7 +595,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -608,7 +608,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -624,7 +624,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 			Columns: []string{problemcase.SubmitCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -640,7 +640,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 			Columns: []string{problemcase.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -653,7 +653,7 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 			Columns: []string{problemcase.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

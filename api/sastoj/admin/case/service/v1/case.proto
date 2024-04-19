@@ -28,8 +28,8 @@ service CaseService {
 
 message Case {
   int64 id = 1;
-  int64 point = 2;
-  int64 index = 3;
+  int32 point = 2;
+  int32 index = 3;
   bool is_auto = 4;
 }
 
@@ -43,8 +43,8 @@ message CreateCasesReply {
 
 message UpdateCaseRequest {
   int64 id = 1;
-  int64 point = 2;
-  int64 index = 3;
+  int32 point = 2;
+  int32 index = 3;
   bool is_auto = 4;
   int64 problem_id = 5;
 }

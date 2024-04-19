@@ -23,9 +23,9 @@ func (LoginSession) Annotations() []schema.Annotation {
 // Fields of the LoginSession.
 func (LoginSession) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.Time("create_time").Default(time.Now()),
-		field.Int("user_id"),
+		field.Int64("user_id"),
 	}
 }
 

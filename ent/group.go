@@ -15,11 +15,11 @@ import (
 type Group struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// GroupName holds the value of the "group_name" field.
 	GroupName string `json:"group_name,omitempty"`
 	// RootGroupID holds the value of the "root_group_id" field.
-	RootGroupID int `json:"root_group_id,omitempty"`
+	RootGroupID int64 `json:"root_group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges        GroupEdges `json:"edges"`
@@ -132,7 +132,7 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			gr.ID = int(value.Int64)
+			gr.ID = int64(value.Int64)
 		case group.FieldGroupName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field group_name", values[i])
@@ -143,7 +143,7 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field root_group_id", values[i])
 			} else if value.Valid {
-				gr.RootGroupID = int(value.Int64)
+				gr.RootGroupID = value.Int64
 			}
 		default:
 			gr.selectValues.Set(columns[i], values[i])

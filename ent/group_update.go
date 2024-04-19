@@ -45,13 +45,13 @@ func (gu *GroupUpdate) SetNillableGroupName(s *string) *GroupUpdate {
 }
 
 // SetRootGroupID sets the "root_group_id" field.
-func (gu *GroupUpdate) SetRootGroupID(i int) *GroupUpdate {
+func (gu *GroupUpdate) SetRootGroupID(i int64) *GroupUpdate {
 	gu.mutation.SetRootGroupID(i)
 	return gu
 }
 
 // SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
-func (gu *GroupUpdate) SetNillableRootGroupID(i *int) *GroupUpdate {
+func (gu *GroupUpdate) SetNillableRootGroupID(i *int64) *GroupUpdate {
 	if i != nil {
 		gu.SetRootGroupID(*i)
 	}
@@ -59,14 +59,14 @@ func (gu *GroupUpdate) SetNillableRootGroupID(i *int) *GroupUpdate {
 }
 
 // AddAdminIDs adds the "admins" edge to the Contest entity by IDs.
-func (gu *GroupUpdate) AddAdminIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) AddAdminIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.AddAdminIDs(ids...)
 	return gu
 }
 
 // AddAdmins adds the "admins" edges to the Contest entity.
 func (gu *GroupUpdate) AddAdmins(c ...*Contest) *GroupUpdate {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -74,14 +74,14 @@ func (gu *GroupUpdate) AddAdmins(c ...*Contest) *GroupUpdate {
 }
 
 // AddContestantIDs adds the "contestants" edge to the Contest entity by IDs.
-func (gu *GroupUpdate) AddContestantIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) AddContestantIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.AddContestantIDs(ids...)
 	return gu
 }
 
 // AddContestants adds the "contestants" edges to the Contest entity.
 func (gu *GroupUpdate) AddContestants(c ...*Contest) *GroupUpdate {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -89,14 +89,14 @@ func (gu *GroupUpdate) AddContestants(c ...*Contest) *GroupUpdate {
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (gu *GroupUpdate) AddProblemIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) AddProblemIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.AddProblemIDs(ids...)
 	return gu
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (gu *GroupUpdate) AddProblems(p ...*Problem) *GroupUpdate {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -104,14 +104,14 @@ func (gu *GroupUpdate) AddProblems(p ...*Problem) *GroupUpdate {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (gu *GroupUpdate) AddUserIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) AddUserIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.AddUserIDs(ids...)
 	return gu
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (gu *GroupUpdate) AddUsers(u ...*User) *GroupUpdate {
-	ids := make([]int, len(u))
+	ids := make([]int64, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -124,14 +124,14 @@ func (gu *GroupUpdate) SetRootGroup(g *Group) *GroupUpdate {
 }
 
 // AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
-func (gu *GroupUpdate) AddSubgroupIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) AddSubgroupIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.AddSubgroupIDs(ids...)
 	return gu
 }
 
 // AddSubgroups adds the "subgroups" edges to the Group entity.
 func (gu *GroupUpdate) AddSubgroups(g ...*Group) *GroupUpdate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -150,14 +150,14 @@ func (gu *GroupUpdate) ClearAdmins() *GroupUpdate {
 }
 
 // RemoveAdminIDs removes the "admins" edge to Contest entities by IDs.
-func (gu *GroupUpdate) RemoveAdminIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) RemoveAdminIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.RemoveAdminIDs(ids...)
 	return gu
 }
 
 // RemoveAdmins removes "admins" edges to Contest entities.
 func (gu *GroupUpdate) RemoveAdmins(c ...*Contest) *GroupUpdate {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -171,14 +171,14 @@ func (gu *GroupUpdate) ClearContestants() *GroupUpdate {
 }
 
 // RemoveContestantIDs removes the "contestants" edge to Contest entities by IDs.
-func (gu *GroupUpdate) RemoveContestantIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) RemoveContestantIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.RemoveContestantIDs(ids...)
 	return gu
 }
 
 // RemoveContestants removes "contestants" edges to Contest entities.
 func (gu *GroupUpdate) RemoveContestants(c ...*Contest) *GroupUpdate {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -192,14 +192,14 @@ func (gu *GroupUpdate) ClearProblems() *GroupUpdate {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (gu *GroupUpdate) RemoveProblemIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) RemoveProblemIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.RemoveProblemIDs(ids...)
 	return gu
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (gu *GroupUpdate) RemoveProblems(p ...*Problem) *GroupUpdate {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -213,14 +213,14 @@ func (gu *GroupUpdate) ClearUsers() *GroupUpdate {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (gu *GroupUpdate) RemoveUserIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) RemoveUserIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.RemoveUserIDs(ids...)
 	return gu
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (gu *GroupUpdate) RemoveUsers(u ...*User) *GroupUpdate {
-	ids := make([]int, len(u))
+	ids := make([]int64, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -240,14 +240,14 @@ func (gu *GroupUpdate) ClearSubgroups() *GroupUpdate {
 }
 
 // RemoveSubgroupIDs removes the "subgroups" edge to Group entities by IDs.
-func (gu *GroupUpdate) RemoveSubgroupIDs(ids ...int) *GroupUpdate {
+func (gu *GroupUpdate) RemoveSubgroupIDs(ids ...int64) *GroupUpdate {
 	gu.mutation.RemoveSubgroupIDs(ids...)
 	return gu
 }
 
 // RemoveSubgroups removes "subgroups" edges to Group entities.
 func (gu *GroupUpdate) RemoveSubgroups(g ...*Group) *GroupUpdate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -293,7 +293,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := gu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64))
 	if ps := gu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -312,7 +312,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -325,7 +325,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -341,7 +341,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -357,7 +357,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -370,7 +370,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -386,7 +386,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -402,7 +402,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -415,7 +415,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -431,7 +431,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -447,7 +447,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -460,7 +460,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -476,7 +476,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -492,7 +492,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.RootGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -505,7 +505,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.RootGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -521,7 +521,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -534,7 +534,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -550,7 +550,7 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -593,13 +593,13 @@ func (guo *GroupUpdateOne) SetNillableGroupName(s *string) *GroupUpdateOne {
 }
 
 // SetRootGroupID sets the "root_group_id" field.
-func (guo *GroupUpdateOne) SetRootGroupID(i int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) SetRootGroupID(i int64) *GroupUpdateOne {
 	guo.mutation.SetRootGroupID(i)
 	return guo
 }
 
 // SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
-func (guo *GroupUpdateOne) SetNillableRootGroupID(i *int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) SetNillableRootGroupID(i *int64) *GroupUpdateOne {
 	if i != nil {
 		guo.SetRootGroupID(*i)
 	}
@@ -607,14 +607,14 @@ func (guo *GroupUpdateOne) SetNillableRootGroupID(i *int) *GroupUpdateOne {
 }
 
 // AddAdminIDs adds the "admins" edge to the Contest entity by IDs.
-func (guo *GroupUpdateOne) AddAdminIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) AddAdminIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.AddAdminIDs(ids...)
 	return guo
 }
 
 // AddAdmins adds the "admins" edges to the Contest entity.
 func (guo *GroupUpdateOne) AddAdmins(c ...*Contest) *GroupUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -622,14 +622,14 @@ func (guo *GroupUpdateOne) AddAdmins(c ...*Contest) *GroupUpdateOne {
 }
 
 // AddContestantIDs adds the "contestants" edge to the Contest entity by IDs.
-func (guo *GroupUpdateOne) AddContestantIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) AddContestantIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.AddContestantIDs(ids...)
 	return guo
 }
 
 // AddContestants adds the "contestants" edges to the Contest entity.
 func (guo *GroupUpdateOne) AddContestants(c ...*Contest) *GroupUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -637,14 +637,14 @@ func (guo *GroupUpdateOne) AddContestants(c ...*Contest) *GroupUpdateOne {
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (guo *GroupUpdateOne) AddProblemIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) AddProblemIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.AddProblemIDs(ids...)
 	return guo
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (guo *GroupUpdateOne) AddProblems(p ...*Problem) *GroupUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -652,14 +652,14 @@ func (guo *GroupUpdateOne) AddProblems(p ...*Problem) *GroupUpdateOne {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (guo *GroupUpdateOne) AddUserIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) AddUserIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.AddUserIDs(ids...)
 	return guo
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (guo *GroupUpdateOne) AddUsers(u ...*User) *GroupUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]int64, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -672,14 +672,14 @@ func (guo *GroupUpdateOne) SetRootGroup(g *Group) *GroupUpdateOne {
 }
 
 // AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
-func (guo *GroupUpdateOne) AddSubgroupIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) AddSubgroupIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.AddSubgroupIDs(ids...)
 	return guo
 }
 
 // AddSubgroups adds the "subgroups" edges to the Group entity.
 func (guo *GroupUpdateOne) AddSubgroups(g ...*Group) *GroupUpdateOne {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -698,14 +698,14 @@ func (guo *GroupUpdateOne) ClearAdmins() *GroupUpdateOne {
 }
 
 // RemoveAdminIDs removes the "admins" edge to Contest entities by IDs.
-func (guo *GroupUpdateOne) RemoveAdminIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) RemoveAdminIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.RemoveAdminIDs(ids...)
 	return guo
 }
 
 // RemoveAdmins removes "admins" edges to Contest entities.
 func (guo *GroupUpdateOne) RemoveAdmins(c ...*Contest) *GroupUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -719,14 +719,14 @@ func (guo *GroupUpdateOne) ClearContestants() *GroupUpdateOne {
 }
 
 // RemoveContestantIDs removes the "contestants" edge to Contest entities by IDs.
-func (guo *GroupUpdateOne) RemoveContestantIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) RemoveContestantIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.RemoveContestantIDs(ids...)
 	return guo
 }
 
 // RemoveContestants removes "contestants" edges to Contest entities.
 func (guo *GroupUpdateOne) RemoveContestants(c ...*Contest) *GroupUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]int64, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -740,14 +740,14 @@ func (guo *GroupUpdateOne) ClearProblems() *GroupUpdateOne {
 }
 
 // RemoveProblemIDs removes the "problems" edge to Problem entities by IDs.
-func (guo *GroupUpdateOne) RemoveProblemIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) RemoveProblemIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.RemoveProblemIDs(ids...)
 	return guo
 }
 
 // RemoveProblems removes "problems" edges to Problem entities.
 func (guo *GroupUpdateOne) RemoveProblems(p ...*Problem) *GroupUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -761,14 +761,14 @@ func (guo *GroupUpdateOne) ClearUsers() *GroupUpdateOne {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (guo *GroupUpdateOne) RemoveUserIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) RemoveUserIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.RemoveUserIDs(ids...)
 	return guo
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (guo *GroupUpdateOne) RemoveUsers(u ...*User) *GroupUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]int64, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -788,14 +788,14 @@ func (guo *GroupUpdateOne) ClearSubgroups() *GroupUpdateOne {
 }
 
 // RemoveSubgroupIDs removes the "subgroups" edge to Group entities by IDs.
-func (guo *GroupUpdateOne) RemoveSubgroupIDs(ids ...int) *GroupUpdateOne {
+func (guo *GroupUpdateOne) RemoveSubgroupIDs(ids ...int64) *GroupUpdateOne {
 	guo.mutation.RemoveSubgroupIDs(ids...)
 	return guo
 }
 
 // RemoveSubgroups removes "subgroups" edges to Group entities.
 func (guo *GroupUpdateOne) RemoveSubgroups(g ...*Group) *GroupUpdateOne {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -854,7 +854,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 	if err := guo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64))
 	id, ok := guo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Group.id" for update`)}
@@ -890,7 +890,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -903,7 +903,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -919,7 +919,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.AdminsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -935,7 +935,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -948,7 +948,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -964,7 +964,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -980,7 +980,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -993,7 +993,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1009,7 +1009,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: group.ProblemsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1025,7 +1025,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1038,7 +1038,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1054,7 +1054,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1070,7 +1070,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.RootGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1083,7 +1083,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.RootGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1099,7 +1099,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1112,7 +1112,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1128,7 +1128,7 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Columns: []string{group.SubgroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

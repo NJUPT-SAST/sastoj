@@ -93,20 +93,20 @@ func (cc *ContestCreate) SetNillableCreateTime(t *time.Time) *ContestCreate {
 }
 
 // SetID sets the "id" field.
-func (cc *ContestCreate) SetID(i int) *ContestCreate {
+func (cc *ContestCreate) SetID(i int64) *ContestCreate {
 	cc.mutation.SetID(i)
 	return cc
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by IDs.
-func (cc *ContestCreate) AddProblemIDs(ids ...int) *ContestCreate {
+func (cc *ContestCreate) AddProblemIDs(ids ...int64) *ContestCreate {
 	cc.mutation.AddProblemIDs(ids...)
 	return cc
 }
 
 // AddProblems adds the "problems" edges to the Problem entity.
 func (cc *ContestCreate) AddProblems(p ...*Problem) *ContestCreate {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -114,14 +114,14 @@ func (cc *ContestCreate) AddProblems(p ...*Problem) *ContestCreate {
 }
 
 // AddContestIDs adds the "contest" edge to the Group entity by IDs.
-func (cc *ContestCreate) AddContestIDs(ids ...int) *ContestCreate {
+func (cc *ContestCreate) AddContestIDs(ids ...int64) *ContestCreate {
 	cc.mutation.AddContestIDs(ids...)
 	return cc
 }
 
 // AddContest adds the "contest" edges to the Group entity.
 func (cc *ContestCreate) AddContest(g ...*Group) *ContestCreate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -129,14 +129,14 @@ func (cc *ContestCreate) AddContest(g ...*Group) *ContestCreate {
 }
 
 // AddManageIDs adds the "manage" edge to the Group entity by IDs.
-func (cc *ContestCreate) AddManageIDs(ids ...int) *ContestCreate {
+func (cc *ContestCreate) AddManageIDs(ids ...int64) *ContestCreate {
 	cc.mutation.AddManageIDs(ids...)
 	return cc
 }
 
 // AddManage adds the "manage" edges to the Group entity.
 func (cc *ContestCreate) AddManage(g ...*Group) *ContestCreate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -248,7 +248,7 @@ func (cc *ContestCreate) sqlSave(ctx context.Context) (*Contest, error) {
 	}
 	if _spec.ID.Value != _node.ID {
 		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+		_node.ID = int64(id)
 	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
@@ -258,7 +258,7 @@ func (cc *ContestCreate) sqlSave(ctx context.Context) (*Contest, error) {
 func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Contest{config: cc.config}
-		_spec = sqlgraph.NewCreateSpec(contest.Table, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(contest.Table, sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64))
 	)
 	if id, ok := cc.mutation.ID(); ok {
 		_node.ID = id
@@ -302,13 +302,13 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 	}
 	if nodes := cc.mutation.ProblemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   contest.ProblemsTable,
-			Columns: contest.ProblemsPrimaryKey,
+			Columns: []string{contest.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -324,7 +324,7 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: contest.ContestPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -340,7 +340,7 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Columns: contest.ManagePrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -398,7 +398,7 @@ func (ccb *ContestCreateBulk) Save(ctx context.Context) ([]*Contest, error) {
 				mutation.id = &nodes[i].ID
 				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

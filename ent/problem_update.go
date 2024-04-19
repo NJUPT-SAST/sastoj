@@ -150,15 +150,29 @@ func (pu *ProblemUpdate) SetNillableConfig(s *string) *ProblemUpdate {
 	return pu
 }
 
+// SetContestID sets the "contest_id" field.
+func (pu *ProblemUpdate) SetContestID(i int64) *ProblemUpdate {
+	pu.mutation.SetContestID(i)
+	return pu
+}
+
+// SetNillableContestID sets the "contest_id" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableContestID(i *int64) *ProblemUpdate {
+	if i != nil {
+		pu.SetContestID(*i)
+	}
+	return pu
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
-func (pu *ProblemUpdate) AddProblemCaseIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddProblemCaseIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.AddProblemCaseIDs(ids...)
 	return pu
 }
 
 // AddProblemCases adds the "problem_cases" edges to the ProblemCase entity.
 func (pu *ProblemUpdate) AddProblemCases(p ...*ProblemCase) *ProblemUpdate {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -166,44 +180,40 @@ func (pu *ProblemUpdate) AddProblemCases(p ...*ProblemCase) *ProblemUpdate {
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
-func (pu *ProblemUpdate) AddSubmissionIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddSubmissionIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.AddSubmissionIDs(ids...)
 	return pu
 }
 
 // AddSubmission adds the "submission" edges to the Submit entity.
 func (pu *ProblemUpdate) AddSubmission(s ...*Submit) *ProblemUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
 	return pu.AddSubmissionIDs(ids...)
 }
 
-// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
-func (pu *ProblemUpdate) AddContestIDs(ids ...int) *ProblemUpdate {
-	pu.mutation.AddContestIDs(ids...)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (pu *ProblemUpdate) SetContestsID(id int64) *ProblemUpdate {
+	pu.mutation.SetContestsID(id)
 	return pu
 }
 
-// AddContests adds the "contests" edges to the Contest entity.
-func (pu *ProblemUpdate) AddContests(c ...*Contest) *ProblemUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return pu.AddContestIDs(ids...)
+// SetContests sets the "contests" edge to the Contest entity.
+func (pu *ProblemUpdate) SetContests(c *Contest) *ProblemUpdate {
+	return pu.SetContestsID(c.ID)
 }
 
 // AddGroupIDs adds the "groups" edge to the Group entity by IDs.
-func (pu *ProblemUpdate) AddGroupIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) AddGroupIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.AddGroupIDs(ids...)
 	return pu
 }
 
 // AddGroups adds the "groups" edges to the Group entity.
 func (pu *ProblemUpdate) AddGroups(g ...*Group) *ProblemUpdate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -222,14 +232,14 @@ func (pu *ProblemUpdate) ClearProblemCases() *ProblemUpdate {
 }
 
 // RemoveProblemCaseIDs removes the "problem_cases" edge to ProblemCase entities by IDs.
-func (pu *ProblemUpdate) RemoveProblemCaseIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) RemoveProblemCaseIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.RemoveProblemCaseIDs(ids...)
 	return pu
 }
 
 // RemoveProblemCases removes "problem_cases" edges to ProblemCase entities.
 func (pu *ProblemUpdate) RemoveProblemCases(p ...*ProblemCase) *ProblemUpdate {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -243,39 +253,24 @@ func (pu *ProblemUpdate) ClearSubmission() *ProblemUpdate {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
-func (pu *ProblemUpdate) RemoveSubmissionIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) RemoveSubmissionIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.RemoveSubmissionIDs(ids...)
 	return pu
 }
 
 // RemoveSubmission removes "submission" edges to Submit entities.
 func (pu *ProblemUpdate) RemoveSubmission(s ...*Submit) *ProblemUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
 	return pu.RemoveSubmissionIDs(ids...)
 }
 
-// ClearContests clears all "contests" edges to the Contest entity.
+// ClearContests clears the "contests" edge to the Contest entity.
 func (pu *ProblemUpdate) ClearContests() *ProblemUpdate {
 	pu.mutation.ClearContests()
 	return pu
-}
-
-// RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
-func (pu *ProblemUpdate) RemoveContestIDs(ids ...int) *ProblemUpdate {
-	pu.mutation.RemoveContestIDs(ids...)
-	return pu
-}
-
-// RemoveContests removes "contests" edges to Contest entities.
-func (pu *ProblemUpdate) RemoveContests(c ...*Contest) *ProblemUpdate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return pu.RemoveContestIDs(ids...)
 }
 
 // ClearGroups clears all "groups" edges to the Group entity.
@@ -285,14 +280,14 @@ func (pu *ProblemUpdate) ClearGroups() *ProblemUpdate {
 }
 
 // RemoveGroupIDs removes the "groups" edge to Group entities by IDs.
-func (pu *ProblemUpdate) RemoveGroupIDs(ids ...int) *ProblemUpdate {
+func (pu *ProblemUpdate) RemoveGroupIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.RemoveGroupIDs(ids...)
 	return pu
 }
 
 // RemoveGroups removes "groups" edges to Group entities.
 func (pu *ProblemUpdate) RemoveGroups(g ...*Group) *ProblemUpdate {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -333,15 +328,13 @@ func (pu *ProblemUpdate) check() error {
 			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Problem.point": %w`, err)}
 		}
 	}
-	if v, ok := pu.mutation.CaseVersion(); ok {
-		if err := problem.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Problem.case_version": %w`, err)}
-		}
-	}
 	if v, ok := pu.mutation.Index(); ok {
 		if err := problem.IndexValidator(v); err != nil {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
 		}
+	}
+	if _, ok := pu.mutation.ContestsID(); pu.mutation.ContestsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Problem.contests"`)
 	}
 	return nil
 }
@@ -350,7 +343,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := pu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -396,7 +389,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -409,7 +402,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -425,7 +418,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -441,7 +434,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -454,7 +447,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -470,7 +463,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -480,42 +473,26 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.ContestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
+			Columns: []string{problem.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pu.mutation.RemovedContestsIDs(); len(nodes) > 0 && !pu.mutation.ContestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := pu.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
+			Columns: []string{problem.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -531,7 +508,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -544,7 +521,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -560,7 +537,7 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -707,15 +684,29 @@ func (puo *ProblemUpdateOne) SetNillableConfig(s *string) *ProblemUpdateOne {
 	return puo
 }
 
+// SetContestID sets the "contest_id" field.
+func (puo *ProblemUpdateOne) SetContestID(i int64) *ProblemUpdateOne {
+	puo.mutation.SetContestID(i)
+	return puo
+}
+
+// SetNillableContestID sets the "contest_id" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableContestID(i *int64) *ProblemUpdateOne {
+	if i != nil {
+		puo.SetContestID(*i)
+	}
+	return puo
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
-func (puo *ProblemUpdateOne) AddProblemCaseIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddProblemCaseIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.AddProblemCaseIDs(ids...)
 	return puo
 }
 
 // AddProblemCases adds the "problem_cases" edges to the ProblemCase entity.
 func (puo *ProblemUpdateOne) AddProblemCases(p ...*ProblemCase) *ProblemUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -723,44 +714,40 @@ func (puo *ProblemUpdateOne) AddProblemCases(p ...*ProblemCase) *ProblemUpdateOn
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
-func (puo *ProblemUpdateOne) AddSubmissionIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddSubmissionIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.AddSubmissionIDs(ids...)
 	return puo
 }
 
 // AddSubmission adds the "submission" edges to the Submit entity.
 func (puo *ProblemUpdateOne) AddSubmission(s ...*Submit) *ProblemUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
 	return puo.AddSubmissionIDs(ids...)
 }
 
-// AddContestIDs adds the "contests" edge to the Contest entity by IDs.
-func (puo *ProblemUpdateOne) AddContestIDs(ids ...int) *ProblemUpdateOne {
-	puo.mutation.AddContestIDs(ids...)
+// SetContestsID sets the "contests" edge to the Contest entity by ID.
+func (puo *ProblemUpdateOne) SetContestsID(id int64) *ProblemUpdateOne {
+	puo.mutation.SetContestsID(id)
 	return puo
 }
 
-// AddContests adds the "contests" edges to the Contest entity.
-func (puo *ProblemUpdateOne) AddContests(c ...*Contest) *ProblemUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return puo.AddContestIDs(ids...)
+// SetContests sets the "contests" edge to the Contest entity.
+func (puo *ProblemUpdateOne) SetContests(c *Contest) *ProblemUpdateOne {
+	return puo.SetContestsID(c.ID)
 }
 
 // AddGroupIDs adds the "groups" edge to the Group entity by IDs.
-func (puo *ProblemUpdateOne) AddGroupIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) AddGroupIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.AddGroupIDs(ids...)
 	return puo
 }
 
 // AddGroups adds the "groups" edges to the Group entity.
 func (puo *ProblemUpdateOne) AddGroups(g ...*Group) *ProblemUpdateOne {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -779,14 +766,14 @@ func (puo *ProblemUpdateOne) ClearProblemCases() *ProblemUpdateOne {
 }
 
 // RemoveProblemCaseIDs removes the "problem_cases" edge to ProblemCase entities by IDs.
-func (puo *ProblemUpdateOne) RemoveProblemCaseIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) RemoveProblemCaseIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.RemoveProblemCaseIDs(ids...)
 	return puo
 }
 
 // RemoveProblemCases removes "problem_cases" edges to ProblemCase entities.
 func (puo *ProblemUpdateOne) RemoveProblemCases(p ...*ProblemCase) *ProblemUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]int64, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -800,39 +787,24 @@ func (puo *ProblemUpdateOne) ClearSubmission() *ProblemUpdateOne {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
-func (puo *ProblemUpdateOne) RemoveSubmissionIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) RemoveSubmissionIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.RemoveSubmissionIDs(ids...)
 	return puo
 }
 
 // RemoveSubmission removes "submission" edges to Submit entities.
 func (puo *ProblemUpdateOne) RemoveSubmission(s ...*Submit) *ProblemUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
 	return puo.RemoveSubmissionIDs(ids...)
 }
 
-// ClearContests clears all "contests" edges to the Contest entity.
+// ClearContests clears the "contests" edge to the Contest entity.
 func (puo *ProblemUpdateOne) ClearContests() *ProblemUpdateOne {
 	puo.mutation.ClearContests()
 	return puo
-}
-
-// RemoveContestIDs removes the "contests" edge to Contest entities by IDs.
-func (puo *ProblemUpdateOne) RemoveContestIDs(ids ...int) *ProblemUpdateOne {
-	puo.mutation.RemoveContestIDs(ids...)
-	return puo
-}
-
-// RemoveContests removes "contests" edges to Contest entities.
-func (puo *ProblemUpdateOne) RemoveContests(c ...*Contest) *ProblemUpdateOne {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return puo.RemoveContestIDs(ids...)
 }
 
 // ClearGroups clears all "groups" edges to the Group entity.
@@ -842,14 +814,14 @@ func (puo *ProblemUpdateOne) ClearGroups() *ProblemUpdateOne {
 }
 
 // RemoveGroupIDs removes the "groups" edge to Group entities by IDs.
-func (puo *ProblemUpdateOne) RemoveGroupIDs(ids ...int) *ProblemUpdateOne {
+func (puo *ProblemUpdateOne) RemoveGroupIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.RemoveGroupIDs(ids...)
 	return puo
 }
 
 // RemoveGroups removes "groups" edges to Group entities.
 func (puo *ProblemUpdateOne) RemoveGroups(g ...*Group) *ProblemUpdateOne {
-	ids := make([]int, len(g))
+	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
@@ -903,15 +875,13 @@ func (puo *ProblemUpdateOne) check() error {
 			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Problem.point": %w`, err)}
 		}
 	}
-	if v, ok := puo.mutation.CaseVersion(); ok {
-		if err := problem.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Problem.case_version": %w`, err)}
-		}
-	}
 	if v, ok := puo.mutation.Index(); ok {
 		if err := problem.IndexValidator(v); err != nil {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
 		}
+	}
+	if _, ok := puo.mutation.ContestsID(); puo.mutation.ContestsCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Problem.contests"`)
 	}
 	return nil
 }
@@ -920,7 +890,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	if err := puo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(problem.Table, problem.Columns, sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64))
 	id, ok := puo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Problem.id" for update`)}
@@ -983,7 +953,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -996,7 +966,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1012,7 +982,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1028,7 +998,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1041,7 +1011,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1057,7 +1027,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1067,42 +1037,26 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if puo.mutation.ContestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
+			Columns: []string{problem.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := puo.mutation.RemovedContestsIDs(); len(nodes) > 0 && !puo.mutation.ContestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := puo.mutation.ContestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   problem.ContestsTable,
-			Columns: problem.ContestsPrimaryKey,
+			Columns: []string{problem.ContestsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1118,7 +1072,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1131,7 +1085,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1147,7 +1101,7 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Columns: problem.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

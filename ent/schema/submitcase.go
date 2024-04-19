@@ -14,14 +14,14 @@ type SubmitCase struct {
 // Fields of the SubmitCase.
 func (SubmitCase) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.Int16("state").Positive(),
 		field.Int16("point").NonNegative(),
 		field.Text("message"),
-		field.Int("time").NonNegative(),
-		field.Int("memory").NonNegative(),
-		field.Int("submit_id"),
-		field.Int("problem_case_id"),
+		field.Int32("time").NonNegative(),
+		field.Int32("memory").NonNegative(),
+		field.Int64("submit_id"),
+		field.Int64("problem_case_id"),
 	}
 }
 

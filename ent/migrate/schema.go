@@ -11,7 +11,7 @@ import (
 var (
 	// ContestsColumns holds the columns for the "contests" table.
 	ContestsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt16},
@@ -30,9 +30,9 @@ var (
 	}
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "group_name", Type: field.TypeString, Default: "unknown"},
-		{Name: "root_group_id", Type: field.TypeInt, Nullable: true, Default: 1},
+		{Name: "root_group_id", Type: field.TypeInt64, Nullable: true, Default: 1},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
 	GroupsTable = &schema.Table{
@@ -50,9 +50,9 @@ var (
 	}
 	// LoginSessionColumns holds the columns for the "login_session" table.
 	LoginSessionColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "create_time", Type: field.TypeTime},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// LoginSessionTable holds the schema information for the "login_session" table.
 	LoginSessionTable = &schema.Table{
@@ -70,7 +70,7 @@ var (
 	}
 	// ProblemsColumns holds the columns for the "problems" table.
 	ProblemsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "content", Type: field.TypeString},
 		{Name: "point", Type: field.TypeInt16},
@@ -78,21 +78,30 @@ var (
 		{Name: "index", Type: field.TypeInt16},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "config", Type: field.TypeString},
+		{Name: "contest_id", Type: field.TypeInt64},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
 		Name:       "problems",
 		Columns:    ProblemsColumns,
 		PrimaryKey: []*schema.Column{ProblemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "problems_contests_problems",
+				Columns:    []*schema.Column{ProblemsColumns[8]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// ProblemCasesColumns holds the columns for the "problem_cases" table.
 	ProblemCasesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "index", Type: field.TypeInt16},
 		{Name: "is_auto", Type: field.TypeBool, Default: false},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
-		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeInt64},
 	}
 	// ProblemCasesTable holds the schema information for the "problem_cases" table.
 	ProblemCasesTable = &schema.Table{
@@ -110,17 +119,17 @@ var (
 	}
 	// SubmitColumns holds the columns for the "submit" table.
 	SubmitColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
-		{Name: "status", Type: field.TypeInt8},
+		{Name: "status", Type: field.TypeInt16},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "create_time", Type: field.TypeTime},
-		{Name: "total_time", Type: field.TypeInt},
-		{Name: "max_memory", Type: field.TypeInt},
+		{Name: "total_time", Type: field.TypeInt32},
+		{Name: "max_memory", Type: field.TypeInt32},
 		{Name: "language", Type: field.TypeString},
 		{Name: "case_version", Type: field.TypeInt8},
-		{Name: "problem_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "problem_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// SubmitTable holds the schema information for the "submit" table.
 	SubmitTable = &schema.Table{
@@ -144,14 +153,14 @@ var (
 	}
 	// SubmitCasesColumns holds the columns for the "submit_cases" table.
 	SubmitCasesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "state", Type: field.TypeInt16},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "message", Type: field.TypeString, Size: 2147483647},
-		{Name: "time", Type: field.TypeInt},
-		{Name: "memory", Type: field.TypeInt},
-		{Name: "problem_case_id", Type: field.TypeInt},
-		{Name: "submit_id", Type: field.TypeInt},
+		{Name: "time", Type: field.TypeInt32},
+		{Name: "memory", Type: field.TypeInt32},
+		{Name: "problem_case_id", Type: field.TypeInt64},
+		{Name: "submit_id", Type: field.TypeInt64},
 	}
 	// SubmitCasesTable holds the schema information for the "submit_cases" table.
 	SubmitCasesTable = &schema.Table{
@@ -175,12 +184,12 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "username", Type: field.TypeString, Default: "unknown"},
 		{Name: "password", Type: field.TypeString},
 		{Name: "salt", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt16},
-		{Name: "group_id", Type: field.TypeInt},
+		{Name: "group_id", Type: field.TypeInt64},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -196,35 +205,10 @@ var (
 			},
 		},
 	}
-	// ContestProblemsColumns holds the columns for the "contest_problems" table.
-	ContestProblemsColumns = []*schema.Column{
-		{Name: "contest_id", Type: field.TypeInt},
-		{Name: "problem_id", Type: field.TypeInt},
-	}
-	// ContestProblemsTable holds the schema information for the "contest_problems" table.
-	ContestProblemsTable = &schema.Table{
-		Name:       "contest_problems",
-		Columns:    ContestProblemsColumns,
-		PrimaryKey: []*schema.Column{ContestProblemsColumns[0], ContestProblemsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "contest_problems_contest_id",
-				Columns:    []*schema.Column{ContestProblemsColumns[0]},
-				RefColumns: []*schema.Column{ContestsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "contest_problems_problem_id",
-				Columns:    []*schema.Column{ContestProblemsColumns[1]},
-				RefColumns: []*schema.Column{ProblemsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// GroupAdminsColumns holds the columns for the "group_admins" table.
 	GroupAdminsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt},
-		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "group_id", Type: field.TypeInt64},
+		{Name: "contest_id", Type: field.TypeInt64},
 	}
 	// GroupAdminsTable holds the schema information for the "group_admins" table.
 	GroupAdminsTable = &schema.Table{
@@ -248,8 +232,8 @@ var (
 	}
 	// GroupContestantsColumns holds the columns for the "group_contestants" table.
 	GroupContestantsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt},
-		{Name: "contest_id", Type: field.TypeInt},
+		{Name: "group_id", Type: field.TypeInt64},
+		{Name: "contest_id", Type: field.TypeInt64},
 	}
 	// GroupContestantsTable holds the schema information for the "group_contestants" table.
 	GroupContestantsTable = &schema.Table{
@@ -273,8 +257,8 @@ var (
 	}
 	// GroupProblemsColumns holds the columns for the "group_problems" table.
 	GroupProblemsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt},
-		{Name: "problem_id", Type: field.TypeInt},
+		{Name: "group_id", Type: field.TypeInt64},
+		{Name: "problem_id", Type: field.TypeInt64},
 	}
 	// GroupProblemsTable holds the schema information for the "group_problems" table.
 	GroupProblemsTable = &schema.Table{
@@ -306,7 +290,6 @@ var (
 		SubmitTable,
 		SubmitCasesTable,
 		UsersTable,
-		ContestProblemsTable,
 		GroupAdminsTable,
 		GroupContestantsTable,
 		GroupProblemsTable,
@@ -319,6 +302,7 @@ func init() {
 	LoginSessionTable.Annotation = &entsql.Annotation{
 		Table: "login_session",
 	}
+	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
 	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmitTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmitTable.ForeignKeys[1].RefTable = UsersTable
@@ -328,8 +312,6 @@ func init() {
 	SubmitCasesTable.ForeignKeys[0].RefTable = ProblemCasesTable
 	SubmitCasesTable.ForeignKeys[1].RefTable = SubmitTable
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
-	ContestProblemsTable.ForeignKeys[0].RefTable = ContestsTable
-	ContestProblemsTable.ForeignKeys[1].RefTable = ProblemsTable
 	GroupAdminsTable.ForeignKeys[0].RefTable = GroupsTable
 	GroupAdminsTable.ForeignKeys[1].RefTable = ContestsTable
 	GroupContestantsTable.ForeignKeys[0].RefTable = GroupsTable

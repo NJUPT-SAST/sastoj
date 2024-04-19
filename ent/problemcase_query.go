@@ -130,8 +130,8 @@ func (pcq *ProblemCaseQuery) FirstX(ctx context.Context) *ProblemCase {
 
 // FirstID returns the first ProblemCase ID from the query.
 // Returns a *NotFoundError when no ProblemCase ID was found.
-func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pcq.Limit(1).IDs(setContextOp(ctx, pcq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -143,7 +143,7 @@ func (pcq *ProblemCaseQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) FirstIDX(ctx context.Context) int {
+func (pcq *ProblemCaseQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := pcq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -181,8 +181,8 @@ func (pcq *ProblemCaseQuery) OnlyX(ctx context.Context) *ProblemCase {
 // OnlyID is like Only, but returns the only ProblemCase ID in the query.
 // Returns a *NotSingularError when more than one ProblemCase ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = pcq.Limit(2).IDs(setContextOp(ctx, pcq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -198,7 +198,7 @@ func (pcq *ProblemCaseQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) OnlyIDX(ctx context.Context) int {
+func (pcq *ProblemCaseQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := pcq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -226,7 +226,7 @@ func (pcq *ProblemCaseQuery) AllX(ctx context.Context) []*ProblemCase {
 }
 
 // IDs executes the query and returns a list of ProblemCase IDs.
-func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if pcq.ctx.Unique == nil && pcq.path != nil {
 		pcq.Unique(true)
 	}
@@ -238,7 +238,7 @@ func (pcq *ProblemCaseQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pcq *ProblemCaseQuery) IDsX(ctx context.Context) []int {
+func (pcq *ProblemCaseQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := pcq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -447,7 +447,7 @@ func (pcq *ProblemCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 
 func (pcq *ProblemCaseQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *SubmitCase)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*ProblemCase)
+	nodeids := make(map[int64]*ProblemCase)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -476,8 +476,8 @@ func (pcq *ProblemCaseQuery) loadSubmitCases(ctx context.Context, query *SubmitC
 	return nil
 }
 func (pcq *ProblemCaseQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*ProblemCase, init func(*ProblemCase), assign func(*ProblemCase, *Problem)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*ProblemCase)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*ProblemCase)
 	for i := range nodes {
 		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
@@ -515,7 +515,7 @@ func (pcq *ProblemCaseQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (pcq *ProblemCaseQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(problemcase.Table, problemcase.Columns, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	_spec.From = pcq.sql
 	if unique := pcq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

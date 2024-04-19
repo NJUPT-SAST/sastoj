@@ -17,7 +17,7 @@ import (
 type SubmitCase struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 	// State holds the value of the "state" field.
 	State int16 `json:"state,omitempty"`
 	// Point holds the value of the "point" field.
@@ -25,13 +25,13 @@ type SubmitCase struct {
 	// Message holds the value of the "message" field.
 	Message string `json:"message,omitempty"`
 	// Time holds the value of the "time" field.
-	Time int `json:"time,omitempty"`
+	Time int32 `json:"time,omitempty"`
 	// Memory holds the value of the "memory" field.
-	Memory int `json:"memory,omitempty"`
+	Memory int32 `json:"memory,omitempty"`
 	// SubmitID holds the value of the "submit_id" field.
-	SubmitID int `json:"submit_id,omitempty"`
+	SubmitID int64 `json:"submit_id,omitempty"`
 	// ProblemCaseID holds the value of the "problem_case_id" field.
-	ProblemCaseID int `json:"problem_case_id,omitempty"`
+	ProblemCaseID int64 `json:"problem_case_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmitCaseQuery when eager-loading is set.
 	Edges        SubmitCaseEdges `json:"edges"`
@@ -104,7 +104,7 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			sc.ID = int(value.Int64)
+			sc.ID = int64(value.Int64)
 		case submitcase.FieldState:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
@@ -127,25 +127,25 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field time", values[i])
 			} else if value.Valid {
-				sc.Time = int(value.Int64)
+				sc.Time = int32(value.Int64)
 			}
 		case submitcase.FieldMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field memory", values[i])
 			} else if value.Valid {
-				sc.Memory = int(value.Int64)
+				sc.Memory = int32(value.Int64)
 			}
 		case submitcase.FieldSubmitID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field submit_id", values[i])
 			} else if value.Valid {
-				sc.SubmitID = int(value.Int64)
+				sc.SubmitID = value.Int64
 			}
 		case submitcase.FieldProblemCaseID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_case_id", values[i])
 			} else if value.Valid {
-				sc.ProblemCaseID = int(value.Int64)
+				sc.ProblemCaseID = value.Int64
 			}
 		default:
 			sc.selectValues.Set(columns[i], values[i])

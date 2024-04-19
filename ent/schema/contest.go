@@ -15,7 +15,7 @@ type Contest struct {
 // Fields of the Contest.
 func (Contest) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		field.Int64("id").Unique(),
 		field.String("title"),
 		field.String("description"),
 		field.Int16("status").NonNegative(),

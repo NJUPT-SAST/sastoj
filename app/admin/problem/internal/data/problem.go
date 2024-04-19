@@ -26,16 +26,16 @@ func (r *ProblemRepo) Save(ctx context.Context, g *biz.Problem) (*biz.Problem, e
 	res, err := r.data.db.Problem.Create().
 		SetTitle(g.Title).
 		SetContent(g.Content).
-		SetPoint(int(g.Point)).
-		SetContestID(int(g.ContestId)).
-		SetCaseVersion(int(g.CaseVersion)).
-		SetIndex(int(g.Index)).
+		SetPoint(int16(g.Point)).
+		//SetContestID(g.ContestId).
+		SetCaseVersion(int16(g.CaseVersion)).
+		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	g.Id = int64(res.ID)
+	g.Id = res.ID
 	return g, nil
 }
 
@@ -43,12 +43,12 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 	res, err := r.data.db.Problem.Update().
 		SetTitle(g.Title).
 		SetContent(g.Content).
-		SetPoint(int(g.Point)).
-		SetContestID(int(g.ContestId)).
-		SetCaseVersion(int(g.CaseVersion)).
-		SetIndex(int(g.Index)).
+		SetPoint(int16(g.Point)).
+		//SetContestID(g.ContestId).
+		SetCaseVersion(int16(g.CaseVersion)).
+		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
-		Where(problem.ID(int(g.Id))).
+		Where(problem.ID(g.Id)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -57,16 +57,16 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 }
 
 func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, error) {
-	v, err := r.data.db.Problem.Query().Where(problem.ID(int(id))).First(ctx)
+	v, err := r.data.db.Problem.Query().Where(problem.ID(id)).First(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &biz.Problem{
-		Id:          int64(v.ID),
-		Title:       v.Title,
-		Content:     v.Content,
-		Point:       int32(v.Point),
-		ContestId:   int64(v.ContestID),
+		Id:      int64(v.ID),
+		Title:   v.Title,
+		Content: v.Content,
+		Point:   int32(v.Point),
+		//ContestId:   int64(v.ContestID),
 		CaseVersion: int32(v.CaseVersion),
 		Index:       int32(v.Index),
 		Config:      v.Config,
@@ -74,7 +74,7 @@ func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 }
 
 func (r *ProblemRepo) Delete(ctx context.Context, id int64) (*int, error) {
-	res, err := r.data.db.Problem.Delete().Where(problem.ID(int(id))).Exec(ctx)
+	res, err := r.data.db.Problem.Delete().Where(problem.ID(id)).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +89,11 @@ func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
 		list = append(list, &biz.Problem{
-			Id:          int64(v.ID),
-			Title:       v.Title,
-			Content:     v.Content,
-			Point:       int32(v.Point),
-			ContestId:   int64(v.ContestID),
+			Id:      int64(v.ID),
+			Title:   v.Title,
+			Content: v.Content,
+			Point:   int32(v.Point),
+			//ContestId:   int64(v.ContestID),
 			CaseVersion: int32(v.CaseVersion),
 			Index:       int32(v.Index),
 			Config:      v.Config,

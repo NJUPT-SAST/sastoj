@@ -94,13 +94,13 @@ func (uu *UserUpdate) AddStatus(i int16) *UserUpdate {
 }
 
 // SetGroupID sets the "group_id" field.
-func (uu *UserUpdate) SetGroupID(i int) *UserUpdate {
+func (uu *UserUpdate) SetGroupID(i int64) *UserUpdate {
 	uu.mutation.SetGroupID(i)
 	return uu
 }
 
 // SetNillableGroupID sets the "group_id" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableGroupID(i *int) *UserUpdate {
+func (uu *UserUpdate) SetNillableGroupID(i *int64) *UserUpdate {
 	if i != nil {
 		uu.SetGroupID(*i)
 	}
@@ -108,14 +108,14 @@ func (uu *UserUpdate) SetNillableGroupID(i *int) *UserUpdate {
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
-func (uu *UserUpdate) AddSubmissionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddSubmissionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.AddSubmissionIDs(ids...)
 	return uu
 }
 
 // AddSubmission adds the "submission" edges to the Submit entity.
 func (uu *UserUpdate) AddSubmission(s ...*Submit) *UserUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -123,14 +123,14 @@ func (uu *UserUpdate) AddSubmission(s ...*Submit) *UserUpdate {
 }
 
 // AddLoginSessionIDs adds the "login_sessions" edge to the LoginSession entity by IDs.
-func (uu *UserUpdate) AddLoginSessionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddLoginSessionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.AddLoginSessionIDs(ids...)
 	return uu
 }
 
 // AddLoginSessions adds the "login_sessions" edges to the LoginSession entity.
 func (uu *UserUpdate) AddLoginSessions(l ...*LoginSession) *UserUpdate {
-	ids := make([]int, len(l))
+	ids := make([]int64, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
@@ -138,7 +138,7 @@ func (uu *UserUpdate) AddLoginSessions(l ...*LoginSession) *UserUpdate {
 }
 
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
-func (uu *UserUpdate) SetGroupsID(id int) *UserUpdate {
+func (uu *UserUpdate) SetGroupsID(id int64) *UserUpdate {
 	uu.mutation.SetGroupsID(id)
 	return uu
 }
@@ -160,14 +160,14 @@ func (uu *UserUpdate) ClearSubmission() *UserUpdate {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
-func (uu *UserUpdate) RemoveSubmissionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveSubmissionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.RemoveSubmissionIDs(ids...)
 	return uu
 }
 
 // RemoveSubmission removes "submission" edges to Submit entities.
 func (uu *UserUpdate) RemoveSubmission(s ...*Submit) *UserUpdate {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -181,14 +181,14 @@ func (uu *UserUpdate) ClearLoginSessions() *UserUpdate {
 }
 
 // RemoveLoginSessionIDs removes the "login_sessions" edge to LoginSession entities by IDs.
-func (uu *UserUpdate) RemoveLoginSessionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveLoginSessionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.RemoveLoginSessionIDs(ids...)
 	return uu
 }
 
 // RemoveLoginSessions removes "login_sessions" edges to LoginSession entities.
 func (uu *UserUpdate) RemoveLoginSessions(l ...*LoginSession) *UserUpdate {
-	ids := make([]int, len(l))
+	ids := make([]int64, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
@@ -245,7 +245,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := uu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -276,7 +276,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -289,7 +289,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -305,7 +305,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -321,7 +321,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -334,7 +334,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -350,7 +350,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -366,7 +366,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -379,7 +379,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -471,13 +471,13 @@ func (uuo *UserUpdateOne) AddStatus(i int16) *UserUpdateOne {
 }
 
 // SetGroupID sets the "group_id" field.
-func (uuo *UserUpdateOne) SetGroupID(i int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetGroupID(i int64) *UserUpdateOne {
 	uuo.mutation.SetGroupID(i)
 	return uuo
 }
 
 // SetNillableGroupID sets the "group_id" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableGroupID(i *int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetNillableGroupID(i *int64) *UserUpdateOne {
 	if i != nil {
 		uuo.SetGroupID(*i)
 	}
@@ -485,14 +485,14 @@ func (uuo *UserUpdateOne) SetNillableGroupID(i *int) *UserUpdateOne {
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
-func (uuo *UserUpdateOne) AddSubmissionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddSubmissionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.AddSubmissionIDs(ids...)
 	return uuo
 }
 
 // AddSubmission adds the "submission" edges to the Submit entity.
 func (uuo *UserUpdateOne) AddSubmission(s ...*Submit) *UserUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -500,14 +500,14 @@ func (uuo *UserUpdateOne) AddSubmission(s ...*Submit) *UserUpdateOne {
 }
 
 // AddLoginSessionIDs adds the "login_sessions" edge to the LoginSession entity by IDs.
-func (uuo *UserUpdateOne) AddLoginSessionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddLoginSessionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.AddLoginSessionIDs(ids...)
 	return uuo
 }
 
 // AddLoginSessions adds the "login_sessions" edges to the LoginSession entity.
 func (uuo *UserUpdateOne) AddLoginSessions(l ...*LoginSession) *UserUpdateOne {
-	ids := make([]int, len(l))
+	ids := make([]int64, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
@@ -515,7 +515,7 @@ func (uuo *UserUpdateOne) AddLoginSessions(l ...*LoginSession) *UserUpdateOne {
 }
 
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
-func (uuo *UserUpdateOne) SetGroupsID(id int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetGroupsID(id int64) *UserUpdateOne {
 	uuo.mutation.SetGroupsID(id)
 	return uuo
 }
@@ -537,14 +537,14 @@ func (uuo *UserUpdateOne) ClearSubmission() *UserUpdateOne {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
-func (uuo *UserUpdateOne) RemoveSubmissionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveSubmissionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.RemoveSubmissionIDs(ids...)
 	return uuo
 }
 
 // RemoveSubmission removes "submission" edges to Submit entities.
 func (uuo *UserUpdateOne) RemoveSubmission(s ...*Submit) *UserUpdateOne {
-	ids := make([]int, len(s))
+	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -558,14 +558,14 @@ func (uuo *UserUpdateOne) ClearLoginSessions() *UserUpdateOne {
 }
 
 // RemoveLoginSessionIDs removes the "login_sessions" edge to LoginSession entities by IDs.
-func (uuo *UserUpdateOne) RemoveLoginSessionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveLoginSessionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.RemoveLoginSessionIDs(ids...)
 	return uuo
 }
 
 // RemoveLoginSessions removes "login_sessions" edges to LoginSession entities.
 func (uuo *UserUpdateOne) RemoveLoginSessions(l ...*LoginSession) *UserUpdateOne {
-	ids := make([]int, len(l))
+	ids := make([]int64, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
@@ -635,7 +635,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if err := uuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
@@ -683,7 +683,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -696,7 +696,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -712,7 +712,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -728,7 +728,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -741,7 +741,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -757,7 +757,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.LoginSessionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -773,7 +773,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -786,7 +786,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.GroupsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

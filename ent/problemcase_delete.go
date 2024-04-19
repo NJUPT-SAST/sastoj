@@ -40,7 +40,7 @@ func (pcd *ProblemCaseDelete) ExecX(ctx context.Context) int {
 }
 
 func (pcd *ProblemCaseDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	if ps := pcd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

@@ -46,7 +46,7 @@ type ContestMutation struct {
 	config
 	op              Op
 	typ             string
-	id              *int
+	id              *int64
 	title           *string
 	description     *string
 	status          *int16
@@ -60,14 +60,14 @@ type ContestMutation struct {
 	addextra_time   *int16
 	create_time     *time.Time
 	clearedFields   map[string]struct{}
-	problems        map[int]struct{}
-	removedproblems map[int]struct{}
+	problems        map[int64]struct{}
+	removedproblems map[int64]struct{}
 	clearedproblems bool
-	contest         map[int]struct{}
-	removedcontest  map[int]struct{}
+	contest         map[int64]struct{}
+	removedcontest  map[int64]struct{}
 	clearedcontest  bool
-	manage          map[int]struct{}
-	removedmanage   map[int]struct{}
+	manage          map[int64]struct{}
+	removedmanage   map[int64]struct{}
 	clearedmanage   bool
 	done            bool
 	oldValue        func(context.Context) (*Contest, error)
@@ -94,7 +94,7 @@ func newContestMutation(c config, op Op, opts ...contestOption) *ContestMutation
 }
 
 // withContestID sets the ID field of the mutation.
-func withContestID(id int) contestOption {
+func withContestID(id int64) contestOption {
 	return func(m *ContestMutation) {
 		var (
 			err   error
@@ -146,13 +146,13 @@ func (m ContestMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Contest entities.
-func (m *ContestMutation) SetID(id int) {
+func (m *ContestMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ContestMutation) ID() (id int, exists bool) {
+func (m *ContestMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -163,12 +163,12 @@ func (m *ContestMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ContestMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ContestMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -563,9 +563,9 @@ func (m *ContestMutation) ResetCreateTime() {
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by ids.
-func (m *ContestMutation) AddProblemIDs(ids ...int) {
+func (m *ContestMutation) AddProblemIDs(ids ...int64) {
 	if m.problems == nil {
-		m.problems = make(map[int]struct{})
+		m.problems = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.problems[ids[i]] = struct{}{}
@@ -583,9 +583,9 @@ func (m *ContestMutation) ProblemsCleared() bool {
 }
 
 // RemoveProblemIDs removes the "problems" edge to the Problem entity by IDs.
-func (m *ContestMutation) RemoveProblemIDs(ids ...int) {
+func (m *ContestMutation) RemoveProblemIDs(ids ...int64) {
 	if m.removedproblems == nil {
-		m.removedproblems = make(map[int]struct{})
+		m.removedproblems = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.problems, ids[i])
@@ -594,7 +594,7 @@ func (m *ContestMutation) RemoveProblemIDs(ids ...int) {
 }
 
 // RemovedProblems returns the removed IDs of the "problems" edge to the Problem entity.
-func (m *ContestMutation) RemovedProblemsIDs() (ids []int) {
+func (m *ContestMutation) RemovedProblemsIDs() (ids []int64) {
 	for id := range m.removedproblems {
 		ids = append(ids, id)
 	}
@@ -602,7 +602,7 @@ func (m *ContestMutation) RemovedProblemsIDs() (ids []int) {
 }
 
 // ProblemsIDs returns the "problems" edge IDs in the mutation.
-func (m *ContestMutation) ProblemsIDs() (ids []int) {
+func (m *ContestMutation) ProblemsIDs() (ids []int64) {
 	for id := range m.problems {
 		ids = append(ids, id)
 	}
@@ -617,9 +617,9 @@ func (m *ContestMutation) ResetProblems() {
 }
 
 // AddContestIDs adds the "contest" edge to the Group entity by ids.
-func (m *ContestMutation) AddContestIDs(ids ...int) {
+func (m *ContestMutation) AddContestIDs(ids ...int64) {
 	if m.contest == nil {
-		m.contest = make(map[int]struct{})
+		m.contest = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.contest[ids[i]] = struct{}{}
@@ -637,9 +637,9 @@ func (m *ContestMutation) ContestCleared() bool {
 }
 
 // RemoveContestIDs removes the "contest" edge to the Group entity by IDs.
-func (m *ContestMutation) RemoveContestIDs(ids ...int) {
+func (m *ContestMutation) RemoveContestIDs(ids ...int64) {
 	if m.removedcontest == nil {
-		m.removedcontest = make(map[int]struct{})
+		m.removedcontest = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.contest, ids[i])
@@ -648,7 +648,7 @@ func (m *ContestMutation) RemoveContestIDs(ids ...int) {
 }
 
 // RemovedContest returns the removed IDs of the "contest" edge to the Group entity.
-func (m *ContestMutation) RemovedContestIDs() (ids []int) {
+func (m *ContestMutation) RemovedContestIDs() (ids []int64) {
 	for id := range m.removedcontest {
 		ids = append(ids, id)
 	}
@@ -656,7 +656,7 @@ func (m *ContestMutation) RemovedContestIDs() (ids []int) {
 }
 
 // ContestIDs returns the "contest" edge IDs in the mutation.
-func (m *ContestMutation) ContestIDs() (ids []int) {
+func (m *ContestMutation) ContestIDs() (ids []int64) {
 	for id := range m.contest {
 		ids = append(ids, id)
 	}
@@ -671,9 +671,9 @@ func (m *ContestMutation) ResetContest() {
 }
 
 // AddManageIDs adds the "manage" edge to the Group entity by ids.
-func (m *ContestMutation) AddManageIDs(ids ...int) {
+func (m *ContestMutation) AddManageIDs(ids ...int64) {
 	if m.manage == nil {
-		m.manage = make(map[int]struct{})
+		m.manage = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.manage[ids[i]] = struct{}{}
@@ -691,9 +691,9 @@ func (m *ContestMutation) ManageCleared() bool {
 }
 
 // RemoveManageIDs removes the "manage" edge to the Group entity by IDs.
-func (m *ContestMutation) RemoveManageIDs(ids ...int) {
+func (m *ContestMutation) RemoveManageIDs(ids ...int64) {
 	if m.removedmanage == nil {
-		m.removedmanage = make(map[int]struct{})
+		m.removedmanage = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.manage, ids[i])
@@ -702,7 +702,7 @@ func (m *ContestMutation) RemoveManageIDs(ids ...int) {
 }
 
 // RemovedManage returns the removed IDs of the "manage" edge to the Group entity.
-func (m *ContestMutation) RemovedManageIDs() (ids []int) {
+func (m *ContestMutation) RemovedManageIDs() (ids []int64) {
 	for id := range m.removedmanage {
 		ids = append(ids, id)
 	}
@@ -710,7 +710,7 @@ func (m *ContestMutation) RemovedManageIDs() (ids []int) {
 }
 
 // ManageIDs returns the "manage" edge IDs in the mutation.
-func (m *ContestMutation) ManageIDs() (ids []int) {
+func (m *ContestMutation) ManageIDs() (ids []int64) {
 	for id := range m.manage {
 		ids = append(ids, id)
 	}
@@ -1171,25 +1171,25 @@ type GroupMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
+	id                 *int64
 	group_name         *string
 	clearedFields      map[string]struct{}
-	admins             map[int]struct{}
-	removedadmins      map[int]struct{}
+	admins             map[int64]struct{}
+	removedadmins      map[int64]struct{}
 	clearedadmins      bool
-	contestants        map[int]struct{}
-	removedcontestants map[int]struct{}
+	contestants        map[int64]struct{}
+	removedcontestants map[int64]struct{}
 	clearedcontestants bool
-	problems           map[int]struct{}
-	removedproblems    map[int]struct{}
+	problems           map[int64]struct{}
+	removedproblems    map[int64]struct{}
 	clearedproblems    bool
-	users              map[int]struct{}
-	removedusers       map[int]struct{}
+	users              map[int64]struct{}
+	removedusers       map[int64]struct{}
 	clearedusers       bool
-	root_group         *int
+	root_group         *int64
 	clearedroot_group  bool
-	subgroups          map[int]struct{}
-	removedsubgroups   map[int]struct{}
+	subgroups          map[int64]struct{}
+	removedsubgroups   map[int64]struct{}
 	clearedsubgroups   bool
 	done               bool
 	oldValue           func(context.Context) (*Group, error)
@@ -1216,7 +1216,7 @@ func newGroupMutation(c config, op Op, opts ...groupOption) *GroupMutation {
 }
 
 // withGroupID sets the ID field of the mutation.
-func withGroupID(id int) groupOption {
+func withGroupID(id int64) groupOption {
 	return func(m *GroupMutation) {
 		var (
 			err   error
@@ -1268,13 +1268,13 @@ func (m GroupMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Group entities.
-func (m *GroupMutation) SetID(id int) {
+func (m *GroupMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *GroupMutation) ID() (id int, exists bool) {
+func (m *GroupMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1285,12 +1285,12 @@ func (m *GroupMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *GroupMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *GroupMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1337,12 +1337,12 @@ func (m *GroupMutation) ResetGroupName() {
 }
 
 // SetRootGroupID sets the "root_group_id" field.
-func (m *GroupMutation) SetRootGroupID(i int) {
+func (m *GroupMutation) SetRootGroupID(i int64) {
 	m.root_group = &i
 }
 
 // RootGroupID returns the value of the "root_group_id" field in the mutation.
-func (m *GroupMutation) RootGroupID() (r int, exists bool) {
+func (m *GroupMutation) RootGroupID() (r int64, exists bool) {
 	v := m.root_group
 	if v == nil {
 		return
@@ -1353,7 +1353,7 @@ func (m *GroupMutation) RootGroupID() (r int, exists bool) {
 // OldRootGroupID returns the old "root_group_id" field's value of the Group entity.
 // If the Group object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldRootGroupID(ctx context.Context) (v int, err error) {
+func (m *GroupMutation) OldRootGroupID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRootGroupID is only allowed on UpdateOne operations")
 	}
@@ -1373,9 +1373,9 @@ func (m *GroupMutation) ResetRootGroupID() {
 }
 
 // AddAdminIDs adds the "admins" edge to the Contest entity by ids.
-func (m *GroupMutation) AddAdminIDs(ids ...int) {
+func (m *GroupMutation) AddAdminIDs(ids ...int64) {
 	if m.admins == nil {
-		m.admins = make(map[int]struct{})
+		m.admins = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.admins[ids[i]] = struct{}{}
@@ -1393,9 +1393,9 @@ func (m *GroupMutation) AdminsCleared() bool {
 }
 
 // RemoveAdminIDs removes the "admins" edge to the Contest entity by IDs.
-func (m *GroupMutation) RemoveAdminIDs(ids ...int) {
+func (m *GroupMutation) RemoveAdminIDs(ids ...int64) {
 	if m.removedadmins == nil {
-		m.removedadmins = make(map[int]struct{})
+		m.removedadmins = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.admins, ids[i])
@@ -1404,7 +1404,7 @@ func (m *GroupMutation) RemoveAdminIDs(ids ...int) {
 }
 
 // RemovedAdmins returns the removed IDs of the "admins" edge to the Contest entity.
-func (m *GroupMutation) RemovedAdminsIDs() (ids []int) {
+func (m *GroupMutation) RemovedAdminsIDs() (ids []int64) {
 	for id := range m.removedadmins {
 		ids = append(ids, id)
 	}
@@ -1412,7 +1412,7 @@ func (m *GroupMutation) RemovedAdminsIDs() (ids []int) {
 }
 
 // AdminsIDs returns the "admins" edge IDs in the mutation.
-func (m *GroupMutation) AdminsIDs() (ids []int) {
+func (m *GroupMutation) AdminsIDs() (ids []int64) {
 	for id := range m.admins {
 		ids = append(ids, id)
 	}
@@ -1427,9 +1427,9 @@ func (m *GroupMutation) ResetAdmins() {
 }
 
 // AddContestantIDs adds the "contestants" edge to the Contest entity by ids.
-func (m *GroupMutation) AddContestantIDs(ids ...int) {
+func (m *GroupMutation) AddContestantIDs(ids ...int64) {
 	if m.contestants == nil {
-		m.contestants = make(map[int]struct{})
+		m.contestants = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.contestants[ids[i]] = struct{}{}
@@ -1447,9 +1447,9 @@ func (m *GroupMutation) ContestantsCleared() bool {
 }
 
 // RemoveContestantIDs removes the "contestants" edge to the Contest entity by IDs.
-func (m *GroupMutation) RemoveContestantIDs(ids ...int) {
+func (m *GroupMutation) RemoveContestantIDs(ids ...int64) {
 	if m.removedcontestants == nil {
-		m.removedcontestants = make(map[int]struct{})
+		m.removedcontestants = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.contestants, ids[i])
@@ -1458,7 +1458,7 @@ func (m *GroupMutation) RemoveContestantIDs(ids ...int) {
 }
 
 // RemovedContestants returns the removed IDs of the "contestants" edge to the Contest entity.
-func (m *GroupMutation) RemovedContestantsIDs() (ids []int) {
+func (m *GroupMutation) RemovedContestantsIDs() (ids []int64) {
 	for id := range m.removedcontestants {
 		ids = append(ids, id)
 	}
@@ -1466,7 +1466,7 @@ func (m *GroupMutation) RemovedContestantsIDs() (ids []int) {
 }
 
 // ContestantsIDs returns the "contestants" edge IDs in the mutation.
-func (m *GroupMutation) ContestantsIDs() (ids []int) {
+func (m *GroupMutation) ContestantsIDs() (ids []int64) {
 	for id := range m.contestants {
 		ids = append(ids, id)
 	}
@@ -1481,9 +1481,9 @@ func (m *GroupMutation) ResetContestants() {
 }
 
 // AddProblemIDs adds the "problems" edge to the Problem entity by ids.
-func (m *GroupMutation) AddProblemIDs(ids ...int) {
+func (m *GroupMutation) AddProblemIDs(ids ...int64) {
 	if m.problems == nil {
-		m.problems = make(map[int]struct{})
+		m.problems = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.problems[ids[i]] = struct{}{}
@@ -1501,9 +1501,9 @@ func (m *GroupMutation) ProblemsCleared() bool {
 }
 
 // RemoveProblemIDs removes the "problems" edge to the Problem entity by IDs.
-func (m *GroupMutation) RemoveProblemIDs(ids ...int) {
+func (m *GroupMutation) RemoveProblemIDs(ids ...int64) {
 	if m.removedproblems == nil {
-		m.removedproblems = make(map[int]struct{})
+		m.removedproblems = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.problems, ids[i])
@@ -1512,7 +1512,7 @@ func (m *GroupMutation) RemoveProblemIDs(ids ...int) {
 }
 
 // RemovedProblems returns the removed IDs of the "problems" edge to the Problem entity.
-func (m *GroupMutation) RemovedProblemsIDs() (ids []int) {
+func (m *GroupMutation) RemovedProblemsIDs() (ids []int64) {
 	for id := range m.removedproblems {
 		ids = append(ids, id)
 	}
@@ -1520,7 +1520,7 @@ func (m *GroupMutation) RemovedProblemsIDs() (ids []int) {
 }
 
 // ProblemsIDs returns the "problems" edge IDs in the mutation.
-func (m *GroupMutation) ProblemsIDs() (ids []int) {
+func (m *GroupMutation) ProblemsIDs() (ids []int64) {
 	for id := range m.problems {
 		ids = append(ids, id)
 	}
@@ -1535,9 +1535,9 @@ func (m *GroupMutation) ResetProblems() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *GroupMutation) AddUserIDs(ids ...int) {
+func (m *GroupMutation) AddUserIDs(ids ...int64) {
 	if m.users == nil {
-		m.users = make(map[int]struct{})
+		m.users = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -1555,9 +1555,9 @@ func (m *GroupMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *GroupMutation) RemoveUserIDs(ids ...int) {
+func (m *GroupMutation) RemoveUserIDs(ids ...int64) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
+		m.removedusers = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -1566,7 +1566,7 @@ func (m *GroupMutation) RemoveUserIDs(ids ...int) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *GroupMutation) RemovedUsersIDs() (ids []int) {
+func (m *GroupMutation) RemovedUsersIDs() (ids []int64) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -1574,7 +1574,7 @@ func (m *GroupMutation) RemovedUsersIDs() (ids []int) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *GroupMutation) UsersIDs() (ids []int) {
+func (m *GroupMutation) UsersIDs() (ids []int64) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -1602,7 +1602,7 @@ func (m *GroupMutation) RootGroupCleared() bool {
 // RootGroupIDs returns the "root_group" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // RootGroupID instead. It exists only for internal usage by the builders.
-func (m *GroupMutation) RootGroupIDs() (ids []int) {
+func (m *GroupMutation) RootGroupIDs() (ids []int64) {
 	if id := m.root_group; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1616,9 +1616,9 @@ func (m *GroupMutation) ResetRootGroup() {
 }
 
 // AddSubgroupIDs adds the "subgroups" edge to the Group entity by ids.
-func (m *GroupMutation) AddSubgroupIDs(ids ...int) {
+func (m *GroupMutation) AddSubgroupIDs(ids ...int64) {
 	if m.subgroups == nil {
-		m.subgroups = make(map[int]struct{})
+		m.subgroups = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.subgroups[ids[i]] = struct{}{}
@@ -1636,9 +1636,9 @@ func (m *GroupMutation) SubgroupsCleared() bool {
 }
 
 // RemoveSubgroupIDs removes the "subgroups" edge to the Group entity by IDs.
-func (m *GroupMutation) RemoveSubgroupIDs(ids ...int) {
+func (m *GroupMutation) RemoveSubgroupIDs(ids ...int64) {
 	if m.removedsubgroups == nil {
-		m.removedsubgroups = make(map[int]struct{})
+		m.removedsubgroups = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.subgroups, ids[i])
@@ -1647,7 +1647,7 @@ func (m *GroupMutation) RemoveSubgroupIDs(ids ...int) {
 }
 
 // RemovedSubgroups returns the removed IDs of the "subgroups" edge to the Group entity.
-func (m *GroupMutation) RemovedSubgroupsIDs() (ids []int) {
+func (m *GroupMutation) RemovedSubgroupsIDs() (ids []int64) {
 	for id := range m.removedsubgroups {
 		ids = append(ids, id)
 	}
@@ -1655,7 +1655,7 @@ func (m *GroupMutation) RemovedSubgroupsIDs() (ids []int) {
 }
 
 // SubgroupsIDs returns the "subgroups" edge IDs in the mutation.
-func (m *GroupMutation) SubgroupsIDs() (ids []int) {
+func (m *GroupMutation) SubgroupsIDs() (ids []int64) {
 	for id := range m.subgroups {
 		ids = append(ids, id)
 	}
@@ -1752,7 +1752,7 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		m.SetGroupName(v)
 		return nil
 	case group.FieldRootGroupID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2031,10 +2031,10 @@ type LoginSessionMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *int64
 	create_time   *time.Time
 	clearedFields map[string]struct{}
-	users         *int
+	users         *int64
 	clearedusers  bool
 	done          bool
 	oldValue      func(context.Context) (*LoginSession, error)
@@ -2061,7 +2061,7 @@ func newLoginSessionMutation(c config, op Op, opts ...loginsessionOption) *Login
 }
 
 // withLoginSessionID sets the ID field of the mutation.
-func withLoginSessionID(id int) loginsessionOption {
+func withLoginSessionID(id int64) loginsessionOption {
 	return func(m *LoginSessionMutation) {
 		var (
 			err   error
@@ -2113,13 +2113,13 @@ func (m LoginSessionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of LoginSession entities.
-func (m *LoginSessionMutation) SetID(id int) {
+func (m *LoginSessionMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *LoginSessionMutation) ID() (id int, exists bool) {
+func (m *LoginSessionMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2130,12 +2130,12 @@ func (m *LoginSessionMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *LoginSessionMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *LoginSessionMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2182,12 +2182,12 @@ func (m *LoginSessionMutation) ResetCreateTime() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *LoginSessionMutation) SetUserID(i int) {
+func (m *LoginSessionMutation) SetUserID(i int64) {
 	m.users = &i
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *LoginSessionMutation) UserID() (r int, exists bool) {
+func (m *LoginSessionMutation) UserID() (r int64, exists bool) {
 	v := m.users
 	if v == nil {
 		return
@@ -2198,7 +2198,7 @@ func (m *LoginSessionMutation) UserID() (r int, exists bool) {
 // OldUserID returns the old "user_id" field's value of the LoginSession entity.
 // If the LoginSession object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LoginSessionMutation) OldUserID(ctx context.Context) (v int, err error) {
+func (m *LoginSessionMutation) OldUserID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -2218,7 +2218,7 @@ func (m *LoginSessionMutation) ResetUserID() {
 }
 
 // SetUsersID sets the "users" edge to the User entity by id.
-func (m *LoginSessionMutation) SetUsersID(id int) {
+func (m *LoginSessionMutation) SetUsersID(id int64) {
 	m.users = &id
 }
 
@@ -2234,7 +2234,7 @@ func (m *LoginSessionMutation) UsersCleared() bool {
 }
 
 // UsersID returns the "users" edge ID in the mutation.
-func (m *LoginSessionMutation) UsersID() (id int, exists bool) {
+func (m *LoginSessionMutation) UsersID() (id int64, exists bool) {
 	if m.users != nil {
 		return *m.users, true
 	}
@@ -2244,7 +2244,7 @@ func (m *LoginSessionMutation) UsersID() (id int, exists bool) {
 // UsersIDs returns the "users" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UsersID instead. It exists only for internal usage by the builders.
-func (m *LoginSessionMutation) UsersIDs() (ids []int) {
+func (m *LoginSessionMutation) UsersIDs() (ids []int64) {
 	if id := m.users; id != nil {
 		ids = append(ids, *id)
 	}
@@ -2340,7 +2340,7 @@ func (m *LoginSessionMutation) SetField(name string, value ent.Value) error {
 		m.SetCreateTime(v)
 		return nil
 	case loginsession.FieldUserID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2487,7 +2487,7 @@ type ProblemMutation struct {
 	config
 	op                   Op
 	typ                  string
-	id                   *int
+	id                   *int64
 	title                *string
 	content              *string
 	point                *int16
@@ -2499,17 +2499,16 @@ type ProblemMutation struct {
 	is_deleted           *bool
 	_config              *string
 	clearedFields        map[string]struct{}
-	problem_cases        map[int]struct{}
-	removedproblem_cases map[int]struct{}
+	problem_cases        map[int64]struct{}
+	removedproblem_cases map[int64]struct{}
 	clearedproblem_cases bool
-	submission           map[int]struct{}
-	removedsubmission    map[int]struct{}
+	submission           map[int64]struct{}
+	removedsubmission    map[int64]struct{}
 	clearedsubmission    bool
-	contests             map[int]struct{}
-	removedcontests      map[int]struct{}
+	contests             *int64
 	clearedcontests      bool
-	groups               map[int]struct{}
-	removedgroups        map[int]struct{}
+	groups               map[int64]struct{}
+	removedgroups        map[int64]struct{}
 	clearedgroups        bool
 	done                 bool
 	oldValue             func(context.Context) (*Problem, error)
@@ -2536,7 +2535,7 @@ func newProblemMutation(c config, op Op, opts ...problemOption) *ProblemMutation
 }
 
 // withProblemID sets the ID field of the mutation.
-func withProblemID(id int) problemOption {
+func withProblemID(id int64) problemOption {
 	return func(m *ProblemMutation) {
 		var (
 			err   error
@@ -2588,13 +2587,13 @@ func (m ProblemMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Problem entities.
-func (m *ProblemMutation) SetID(id int) {
+func (m *ProblemMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ProblemMutation) ID() (id int, exists bool) {
+func (m *ProblemMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2605,12 +2604,12 @@ func (m *ProblemMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ProblemMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ProblemMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2932,10 +2931,46 @@ func (m *ProblemMutation) ResetConfig() {
 	m._config = nil
 }
 
+// SetContestID sets the "contest_id" field.
+func (m *ProblemMutation) SetContestID(i int64) {
+	m.contests = &i
+}
+
+// ContestID returns the value of the "contest_id" field in the mutation.
+func (m *ProblemMutation) ContestID() (r int64, exists bool) {
+	v := m.contests
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContestID returns the old "contest_id" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldContestID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContestID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContestID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContestID: %w", err)
+	}
+	return oldValue.ContestID, nil
+}
+
+// ResetContestID resets all changes to the "contest_id" field.
+func (m *ProblemMutation) ResetContestID() {
+	m.contests = nil
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by ids.
-func (m *ProblemMutation) AddProblemCaseIDs(ids ...int) {
+func (m *ProblemMutation) AddProblemCaseIDs(ids ...int64) {
 	if m.problem_cases == nil {
-		m.problem_cases = make(map[int]struct{})
+		m.problem_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.problem_cases[ids[i]] = struct{}{}
@@ -2953,9 +2988,9 @@ func (m *ProblemMutation) ProblemCasesCleared() bool {
 }
 
 // RemoveProblemCaseIDs removes the "problem_cases" edge to the ProblemCase entity by IDs.
-func (m *ProblemMutation) RemoveProblemCaseIDs(ids ...int) {
+func (m *ProblemMutation) RemoveProblemCaseIDs(ids ...int64) {
 	if m.removedproblem_cases == nil {
-		m.removedproblem_cases = make(map[int]struct{})
+		m.removedproblem_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.problem_cases, ids[i])
@@ -2964,7 +2999,7 @@ func (m *ProblemMutation) RemoveProblemCaseIDs(ids ...int) {
 }
 
 // RemovedProblemCases returns the removed IDs of the "problem_cases" edge to the ProblemCase entity.
-func (m *ProblemMutation) RemovedProblemCasesIDs() (ids []int) {
+func (m *ProblemMutation) RemovedProblemCasesIDs() (ids []int64) {
 	for id := range m.removedproblem_cases {
 		ids = append(ids, id)
 	}
@@ -2972,7 +3007,7 @@ func (m *ProblemMutation) RemovedProblemCasesIDs() (ids []int) {
 }
 
 // ProblemCasesIDs returns the "problem_cases" edge IDs in the mutation.
-func (m *ProblemMutation) ProblemCasesIDs() (ids []int) {
+func (m *ProblemMutation) ProblemCasesIDs() (ids []int64) {
 	for id := range m.problem_cases {
 		ids = append(ids, id)
 	}
@@ -2987,9 +3022,9 @@ func (m *ProblemMutation) ResetProblemCases() {
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by ids.
-func (m *ProblemMutation) AddSubmissionIDs(ids ...int) {
+func (m *ProblemMutation) AddSubmissionIDs(ids ...int64) {
 	if m.submission == nil {
-		m.submission = make(map[int]struct{})
+		m.submission = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.submission[ids[i]] = struct{}{}
@@ -3007,9 +3042,9 @@ func (m *ProblemMutation) SubmissionCleared() bool {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to the Submit entity by IDs.
-func (m *ProblemMutation) RemoveSubmissionIDs(ids ...int) {
+func (m *ProblemMutation) RemoveSubmissionIDs(ids ...int64) {
 	if m.removedsubmission == nil {
-		m.removedsubmission = make(map[int]struct{})
+		m.removedsubmission = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.submission, ids[i])
@@ -3018,7 +3053,7 @@ func (m *ProblemMutation) RemoveSubmissionIDs(ids ...int) {
 }
 
 // RemovedSubmission returns the removed IDs of the "submission" edge to the Submit entity.
-func (m *ProblemMutation) RemovedSubmissionIDs() (ids []int) {
+func (m *ProblemMutation) RemovedSubmissionIDs() (ids []int64) {
 	for id := range m.removedsubmission {
 		ids = append(ids, id)
 	}
@@ -3026,7 +3061,7 @@ func (m *ProblemMutation) RemovedSubmissionIDs() (ids []int) {
 }
 
 // SubmissionIDs returns the "submission" edge IDs in the mutation.
-func (m *ProblemMutation) SubmissionIDs() (ids []int) {
+func (m *ProblemMutation) SubmissionIDs() (ids []int64) {
 	for id := range m.submission {
 		ids = append(ids, id)
 	}
@@ -3040,19 +3075,15 @@ func (m *ProblemMutation) ResetSubmission() {
 	m.removedsubmission = nil
 }
 
-// AddContestIDs adds the "contests" edge to the Contest entity by ids.
-func (m *ProblemMutation) AddContestIDs(ids ...int) {
-	if m.contests == nil {
-		m.contests = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.contests[ids[i]] = struct{}{}
-	}
+// SetContestsID sets the "contests" edge to the Contest entity by id.
+func (m *ProblemMutation) SetContestsID(id int64) {
+	m.contests = &id
 }
 
 // ClearContests clears the "contests" edge to the Contest entity.
 func (m *ProblemMutation) ClearContests() {
 	m.clearedcontests = true
+	m.clearedFields[problem.FieldContestID] = struct{}{}
 }
 
 // ContestsCleared reports if the "contests" edge to the Contest entity was cleared.
@@ -3060,29 +3091,20 @@ func (m *ProblemMutation) ContestsCleared() bool {
 	return m.clearedcontests
 }
 
-// RemoveContestIDs removes the "contests" edge to the Contest entity by IDs.
-func (m *ProblemMutation) RemoveContestIDs(ids ...int) {
-	if m.removedcontests == nil {
-		m.removedcontests = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.contests, ids[i])
-		m.removedcontests[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedContests returns the removed IDs of the "contests" edge to the Contest entity.
-func (m *ProblemMutation) RemovedContestsIDs() (ids []int) {
-	for id := range m.removedcontests {
-		ids = append(ids, id)
+// ContestsID returns the "contests" edge ID in the mutation.
+func (m *ProblemMutation) ContestsID() (id int64, exists bool) {
+	if m.contests != nil {
+		return *m.contests, true
 	}
 	return
 }
 
 // ContestsIDs returns the "contests" edge IDs in the mutation.
-func (m *ProblemMutation) ContestsIDs() (ids []int) {
-	for id := range m.contests {
-		ids = append(ids, id)
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ContestsID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) ContestsIDs() (ids []int64) {
+	if id := m.contests; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -3091,13 +3113,12 @@ func (m *ProblemMutation) ContestsIDs() (ids []int) {
 func (m *ProblemMutation) ResetContests() {
 	m.contests = nil
 	m.clearedcontests = false
-	m.removedcontests = nil
 }
 
 // AddGroupIDs adds the "groups" edge to the Group entity by ids.
-func (m *ProblemMutation) AddGroupIDs(ids ...int) {
+func (m *ProblemMutation) AddGroupIDs(ids ...int64) {
 	if m.groups == nil {
-		m.groups = make(map[int]struct{})
+		m.groups = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.groups[ids[i]] = struct{}{}
@@ -3115,9 +3136,9 @@ func (m *ProblemMutation) GroupsCleared() bool {
 }
 
 // RemoveGroupIDs removes the "groups" edge to the Group entity by IDs.
-func (m *ProblemMutation) RemoveGroupIDs(ids ...int) {
+func (m *ProblemMutation) RemoveGroupIDs(ids ...int64) {
 	if m.removedgroups == nil {
-		m.removedgroups = make(map[int]struct{})
+		m.removedgroups = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.groups, ids[i])
@@ -3126,7 +3147,7 @@ func (m *ProblemMutation) RemoveGroupIDs(ids ...int) {
 }
 
 // RemovedGroups returns the removed IDs of the "groups" edge to the Group entity.
-func (m *ProblemMutation) RemovedGroupsIDs() (ids []int) {
+func (m *ProblemMutation) RemovedGroupsIDs() (ids []int64) {
 	for id := range m.removedgroups {
 		ids = append(ids, id)
 	}
@@ -3134,7 +3155,7 @@ func (m *ProblemMutation) RemovedGroupsIDs() (ids []int) {
 }
 
 // GroupsIDs returns the "groups" edge IDs in the mutation.
-func (m *ProblemMutation) GroupsIDs() (ids []int) {
+func (m *ProblemMutation) GroupsIDs() (ids []int64) {
 	for id := range m.groups {
 		ids = append(ids, id)
 	}
@@ -3182,7 +3203,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.title != nil {
 		fields = append(fields, problem.FieldTitle)
 	}
@@ -3203,6 +3224,9 @@ func (m *ProblemMutation) Fields() []string {
 	}
 	if m._config != nil {
 		fields = append(fields, problem.FieldConfig)
+	}
+	if m.contests != nil {
+		fields = append(fields, problem.FieldContestID)
 	}
 	return fields
 }
@@ -3226,6 +3250,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.IsDeleted()
 	case problem.FieldConfig:
 		return m.Config()
+	case problem.FieldContestID:
+		return m.ContestID()
 	}
 	return nil, false
 }
@@ -3249,6 +3275,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldIsDeleted(ctx)
 	case problem.FieldConfig:
 		return m.OldConfig(ctx)
+	case problem.FieldContestID:
+		return m.OldContestID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Problem field %s", name)
 }
@@ -3306,6 +3334,13 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetConfig(v)
+		return nil
+	case problem.FieldContestID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContestID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
@@ -3416,6 +3451,9 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldConfig:
 		m.ResetConfig()
 		return nil
+	case problem.FieldContestID:
+		m.ResetContestID()
+		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
 }
@@ -3455,11 +3493,9 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 		}
 		return ids
 	case problem.EdgeContests:
-		ids := make([]ent.Value, 0, len(m.contests))
-		for id := range m.contests {
-			ids = append(ids, id)
+		if id := m.contests; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	case problem.EdgeGroups:
 		ids := make([]ent.Value, 0, len(m.groups))
 		for id := range m.groups {
@@ -3478,9 +3514,6 @@ func (m *ProblemMutation) RemovedEdges() []string {
 	}
 	if m.removedsubmission != nil {
 		edges = append(edges, problem.EdgeSubmission)
-	}
-	if m.removedcontests != nil {
-		edges = append(edges, problem.EdgeContests)
 	}
 	if m.removedgroups != nil {
 		edges = append(edges, problem.EdgeGroups)
@@ -3501,12 +3534,6 @@ func (m *ProblemMutation) RemovedIDs(name string) []ent.Value {
 	case problem.EdgeSubmission:
 		ids := make([]ent.Value, 0, len(m.removedsubmission))
 		for id := range m.removedsubmission {
-			ids = append(ids, id)
-		}
-		return ids
-	case problem.EdgeContests:
-		ids := make([]ent.Value, 0, len(m.removedcontests))
-		for id := range m.removedcontests {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3558,6 +3585,9 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ProblemMutation) ClearEdge(name string) error {
 	switch name {
+	case problem.EdgeContests:
+		m.ClearContests()
+		return nil
 	}
 	return fmt.Errorf("unknown Problem unique edge %s", name)
 }
@@ -3587,7 +3617,7 @@ type ProblemCaseMutation struct {
 	config
 	op                  Op
 	typ                 string
-	id                  *int
+	id                  *int64
 	point               *int16
 	addpoint            *int16
 	index               *int16
@@ -3595,10 +3625,10 @@ type ProblemCaseMutation struct {
 	is_auto             *bool
 	is_deleted          *bool
 	clearedFields       map[string]struct{}
-	submit_cases        map[int]struct{}
-	removedsubmit_cases map[int]struct{}
+	submit_cases        map[int64]struct{}
+	removedsubmit_cases map[int64]struct{}
 	clearedsubmit_cases bool
-	problems            *int
+	problems            *int64
 	clearedproblems     bool
 	done                bool
 	oldValue            func(context.Context) (*ProblemCase, error)
@@ -3625,7 +3655,7 @@ func newProblemCaseMutation(c config, op Op, opts ...problemcaseOption) *Problem
 }
 
 // withProblemCaseID sets the ID field of the mutation.
-func withProblemCaseID(id int) problemcaseOption {
+func withProblemCaseID(id int64) problemcaseOption {
 	return func(m *ProblemCaseMutation) {
 		var (
 			err   error
@@ -3677,13 +3707,13 @@ func (m ProblemCaseMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of ProblemCase entities.
-func (m *ProblemCaseMutation) SetID(id int) {
+func (m *ProblemCaseMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ProblemCaseMutation) ID() (id int, exists bool) {
+func (m *ProblemCaseMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3694,12 +3724,12 @@ func (m *ProblemCaseMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ProblemCaseMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ProblemCaseMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3894,12 +3924,12 @@ func (m *ProblemCaseMutation) ResetIsDeleted() {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (m *ProblemCaseMutation) SetProblemID(i int) {
+func (m *ProblemCaseMutation) SetProblemID(i int64) {
 	m.problems = &i
 }
 
 // ProblemID returns the value of the "problem_id" field in the mutation.
-func (m *ProblemCaseMutation) ProblemID() (r int, exists bool) {
+func (m *ProblemCaseMutation) ProblemID() (r int64, exists bool) {
 	v := m.problems
 	if v == nil {
 		return
@@ -3910,7 +3940,7 @@ func (m *ProblemCaseMutation) ProblemID() (r int, exists bool) {
 // OldProblemID returns the old "problem_id" field's value of the ProblemCase entity.
 // If the ProblemCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemCaseMutation) OldProblemID(ctx context.Context) (v int, err error) {
+func (m *ProblemCaseMutation) OldProblemID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProblemID is only allowed on UpdateOne operations")
 	}
@@ -3930,9 +3960,9 @@ func (m *ProblemCaseMutation) ResetProblemID() {
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
-func (m *ProblemCaseMutation) AddSubmitCaseIDs(ids ...int) {
+func (m *ProblemCaseMutation) AddSubmitCaseIDs(ids ...int64) {
 	if m.submit_cases == nil {
-		m.submit_cases = make(map[int]struct{})
+		m.submit_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.submit_cases[ids[i]] = struct{}{}
@@ -3950,9 +3980,9 @@ func (m *ProblemCaseMutation) SubmitCasesCleared() bool {
 }
 
 // RemoveSubmitCaseIDs removes the "submit_cases" edge to the SubmitCase entity by IDs.
-func (m *ProblemCaseMutation) RemoveSubmitCaseIDs(ids ...int) {
+func (m *ProblemCaseMutation) RemoveSubmitCaseIDs(ids ...int64) {
 	if m.removedsubmit_cases == nil {
-		m.removedsubmit_cases = make(map[int]struct{})
+		m.removedsubmit_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.submit_cases, ids[i])
@@ -3961,7 +3991,7 @@ func (m *ProblemCaseMutation) RemoveSubmitCaseIDs(ids ...int) {
 }
 
 // RemovedSubmitCases returns the removed IDs of the "submit_cases" edge to the SubmitCase entity.
-func (m *ProblemCaseMutation) RemovedSubmitCasesIDs() (ids []int) {
+func (m *ProblemCaseMutation) RemovedSubmitCasesIDs() (ids []int64) {
 	for id := range m.removedsubmit_cases {
 		ids = append(ids, id)
 	}
@@ -3969,7 +3999,7 @@ func (m *ProblemCaseMutation) RemovedSubmitCasesIDs() (ids []int) {
 }
 
 // SubmitCasesIDs returns the "submit_cases" edge IDs in the mutation.
-func (m *ProblemCaseMutation) SubmitCasesIDs() (ids []int) {
+func (m *ProblemCaseMutation) SubmitCasesIDs() (ids []int64) {
 	for id := range m.submit_cases {
 		ids = append(ids, id)
 	}
@@ -3984,7 +4014,7 @@ func (m *ProblemCaseMutation) ResetSubmitCases() {
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by id.
-func (m *ProblemCaseMutation) SetProblemsID(id int) {
+func (m *ProblemCaseMutation) SetProblemsID(id int64) {
 	m.problems = &id
 }
 
@@ -4000,7 +4030,7 @@ func (m *ProblemCaseMutation) ProblemsCleared() bool {
 }
 
 // ProblemsID returns the "problems" edge ID in the mutation.
-func (m *ProblemCaseMutation) ProblemsID() (id int, exists bool) {
+func (m *ProblemCaseMutation) ProblemsID() (id int64, exists bool) {
 	if m.problems != nil {
 		return *m.problems, true
 	}
@@ -4010,7 +4040,7 @@ func (m *ProblemCaseMutation) ProblemsID() (id int, exists bool) {
 // ProblemsIDs returns the "problems" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // ProblemsID instead. It exists only for internal usage by the builders.
-func (m *ProblemCaseMutation) ProblemsIDs() (ids []int) {
+func (m *ProblemCaseMutation) ProblemsIDs() (ids []int64) {
 	if id := m.problems; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4148,7 +4178,7 @@ func (m *ProblemCaseMutation) SetField(name string, value ent.Value) error {
 		m.SetIsDeleted(v)
 		return nil
 	case problemcase.FieldProblemID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4356,27 +4386,27 @@ type SubmitMutation struct {
 	config
 	op                  Op
 	typ                 string
-	id                  *int
+	id                  *int64
 	code                *string
-	status              *int8
-	addstatus           *int8
+	status              *int16
+	addstatus           *int16
 	point               *int16
 	addpoint            *int16
 	create_time         *time.Time
-	total_time          *int
-	addtotal_time       *int
-	max_memory          *int
-	addmax_memory       *int
+	total_time          *int32
+	addtotal_time       *int32
+	max_memory          *int32
+	addmax_memory       *int32
 	language            *string
 	case_version        *int8
 	addcase_version     *int8
 	clearedFields       map[string]struct{}
-	submit_cases        map[int]struct{}
-	removedsubmit_cases map[int]struct{}
+	submit_cases        map[int64]struct{}
+	removedsubmit_cases map[int64]struct{}
 	clearedsubmit_cases bool
-	problems            *int
+	problems            *int64
 	clearedproblems     bool
-	users               *int
+	users               *int64
 	clearedusers        bool
 	done                bool
 	oldValue            func(context.Context) (*Submit, error)
@@ -4403,7 +4433,7 @@ func newSubmitMutation(c config, op Op, opts ...submitOption) *SubmitMutation {
 }
 
 // withSubmitID sets the ID field of the mutation.
-func withSubmitID(id int) submitOption {
+func withSubmitID(id int64) submitOption {
 	return func(m *SubmitMutation) {
 		var (
 			err   error
@@ -4455,13 +4485,13 @@ func (m SubmitMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Submit entities.
-func (m *SubmitMutation) SetID(id int) {
+func (m *SubmitMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *SubmitMutation) ID() (id int, exists bool) {
+func (m *SubmitMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -4472,12 +4502,12 @@ func (m *SubmitMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *SubmitMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *SubmitMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -4524,13 +4554,13 @@ func (m *SubmitMutation) ResetCode() {
 }
 
 // SetStatus sets the "status" field.
-func (m *SubmitMutation) SetStatus(i int8) {
+func (m *SubmitMutation) SetStatus(i int16) {
 	m.status = &i
 	m.addstatus = nil
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *SubmitMutation) Status() (r int8, exists bool) {
+func (m *SubmitMutation) Status() (r int16, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -4541,7 +4571,7 @@ func (m *SubmitMutation) Status() (r int8, exists bool) {
 // OldStatus returns the old "status" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldStatus(ctx context.Context) (v int8, err error) {
+func (m *SubmitMutation) OldStatus(ctx context.Context) (v int16, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -4556,7 +4586,7 @@ func (m *SubmitMutation) OldStatus(ctx context.Context) (v int8, err error) {
 }
 
 // AddStatus adds i to the "status" field.
-func (m *SubmitMutation) AddStatus(i int8) {
+func (m *SubmitMutation) AddStatus(i int16) {
 	if m.addstatus != nil {
 		*m.addstatus += i
 	} else {
@@ -4565,7 +4595,7 @@ func (m *SubmitMutation) AddStatus(i int8) {
 }
 
 // AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *SubmitMutation) AddedStatus() (r int8, exists bool) {
+func (m *SubmitMutation) AddedStatus() (r int16, exists bool) {
 	v := m.addstatus
 	if v == nil {
 		return
@@ -4672,13 +4702,13 @@ func (m *SubmitMutation) ResetCreateTime() {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (m *SubmitMutation) SetTotalTime(i int) {
+func (m *SubmitMutation) SetTotalTime(i int32) {
 	m.total_time = &i
 	m.addtotal_time = nil
 }
 
 // TotalTime returns the value of the "total_time" field in the mutation.
-func (m *SubmitMutation) TotalTime() (r int, exists bool) {
+func (m *SubmitMutation) TotalTime() (r int32, exists bool) {
 	v := m.total_time
 	if v == nil {
 		return
@@ -4689,7 +4719,7 @@ func (m *SubmitMutation) TotalTime() (r int, exists bool) {
 // OldTotalTime returns the old "total_time" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTotalTime is only allowed on UpdateOne operations")
 	}
@@ -4704,7 +4734,7 @@ func (m *SubmitMutation) OldTotalTime(ctx context.Context) (v int, err error) {
 }
 
 // AddTotalTime adds i to the "total_time" field.
-func (m *SubmitMutation) AddTotalTime(i int) {
+func (m *SubmitMutation) AddTotalTime(i int32) {
 	if m.addtotal_time != nil {
 		*m.addtotal_time += i
 	} else {
@@ -4713,7 +4743,7 @@ func (m *SubmitMutation) AddTotalTime(i int) {
 }
 
 // AddedTotalTime returns the value that was added to the "total_time" field in this mutation.
-func (m *SubmitMutation) AddedTotalTime() (r int, exists bool) {
+func (m *SubmitMutation) AddedTotalTime() (r int32, exists bool) {
 	v := m.addtotal_time
 	if v == nil {
 		return
@@ -4728,13 +4758,13 @@ func (m *SubmitMutation) ResetTotalTime() {
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (m *SubmitMutation) SetMaxMemory(i int) {
+func (m *SubmitMutation) SetMaxMemory(i int32) {
 	m.max_memory = &i
 	m.addmax_memory = nil
 }
 
 // MaxMemory returns the value of the "max_memory" field in the mutation.
-func (m *SubmitMutation) MaxMemory() (r int, exists bool) {
+func (m *SubmitMutation) MaxMemory() (r int32, exists bool) {
 	v := m.max_memory
 	if v == nil {
 		return
@@ -4745,7 +4775,7 @@ func (m *SubmitMutation) MaxMemory() (r int, exists bool) {
 // OldMaxMemory returns the old "max_memory" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldMaxMemory(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldMaxMemory(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMaxMemory is only allowed on UpdateOne operations")
 	}
@@ -4760,7 +4790,7 @@ func (m *SubmitMutation) OldMaxMemory(ctx context.Context) (v int, err error) {
 }
 
 // AddMaxMemory adds i to the "max_memory" field.
-func (m *SubmitMutation) AddMaxMemory(i int) {
+func (m *SubmitMutation) AddMaxMemory(i int32) {
 	if m.addmax_memory != nil {
 		*m.addmax_memory += i
 	} else {
@@ -4769,7 +4799,7 @@ func (m *SubmitMutation) AddMaxMemory(i int) {
 }
 
 // AddedMaxMemory returns the value that was added to the "max_memory" field in this mutation.
-func (m *SubmitMutation) AddedMaxMemory() (r int, exists bool) {
+func (m *SubmitMutation) AddedMaxMemory() (r int32, exists bool) {
 	v := m.addmax_memory
 	if v == nil {
 		return
@@ -4876,12 +4906,12 @@ func (m *SubmitMutation) ResetCaseVersion() {
 }
 
 // SetProblemID sets the "problem_id" field.
-func (m *SubmitMutation) SetProblemID(i int) {
+func (m *SubmitMutation) SetProblemID(i int64) {
 	m.problems = &i
 }
 
 // ProblemID returns the value of the "problem_id" field in the mutation.
-func (m *SubmitMutation) ProblemID() (r int, exists bool) {
+func (m *SubmitMutation) ProblemID() (r int64, exists bool) {
 	v := m.problems
 	if v == nil {
 		return
@@ -4892,7 +4922,7 @@ func (m *SubmitMutation) ProblemID() (r int, exists bool) {
 // OldProblemID returns the old "problem_id" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldProblemID(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldProblemID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProblemID is only allowed on UpdateOne operations")
 	}
@@ -4912,12 +4942,12 @@ func (m *SubmitMutation) ResetProblemID() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *SubmitMutation) SetUserID(i int) {
+func (m *SubmitMutation) SetUserID(i int64) {
 	m.users = &i
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *SubmitMutation) UserID() (r int, exists bool) {
+func (m *SubmitMutation) UserID() (r int64, exists bool) {
 	v := m.users
 	if v == nil {
 		return
@@ -4928,7 +4958,7 @@ func (m *SubmitMutation) UserID() (r int, exists bool) {
 // OldUserID returns the old "user_id" field's value of the Submit entity.
 // If the Submit object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitMutation) OldUserID(ctx context.Context) (v int, err error) {
+func (m *SubmitMutation) OldUserID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -4948,9 +4978,9 @@ func (m *SubmitMutation) ResetUserID() {
 }
 
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
-func (m *SubmitMutation) AddSubmitCaseIDs(ids ...int) {
+func (m *SubmitMutation) AddSubmitCaseIDs(ids ...int64) {
 	if m.submit_cases == nil {
-		m.submit_cases = make(map[int]struct{})
+		m.submit_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.submit_cases[ids[i]] = struct{}{}
@@ -4968,9 +4998,9 @@ func (m *SubmitMutation) SubmitCasesCleared() bool {
 }
 
 // RemoveSubmitCaseIDs removes the "submit_cases" edge to the SubmitCase entity by IDs.
-func (m *SubmitMutation) RemoveSubmitCaseIDs(ids ...int) {
+func (m *SubmitMutation) RemoveSubmitCaseIDs(ids ...int64) {
 	if m.removedsubmit_cases == nil {
-		m.removedsubmit_cases = make(map[int]struct{})
+		m.removedsubmit_cases = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.submit_cases, ids[i])
@@ -4979,7 +5009,7 @@ func (m *SubmitMutation) RemoveSubmitCaseIDs(ids ...int) {
 }
 
 // RemovedSubmitCases returns the removed IDs of the "submit_cases" edge to the SubmitCase entity.
-func (m *SubmitMutation) RemovedSubmitCasesIDs() (ids []int) {
+func (m *SubmitMutation) RemovedSubmitCasesIDs() (ids []int64) {
 	for id := range m.removedsubmit_cases {
 		ids = append(ids, id)
 	}
@@ -4987,7 +5017,7 @@ func (m *SubmitMutation) RemovedSubmitCasesIDs() (ids []int) {
 }
 
 // SubmitCasesIDs returns the "submit_cases" edge IDs in the mutation.
-func (m *SubmitMutation) SubmitCasesIDs() (ids []int) {
+func (m *SubmitMutation) SubmitCasesIDs() (ids []int64) {
 	for id := range m.submit_cases {
 		ids = append(ids, id)
 	}
@@ -5002,7 +5032,7 @@ func (m *SubmitMutation) ResetSubmitCases() {
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by id.
-func (m *SubmitMutation) SetProblemsID(id int) {
+func (m *SubmitMutation) SetProblemsID(id int64) {
 	m.problems = &id
 }
 
@@ -5018,7 +5048,7 @@ func (m *SubmitMutation) ProblemsCleared() bool {
 }
 
 // ProblemsID returns the "problems" edge ID in the mutation.
-func (m *SubmitMutation) ProblemsID() (id int, exists bool) {
+func (m *SubmitMutation) ProblemsID() (id int64, exists bool) {
 	if m.problems != nil {
 		return *m.problems, true
 	}
@@ -5028,7 +5058,7 @@ func (m *SubmitMutation) ProblemsID() (id int, exists bool) {
 // ProblemsIDs returns the "problems" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // ProblemsID instead. It exists only for internal usage by the builders.
-func (m *SubmitMutation) ProblemsIDs() (ids []int) {
+func (m *SubmitMutation) ProblemsIDs() (ids []int64) {
 	if id := m.problems; id != nil {
 		ids = append(ids, *id)
 	}
@@ -5042,7 +5072,7 @@ func (m *SubmitMutation) ResetProblems() {
 }
 
 // SetUsersID sets the "users" edge to the User entity by id.
-func (m *SubmitMutation) SetUsersID(id int) {
+func (m *SubmitMutation) SetUsersID(id int64) {
 	m.users = &id
 }
 
@@ -5058,7 +5088,7 @@ func (m *SubmitMutation) UsersCleared() bool {
 }
 
 // UsersID returns the "users" edge ID in the mutation.
-func (m *SubmitMutation) UsersID() (id int, exists bool) {
+func (m *SubmitMutation) UsersID() (id int64, exists bool) {
 	if m.users != nil {
 		return *m.users, true
 	}
@@ -5068,7 +5098,7 @@ func (m *SubmitMutation) UsersID() (id int, exists bool) {
 // UsersIDs returns the "users" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UsersID instead. It exists only for internal usage by the builders.
-func (m *SubmitMutation) UsersIDs() (ids []int) {
+func (m *SubmitMutation) UsersIDs() (ids []int64) {
 	if id := m.users; id != nil {
 		ids = append(ids, *id)
 	}
@@ -5220,7 +5250,7 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCode(v)
 		return nil
 	case submit.FieldStatus:
-		v, ok := value.(int8)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5241,14 +5271,14 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCreateTime(v)
 		return nil
 	case submit.FieldTotalTime:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTotalTime(v)
 		return nil
 	case submit.FieldMaxMemory:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5269,14 +5299,14 @@ func (m *SubmitMutation) SetField(name string, value ent.Value) error {
 		m.SetCaseVersion(v)
 		return nil
 	case submit.FieldProblemID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProblemID(v)
 		return nil
 	case submit.FieldUserID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5333,7 +5363,7 @@ func (m *SubmitMutation) AddedField(name string) (ent.Value, bool) {
 func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case submit.FieldStatus:
-		v, ok := value.(int8)
+		v, ok := value.(int16)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5347,14 +5377,14 @@ func (m *SubmitMutation) AddField(name string, value ent.Value) error {
 		m.AddPoint(v)
 		return nil
 	case submit.FieldTotalTime:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTotalTime(v)
 		return nil
 	case submit.FieldMaxMemory:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5553,20 +5583,20 @@ type SubmitCaseMutation struct {
 	config
 	op                   Op
 	typ                  string
-	id                   *int
+	id                   *int64
 	state                *int16
 	addstate             *int16
 	point                *int16
 	addpoint             *int16
 	message              *string
-	time                 *int
-	addtime              *int
-	memory               *int
-	addmemory            *int
+	time                 *int32
+	addtime              *int32
+	memory               *int32
+	addmemory            *int32
 	clearedFields        map[string]struct{}
-	submission           *int
+	submission           *int64
 	clearedsubmission    bool
-	problem_cases        *int
+	problem_cases        *int64
 	clearedproblem_cases bool
 	done                 bool
 	oldValue             func(context.Context) (*SubmitCase, error)
@@ -5593,7 +5623,7 @@ func newSubmitCaseMutation(c config, op Op, opts ...submitcaseOption) *SubmitCas
 }
 
 // withSubmitCaseID sets the ID field of the mutation.
-func withSubmitCaseID(id int) submitcaseOption {
+func withSubmitCaseID(id int64) submitcaseOption {
 	return func(m *SubmitCaseMutation) {
 		var (
 			err   error
@@ -5645,13 +5675,13 @@ func (m SubmitCaseMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of SubmitCase entities.
-func (m *SubmitCaseMutation) SetID(id int) {
+func (m *SubmitCaseMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *SubmitCaseMutation) ID() (id int, exists bool) {
+func (m *SubmitCaseMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5662,12 +5692,12 @@ func (m *SubmitCaseMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *SubmitCaseMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *SubmitCaseMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5826,13 +5856,13 @@ func (m *SubmitCaseMutation) ResetMessage() {
 }
 
 // SetTime sets the "time" field.
-func (m *SubmitCaseMutation) SetTime(i int) {
+func (m *SubmitCaseMutation) SetTime(i int32) {
 	m.time = &i
 	m.addtime = nil
 }
 
 // Time returns the value of the "time" field in the mutation.
-func (m *SubmitCaseMutation) Time() (r int, exists bool) {
+func (m *SubmitCaseMutation) Time() (r int32, exists bool) {
 	v := m.time
 	if v == nil {
 		return
@@ -5843,7 +5873,7 @@ func (m *SubmitCaseMutation) Time() (r int, exists bool) {
 // OldTime returns the old "time" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldTime(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldTime(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTime is only allowed on UpdateOne operations")
 	}
@@ -5858,7 +5888,7 @@ func (m *SubmitCaseMutation) OldTime(ctx context.Context) (v int, err error) {
 }
 
 // AddTime adds i to the "time" field.
-func (m *SubmitCaseMutation) AddTime(i int) {
+func (m *SubmitCaseMutation) AddTime(i int32) {
 	if m.addtime != nil {
 		*m.addtime += i
 	} else {
@@ -5867,7 +5897,7 @@ func (m *SubmitCaseMutation) AddTime(i int) {
 }
 
 // AddedTime returns the value that was added to the "time" field in this mutation.
-func (m *SubmitCaseMutation) AddedTime() (r int, exists bool) {
+func (m *SubmitCaseMutation) AddedTime() (r int32, exists bool) {
 	v := m.addtime
 	if v == nil {
 		return
@@ -5882,13 +5912,13 @@ func (m *SubmitCaseMutation) ResetTime() {
 }
 
 // SetMemory sets the "memory" field.
-func (m *SubmitCaseMutation) SetMemory(i int) {
+func (m *SubmitCaseMutation) SetMemory(i int32) {
 	m.memory = &i
 	m.addmemory = nil
 }
 
 // Memory returns the value of the "memory" field in the mutation.
-func (m *SubmitCaseMutation) Memory() (r int, exists bool) {
+func (m *SubmitCaseMutation) Memory() (r int32, exists bool) {
 	v := m.memory
 	if v == nil {
 		return
@@ -5899,7 +5929,7 @@ func (m *SubmitCaseMutation) Memory() (r int, exists bool) {
 // OldMemory returns the old "memory" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldMemory(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldMemory(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMemory is only allowed on UpdateOne operations")
 	}
@@ -5914,7 +5944,7 @@ func (m *SubmitCaseMutation) OldMemory(ctx context.Context) (v int, err error) {
 }
 
 // AddMemory adds i to the "memory" field.
-func (m *SubmitCaseMutation) AddMemory(i int) {
+func (m *SubmitCaseMutation) AddMemory(i int32) {
 	if m.addmemory != nil {
 		*m.addmemory += i
 	} else {
@@ -5923,7 +5953,7 @@ func (m *SubmitCaseMutation) AddMemory(i int) {
 }
 
 // AddedMemory returns the value that was added to the "memory" field in this mutation.
-func (m *SubmitCaseMutation) AddedMemory() (r int, exists bool) {
+func (m *SubmitCaseMutation) AddedMemory() (r int32, exists bool) {
 	v := m.addmemory
 	if v == nil {
 		return
@@ -5938,12 +5968,12 @@ func (m *SubmitCaseMutation) ResetMemory() {
 }
 
 // SetSubmitID sets the "submit_id" field.
-func (m *SubmitCaseMutation) SetSubmitID(i int) {
+func (m *SubmitCaseMutation) SetSubmitID(i int64) {
 	m.submission = &i
 }
 
 // SubmitID returns the value of the "submit_id" field in the mutation.
-func (m *SubmitCaseMutation) SubmitID() (r int, exists bool) {
+func (m *SubmitCaseMutation) SubmitID() (r int64, exists bool) {
 	v := m.submission
 	if v == nil {
 		return
@@ -5954,7 +5984,7 @@ func (m *SubmitCaseMutation) SubmitID() (r int, exists bool) {
 // OldSubmitID returns the old "submit_id" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldSubmitID(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldSubmitID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSubmitID is only allowed on UpdateOne operations")
 	}
@@ -5974,12 +6004,12 @@ func (m *SubmitCaseMutation) ResetSubmitID() {
 }
 
 // SetProblemCaseID sets the "problem_case_id" field.
-func (m *SubmitCaseMutation) SetProblemCaseID(i int) {
+func (m *SubmitCaseMutation) SetProblemCaseID(i int64) {
 	m.problem_cases = &i
 }
 
 // ProblemCaseID returns the value of the "problem_case_id" field in the mutation.
-func (m *SubmitCaseMutation) ProblemCaseID() (r int, exists bool) {
+func (m *SubmitCaseMutation) ProblemCaseID() (r int64, exists bool) {
 	v := m.problem_cases
 	if v == nil {
 		return
@@ -5990,7 +6020,7 @@ func (m *SubmitCaseMutation) ProblemCaseID() (r int, exists bool) {
 // OldProblemCaseID returns the old "problem_case_id" field's value of the SubmitCase entity.
 // If the SubmitCase object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubmitCaseMutation) OldProblemCaseID(ctx context.Context) (v int, err error) {
+func (m *SubmitCaseMutation) OldProblemCaseID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProblemCaseID is only allowed on UpdateOne operations")
 	}
@@ -6010,7 +6040,7 @@ func (m *SubmitCaseMutation) ResetProblemCaseID() {
 }
 
 // SetSubmissionID sets the "submission" edge to the Submit entity by id.
-func (m *SubmitCaseMutation) SetSubmissionID(id int) {
+func (m *SubmitCaseMutation) SetSubmissionID(id int64) {
 	m.submission = &id
 }
 
@@ -6026,7 +6056,7 @@ func (m *SubmitCaseMutation) SubmissionCleared() bool {
 }
 
 // SubmissionID returns the "submission" edge ID in the mutation.
-func (m *SubmitCaseMutation) SubmissionID() (id int, exists bool) {
+func (m *SubmitCaseMutation) SubmissionID() (id int64, exists bool) {
 	if m.submission != nil {
 		return *m.submission, true
 	}
@@ -6036,7 +6066,7 @@ func (m *SubmitCaseMutation) SubmissionID() (id int, exists bool) {
 // SubmissionIDs returns the "submission" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // SubmissionID instead. It exists only for internal usage by the builders.
-func (m *SubmitCaseMutation) SubmissionIDs() (ids []int) {
+func (m *SubmitCaseMutation) SubmissionIDs() (ids []int64) {
 	if id := m.submission; id != nil {
 		ids = append(ids, *id)
 	}
@@ -6050,7 +6080,7 @@ func (m *SubmitCaseMutation) ResetSubmission() {
 }
 
 // SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by id.
-func (m *SubmitCaseMutation) SetProblemCasesID(id int) {
+func (m *SubmitCaseMutation) SetProblemCasesID(id int64) {
 	m.problem_cases = &id
 }
 
@@ -6066,7 +6096,7 @@ func (m *SubmitCaseMutation) ProblemCasesCleared() bool {
 }
 
 // ProblemCasesID returns the "problem_cases" edge ID in the mutation.
-func (m *SubmitCaseMutation) ProblemCasesID() (id int, exists bool) {
+func (m *SubmitCaseMutation) ProblemCasesID() (id int64, exists bool) {
 	if m.problem_cases != nil {
 		return *m.problem_cases, true
 	}
@@ -6076,7 +6106,7 @@ func (m *SubmitCaseMutation) ProblemCasesID() (id int, exists bool) {
 // ProblemCasesIDs returns the "problem_cases" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // ProblemCasesID instead. It exists only for internal usage by the builders.
-func (m *SubmitCaseMutation) ProblemCasesIDs() (ids []int) {
+func (m *SubmitCaseMutation) ProblemCasesIDs() (ids []int64) {
 	if id := m.problem_cases; id != nil {
 		ids = append(ids, *id)
 	}
@@ -6221,28 +6251,28 @@ func (m *SubmitCaseMutation) SetField(name string, value ent.Value) error {
 		m.SetMessage(v)
 		return nil
 	case submitcase.FieldTime:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTime(v)
 		return nil
 	case submitcase.FieldMemory:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMemory(v)
 		return nil
 	case submitcase.FieldSubmitID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSubmitID(v)
 		return nil
 	case submitcase.FieldProblemCaseID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6308,14 +6338,14 @@ func (m *SubmitCaseMutation) AddField(name string, value ent.Value) error {
 		m.AddPoint(v)
 		return nil
 	case submitcase.FieldTime:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTime(v)
 		return nil
 	case submitcase.FieldMemory:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6470,20 +6500,20 @@ type UserMutation struct {
 	config
 	op                    Op
 	typ                   string
-	id                    *int
+	id                    *int64
 	username              *string
 	password              *string
 	salt                  *string
 	status                *int16
 	addstatus             *int16
 	clearedFields         map[string]struct{}
-	submission            map[int]struct{}
-	removedsubmission     map[int]struct{}
+	submission            map[int64]struct{}
+	removedsubmission     map[int64]struct{}
 	clearedsubmission     bool
-	login_sessions        map[int]struct{}
-	removedlogin_sessions map[int]struct{}
+	login_sessions        map[int64]struct{}
+	removedlogin_sessions map[int64]struct{}
 	clearedlogin_sessions bool
-	groups                *int
+	groups                *int64
 	clearedgroups         bool
 	done                  bool
 	oldValue              func(context.Context) (*User, error)
@@ -6510,7 +6540,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id int) userOption {
+func withUserID(id int64) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -6562,13 +6592,13 @@ func (m UserMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of User entities.
-func (m *UserMutation) SetID(id int) {
+func (m *UserMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id int, exists bool) {
+func (m *UserMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -6579,12 +6609,12 @@ func (m *UserMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -6759,12 +6789,12 @@ func (m *UserMutation) ResetStatus() {
 }
 
 // SetGroupID sets the "group_id" field.
-func (m *UserMutation) SetGroupID(i int) {
+func (m *UserMutation) SetGroupID(i int64) {
 	m.groups = &i
 }
 
 // GroupID returns the value of the "group_id" field in the mutation.
-func (m *UserMutation) GroupID() (r int, exists bool) {
+func (m *UserMutation) GroupID() (r int64, exists bool) {
 	v := m.groups
 	if v == nil {
 		return
@@ -6775,7 +6805,7 @@ func (m *UserMutation) GroupID() (r int, exists bool) {
 // OldGroupID returns the old "group_id" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldGroupID(ctx context.Context) (v int, err error) {
+func (m *UserMutation) OldGroupID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
 	}
@@ -6795,9 +6825,9 @@ func (m *UserMutation) ResetGroupID() {
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submit entity by ids.
-func (m *UserMutation) AddSubmissionIDs(ids ...int) {
+func (m *UserMutation) AddSubmissionIDs(ids ...int64) {
 	if m.submission == nil {
-		m.submission = make(map[int]struct{})
+		m.submission = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.submission[ids[i]] = struct{}{}
@@ -6815,9 +6845,9 @@ func (m *UserMutation) SubmissionCleared() bool {
 }
 
 // RemoveSubmissionIDs removes the "submission" edge to the Submit entity by IDs.
-func (m *UserMutation) RemoveSubmissionIDs(ids ...int) {
+func (m *UserMutation) RemoveSubmissionIDs(ids ...int64) {
 	if m.removedsubmission == nil {
-		m.removedsubmission = make(map[int]struct{})
+		m.removedsubmission = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.submission, ids[i])
@@ -6826,7 +6856,7 @@ func (m *UserMutation) RemoveSubmissionIDs(ids ...int) {
 }
 
 // RemovedSubmission returns the removed IDs of the "submission" edge to the Submit entity.
-func (m *UserMutation) RemovedSubmissionIDs() (ids []int) {
+func (m *UserMutation) RemovedSubmissionIDs() (ids []int64) {
 	for id := range m.removedsubmission {
 		ids = append(ids, id)
 	}
@@ -6834,7 +6864,7 @@ func (m *UserMutation) RemovedSubmissionIDs() (ids []int) {
 }
 
 // SubmissionIDs returns the "submission" edge IDs in the mutation.
-func (m *UserMutation) SubmissionIDs() (ids []int) {
+func (m *UserMutation) SubmissionIDs() (ids []int64) {
 	for id := range m.submission {
 		ids = append(ids, id)
 	}
@@ -6849,9 +6879,9 @@ func (m *UserMutation) ResetSubmission() {
 }
 
 // AddLoginSessionIDs adds the "login_sessions" edge to the LoginSession entity by ids.
-func (m *UserMutation) AddLoginSessionIDs(ids ...int) {
+func (m *UserMutation) AddLoginSessionIDs(ids ...int64) {
 	if m.login_sessions == nil {
-		m.login_sessions = make(map[int]struct{})
+		m.login_sessions = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.login_sessions[ids[i]] = struct{}{}
@@ -6869,9 +6899,9 @@ func (m *UserMutation) LoginSessionsCleared() bool {
 }
 
 // RemoveLoginSessionIDs removes the "login_sessions" edge to the LoginSession entity by IDs.
-func (m *UserMutation) RemoveLoginSessionIDs(ids ...int) {
+func (m *UserMutation) RemoveLoginSessionIDs(ids ...int64) {
 	if m.removedlogin_sessions == nil {
-		m.removedlogin_sessions = make(map[int]struct{})
+		m.removedlogin_sessions = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.login_sessions, ids[i])
@@ -6880,7 +6910,7 @@ func (m *UserMutation) RemoveLoginSessionIDs(ids ...int) {
 }
 
 // RemovedLoginSessions returns the removed IDs of the "login_sessions" edge to the LoginSession entity.
-func (m *UserMutation) RemovedLoginSessionsIDs() (ids []int) {
+func (m *UserMutation) RemovedLoginSessionsIDs() (ids []int64) {
 	for id := range m.removedlogin_sessions {
 		ids = append(ids, id)
 	}
@@ -6888,7 +6918,7 @@ func (m *UserMutation) RemovedLoginSessionsIDs() (ids []int) {
 }
 
 // LoginSessionsIDs returns the "login_sessions" edge IDs in the mutation.
-func (m *UserMutation) LoginSessionsIDs() (ids []int) {
+func (m *UserMutation) LoginSessionsIDs() (ids []int64) {
 	for id := range m.login_sessions {
 		ids = append(ids, id)
 	}
@@ -6903,7 +6933,7 @@ func (m *UserMutation) ResetLoginSessions() {
 }
 
 // SetGroupsID sets the "groups" edge to the Group entity by id.
-func (m *UserMutation) SetGroupsID(id int) {
+func (m *UserMutation) SetGroupsID(id int64) {
 	m.groups = &id
 }
 
@@ -6919,7 +6949,7 @@ func (m *UserMutation) GroupsCleared() bool {
 }
 
 // GroupsID returns the "groups" edge ID in the mutation.
-func (m *UserMutation) GroupsID() (id int, exists bool) {
+func (m *UserMutation) GroupsID() (id int64, exists bool) {
 	if m.groups != nil {
 		return *m.groups, true
 	}
@@ -6929,7 +6959,7 @@ func (m *UserMutation) GroupsID() (id int, exists bool) {
 // GroupsIDs returns the "groups" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // GroupsID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) GroupsIDs() (ids []int) {
+func (m *UserMutation) GroupsIDs() (ids []int64) {
 	if id := m.groups; id != nil {
 		ids = append(ids, *id)
 	}
@@ -7067,7 +7097,7 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		m.SetStatus(v)
 		return nil
 	case user.FieldGroupID:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
