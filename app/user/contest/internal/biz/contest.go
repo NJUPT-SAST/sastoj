@@ -11,12 +11,12 @@ type Contest struct {
 	ID          int64
 	Title       string
 	Description string
-	Status      int32
-	Type        int32
+	Status      int16
+	Type        int16
 	StartTime   time.Time
 	EndTime     time.Time
 	Language    string
-	ExtraTime   int32
+	ExtraTime   int16
 	CreateTime  time.Time
 }
 
