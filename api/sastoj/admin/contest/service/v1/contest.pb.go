@@ -4,7 +4,7 @@
 // 	protoc        v5.26.1
 // source: sastoj/admin/contest/contest.proto
 
-package contest
+package v1
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"

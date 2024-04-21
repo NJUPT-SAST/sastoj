@@ -2,9 +2,8 @@ package biz
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/timestamp"
-
 	"github.com/go-kratos/kratos/v2/log"
+	"time"
 )
 
 type Contest struct {
@@ -13,19 +12,19 @@ type Contest struct {
 	Description string
 	Status      int32
 	Type        int32
-	StartTime   timestamp.Timestamp
-	EndTime     timestamp.Timestamp
+	StartTime   time.Time
+	EndTime     time.Time
 	Language    string
 	ExtraTime   int32
-	CreateTime  timestamp.Timestamp
+	CreateTime  time.Time
 }
 
 type ContestRepo interface {
 	Save(context.Context, *Contest) (*Contest, error)
-	Update(context.Context, *Contest) (*Contest, error)
+	Update(context.Context, *Contest) error
+	Delete(context.Context, int64) error
 	FindByID(context.Context, int64) (*Contest, error)
-	ListByHello(context.Context, string) ([]*Contest, error)
-	ListAll(context.Context) ([]*Contest, error)
+	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
 }
 
 type ContestUsecase struct {
@@ -39,4 +38,16 @@ func NewContestUsecase(repo ContestRepo, logger log.Logger) *ContestUsecase {
 
 func (uc *ContestUsecase) CreateContest(ctx context.Context, g *Contest) (*Contest, error) {
 	return uc.repo.Save(ctx, g)
+}
+func (uc *ContestUsecase) UpdateContest(ctx context.Context, g *Contest) error {
+	return uc.repo.Update(ctx, g)
+}
+func (uc *ContestUsecase) DeleteContest(ctx context.Context, id int64) error {
+	return uc.repo.Delete(ctx, id)
+}
+func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, error) {
+	return uc.repo.FindByID(ctx, id)
+}
+func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, error) {
+	return uc.repo.ListPages(ctx, current, size)
 }

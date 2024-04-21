@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"sastoj/api/sastoj/admin/contest/service/v1"
 	"sastoj/app/admin/contest/internal/biz"
-
-	pb "sastoj/api/sastoj/admin/contest"
+	"time"
 )
 
 type ContestService struct {
-	pb.UnimplementedContestServer
+	v1.UnimplementedContestServer
 	cs *biz.ContestUsecase
 }
 
@@ -16,18 +17,100 @@ func NewContestService(cs *biz.ContestUsecase) *ContestService {
 	return &ContestService{cs: cs}
 }
 
-func (s *ContestService) CreateContest(ctx context.Context, req *pb.CreateContestRequest) (*pb.CreateContestReply, error) {
-	return &pb.CreateContestReply{}, nil
+func (s *ContestService) CreateContest(ctx context.Context, req *v1.CreateContestRequest) (*v1.CreateContestReply, error) {
+	rv, err := s.cs.CreateContest(ctx, &biz.Contest{
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      req.Status,
+		Type:        req.Type,
+		StartTime:   req.StartTime.AsTime(),
+		EndTime:     req.EndTime.AsTime(),
+		Language:    req.Language,
+		ExtraTime:   req.ExtraTime,
+		CreateTime:  req.CreateTime.AsTime(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateContestReply{
+		Id: rv.Id,
+	}, nil
 }
-func (s *ContestService) UpdateContest(ctx context.Context, req *pb.UpdateContestRequest) (*pb.UpdateContestReply, error) {
-	return &pb.UpdateContestReply{}, nil
+func (s *ContestService) UpdateContest(ctx context.Context, req *v1.UpdateContestRequest) (*v1.UpdateContestReply, error) {
+	err := s.cs.UpdateContest(ctx, &biz.Contest{
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      req.Status,
+		Type:        req.Type,
+		StartTime:   req.StartTime.AsTime(),
+		EndTime:     req.EndTime.AsTime(),
+		Language:    req.Language,
+		ExtraTime:   req.ExtraTime,
+		CreateTime:  req.CreateTime.AsTime(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.UpdateContestReply{
+		Success: true,
+	}, nil
 }
-func (s *ContestService) DeleteContest(ctx context.Context, req *pb.DeleteContestRequest) (*pb.DeleteContestReply, error) {
-	return &pb.DeleteContestReply{}, nil
+func (s *ContestService) DeleteContest(ctx context.Context, req *v1.DeleteContestRequest) (*v1.DeleteContestReply, error) {
+	err := s.cs.DeleteContest(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.DeleteContestReply{
+		Success: true,
+	}, nil
+
 }
-func (s *ContestService) GetContest(ctx context.Context, req *pb.GetContestRequest) (*pb.GetContestReply, error) {
-	return &pb.GetContestReply{}, nil
+func (s *ContestService) GetContest(ctx context.Context, req *v1.GetContestRequest) (*v1.GetContestReply, error) {
+	rv, err := s.cs.FindContest(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetContestReply{
+		Title:       rv.Title,
+		Description: rv.Description,
+		Status:      rv.Status,
+		Type:        rv.Type,
+		StartTime:   convertTimeToTimeStamp(rv.StartTime),
+		EndTime:     convertTimeToTimeStamp(rv.EndTime),
+		Language:    rv.Language,
+		ExtraTime:   rv.ExtraTime,
+		CreateTime:  convertTimeToTimeStamp(rv.CreateTime),
+	}, nil
 }
-func (s *ContestService) ListContest(ctx context.Context, req *pb.ListContestRequest) (*pb.ListContestReply, error) {
-	return &pb.ListContestReply{}, nil
+func (s *ContestService) ListContest(ctx context.Context, req *v1.ListContestRequest) (*v1.ListContestReply, error) {
+	rv, err := s.cs.ListContest(ctx, req.Current, req.Size)
+	if err != nil {
+		return nil, err
+	}
+	var list []*v1.ListContestReply_Contest
+	for _, v := range rv {
+		list = append(list, &v1.ListContestReply_Contest{
+			Id:          v.Id,
+			Title:       v.Title,
+			Description: v.Description,
+			Status:      v.Status,
+			Type:        v.Type,
+			StartTime:   convertTimeToTimeStamp(v.StartTime),
+			EndTime:     convertTimeToTimeStamp(v.EndTime),
+			Language:    v.Language,
+			ExtraTime:   v.ExtraTime,
+			CreateTime:  convertTimeToTimeStamp(v.CreateTime),
+		})
+	}
+	return &v1.ListContestReply{
+		Contests: list,
+	}, nil
+}
+
+func convertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {
+
+	return &timestamppb.Timestamp{
+		Seconds: tm.Unix(),
+		Nanos:   int32(tm.Nanosecond()),
+	}
 }
