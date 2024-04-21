@@ -48,6 +48,7 @@ func (s submitRepo) GetSubmission(ctx context.Context, submitID int64, userID in
 		return nil, err
 	}
 	if po.UserID != userID {
+		// TODO: ADD Global Error: Permission Denied
 		return nil, errors.New("permission denied")
 	}
 	return &biz.Submit{
@@ -55,13 +56,13 @@ func (s submitRepo) GetSubmission(ctx context.Context, submitID int64, userID in
 		UserID:      po.UserID,
 		ProblemID:   po.ProblemID,
 		Code:        po.Code,
-		Status:      int32(po.Status),
-		Point:       int32(po.Point),
+		Status:      po.Status,
+		Point:       po.Point,
 		CreateTime:  po.CreateTime,
 		TotalTime:   po.TotalTime,
 		MaxMemory:   po.MaxMemory,
 		Language:    po.Language,
-		CaseVersion: int32(po.CaseVersion),
+		CaseVersion: po.CaseVersion,
 	}, nil
 }
 
@@ -70,13 +71,13 @@ func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64
 		SetUsersID(submit.UserID).
 		SetProblemsID(submit.ProblemID).
 		SetCode(submit.Code).
-		SetStatus(int16(submit.Status)).
-		SetPoint(int16(submit.Point)).
+		SetStatus(submit.Status).
+		SetPoint(submit.Point).
 		SetCreateTime(submit.CreateTime).
 		SetTotalTime(submit.TotalTime).
 		SetMaxMemory(submit.MaxMemory).
 		SetLanguage(submit.Language).
-		SetCaseVersion(int8(submit.CaseVersion)).
+		SetCaseVersion(submit.CaseVersion).
 		Save(ctx)
 	if err != nil {
 		return 0, err
@@ -108,17 +109,17 @@ func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64
 	return po.ID, nil
 }
 
-func (s submitRepo) UpdateStatus(ctx context.Context, submitID int64, status int32) error {
+func (s submitRepo) UpdateStatus(ctx context.Context, submitID int64, status int16) error {
 	_, err := s.data.db.Submit.UpdateOneID(submitID).
-		SetStatus(int16(status)).
+		SetStatus(status).
 		Save(ctx)
 	return err
 }
 
 func (s submitRepo) UpdateSubmit(ctx context.Context, submit *biz.Submit) error {
 	_, err := s.data.db.Submit.UpdateOneID(submit.ID).
-		SetStatus(int16(submit.Status)).
-		SetPoint(int16(submit.Point)).
+		SetStatus(submit.Status).
+		SetPoint(submit.Point).
 		SetTotalTime(submit.TotalTime).
 		SetMaxMemory(submit.MaxMemory).
 		Save(ctx)

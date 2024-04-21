@@ -15,18 +15,18 @@ type problemRepo struct {
 	log  *log.Helper
 }
 
-func (p problemRepo) GetProblemCaseVer(ctx context.Context, problemId int64) (int32, error) {
+func (p problemRepo) GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	result, err := p.data.redis.Get(ctx, "problem:"+strconv.Itoa(int(problemId))+":"+"case_version").Result()
 	if err == nil {
 		ver, _ := strconv.Atoi(result)
-		return int32(ver), nil
+		return int8(ver), nil
 	}
 	po, err := p.data.db.Problem.Query().Where(problem.IDEQ(problemId)).Only(ctx)
 	if err != nil {
 		return 0, err
 	}
 	p.data.redis.Set(ctx, "problem:"+strconv.Itoa(int(problemId))+":"+"case_version", strconv.Itoa(int(po.CaseVersion)), 2*time.Hour)
-	return int32(po.CaseVersion), nil
+	return int8(po.CaseVersion), nil
 }
 
 func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.Problem, error) {
@@ -42,8 +42,8 @@ func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.P
 		problems = append(problems, &biz.Problem{
 			ID:    v.ID,
 			Title: v.Title,
-			Point: int32(v.Point),
-			Index: int32(v.Index),
+			Point: v.Point,
+			Index: v.Index,
 		})
 	}
 	return problems, nil
@@ -58,10 +58,10 @@ func (p problemRepo) GetProblem(ctx context.Context, problemID, contestID int64)
 		return nil, err
 	}
 	return &biz.Problem{
-		ID:      int64(po.ID),
+		ID:      po.ID,
 		Title:   po.Title,
 		Content: po.Content,
-		Index:   int32(po.Index),
+		Index:   po.Index,
 	}, nil
 }
 

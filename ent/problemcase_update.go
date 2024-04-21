@@ -113,6 +113,20 @@ func (pcu *ProblemCaseUpdate) SetNillableProblemID(i *int64) *ProblemCaseUpdate 
 	return pcu
 }
 
+// SetFileLocation sets the "file_location" field.
+func (pcu *ProblemCaseUpdate) SetFileLocation(s string) *ProblemCaseUpdate {
+	pcu.mutation.SetFileLocation(s)
+	return pcu
+}
+
+// SetNillableFileLocation sets the "file_location" field if the given value is not nil.
+func (pcu *ProblemCaseUpdate) SetNillableFileLocation(s *string) *ProblemCaseUpdate {
+	if s != nil {
+		pcu.SetFileLocation(*s)
+	}
+	return pcu
+}
+
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
 func (pcu *ProblemCaseUpdate) AddSubmitCaseIDs(ids ...int64) *ProblemCaseUpdate {
 	pcu.mutation.AddSubmitCaseIDs(ids...)
@@ -245,6 +259,9 @@ func (pcu *ProblemCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pcu.mutation.IsDeleted(); ok {
 		_spec.SetField(problemcase.FieldIsDeleted, field.TypeBool, value)
+	}
+	if value, ok := pcu.mutation.FileLocation(); ok {
+		_spec.SetField(problemcase.FieldFileLocation, field.TypeString, value)
 	}
 	if pcu.mutation.SubmitCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -424,6 +441,20 @@ func (pcuo *ProblemCaseUpdateOne) SetNillableProblemID(i *int64) *ProblemCaseUpd
 	return pcuo
 }
 
+// SetFileLocation sets the "file_location" field.
+func (pcuo *ProblemCaseUpdateOne) SetFileLocation(s string) *ProblemCaseUpdateOne {
+	pcuo.mutation.SetFileLocation(s)
+	return pcuo
+}
+
+// SetNillableFileLocation sets the "file_location" field if the given value is not nil.
+func (pcuo *ProblemCaseUpdateOne) SetNillableFileLocation(s *string) *ProblemCaseUpdateOne {
+	if s != nil {
+		pcuo.SetFileLocation(*s)
+	}
+	return pcuo
+}
+
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
 func (pcuo *ProblemCaseUpdateOne) AddSubmitCaseIDs(ids ...int64) *ProblemCaseUpdateOne {
 	pcuo.mutation.AddSubmitCaseIDs(ids...)
@@ -586,6 +617,9 @@ func (pcuo *ProblemCaseUpdateOne) sqlSave(ctx context.Context) (_node *ProblemCa
 	}
 	if value, ok := pcuo.mutation.IsDeleted(); ok {
 		_spec.SetField(problemcase.FieldIsDeleted, field.TypeBool, value)
+	}
+	if value, ok := pcuo.mutation.FileLocation(); ok {
+		_spec.SetField(problemcase.FieldFileLocation, field.TypeString, value)
 	}
 	if pcuo.mutation.SubmitCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{

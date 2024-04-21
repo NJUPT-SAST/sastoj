@@ -22,6 +22,8 @@ const (
 	FieldIsDeleted = "is_deleted"
 	// FieldProblemID holds the string denoting the problem_id field in the database.
 	FieldProblemID = "problem_id"
+	// FieldFileLocation holds the string denoting the file_location field in the database.
+	FieldFileLocation = "file_location"
 	// EdgeSubmitCases holds the string denoting the submit_cases edge name in mutations.
 	EdgeSubmitCases = "submit_cases"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
@@ -52,6 +54,7 @@ var Columns = []string{
 	FieldIsAuto,
 	FieldIsDeleted,
 	FieldProblemID,
+	FieldFileLocation,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -106,6 +109,11 @@ func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 // ByProblemID orders the results by the problem_id field.
 func ByProblemID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProblemID, opts...).ToFunc()
+}
+
+// ByFileLocation orders the results by the file_location field.
+func ByFileLocation(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFileLocation, opts...).ToFunc()
 }
 
 // BySubmitCasesCount orders the results by submit_cases count.

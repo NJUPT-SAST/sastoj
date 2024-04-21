@@ -37,12 +37,12 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 			ID:          v.ID,
 			Title:       v.Title,
 			Description: v.Description,
-			Status:      int32(v.Status),
-			Type:        int32(v.Type),
+			Status:      v.Status,
+			Type:        v.Type,
 			StartTime:   v.StartTime,
 			EndTime:     v.EndTime,
 			Language:    v.Language,
-			ExtraTime:   int32(v.ExtraTime),
+			ExtraTime:   v.ExtraTime,
 			CreateTime:  v.CreateTime,
 		})
 	}
@@ -51,23 +51,22 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 
 func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, isJoin bool) error {
 	const prefix = "user:contest:"
-	// TODO set dynamic expire time
 	if !isJoin {
 		return c.data.redis.Del(ctx, prefix+strconv.FormatInt(userID, 10)).Err()
 	}
-	//joinContest, err := c.data.db.Contest.Get(ctx, int(contestID))
-	//if err != nil {
-	//	return err
-	//}
-	//expireAt := joinContest.EndTime
-	err := c.data.redis.SetNX(ctx, prefix+strconv.FormatInt(userID, 10), isJoin, 2*time.Hour).Err()
+	joinContest, err := c.data.db.Contest.Get(ctx, contestID)
 	if err != nil {
 		return err
 	}
-	//err = c.data.redis.ExpireAt(ctx, prefix+strconv.FormatInt(userID, 10), expireAt).Err()
-	//if err != nil {
-	//	return err
-	//}
+	expireAt := joinContest.EndTime
+	err = c.data.redis.SetNX(ctx, prefix+strconv.FormatInt(userID, 10), isJoin, 2*time.Hour).Err()
+	if err != nil {
+		return err
+	}
+	err = c.data.redis.ExpireAt(ctx, prefix+strconv.FormatInt(userID, 10), expireAt).Err()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

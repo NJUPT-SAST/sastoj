@@ -9,14 +9,14 @@ type Problem struct {
 	ID      int64
 	Title   string
 	Content string
-	Point   int32
-	Index   int32
+	Point   int16
+	Index   int16
 }
 
 type ProblemRepo interface {
 	ListProblem(ctx context.Context, contestID int64) ([]*Problem, error)
 	GetProblem(ctx context.Context, problemID, contestID int64) (*Problem, error)
-	GetProblemCaseVer(ctx context.Context, problemId int64) (int32, error)
+	GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error)
 }
 
 type ProblemUsecase struct {
@@ -44,6 +44,6 @@ func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int64, probl
 	return problem, nil
 }
 
-func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int64) (int32, error) {
+func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	return uc.repo.GetProblemCaseVer(ctx, problemId)
 }

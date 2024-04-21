@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: sastoj/admin/case/service/v1/case.proto
+// source: api/sastoj/admin/case/service/v1/case.proto
 
 package v1
 
@@ -24,6 +24,7 @@ const (
 	CaseService_DeleteCasesByCaseIds_FullMethodName   = "/api.sastoj.admin.case.service.v1.CaseService/DeleteCasesByCaseIds"
 	CaseService_DeleteCasesByProblemId_FullMethodName = "/api.sastoj.admin.case.service.v1.CaseService/DeleteCasesByProblemId"
 	CaseService_GetCases_FullMethodName               = "/api.sastoj.admin.case.service.v1.CaseService/GetCases"
+	CaseService_UploadCases_FullMethodName            = "/api.sastoj.admin.case.service.v1.CaseService/UploadCases"
 )
 
 // CaseServiceClient is the client API for CaseService service.
@@ -35,6 +36,7 @@ type CaseServiceClient interface {
 	DeleteCasesByCaseIds(ctx context.Context, in *DeleteCaseByCaseIdsRequest, opts ...grpc.CallOption) (*DeleteCaseByCaseIdsReply, error)
 	DeleteCasesByProblemId(ctx context.Context, in *DeleteCasesByProblemIdRequest, opts ...grpc.CallOption) (*DeleteCasesByProblemIdReply, error)
 	GetCases(ctx context.Context, in *GetCasesRequest, opts ...grpc.CallOption) (*GetCasesReply, error)
+	UploadCases(ctx context.Context, opts ...grpc.CallOption) (CaseService_UploadCasesClient, error)
 }
 
 type caseServiceClient struct {
@@ -90,6 +92,40 @@ func (c *caseServiceClient) GetCases(ctx context.Context, in *GetCasesRequest, o
 	return out, nil
 }
 
+func (c *caseServiceClient) UploadCases(ctx context.Context, opts ...grpc.CallOption) (CaseService_UploadCasesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CaseService_ServiceDesc.Streams[0], CaseService_UploadCases_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &caseServiceUploadCasesClient{stream}
+	return x, nil
+}
+
+type CaseService_UploadCasesClient interface {
+	Send(*Chunk) error
+	CloseAndRecv() (*UploadCasesReply, error)
+	grpc.ClientStream
+}
+
+type caseServiceUploadCasesClient struct {
+	grpc.ClientStream
+}
+
+func (x *caseServiceUploadCasesClient) Send(m *Chunk) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *caseServiceUploadCasesClient) CloseAndRecv() (*UploadCasesReply, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(UploadCasesReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CaseServiceServer is the server API for CaseService service.
 // All implementations must embed UnimplementedCaseServiceServer
 // for forward compatibility
@@ -99,6 +135,7 @@ type CaseServiceServer interface {
 	DeleteCasesByCaseIds(context.Context, *DeleteCaseByCaseIdsRequest) (*DeleteCaseByCaseIdsReply, error)
 	DeleteCasesByProblemId(context.Context, *DeleteCasesByProblemIdRequest) (*DeleteCasesByProblemIdReply, error)
 	GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error)
+	UploadCases(CaseService_UploadCasesServer) error
 	mustEmbedUnimplementedCaseServiceServer()
 }
 
@@ -120,6 +157,9 @@ func (UnimplementedCaseServiceServer) DeleteCasesByProblemId(context.Context, *D
 }
 func (UnimplementedCaseServiceServer) GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCases not implemented")
+}
+func (UnimplementedCaseServiceServer) UploadCases(CaseService_UploadCasesServer) error {
+	return status.Errorf(codes.Unimplemented, "method UploadCases not implemented")
 }
 func (UnimplementedCaseServiceServer) mustEmbedUnimplementedCaseServiceServer() {}
 
@@ -224,6 +264,32 @@ func _CaseService_GetCases_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CaseService_UploadCases_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CaseServiceServer).UploadCases(&caseServiceUploadCasesServer{stream})
+}
+
+type CaseService_UploadCasesServer interface {
+	SendAndClose(*UploadCasesReply) error
+	Recv() (*Chunk, error)
+	grpc.ServerStream
+}
+
+type caseServiceUploadCasesServer struct {
+	grpc.ServerStream
+}
+
+func (x *caseServiceUploadCasesServer) SendAndClose(m *UploadCasesReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *caseServiceUploadCasesServer) Recv() (*Chunk, error) {
+	m := new(Chunk)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CaseService_ServiceDesc is the grpc.ServiceDesc for CaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -252,6 +318,12 @@ var CaseService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CaseService_GetCases_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/admin/case/service/v1/case.proto",
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "UploadCases",
+			Handler:       _CaseService_UploadCases_Handler,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "api/sastoj/admin/case/service/v1/case.proto",
 }
