@@ -2,29 +2,115 @@ syntax = "proto3";
 
 package api.sastoj.admin.contest;
 
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "sastoj/api/sastoj/admin/contest;contest";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.contest";
 
 service Contest {
-	rpc CreateContest (CreateContestRequest) returns (CreateContestReply);
-	rpc UpdateContest (UpdateContestRequest) returns (UpdateContestReply);
-	rpc DeleteContest (DeleteContestRequest) returns (DeleteContestReply);
-	rpc GetContest (GetContestRequest) returns (GetContestReply);
-	rpc ListContest (ListContestRequest) returns (ListContestReply);
+	rpc CreateContest (CreateContestRequest) returns (CreateContestReply){
+		option (google.api.http) = {
+			post: "/contest"
+			body: "*"
+		};
+	}
+	rpc UpdateContest (UpdateContestRequest) returns (UpdateContestReply){
+		option (google.api.http) = {
+			put: "/contest"
+			body: "*"
+		};
+	}
+	rpc DeleteContest (DeleteContestRequest) returns (DeleteContestReply){
+		option (google.api.http) = {
+			delete: "/contest/{id}"
+		};
+	}
+	rpc GetContest (GetContestRequest) returns (GetContestReply){
+		option (google.api.http) = {
+			get: "/contest/{id}"
+		};
+	}
+	rpc ListContest (ListContestRequest) returns (ListContestReply){
+		option (google.api.http) = {
+			get: "/contest"
+		};
+
+	}
 }
 
-message CreateContestRequest {}
-message CreateContestReply {}
+message CreateContestRequest {
+	string title = 1;
+	string description = 2;
+	int32 status = 3;
+	int32 type = 4;
+	google.protobuf.Timestamp start_time = 5;
+	google.protobuf.Timestamp end_time = 6;
+	string language = 7;
+	int32 extra_time = 8;
+	google.protobuf.Timestamp create_time = 9;
 
-message UpdateContestRequest {}
-message UpdateContestReply {}
+}
+message CreateContestReply {
+	int64 id = 1;
+}
 
-message DeleteContestRequest {}
-message DeleteContestReply {}
+message UpdateContestRequest {
+	int64 id = 1;
+	string title = 2;
+	string description = 3;
+	int32 status = 4;
+	int32 type = 5;
+	google.protobuf.Timestamp start_time = 6;
+	google.protobuf.Timestamp end_time = 7;
+	string language = 8;
+	int32 extra_time = 9;
+	google.protobuf.Timestamp create_time = 10;
+}
+message UpdateContestReply {
+	bool success = 1;
+}
 
-message GetContestRequest {}
-message GetContestReply {}
+message DeleteContestRequest {
+	int64 id = 1;
+}
+message DeleteContestReply {
+	bool success = 1;
+}
 
-message ListContestRequest {}
-message ListContestReply {}
+message GetContestRequest {
+	int64 id = 1;
+}
+message GetContestReply {
+	int64 id = 1;
+	string title = 2;
+	string description = 3;
+	int32 status = 4;
+	int32 type = 5;
+	google.protobuf.Timestamp start_time = 6;
+	google.protobuf.Timestamp end_time = 7;
+	string language = 8;
+	int32 extra_time = 9;
+	google.protobuf.Timestamp create_time = 10;
+}
+
+message ListContestRequest {
+	int64 size = 1;
+	int64 current = 2;
+}
+message ListContestReply {
+	message Contest{
+		int64 id = 1;
+		string title = 2;
+		string description = 3;
+		int32 status = 4;
+		int32 type = 5;
+		google.protobuf.Timestamp start_time = 6;
+		google.protobuf.Timestamp end_time = 7;
+		string language = 8;
+		int32 extra_time = 9;
+		google.protobuf.Timestamp create_time = 10;
+	}
+	repeated Contest contests = 1;
+}
