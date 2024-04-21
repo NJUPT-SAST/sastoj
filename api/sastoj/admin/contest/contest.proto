@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api.sastoj.admin.contest;
+
+option go_package = "sastoj/api/sastoj/admin/contest;contest";
+option java_multiple_files = true;
+option java_package = "api.sastoj.admin.contest";
+
+service Contest {
+	rpc CreateContest (CreateContestRequest) returns (CreateContestReply);
+	rpc UpdateContest (UpdateContestRequest) returns (UpdateContestReply);
+	rpc DeleteContest (DeleteContestRequest) returns (DeleteContestReply);
+	rpc GetContest (GetContestRequest) returns (GetContestReply);
+	rpc ListContest (ListContestRequest) returns (ListContestReply);
+}
+
+message CreateContestRequest {}
+message CreateContestReply {}
+
+message UpdateContestRequest {}
+message UpdateContestReply {}
+
+message DeleteContestRequest {}
+message DeleteContestReply {}
+
+message GetContestRequest {}
+message GetContestReply {}
+
+message ListContestRequest {}
+message ListContestReply {}
