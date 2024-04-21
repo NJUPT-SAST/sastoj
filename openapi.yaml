@@ -3,68 +3,72 @@
 
 openapi: 3.0.3
 info:
-    title: User API
+    title: Judge API
     version: 0.0.1
 paths:
-    /user:
+    /judge:
         get:
             tags:
-                - User
-            operationId: User_ListUser
-            parameters:
-                - name: size
-                  in: query
-                  schema:
-                    type: string
-                - name: current
-                  in: query
-                  schema:
-                    type: string
+                - Judge
+            operationId: Judge_GetJudgableProblems
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListUserReply'
+                                $ref: '#/components/schemas/GetJudgableProblemsReply'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-        put:
+    /judge/{problemId}:
+        get:
             tags:
-                - User
-            operationId: User_UpdateUser
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateUserRequest'
-                required: true
+                - Judge
+            operationId: Judge_GetSubmissions
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UpdateUserReply'
+                                $ref: '#/components/schemas/GetSubmissionsReply'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /judge/{submitId}:
         post:
             tags:
-                - User
-            operationId: User_CreateUser
+                - Judge
+            operationId: Judge_SubmitJudge
+            parameters:
+                - name: submitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateUserRequest'
+                            $ref: '#/components/schemas/SubmitJudgeRequest'
                 required: true
             responses:
                 "200":
@@ -72,54 +76,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateUserReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /user/{id}:
-        get:
-            tags:
-                - User
-            operationId: User_GetUser
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetUserReply'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        delete:
-            tags:
-                - User
-            operationId: User_DeleteUser
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/DeleteUserReply'
+                                $ref: '#/components/schemas/SubmitJudgeReply'
                 default:
                     description: Default error response
                     content:
@@ -128,32 +85,20 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        CreateUserReply:
+        GetJudgableProblemsReply:
             type: object
             properties:
-                id:
-                    type: string
-        CreateUserRequest:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Problem'
+        GetSubmissionsReply:
             type: object
             properties:
-                username:
-                    type: string
-                password:
-                    type: string
-                groupId:
-                    type: string
-        DeleteUserReply:
-            type: object
-            properties:
-                success:
-                    type: boolean
-        GetUserReply:
-            type: object
-            properties:
-                id:
-                    type: string
-                username:
-                    type: string
+                submissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Submission'
         GoogleProtobufAny:
             type: object
             properties:
@@ -162,19 +107,27 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        ListUserReply:
-            type: object
-            properties:
-                users:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ListUserReply_User'
-        ListUserReply_User:
+        Problem:
             type: object
             properties:
                 id:
                     type: string
-                username:
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
                     type: string
         Status:
             type: object
@@ -192,22 +145,32 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        UpdateUserReply:
-            type: object
-            properties:
-                success:
-                    type: boolean
-        UpdateUserRequest:
+        Submission:
             type: object
             properties:
                 id:
                     type: string
-                username:
-                    type: string
-                password:
+                code:
                     type: string
                 status:
                     type: integer
                     format: int32
+                point:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        SubmitJudgeReply:
+            type: object
+            properties: {}
+        SubmitJudgeRequest:
+            type: object
+            properties:
+                submitId:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
 tags:
-    - name: User
+    - name: Judge

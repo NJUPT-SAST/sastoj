@@ -27,6 +27,8 @@ type ProblemCase struct {
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// ProblemID holds the value of the "problem_id" field.
 	ProblemID int64 `json:"problem_id,omitempty"`
+	// FileLocation holds the value of the "file_location" field.
+	FileLocation string `json:"file_location,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemCaseQuery when eager-loading is set.
 	Edges        ProblemCaseEdges `json:"edges"`
@@ -75,6 +77,8 @@ func (*ProblemCase) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case problemcase.FieldID, problemcase.FieldPoint, problemcase.FieldIndex, problemcase.FieldProblemID:
 			values[i] = new(sql.NullInt64)
+		case problemcase.FieldFileLocation:
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -125,6 +129,12 @@ func (pc *ProblemCase) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field problem_id", values[i])
 			} else if value.Valid {
 				pc.ProblemID = value.Int64
+			}
+		case problemcase.FieldFileLocation:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field file_location", values[i])
+			} else if value.Valid {
+				pc.FileLocation = value.String
 			}
 		default:
 			pc.selectValues.Set(columns[i], values[i])
@@ -186,6 +196,9 @@ func (pc *ProblemCase) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("problem_id=")
 	builder.WriteString(fmt.Sprintf("%v", pc.ProblemID))
+	builder.WriteString(", ")
+	builder.WriteString("file_location=")
+	builder.WriteString(pc.FileLocation)
 	builder.WriteByte(')')
 	return builder.String()
 }

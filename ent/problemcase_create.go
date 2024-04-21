@@ -67,6 +67,12 @@ func (pcc *ProblemCaseCreate) SetProblemID(i int64) *ProblemCaseCreate {
 	return pcc
 }
 
+// SetFileLocation sets the "file_location" field.
+func (pcc *ProblemCaseCreate) SetFileLocation(s string) *ProblemCaseCreate {
+	pcc.mutation.SetFileLocation(s)
+	return pcc
+}
+
 // SetID sets the "id" field.
 func (pcc *ProblemCaseCreate) SetID(i int64) *ProblemCaseCreate {
 	pcc.mutation.SetID(i)
@@ -171,6 +177,9 @@ func (pcc *ProblemCaseCreate) check() error {
 	if _, ok := pcc.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "ProblemCase.problem_id"`)}
 	}
+	if _, ok := pcc.mutation.FileLocation(); !ok {
+		return &ValidationError{Name: "file_location", err: errors.New(`ent: missing required field "ProblemCase.file_location"`)}
+	}
 	if _, ok := pcc.mutation.ProblemsID(); !ok {
 		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "ProblemCase.problems"`)}
 	}
@@ -221,6 +230,10 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 	if value, ok := pcc.mutation.IsDeleted(); ok {
 		_spec.SetField(problemcase.FieldIsDeleted, field.TypeBool, value)
 		_node.IsDeleted = value
+	}
+	if value, ok := pcc.mutation.FileLocation(); ok {
+		_spec.SetField(problemcase.FieldFileLocation, field.TypeString, value)
+		_node.FileLocation = value
 	}
 	if nodes := pcc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
