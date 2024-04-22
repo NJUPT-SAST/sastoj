@@ -27,6 +27,7 @@ func (r *ProblemRepo) Save(ctx context.Context, g *biz.Problem) (*biz.Problem, e
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetPoint(int16(g.Point)).
+		SetContestsID(g.ContestId).
 		//SetContestID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
