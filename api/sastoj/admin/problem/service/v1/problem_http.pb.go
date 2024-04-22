@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.3
 // - protoc             v5.26.1
-// source: api/sastoj/admin/problem/service/v1/problem.proto
+// source: sastoj/admin/problem/service/v1/problem.proto
 
 package problem
 
