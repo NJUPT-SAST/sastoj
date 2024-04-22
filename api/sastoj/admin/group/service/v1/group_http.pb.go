@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.3
 // - protoc             v5.26.1
-// source: group.proto
+// source: sastoj/admin/group/service/v1/group.proto
 
 package v1
 
