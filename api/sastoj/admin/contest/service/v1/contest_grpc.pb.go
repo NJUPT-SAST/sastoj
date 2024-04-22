@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: sastoj/admin/contest/contest.proto
+// source: sastoj/admin/contest/service/v1/contest.proto
 
-package v1
+package contest
 
 import (
 	context "context"
@@ -253,5 +253,5 @@ var Contest_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/admin/contest/contest.proto",
+	Metadata: "sastoj/admin/contest/service/v1/contest.proto",
 }

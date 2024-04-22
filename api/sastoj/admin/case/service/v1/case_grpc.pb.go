@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: api/sastoj/admin/case/service/v1/case.proto
+// source: sastoj/admin/case/service/v1/case.proto
 
 package v1
 
@@ -325,5 +325,5 @@ var CaseService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "api/sastoj/admin/case/service/v1/case.proto",
+	Metadata: "sastoj/admin/case/service/v1/case.proto",
 }

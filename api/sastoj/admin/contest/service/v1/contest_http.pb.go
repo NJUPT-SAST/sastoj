@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-http v2.7.3
 // - protoc             v5.26.1
-// source: sastoj/admin/contest/contest.proto
+// source: sastoj/admin/contest/service/v1/contest.proto
 
-package v1
+package contest
 
 import (
 	context "context"
