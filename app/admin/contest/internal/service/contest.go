@@ -38,6 +38,7 @@ func (s *ContestService) CreateContest(ctx context.Context, req *v1.CreateContes
 }
 func (s *ContestService) UpdateContest(ctx context.Context, req *v1.UpdateContestRequest) (*v1.UpdateContestReply, error) {
 	err := s.cs.UpdateContest(ctx, &biz.Contest{
+		Id:          req.Id,
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      req.Status,
