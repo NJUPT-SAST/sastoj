@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package api.sastoj.admin.judger.service.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "sastoj//api/sastoj/admin/judger/service/v1;v1";
+option java_multiple_files = true;
+option java_package = ".api.sastoj.admin.judger.service.v1";
+
+service Judger {
+	rpc UpdateJudger (UpdateJudgerRequest) returns (UpdateJudgerReply){
+		option (google.api.http) = {
+			post: "/judger/{problem_id}"
+			body: "*"
+		};
+	}
+	rpc GetJudger (GetJudgerRequest) returns (GetJudgerReply){
+		option (google.api.http) = {
+			get: "/judger/{problem_id}"
+		};
+
+	}
+}
+
+message UpdateJudgerRequest {
+	int64 problem_id = 1;
+	repeated int64 judger_group_ids = 2;
+}
+message UpdateJudgerReply {
+	message Group {
+		int64 id = 1;
+		string name = 2;
+	}
+	repeated Group groups = 1;
+}
+
+
+message GetJudgerRequest {
+	string problem_id = 1;
+}
+message GetJudgerReply {
+	message Group {
+		int64 id = 1;
+		string name = 2;
+	}
+	repeated Group groups = 1;
+}
+
+

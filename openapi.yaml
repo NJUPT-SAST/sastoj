@@ -363,6 +363,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.SubmitJudgeReply'
+    /judger/{problemId}:
+        get:
+            tags:
+                - Judger
+            operationId: Judger_GetJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply'
+        post:
+            tags:
+                - Judger
+            operationId: Judger_UpdateJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply'
     /problem:
         put:
             tags:
@@ -1053,6 +1094,43 @@ components:
                 point:
                     type: integer
                     format: int32
+        api.sastoj.admin.judger.service.v1.GetJudgerReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply_Group'
+        api.sastoj.admin.judger.service.v1.GetJudgerReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.judger.service.v1.UpdateJudgerReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply_Group'
+        api.sastoj.admin.judger.service.v1.UpdateJudgerReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.judger.service.v1.UpdateJudgerRequest:
+            type: object
+            properties:
+                problemId:
+                    type: string
+                judgerGroupIds:
+                    type: array
+                    items:
+                        type: string
         api.sastoj.admin.problem.CreateProblemReply:
             type: object
             properties:
@@ -1386,5 +1464,6 @@ tags:
     - name: ContestService
     - name: Group
     - name: Judge
+    - name: Judger
     - name: Problem
     - name: User
