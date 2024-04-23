@@ -1,6 +1,7 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
+PROJECTS=case group judge problem user contest
 
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
@@ -68,6 +69,11 @@ all:
 db:
 	go generate ./ent/
 	go run ./test/generatedb/main.go
+
+.PHONY: docker
+# build docker image
+docker:
+	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj_$(T):$(VERSION) . ;)
 
 # show help
 help:
