@@ -101,7 +101,7 @@ service Submission {
 			body: "*"
 		};
 	};
-  rpc GetSubmissions (GetSubmissionRequest) returns (GetSubmissionReply) {
+  rpc GetSubmission (GetSubmissionRequest) returns (GetSubmissionReply) {
 		option (google.api.http) = {
 			get: "/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
 		};
@@ -140,7 +140,7 @@ message GetSubmissionRequest {
 	int64 submission_id = 3;
 }
 message GetSubmissionReply {
-	int64 uuid = 1;
+	string uuid = 1;
 	string code = 2;
 	string language = 3;
 	int32 point = 4;
@@ -161,4 +161,5 @@ message ListRankingReply {
 		int32 score = 3;
 		int32 rank = 4;
 	}
+	repeated User users = 1;
 }

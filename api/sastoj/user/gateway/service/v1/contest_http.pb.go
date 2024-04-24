@@ -29,11 +29,11 @@ type ContestHTTPServer interface {
 
 func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r := s.Route("/")
-	r.GET("/contests", _Contest_GetContests0_HTTP_Handler(srv))
+	r.GET("/contests", _Contest_GetContests1_HTTP_Handler(srv))
 	r.POST("/contests/{contest_id}", _Contest_JoinContest1_HTTP_Handler(srv))
 }
 
-func _Contest_GetContests0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
+func _Contest_GetContests1_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetContestsRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -213,13 +213,13 @@ func (c *ProblemHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblems
 	return &out, err
 }
 
-const OperationSubmissionGetSubmissions = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmissions"
+const OperationSubmissionGetSubmission = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmission"
 const OperationSubmissionListRanking = "/api.sastoj.user.gateway.service.v1.Submission/ListRanking"
 const OperationSubmissionSelfTest = "/api.sastoj.user.gateway.service.v1.Submission/SelfTest"
 const OperationSubmissionSubmit = "/api.sastoj.user.gateway.service.v1.Submission/Submit"
 
 type SubmissionHTTPServer interface {
-	GetSubmissions(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
+	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
 	Submit(context.Context, *SubmitRequest) (*SubmitReply, error)
@@ -227,13 +227,13 @@ type SubmissionHTTPServer interface {
 
 func RegisterSubmissionHTTPServer(s *http.Server, srv SubmissionHTTPServer) {
 	r := s.Route("/")
-	r.POST("/contests/{contest_id}/problems/{problem_id}/submission", _Submission_Submit0_HTTP_Handler(srv))
-	r.POST("/contests/{contest_id}/problems/{problem_id}/test", _Submission_SelfTest0_HTTP_Handler(srv))
-	r.GET("/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Submission_GetSubmissions0_HTTP_Handler(srv))
-	r.GET("/contests/{contest_id}/ranking", _Submission_ListRanking0_HTTP_Handler(srv))
+	r.POST("/contests/{contest_id}/problems/{problem_id}/submission", _Submission_Submit1_HTTP_Handler(srv))
+	r.POST("/contests/{contest_id}/problems/{problem_id}/test", _Submission_SelfTest1_HTTP_Handler(srv))
+	r.GET("/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Submission_GetSubmission1_HTTP_Handler(srv))
+	r.GET("/contests/{contest_id}/ranking", _Submission_ListRanking1_HTTP_Handler(srv))
 }
 
-func _Submission_Submit0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
+func _Submission_Submit1_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SubmitRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -258,7 +258,7 @@ func _Submission_Submit0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Co
 	}
 }
 
-func _Submission_SelfTest0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
+func _Submission_SelfTest1_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SelfTestRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -283,7 +283,7 @@ func _Submission_SelfTest0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.
 	}
 }
 
-func _Submission_GetSubmissions0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
+func _Submission_GetSubmission1_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetSubmissionRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -292,9 +292,9 @@ func _Submission_GetSubmissions0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationSubmissionGetSubmissions)
+		http.SetOperation(ctx, OperationSubmissionGetSubmission)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetSubmissions(ctx, req.(*GetSubmissionRequest))
+			return srv.GetSubmission(ctx, req.(*GetSubmissionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -305,7 +305,7 @@ func _Submission_GetSubmissions0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx
 	}
 }
 
-func _Submission_ListRanking0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
+func _Submission_ListRanking1_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ListRankingRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -328,7 +328,7 @@ func _Submission_ListRanking0_HTTP_Handler(srv SubmissionHTTPServer) func(ctx ht
 }
 
 type SubmissionHTTPClient interface {
-	GetSubmissions(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
+	GetSubmission(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
 	ListRanking(ctx context.Context, req *ListRankingRequest, opts ...http.CallOption) (rsp *ListRankingReply, err error)
 	SelfTest(ctx context.Context, req *SelfTestRequest, opts ...http.CallOption) (rsp *SelfTestReply, err error)
 	Submit(ctx context.Context, req *SubmitRequest, opts ...http.CallOption) (rsp *SubmitReply, err error)
@@ -342,11 +342,11 @@ func NewSubmissionHTTPClient(client *http.Client) SubmissionHTTPClient {
 	return &SubmissionHTTPClientImpl{client}
 }
 
-func (c *SubmissionHTTPClientImpl) GetSubmissions(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
+func (c *SubmissionHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
 	var out GetSubmissionReply
 	pattern := "/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationSubmissionGetSubmissions))
+	opts = append(opts, http.Operation(OperationSubmissionGetSubmission))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -273,10 +273,10 @@ var Problem_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Submission_Submit_FullMethodName         = "/api.sastoj.user.gateway.service.v1.Submission/Submit"
-	Submission_SelfTest_FullMethodName       = "/api.sastoj.user.gateway.service.v1.Submission/SelfTest"
-	Submission_GetSubmissions_FullMethodName = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmissions"
-	Submission_ListRanking_FullMethodName    = "/api.sastoj.user.gateway.service.v1.Submission/ListRanking"
+	Submission_Submit_FullMethodName        = "/api.sastoj.user.gateway.service.v1.Submission/Submit"
+	Submission_SelfTest_FullMethodName      = "/api.sastoj.user.gateway.service.v1.Submission/SelfTest"
+	Submission_GetSubmission_FullMethodName = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmission"
+	Submission_ListRanking_FullMethodName   = "/api.sastoj.user.gateway.service.v1.Submission/ListRanking"
 )
 
 // SubmissionClient is the client API for Submission service.
@@ -285,7 +285,7 @@ const (
 type SubmissionClient interface {
 	Submit(ctx context.Context, in *SubmitRequest, opts ...grpc.CallOption) (*SubmitReply, error)
 	SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error)
-	GetSubmissions(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
+	GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
 	ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error)
 }
 
@@ -315,9 +315,9 @@ func (c *submissionClient) SelfTest(ctx context.Context, in *SelfTestRequest, op
 	return out, nil
 }
 
-func (c *submissionClient) GetSubmissions(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error) {
+func (c *submissionClient) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error) {
 	out := new(GetSubmissionReply)
-	err := c.cc.Invoke(ctx, Submission_GetSubmissions_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Submission_GetSubmission_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +339,7 @@ func (c *submissionClient) ListRanking(ctx context.Context, in *ListRankingReque
 type SubmissionServer interface {
 	Submit(context.Context, *SubmitRequest) (*SubmitReply, error)
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
-	GetSubmissions(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
+	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
 	mustEmbedUnimplementedSubmissionServer()
 }
@@ -354,8 +354,8 @@ func (UnimplementedSubmissionServer) Submit(context.Context, *SubmitRequest) (*S
 func (UnimplementedSubmissionServer) SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelfTest not implemented")
 }
-func (UnimplementedSubmissionServer) GetSubmissions(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSubmissions not implemented")
+func (UnimplementedSubmissionServer) GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubmission not implemented")
 }
 func (UnimplementedSubmissionServer) ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRanking not implemented")
@@ -409,20 +409,20 @@ func _Submission_SelfTest_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Submission_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Submission_GetSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSubmissionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SubmissionServer).GetSubmissions(ctx, in)
+		return srv.(SubmissionServer).GetSubmission(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Submission_GetSubmissions_FullMethodName,
+		FullMethod: Submission_GetSubmission_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SubmissionServer).GetSubmissions(ctx, req.(*GetSubmissionRequest))
+		return srv.(SubmissionServer).GetSubmission(ctx, req.(*GetSubmissionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -461,8 +461,8 @@ var Submission_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Submission_SelfTest_Handler,
 		},
 		{
-			MethodName: "GetSubmissions",
-			Handler:    _Submission_GetSubmissions_Handler,
+			MethodName: "GetSubmission",
+			Handler:    _Submission_GetSubmission_Handler,
 		},
 		{
 			MethodName: "ListRanking",
