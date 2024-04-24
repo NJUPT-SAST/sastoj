@@ -28,13 +28,8 @@ message UpdateJudgerRequest {
 	repeated int64 judger_group_ids = 2;
 }
 message UpdateJudgerReply {
-	message Group {
-		int64 id = 1;
-		string name = 2;
-	}
-	repeated Group groups = 1;
+	bool success = 1;
 }
-
 
 message GetJudgerRequest {
 	string problem_id = 1;
