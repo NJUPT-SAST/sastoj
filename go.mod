@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	entgo.io/ent v0.12.5
-	github.com/go-kratos/kratos/v2 v2.7.0
+	github.com/go-kratos/kratos/v2 v2.7.3
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.6.0
 	github.com/lib/pq v1.10.9
@@ -14,7 +14,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/automaxprocs v1.5.1
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
-	google.golang.org/grpc v1.56.1
+	google.golang.org/grpc v1.56.3
 	google.golang.org/protobuf v1.33.0
 )
 
@@ -33,7 +33,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
-	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect

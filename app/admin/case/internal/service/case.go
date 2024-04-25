@@ -65,3 +65,7 @@ func (s *CaseService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*p
 	}
 	return reply, err
 }
+func (s *CaseService) UploadCases(conn pb.CaseService_UploadCasesServer) error {
+
+	return nil
+}

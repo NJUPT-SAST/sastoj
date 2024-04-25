@@ -6,14 +6,14 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 )
 
-func (s *UserContestService) ListContest(ctx context.Context, _ *pb.ListContestRequest) (*pb.ListContestReply, error) {
+func (s *UserContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
 	// TODO: Get the userID from context
-	userId := 1
+	userId := 0
 	rv, err := s.contestUc.ListContest(ctx, int64(userId))
 	if err != nil {
 		return nil, err
 	}
-	reply := &pb.ListContestReply{}
+	reply := &pb.GetContestsReply{}
 	for _, p := range rv {
 		reply.Contests = append(reply.Contests, &pb.Contest{
 			Id:          p.ID,
@@ -39,6 +39,6 @@ func (s *UserContestService) JoinContest(ctx context.Context, req *pb.JoinContes
 	}, nil
 }
 
-func (s *UserContestService) GetRanking(ctx context.Context, req *pb.GetRankingRequest) (*pb.GetRankingReply, error) {
-	return &pb.GetRankingReply{}, nil
+func (s *UserContestService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
+	return &pb.ListRankingReply{}, nil
 }
