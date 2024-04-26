@@ -1111,17 +1111,8 @@ components:
         api.sastoj.admin.judger.service.v1.UpdateJudgerReply:
             type: object
             properties:
-                groups:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply_Group'
-        api.sastoj.admin.judger.service.v1.UpdateJudgerReply_Group:
-            type: object
-            properties:
-                id:
-                    type: string
-                name:
-                    type: string
+                success:
+                    type: boolean
         api.sastoj.admin.judger.service.v1.UpdateJudgerRequest:
             type: object
             properties:

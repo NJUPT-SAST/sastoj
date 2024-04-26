@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "sastoj/app/admin/judger/api/helloworld/v1"
+	v1 "sastoj/api/sastoj/admin/judger/service/v1"
 	"sastoj/app/admin/judger/internal/conf"
 	"sastoj/app/admin/judger/internal/service"
 
@@ -11,7 +11,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.JudgerService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -27,6 +27,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterGreeterHTTPServer(srv, greeter)
+	v1.RegisterJudgerHTTPServer(srv, greeter)
 	return srv
 }

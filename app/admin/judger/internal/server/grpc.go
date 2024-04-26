@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "sastoj/app/admin/judger/api/helloworld/v1"
+	v1 "sastoj/api/sastoj/admin/judger/service/v1"
 	"sastoj/app/admin/judger/internal/conf"
 	"sastoj/app/admin/judger/internal/service"
 
@@ -11,7 +11,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.JudgerService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -27,6 +27,6 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1.RegisterGreeterServer(srv, greeter)
+	v1.RegisterJudgerServer(srv, greeter)
 	return srv
 }

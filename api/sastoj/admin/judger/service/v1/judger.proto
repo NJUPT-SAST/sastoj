@@ -32,7 +32,7 @@ message UpdateJudgerReply {
 }
 
 message GetJudgerRequest {
-	string problem_id = 1;
+	int64 problem_id = 1;
 }
 message GetJudgerReply {
 	message Group {
