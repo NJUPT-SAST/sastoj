@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationUserBatchCreateUser = "/api.sastoj.admin.user.service.v1.User/BatchCreateUser"
 const OperationUserCreateUser = "/api.sastoj.admin.user.service.v1.User/CreateUser"
 const OperationUserDeleteUser = "/api.sastoj.admin.user.service.v1.User/DeleteUser"
 const OperationUserGetUser = "/api.sastoj.admin.user.service.v1.User/GetUser"
@@ -26,6 +27,7 @@ const OperationUserListUser = "/api.sastoj.admin.user.service.v1.User/ListUser"
 const OperationUserUpdateUser = "/api.sastoj.admin.user.service.v1.User/UpdateUser"
 
 type UserHTTPServer interface {
+	BatchCreateUser(context.Context, *BatchCreateUserRequest) (*BatchCreateUserReply, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserReply, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
@@ -36,6 +38,7 @@ type UserHTTPServer interface {
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/user", _User_CreateUser0_HTTP_Handler(srv))
+	r.POST("/users", _User_BatchCreateUser0_HTTP_Handler(srv))
 	r.PUT("/user", _User_UpdateUser0_HTTP_Handler(srv))
 	r.DELETE("/user/{id}", _User_DeleteUser0_HTTP_Handler(srv))
 	r.GET("/user/{id}", _User_GetUser0_HTTP_Handler(srv))
@@ -60,6 +63,28 @@ func _User_CreateUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) e
 			return err
 		}
 		reply := out.(*CreateUserReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_BatchCreateUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BatchCreateUserRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserBatchCreateUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BatchCreateUser(ctx, req.(*BatchCreateUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BatchCreateUserReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -150,6 +175,7 @@ func _User_ListUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) err
 }
 
 type UserHTTPClient interface {
+	BatchCreateUser(ctx context.Context, req *BatchCreateUserRequest, opts ...http.CallOption) (rsp *BatchCreateUserReply, err error)
 	CreateUser(ctx context.Context, req *CreateUserRequest, opts ...http.CallOption) (rsp *CreateUserReply, err error)
 	DeleteUser(ctx context.Context, req *DeleteUserRequest, opts ...http.CallOption) (rsp *DeleteUserReply, err error)
 	GetUser(ctx context.Context, req *GetUserRequest, opts ...http.CallOption) (rsp *GetUserReply, err error)
@@ -163,6 +189,19 @@ type UserHTTPClientImpl struct {
 
 func NewUserHTTPClient(client *http.Client) UserHTTPClient {
 	return &UserHTTPClientImpl{client}
+}
+
+func (c *UserHTTPClientImpl) BatchCreateUser(ctx context.Context, in *BatchCreateUserRequest, opts ...http.CallOption) (*BatchCreateUserReply, error) {
+	var out BatchCreateUserReply
+	pattern := "/users"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserBatchCreateUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *UserHTTPClientImpl) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...http.CallOption) (*CreateUserReply, error) {

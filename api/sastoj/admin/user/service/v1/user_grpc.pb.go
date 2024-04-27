@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_CreateUser_FullMethodName = "/api.sastoj.admin.user.service.v1.User/CreateUser"
-	User_UpdateUser_FullMethodName = "/api.sastoj.admin.user.service.v1.User/UpdateUser"
-	User_DeleteUser_FullMethodName = "/api.sastoj.admin.user.service.v1.User/DeleteUser"
-	User_GetUser_FullMethodName    = "/api.sastoj.admin.user.service.v1.User/GetUser"
-	User_ListUser_FullMethodName   = "/api.sastoj.admin.user.service.v1.User/ListUser"
+	User_CreateUser_FullMethodName      = "/api.sastoj.admin.user.service.v1.User/CreateUser"
+	User_BatchCreateUser_FullMethodName = "/api.sastoj.admin.user.service.v1.User/BatchCreateUser"
+	User_UpdateUser_FullMethodName      = "/api.sastoj.admin.user.service.v1.User/UpdateUser"
+	User_DeleteUser_FullMethodName      = "/api.sastoj.admin.user.service.v1.User/DeleteUser"
+	User_GetUser_FullMethodName         = "/api.sastoj.admin.user.service.v1.User/GetUser"
+	User_ListUser_FullMethodName        = "/api.sastoj.admin.user.service.v1.User/ListUser"
 )
 
 // UserClient is the client API for User service.
@@ -31,6 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserReply, error)
+	BatchCreateUser(ctx context.Context, in *BatchCreateUserRequest, opts ...grpc.CallOption) (*BatchCreateUserReply, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserReply, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserReply, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
@@ -48,6 +50,15 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 func (c *userClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserReply, error) {
 	out := new(CreateUserReply)
 	err := c.cc.Invoke(ctx, User_CreateUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) BatchCreateUser(ctx context.Context, in *BatchCreateUserRequest, opts ...grpc.CallOption) (*BatchCreateUserReply, error) {
+	out := new(BatchCreateUserReply)
+	err := c.cc.Invoke(ctx, User_BatchCreateUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +106,7 @@ func (c *userClient) ListUser(ctx context.Context, in *ListUserRequest, opts ...
 // for forward compatibility
 type UserServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserReply, error)
+	BatchCreateUser(context.Context, *BatchCreateUserRequest) (*BatchCreateUserReply, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserReply, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
@@ -108,6 +120,9 @@ type UnimplementedUserServer struct {
 
 func (UnimplementedUserServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUserServer) BatchCreateUser(context.Context, *BatchCreateUserRequest) (*BatchCreateUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchCreateUser not implemented")
 }
 func (UnimplementedUserServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
@@ -148,6 +163,24 @@ func _User_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).CreateUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_BatchCreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchCreateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).BatchCreateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_BatchCreateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).BatchCreateUser(ctx, req.(*BatchCreateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -234,6 +267,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _User_CreateUser_Handler,
+		},
+		{
+			MethodName: "BatchCreateUser",
+			Handler:    _User_BatchCreateUser_Handler,
 		},
 		{
 			MethodName: "UpdateUser",
