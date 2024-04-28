@@ -16,12 +16,12 @@ type submitRepo struct {
 
 func (s submitRepo) CreatePretest(ctx context.Context, p *biz.Pretest) error {
 	q, err := s.data.ch.QueueDeclare(
-		"pretest", // name
-		false,     // durable
-		false,     // delete when unused
-		false,     // exclusive
-		false,     // no-wait
-		nil,       // arguments
+		"self-test", // name
+		false,       // durable
+		false,       // delete when unused
+		false,       // exclusive
+		false,       // no-wait
+		nil,         // arguments
 	)
 	if err != nil {
 		return err
@@ -83,12 +83,12 @@ func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64
 		return 0, err
 	}
 	q, err := s.data.ch.QueueDeclare(
-		"submit", // name
-		false,    // durable
-		false,    // delete when unused
-		false,    // exclusive
-		false,    // no-wait
-		nil,      // arguments
+		"submission", // name
+		false,        // durable
+		false,        // delete when unused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
 	)
 	if err != nil {
 		return 0, err
