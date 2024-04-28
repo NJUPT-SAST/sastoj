@@ -25,6 +25,7 @@ func (s *UserContestService) GetContests(ctx context.Context, _ *pb.GetContestsR
 			EndTime:     timestamppb.New(p.EndTime),
 			Language:    p.Language,
 			ExtraTime:   int32(p.ExtraTime),
+			Groups:      p.Groups,
 		})
 	}
 	return reply, nil

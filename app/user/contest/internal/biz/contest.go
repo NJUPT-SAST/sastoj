@@ -18,6 +18,7 @@ type Contest struct {
 	Language    string
 	ExtraTime   int16
 	CreateTime  time.Time
+	Groups      []int64
 }
 
 // ContestRepo is a Contest repo.

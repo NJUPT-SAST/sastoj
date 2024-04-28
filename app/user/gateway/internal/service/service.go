@@ -14,10 +14,12 @@ type GatewayService struct {
 	pb.UnimplementedProblemServer
 	pb.UnimplementedSubmissionServer
 	contestUc *biz.ContestUsecase
+	problemUc *biz.ProblemUsecase
 }
 
-func NewGatewayService(contestUsecase *biz.ContestUsecase) *GatewayService {
+func NewGatewayService(contestUsecase *biz.ContestUsecase, problemUsecase *biz.ProblemUsecase) *GatewayService {
 	return &GatewayService{
 		contestUc: contestUsecase,
+		problemUc: problemUsecase,
 	}
 }

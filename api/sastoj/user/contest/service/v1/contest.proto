@@ -65,6 +65,7 @@ message Contest {
   google.protobuf.Timestamp end_time = 7;
   string language = 8;
   int32 extra_time = 9;
+  repeated int64 groups = 10;
 }
 
 message GetContestsRequest {}
