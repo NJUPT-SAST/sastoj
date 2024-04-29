@@ -767,6 +767,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.DeleteUserReply'
+    /users:
+        post:
+            tags:
+                - User
+            operationId: User_BatchCreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply'
 components:
     schemas:
         api.sastoj.admin.case.service.v1.Case:
@@ -1235,6 +1253,27 @@ components:
                     type: integer
                     format: int32
                 config:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply_User'
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply_User:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                number:
                     type: string
         api.sastoj.admin.user.service.v1.CreateUserReply:
             type: object

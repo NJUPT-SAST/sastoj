@@ -6,6 +6,7 @@ import (
 	_ "crypto/md5"
 	"encoding/hex"
 	_ "encoding/hex"
+	"github.com/go-kratos/kratos/v2/log"
 	"math/rand"
 	pb "sastoj/api/sastoj/admin/user/service/v1"
 	"sastoj/app/admin/user/internal/biz"
@@ -25,14 +26,14 @@ func NewUserService(user *biz.UserUsecase) *UserService {
 func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
 	var salt = generateRandomString(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	var md5Password = generateMD5Password(req.Password, salt)
-	var b = verifyPassword(req.Password, salt, md5Password)
-	print(b)
+	//var b = verifyPassword(req.Password, salt, md5Password)
+	//print(b)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
 		Password: md5Password,
 		GroupID:  req.GroupId,
 		Salt:     salt,
-		Status:   1,
+		Status:   0,
 	})
 	if err != nil {
 		return nil, err
@@ -40,6 +41,38 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	return &pb.CreateUserReply{
 		Id: rv.ID,
 	}, nil
+}
+func (s *UserService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUserRequest) (*pb.BatchCreateUserReply, error) {
+	var resMap = make(map[string]string)
+	for i := 0; i < int(req.Number); i++ {
+		var username = "user_" + generateRandomString(8, "")
+		var salt = generateRandomString(5, "")
+		var password = generateRandomString(8, "")
+		var md5Password = generateMD5Password(password, salt)
+		_, err := s.uc.CreateUser(ctx, &biz.User{
+			Username: username,
+			Password: md5Password,
+			GroupID:  req.GroupId,
+			Salt:     salt,
+			Status:   0,
+		})
+		if err != nil {
+			log.Debug("BatchCreateUser error: ", err)
+			continue
+		}
+		resMap[username] = password
+	}
+	var users []*pb.BatchCreateUserReply_User
+	for k, v := range resMap {
+		users = append(users, &pb.BatchCreateUserReply_User{
+			Username: k,
+			Password: v,
+		})
+	}
+	return &pb.BatchCreateUserReply{
+		Users: users,
+	}, nil
+
 }
 func (s *UserService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserReply, error) {
 	rv, err := s.uc.UpdateUser(ctx, &biz.User{
@@ -77,6 +110,9 @@ func (s *UserService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*p
 }
 
 func generateRandomString(length int, charset string) string {
+	if charset == "" {
+		charset = "abcdefghjkmnpqrstwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+	}
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = charset[rand.Intn(len(charset))]
