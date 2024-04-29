@@ -45,7 +45,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 func (s *UserService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUserRequest) (*pb.BatchCreateUserReply, error) {
 	var resMap = make(map[string]string)
 	for i := 0; i < int(req.Number); i++ {
-		var username = generateRandomString(8, "")
+		var username = "user_" + generateRandomString(8, "")
 		var salt = generateRandomString(5, "")
 		var password = generateRandomString(8, "")
 		var md5Password = generateMD5Password(password, salt)
@@ -65,8 +65,8 @@ func (s *UserService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUs
 	var users []*pb.BatchCreateUserReply_User
 	for k, v := range resMap {
 		users = append(users, &pb.BatchCreateUserReply_User{
-			Username: v,
-			Password: k,
+			Username: k,
+			Password: v,
 		})
 	}
 	return &pb.BatchCreateUserReply{
@@ -111,7 +111,7 @@ func (s *UserService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*p
 
 func generateRandomString(length int, charset string) string {
 	if charset == "" {
-		charset = "abcdefghjkmnopqrstwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		charset = "abcdefghjkmnpqrstwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 	}
 	b := make([]byte, length)
 	for i := range b {
