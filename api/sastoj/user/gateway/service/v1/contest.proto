@@ -12,12 +12,12 @@ option java_package = "api.sastoj.user.gateway.service.v1";
 service Contest {
   rpc GetContests (GetContestsRequest) returns (GetContestsReply) {
 		option (google.api.http) = {
-			get: "/contests"
+			get: "/user/contests"
 		};
 	};
   rpc JoinContest (JoinContestRequest) returns (JoinContestReply) {
 		option (google.api.http) = {
-			post: "/contests/{contest_id}"
+			post: "/user/contests/{contest_id}"
 			body: "*"
 		};
 	};
@@ -54,12 +54,12 @@ message JoinContestReply {
 service Problem {
   rpc GetProblems (GetProblemsRequest) returns (GetProblemsReply) {
 		option (google.api.http) = {
-			get: "/contests/{contest_id}/problems"
+			get: "/user/contests/{contest_id}/problems"
 		};
 	};
   rpc GetProblem (GetProblemRequest) returns (GetProblemReply) {
 		option (google.api.http) = {
-			get: "/contests/{contest_id}/problems/{problem_id}"
+			get: "/user/contests/{contest_id}/problems/{problem_id}"
 		};
 	};
 }
@@ -91,24 +91,24 @@ message GetProblemReply {
 service Submission {
   rpc Submit (SubmitRequest) returns (SubmitReply) {
 		option (google.api.http) = {
-			post: "/contests/{contest_id}/problems/{problem_id}/submission"
+			post: "/user/contests/{contest_id}/problems/{problem_id}/submission"
 			body: "*"
 		};
 	};
   rpc SelfTest (SelfTestRequest) returns (SelfTestReply) {
 		option (google.api.http) = {
-			post: "/contests/{contest_id}/problems/{problem_id}/test"
+			post: "/user/contests/{contest_id}/problems/{problem_id}/test"
 			body: "*"
 		};
 	};
   rpc GetSubmission (GetSubmissionRequest) returns (GetSubmissionReply) {
 		option (google.api.http) = {
-			get: "/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
+			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
 		};
 	};
   rpc ListRanking (ListRankingRequest) returns (ListRankingReply) {
 		option (google.api.http) = {
-			get: "/contests/{contest_id}/ranking"
+			get: "/user/contests/{contest_id}/ranking"
 		};
 	};
 }

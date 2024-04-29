@@ -29,8 +29,8 @@ type ContestHTTPServer interface {
 
 func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r := s.Route("/")
-	r.GET("/contests", _Contest_GetContests1_HTTP_Handler(srv))
-	r.POST("/contests/{contest_id}", _Contest_JoinContest1_HTTP_Handler(srv))
+	r.GET("/user/contests", _Contest_GetContests1_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}", _Contest_JoinContest1_HTTP_Handler(srv))
 }
 
 func _Contest_GetContests1_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
@@ -92,7 +92,7 @@ func NewContestHTTPClient(client *http.Client) ContestHTTPClient {
 
 func (c *ContestHTTPClientImpl) GetContests(ctx context.Context, in *GetContestsRequest, opts ...http.CallOption) (*GetContestsReply, error) {
 	var out GetContestsReply
-	pattern := "/contests"
+	pattern := "/user/contests"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationContestGetContests))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -105,7 +105,7 @@ func (c *ContestHTTPClientImpl) GetContests(ctx context.Context, in *GetContests
 
 func (c *ContestHTTPClientImpl) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...http.CallOption) (*JoinContestReply, error) {
 	var out JoinContestReply
-	pattern := "/contests/{contest_id}"
+	pattern := "/user/contests/{contest_id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationContestJoinContest))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -126,8 +126,8 @@ type ProblemHTTPServer interface {
 
 func RegisterProblemHTTPServer(s *http.Server, srv ProblemHTTPServer) {
 	r := s.Route("/")
-	r.GET("/contests/{contest_id}/problems", _Problem_GetProblems1_HTTP_Handler(srv))
-	r.GET("/contests/{contest_id}/problems/{problem_id}", _Problem_GetProblem2_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems", _Problem_GetProblems1_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}", _Problem_GetProblem2_HTTP_Handler(srv))
 }
 
 func _Problem_GetProblems1_HTTP_Handler(srv ProblemHTTPServer) func(ctx http.Context) error {
@@ -189,7 +189,7 @@ func NewProblemHTTPClient(client *http.Client) ProblemHTTPClient {
 
 func (c *ProblemHTTPClientImpl) GetProblem(ctx context.Context, in *GetProblemRequest, opts ...http.CallOption) (*GetProblemReply, error) {
 	var out GetProblemReply
-	pattern := "/contests/{contest_id}/problems/{problem_id}"
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationProblemGetProblem))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -202,7 +202,7 @@ func (c *ProblemHTTPClientImpl) GetProblem(ctx context.Context, in *GetProblemRe
 
 func (c *ProblemHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...http.CallOption) (*GetProblemsReply, error) {
 	var out GetProblemsReply
-	pattern := "/contests/{contest_id}/problems"
+	pattern := "/user/contests/{contest_id}/problems"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationProblemGetProblems))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -227,10 +227,10 @@ type SubmissionHTTPServer interface {
 
 func RegisterSubmissionHTTPServer(s *http.Server, srv SubmissionHTTPServer) {
 	r := s.Route("/")
-	r.POST("/contests/{contest_id}/problems/{problem_id}/submission", _Submission_Submit1_HTTP_Handler(srv))
-	r.POST("/contests/{contest_id}/problems/{problem_id}/test", _Submission_SelfTest1_HTTP_Handler(srv))
-	r.GET("/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Submission_GetSubmission1_HTTP_Handler(srv))
-	r.GET("/contests/{contest_id}/ranking", _Submission_ListRanking1_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}/problems/{problem_id}/submission", _Submission_Submit1_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _Submission_SelfTest1_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Submission_GetSubmission1_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/ranking", _Submission_ListRanking1_HTTP_Handler(srv))
 }
 
 func _Submission_Submit1_HTTP_Handler(srv SubmissionHTTPServer) func(ctx http.Context) error {
@@ -344,7 +344,7 @@ func NewSubmissionHTTPClient(client *http.Client) SubmissionHTTPClient {
 
 func (c *SubmissionHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
 	var out GetSubmissionReply
-	pattern := "/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSubmissionGetSubmission))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -357,7 +357,7 @@ func (c *SubmissionHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSub
 
 func (c *SubmissionHTTPClientImpl) ListRanking(ctx context.Context, in *ListRankingRequest, opts ...http.CallOption) (*ListRankingReply, error) {
 	var out ListRankingReply
-	pattern := "/contests/{contest_id}/ranking"
+	pattern := "/user/contests/{contest_id}/ranking"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSubmissionListRanking))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -370,7 +370,7 @@ func (c *SubmissionHTTPClientImpl) ListRanking(ctx context.Context, in *ListRank
 
 func (c *SubmissionHTTPClientImpl) SelfTest(ctx context.Context, in *SelfTestRequest, opts ...http.CallOption) (*SelfTestReply, error) {
 	var out SelfTestReply
-	pattern := "/contests/{contest_id}/problems/{problem_id}/test"
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/test"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSubmissionSelfTest))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -383,7 +383,7 @@ func (c *SubmissionHTTPClientImpl) SelfTest(ctx context.Context, in *SelfTestReq
 
 func (c *SubmissionHTTPClientImpl) Submit(ctx context.Context, in *SubmitRequest, opts ...http.CallOption) (*SubmitReply, error) {
 	var out SubmitReply
-	pattern := "/contests/{contest_id}/problems/{problem_id}/submission"
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSubmissionSubmit))
 	opts = append(opts, http.PathTemplate(pattern))
