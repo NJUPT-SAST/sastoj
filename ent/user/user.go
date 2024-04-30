@@ -31,10 +31,10 @@ const (
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// SubmissionTable is the table that holds the submission relation/edge.
-	SubmissionTable = "submit"
-	// SubmissionInverseTable is the table name for the Submit entity.
-	// It exists in this package in order to avoid circular dependency with the "submit" package.
-	SubmissionInverseTable = "submit"
+	SubmissionTable = "submissions"
+	// SubmissionInverseTable is the table name for the Submission entity.
+	// It exists in this package in order to avoid circular dependency with the "submission" package.
+	SubmissionInverseTable = "submissions"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
 	SubmissionColumn = "user_id"
 	// LoginSessionsTable is the table that holds the login_sessions relation/edge.

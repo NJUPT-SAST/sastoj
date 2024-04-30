@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"sastoj/app/admin/case/internal/biz"
-
+	"github.com/go-kratos/kratos/v2/transport/http"
 	pb "sastoj/api/sastoj/admin/case/service/v1"
+	"sastoj/app/admin/case/internal/biz"
+	"strconv"
 )
 
 type CaseService struct {
@@ -65,7 +66,29 @@ func (s *CaseService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*p
 	}
 	return reply, err
 }
-func (s *CaseService) UploadCases(conn pb.CaseService_UploadCasesServer) error {
+func (s *CaseService) UploadCases(ctx http.Context) error {
+	req := ctx.Request()
 
+	problemId := req.FormValue("problemId")
+	int64CaseId, err := strconv.ParseInt(problemId, 10, 64)
+	if err != nil {
+		return err
+	}
+	file, handler, err := req.FormFile("file")
+	if err != nil {
+		return err
+	}
+	filename := handler.Filename
+	defer file.Close()
+	out, err := s.uc.UploadCases(ctx, int64CaseId, file, filename)
+	if err != nil {
+		return err
+	}
+	err = ctx.JSON(200, map[string][]int64{
+		"ids": out,
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }

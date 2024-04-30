@@ -363,6 +363,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.SubmitJudgeReply'
+    /judger/{problemId}:
+        get:
+            tags:
+                - Judger
+            operationId: Judger_GetJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply'
+        post:
+            tags:
+                - Judger
+            operationId: Judger_UpdateJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply'
     /problem:
         put:
             tags:
@@ -726,6 +767,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.DeleteUserReply'
+    /users:
+        post:
+            tags:
+                - User
+            operationId: User_BatchCreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply'
 components:
     schemas:
         api.sastoj.admin.case.service.v1.Case:
@@ -1053,6 +1112,34 @@ components:
                 point:
                     type: integer
                     format: int32
+        api.sastoj.admin.judger.service.v1.GetJudgerReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply_Group'
+        api.sastoj.admin.judger.service.v1.GetJudgerReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.judger.service.v1.UpdateJudgerReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.judger.service.v1.UpdateJudgerRequest:
+            type: object
+            properties:
+                problemId:
+                    type: string
+                judgerGroupIds:
+                    type: array
+                    items:
+                        type: string
         api.sastoj.admin.problem.CreateProblemReply:
             type: object
             properties:
@@ -1166,6 +1253,27 @@ components:
                     type: integer
                     format: int32
                 config:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply_User'
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply_User:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                number:
                     type: string
         api.sastoj.admin.user.service.v1.CreateUserReply:
             type: object
@@ -1386,5 +1494,6 @@ tags:
     - name: ContestService
     - name: Group
     - name: Judge
+    - name: Judger
     - name: Problem
     - name: User

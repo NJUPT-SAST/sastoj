@@ -5,16 +5,16 @@ package ent
 import (
 	"fmt"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submit"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
-// SubmitCase is the model entity for the SubmitCase schema.
-type SubmitCase struct {
+// SubmissionCase is the model entity for the SubmissionCase schema.
+type SubmissionCase struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int64 `json:"id,omitempty"`
@@ -28,20 +28,20 @@ type SubmitCase struct {
 	Time int32 `json:"time,omitempty"`
 	// Memory holds the value of the "memory" field.
 	Memory int32 `json:"memory,omitempty"`
-	// SubmitID holds the value of the "submit_id" field.
-	SubmitID int64 `json:"submit_id,omitempty"`
+	// SubmissionID holds the value of the "submission_id" field.
+	SubmissionID int64 `json:"submission_id,omitempty"`
 	// ProblemCaseID holds the value of the "problem_case_id" field.
 	ProblemCaseID int64 `json:"problem_case_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the SubmitCaseQuery when eager-loading is set.
-	Edges        SubmitCaseEdges `json:"edges"`
+	// The values are being populated by the SubmissionCaseQuery when eager-loading is set.
+	Edges        SubmissionCaseEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// SubmitCaseEdges holds the relations/edges for other nodes in the graph.
-type SubmitCaseEdges struct {
+// SubmissionCaseEdges holds the relations/edges for other nodes in the graph.
+type SubmissionCaseEdges struct {
 	// Submission holds the value of the submission edge.
-	Submission *Submit `json:"submission,omitempty"`
+	Submission *Submission `json:"submission,omitempty"`
 	// ProblemCases holds the value of the problem_cases edge.
 	ProblemCases *ProblemCase `json:"problem_cases,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -51,11 +51,11 @@ type SubmitCaseEdges struct {
 
 // SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SubmitCaseEdges) SubmissionOrErr() (*Submit, error) {
+func (e SubmissionCaseEdges) SubmissionOrErr() (*Submission, error) {
 	if e.loadedTypes[0] {
 		if e.Submission == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: submit.Label}
+			return nil, &NotFoundError{label: submission.Label}
 		}
 		return e.Submission, nil
 	}
@@ -64,7 +64,7 @@ func (e SubmitCaseEdges) SubmissionOrErr() (*Submit, error) {
 
 // ProblemCasesOrErr returns the ProblemCases value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SubmitCaseEdges) ProblemCasesOrErr() (*ProblemCase, error) {
+func (e SubmissionCaseEdges) ProblemCasesOrErr() (*ProblemCase, error) {
 	if e.loadedTypes[1] {
 		if e.ProblemCases == nil {
 			// Edge was loaded but was not found.
@@ -76,13 +76,13 @@ func (e SubmitCaseEdges) ProblemCasesOrErr() (*ProblemCase, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*SubmitCase) scanValues(columns []string) ([]any, error) {
+func (*SubmissionCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submitcase.FieldID, submitcase.FieldState, submitcase.FieldPoint, submitcase.FieldTime, submitcase.FieldMemory, submitcase.FieldSubmitID, submitcase.FieldProblemCaseID:
+		case submissioncase.FieldID, submissioncase.FieldState, submissioncase.FieldPoint, submissioncase.FieldTime, submissioncase.FieldMemory, submissioncase.FieldSubmissionID, submissioncase.FieldProblemCaseID:
 			values[i] = new(sql.NullInt64)
-		case submitcase.FieldMessage:
+		case submissioncase.FieldMessage:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -92,56 +92,56 @@ func (*SubmitCase) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the SubmitCase fields.
-func (sc *SubmitCase) assignValues(columns []string, values []any) error {
+// to the SubmissionCase fields.
+func (sc *SubmissionCase) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case submitcase.FieldID:
+		case submissioncase.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			sc.ID = int64(value.Int64)
-		case submitcase.FieldState:
+		case submissioncase.FieldState:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
 				sc.State = int16(value.Int64)
 			}
-		case submitcase.FieldPoint:
+		case submissioncase.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field point", values[i])
 			} else if value.Valid {
 				sc.Point = int16(value.Int64)
 			}
-		case submitcase.FieldMessage:
+		case submissioncase.FieldMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field message", values[i])
 			} else if value.Valid {
 				sc.Message = value.String
 			}
-		case submitcase.FieldTime:
+		case submissioncase.FieldTime:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field time", values[i])
 			} else if value.Valid {
 				sc.Time = int32(value.Int64)
 			}
-		case submitcase.FieldMemory:
+		case submissioncase.FieldMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field memory", values[i])
 			} else if value.Valid {
 				sc.Memory = int32(value.Int64)
 			}
-		case submitcase.FieldSubmitID:
+		case submissioncase.FieldSubmissionID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field submit_id", values[i])
+				return fmt.Errorf("unexpected type %T for field submission_id", values[i])
 			} else if value.Valid {
-				sc.SubmitID = value.Int64
+				sc.SubmissionID = value.Int64
 			}
-		case submitcase.FieldProblemCaseID:
+		case submissioncase.FieldProblemCaseID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field problem_case_id", values[i])
 			} else if value.Valid {
@@ -154,44 +154,44 @@ func (sc *SubmitCase) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the SubmitCase.
+// Value returns the ent.Value that was dynamically selected and assigned to the SubmissionCase.
 // This includes values selected through modifiers, order, etc.
-func (sc *SubmitCase) Value(name string) (ent.Value, error) {
+func (sc *SubmissionCase) Value(name string) (ent.Value, error) {
 	return sc.selectValues.Get(name)
 }
 
-// QuerySubmission queries the "submission" edge of the SubmitCase entity.
-func (sc *SubmitCase) QuerySubmission() *SubmitQuery {
-	return NewSubmitCaseClient(sc.config).QuerySubmission(sc)
+// QuerySubmission queries the "submission" edge of the SubmissionCase entity.
+func (sc *SubmissionCase) QuerySubmission() *SubmissionQuery {
+	return NewSubmissionCaseClient(sc.config).QuerySubmission(sc)
 }
 
-// QueryProblemCases queries the "problem_cases" edge of the SubmitCase entity.
-func (sc *SubmitCase) QueryProblemCases() *ProblemCaseQuery {
-	return NewSubmitCaseClient(sc.config).QueryProblemCases(sc)
+// QueryProblemCases queries the "problem_cases" edge of the SubmissionCase entity.
+func (sc *SubmissionCase) QueryProblemCases() *ProblemCaseQuery {
+	return NewSubmissionCaseClient(sc.config).QueryProblemCases(sc)
 }
 
-// Update returns a builder for updating this SubmitCase.
-// Note that you need to call SubmitCase.Unwrap() before calling this method if this SubmitCase
+// Update returns a builder for updating this SubmissionCase.
+// Note that you need to call SubmissionCase.Unwrap() before calling this method if this SubmissionCase
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (sc *SubmitCase) Update() *SubmitCaseUpdateOne {
-	return NewSubmitCaseClient(sc.config).UpdateOne(sc)
+func (sc *SubmissionCase) Update() *SubmissionCaseUpdateOne {
+	return NewSubmissionCaseClient(sc.config).UpdateOne(sc)
 }
 
-// Unwrap unwraps the SubmitCase entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the SubmissionCase entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (sc *SubmitCase) Unwrap() *SubmitCase {
+func (sc *SubmissionCase) Unwrap() *SubmissionCase {
 	_tx, ok := sc.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: SubmitCase is not a transactional entity")
+		panic("ent: SubmissionCase is not a transactional entity")
 	}
 	sc.config.driver = _tx.drv
 	return sc
 }
 
 // String implements the fmt.Stringer.
-func (sc *SubmitCase) String() string {
+func (sc *SubmissionCase) String() string {
 	var builder strings.Builder
-	builder.WriteString("SubmitCase(")
+	builder.WriteString("SubmissionCase(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", sc.ID))
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", sc.State))
@@ -208,8 +208,8 @@ func (sc *SubmitCase) String() string {
 	builder.WriteString("memory=")
 	builder.WriteString(fmt.Sprintf("%v", sc.Memory))
 	builder.WriteString(", ")
-	builder.WriteString("submit_id=")
-	builder.WriteString(fmt.Sprintf("%v", sc.SubmitID))
+	builder.WriteString("submission_id=")
+	builder.WriteString(fmt.Sprintf("%v", sc.SubmissionID))
 	builder.WriteString(", ")
 	builder.WriteString("problem_case_id=")
 	builder.WriteString(fmt.Sprintf("%v", sc.ProblemCaseID))
@@ -217,5 +217,5 @@ func (sc *SubmitCase) String() string {
 	return builder.String()
 }
 
-// SubmitCases is a parsable slice of SubmitCase.
-type SubmitCases []*SubmitCase
+// SubmissionCases is a parsable slice of SubmissionCase.
+type SubmissionCases []*SubmissionCase

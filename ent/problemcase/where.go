@@ -79,11 +79,6 @@ func ProblemID(v int64) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldEQ(FieldProblemID, v))
 }
 
-// FileLocation applies equality check predicate on the "file_location" field. It's identical to FileLocationEQ.
-func FileLocation(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEQ(FieldFileLocation, v))
-}
-
 // PointEQ applies the EQ predicate on the "point" field.
 func PointEQ(v int16) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldEQ(FieldPoint, v))
@@ -204,86 +199,21 @@ func ProblemIDNotIn(vs ...int64) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldNotIn(FieldProblemID, vs...))
 }
 
-// FileLocationEQ applies the EQ predicate on the "file_location" field.
-func FileLocationEQ(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEQ(FieldFileLocation, v))
-}
-
-// FileLocationNEQ applies the NEQ predicate on the "file_location" field.
-func FileLocationNEQ(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldNEQ(FieldFileLocation, v))
-}
-
-// FileLocationIn applies the In predicate on the "file_location" field.
-func FileLocationIn(vs ...string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldIn(FieldFileLocation, vs...))
-}
-
-// FileLocationNotIn applies the NotIn predicate on the "file_location" field.
-func FileLocationNotIn(vs ...string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldNotIn(FieldFileLocation, vs...))
-}
-
-// FileLocationGT applies the GT predicate on the "file_location" field.
-func FileLocationGT(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldGT(FieldFileLocation, v))
-}
-
-// FileLocationGTE applies the GTE predicate on the "file_location" field.
-func FileLocationGTE(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldGTE(FieldFileLocation, v))
-}
-
-// FileLocationLT applies the LT predicate on the "file_location" field.
-func FileLocationLT(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldLT(FieldFileLocation, v))
-}
-
-// FileLocationLTE applies the LTE predicate on the "file_location" field.
-func FileLocationLTE(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldLTE(FieldFileLocation, v))
-}
-
-// FileLocationContains applies the Contains predicate on the "file_location" field.
-func FileLocationContains(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldContains(FieldFileLocation, v))
-}
-
-// FileLocationHasPrefix applies the HasPrefix predicate on the "file_location" field.
-func FileLocationHasPrefix(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldHasPrefix(FieldFileLocation, v))
-}
-
-// FileLocationHasSuffix applies the HasSuffix predicate on the "file_location" field.
-func FileLocationHasSuffix(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldHasSuffix(FieldFileLocation, v))
-}
-
-// FileLocationEqualFold applies the EqualFold predicate on the "file_location" field.
-func FileLocationEqualFold(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEqualFold(FieldFileLocation, v))
-}
-
-// FileLocationContainsFold applies the ContainsFold predicate on the "file_location" field.
-func FileLocationContainsFold(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldContainsFold(FieldFileLocation, v))
-}
-
-// HasSubmitCases applies the HasEdge predicate on the "submit_cases" edge.
-func HasSubmitCases() predicate.ProblemCase {
+// HasSubmissionCases applies the HasEdge predicate on the "submission_cases" edge.
+func HasSubmissionCases() predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionCasesTable, SubmissionCasesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSubmitCasesWith applies the HasEdge predicate on the "submit_cases" edge with a given conditions (other predicates).
-func HasSubmitCasesWith(preds ...predicate.SubmitCase) predicate.ProblemCase {
+// HasSubmissionCasesWith applies the HasEdge predicate on the "submission_cases" edge with a given conditions (other predicates).
+func HasSubmissionCasesWith(preds ...predicate.SubmissionCase) predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
-		step := newSubmitCasesStep()
+		step := newSubmissionCasesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -292,21 +222,21 @@ func HasSubmitCasesWith(preds ...predicate.SubmitCase) predicate.ProblemCase {
 	})
 }
 
-// HasProblems applies the HasEdge predicate on the "problems" edge.
-func HasProblems() predicate.ProblemCase {
+// HasProblem applies the HasEdge predicate on the "problem" edge.
+func HasProblem() predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProblemsWith applies the HasEdge predicate on the "problems" edge with a given conditions (other predicates).
-func HasProblemsWith(preds ...predicate.Problem) predicate.ProblemCase {
+// HasProblemWith applies the HasEdge predicate on the "problem" edge with a given conditions (other predicates).
+func HasProblemWith(preds ...predicate.Problem) predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
-		step := newProblemsStep()
+		step := newProblemStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

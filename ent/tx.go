@@ -22,10 +22,10 @@ type Tx struct {
 	Problem *ProblemClient
 	// ProblemCase is the client for interacting with the ProblemCase builders.
 	ProblemCase *ProblemCaseClient
-	// Submit is the client for interacting with the Submit builders.
-	Submit *SubmitClient
-	// SubmitCase is the client for interacting with the SubmitCase builders.
-	SubmitCase *SubmitCaseClient
+	// Submission is the client for interacting with the Submission builders.
+	Submission *SubmissionClient
+	// SubmissionCase is the client for interacting with the SubmissionCase builders.
+	SubmissionCase *SubmissionCaseClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -164,8 +164,8 @@ func (tx *Tx) init() {
 	tx.LoginSession = NewLoginSessionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
 	tx.ProblemCase = NewProblemCaseClient(tx.config)
-	tx.Submit = NewSubmitClient(tx.config)
-	tx.SubmitCase = NewSubmitCaseClient(tx.config)
+	tx.Submission = NewSubmissionClient(tx.config)
+	tx.SubmissionCase = NewSubmissionCaseClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

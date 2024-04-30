@@ -28,10 +28,10 @@ type Group struct {
 
 // GroupEdges holds the relations/edges for other nodes in the graph.
 type GroupEdges struct {
-	// Admins holds the value of the admins edge.
-	Admins []*Contest `json:"admins,omitempty"`
-	// Contestants holds the value of the contestants edge.
-	Contestants []*Contest `json:"contestants,omitempty"`
+	// Manage holds the value of the manage edge.
+	Manage []*Contest `json:"manage,omitempty"`
+	// Contests holds the value of the contests edge.
+	Contests []*Contest `json:"contests,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
 	// Users holds the value of the users edge.
@@ -45,22 +45,22 @@ type GroupEdges struct {
 	loadedTypes [6]bool
 }
 
-// AdminsOrErr returns the Admins value or an error if the edge
+// ManageOrErr returns the Manage value or an error if the edge
 // was not loaded in eager-loading.
-func (e GroupEdges) AdminsOrErr() ([]*Contest, error) {
+func (e GroupEdges) ManageOrErr() ([]*Contest, error) {
 	if e.loadedTypes[0] {
-		return e.Admins, nil
+		return e.Manage, nil
 	}
-	return nil, &NotLoadedError{edge: "admins"}
+	return nil, &NotLoadedError{edge: "manage"}
 }
 
-// ContestantsOrErr returns the Contestants value or an error if the edge
+// ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading.
-func (e GroupEdges) ContestantsOrErr() ([]*Contest, error) {
+func (e GroupEdges) ContestsOrErr() ([]*Contest, error) {
 	if e.loadedTypes[1] {
-		return e.Contestants, nil
+		return e.Contests, nil
 	}
-	return nil, &NotLoadedError{edge: "contestants"}
+	return nil, &NotLoadedError{edge: "contests"}
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -158,14 +158,14 @@ func (gr *Group) Value(name string) (ent.Value, error) {
 	return gr.selectValues.Get(name)
 }
 
-// QueryAdmins queries the "admins" edge of the Group entity.
-func (gr *Group) QueryAdmins() *ContestQuery {
-	return NewGroupClient(gr.config).QueryAdmins(gr)
+// QueryManage queries the "manage" edge of the Group entity.
+func (gr *Group) QueryManage() *ContestQuery {
+	return NewGroupClient(gr.config).QueryManage(gr)
 }
 
-// QueryContestants queries the "contestants" edge of the Group entity.
-func (gr *Group) QueryContestants() *ContestQuery {
-	return NewGroupClient(gr.config).QueryContestants(gr)
+// QueryContests queries the "contests" edge of the Group entity.
+func (gr *Group) QueryContests() *ContestQuery {
+	return NewGroupClient(gr.config).QueryContests(gr)
 }
 
 // QueryProblems queries the "problems" edge of the Group entity.

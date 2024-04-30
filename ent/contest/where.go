@@ -558,21 +558,21 @@ func HasProblemsWith(preds ...predicate.Problem) predicate.Contest {
 	})
 }
 
-// HasContest applies the HasEdge predicate on the "contest" edge.
-func HasContest() predicate.Contest {
+// HasContestants applies the HasEdge predicate on the "contestants" edge.
+func HasContestants() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, ContestTable, ContestPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, ContestantsTable, ContestantsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasContestWith applies the HasEdge predicate on the "contest" edge with a given conditions (other predicates).
-func HasContestWith(preds ...predicate.Group) predicate.Contest {
+// HasContestantsWith applies the HasEdge predicate on the "contestants" edge with a given conditions (other predicates).
+func HasContestantsWith(preds ...predicate.Group) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
-		step := newContestStep()
+		step := newContestantsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -581,21 +581,21 @@ func HasContestWith(preds ...predicate.Group) predicate.Contest {
 	})
 }
 
-// HasManage applies the HasEdge predicate on the "manage" edge.
-func HasManage() predicate.Contest {
+// HasManagers applies the HasEdge predicate on the "managers" edge.
+func HasManagers() predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, ManageTable, ManagePrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, ManagersTable, ManagersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasManageWith applies the HasEdge predicate on the "manage" edge with a given conditions (other predicates).
-func HasManageWith(preds ...predicate.Group) predicate.Contest {
+// HasManagersWith applies the HasEdge predicate on the "managers" edge with a given conditions (other predicates).
+func HasManagersWith(preds ...predicate.Group) predicate.Contest {
 	return predicate.Contest(func(s *sql.Selector) {
-		step := newManageStep()
+		step := newManagersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

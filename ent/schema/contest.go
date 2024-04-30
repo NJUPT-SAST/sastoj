@@ -32,7 +32,7 @@ func (Contest) Fields() []ent.Field {
 func (Contest) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("problems", Problem.Type),
-		edge.From("contest", Group.Type).Ref("contestants"),
-		edge.From("manage", Group.Type).Ref("admins"),
+		edge.To("contestants", Group.Type),
+		edge.To("managers", Group.Type),
 	}
 }

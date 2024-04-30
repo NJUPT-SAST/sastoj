@@ -26,7 +26,7 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("submission", Submit.Type),
+		edge.To("submission", Submission.Type),
 		edge.To("login_sessions", LoginSession.Type),
 		edge.From("groups", Group.Type).Ref("users").Field("group_id").Unique().Required(),
 	}

@@ -20,14 +20,13 @@ func (ProblemCase) Fields() []ent.Field {
 		field.Bool("is_auto").Default(false).Comment("是否自动均分"),
 		field.Bool("is_deleted").Default(false),
 		field.Int64("problem_id"),
-		field.String("file_location"),
 	}
 }
 
 // Edges of the ProblemCase.
 func (ProblemCase) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("submit_cases", SubmitCase.Type),
-		edge.From("problems", Problem.Type).Ref("problem_cases").Field("problem_id").Unique().Required(),
+		edge.To("submission_cases", SubmissionCase.Type),
+		edge.From("problem", Problem.Type).Ref("problem_cases").Field("problem_id").Unique().Required(),
 	}
 }

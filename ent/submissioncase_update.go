@@ -8,36 +8,36 @@ import (
 	"fmt"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submit"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitCaseUpdate is the builder for updating SubmitCase entities.
-type SubmitCaseUpdate struct {
+// SubmissionCaseUpdate is the builder for updating SubmissionCase entities.
+type SubmissionCaseUpdate struct {
 	config
 	hooks    []Hook
-	mutation *SubmitCaseMutation
+	mutation *SubmissionCaseMutation
 }
 
-// Where appends a list predicates to the SubmitCaseUpdate builder.
-func (scu *SubmitCaseUpdate) Where(ps ...predicate.SubmitCase) *SubmitCaseUpdate {
+// Where appends a list predicates to the SubmissionCaseUpdate builder.
+func (scu *SubmissionCaseUpdate) Where(ps ...predicate.SubmissionCase) *SubmissionCaseUpdate {
 	scu.mutation.Where(ps...)
 	return scu
 }
 
 // SetState sets the "state" field.
-func (scu *SubmitCaseUpdate) SetState(i int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetState(i int16) *SubmissionCaseUpdate {
 	scu.mutation.ResetState()
 	scu.mutation.SetState(i)
 	return scu
 }
 
 // SetNillableState sets the "state" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableState(i *int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillableState(i *int16) *SubmissionCaseUpdate {
 	if i != nil {
 		scu.SetState(*i)
 	}
@@ -45,20 +45,20 @@ func (scu *SubmitCaseUpdate) SetNillableState(i *int16) *SubmitCaseUpdate {
 }
 
 // AddState adds i to the "state" field.
-func (scu *SubmitCaseUpdate) AddState(i int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) AddState(i int16) *SubmissionCaseUpdate {
 	scu.mutation.AddState(i)
 	return scu
 }
 
 // SetPoint sets the "point" field.
-func (scu *SubmitCaseUpdate) SetPoint(i int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetPoint(i int16) *SubmissionCaseUpdate {
 	scu.mutation.ResetPoint()
 	scu.mutation.SetPoint(i)
 	return scu
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillablePoint(i *int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillablePoint(i *int16) *SubmissionCaseUpdate {
 	if i != nil {
 		scu.SetPoint(*i)
 	}
@@ -66,19 +66,19 @@ func (scu *SubmitCaseUpdate) SetNillablePoint(i *int16) *SubmitCaseUpdate {
 }
 
 // AddPoint adds i to the "point" field.
-func (scu *SubmitCaseUpdate) AddPoint(i int16) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) AddPoint(i int16) *SubmissionCaseUpdate {
 	scu.mutation.AddPoint(i)
 	return scu
 }
 
 // SetMessage sets the "message" field.
-func (scu *SubmitCaseUpdate) SetMessage(s string) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetMessage(s string) *SubmissionCaseUpdate {
 	scu.mutation.SetMessage(s)
 	return scu
 }
 
 // SetNillableMessage sets the "message" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableMessage(s *string) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillableMessage(s *string) *SubmissionCaseUpdate {
 	if s != nil {
 		scu.SetMessage(*s)
 	}
@@ -86,14 +86,14 @@ func (scu *SubmitCaseUpdate) SetNillableMessage(s *string) *SubmitCaseUpdate {
 }
 
 // SetTime sets the "time" field.
-func (scu *SubmitCaseUpdate) SetTime(i int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetTime(i int32) *SubmissionCaseUpdate {
 	scu.mutation.ResetTime()
 	scu.mutation.SetTime(i)
 	return scu
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableTime(i *int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillableTime(i *int32) *SubmissionCaseUpdate {
 	if i != nil {
 		scu.SetTime(*i)
 	}
@@ -101,20 +101,20 @@ func (scu *SubmitCaseUpdate) SetNillableTime(i *int32) *SubmitCaseUpdate {
 }
 
 // AddTime adds i to the "time" field.
-func (scu *SubmitCaseUpdate) AddTime(i int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) AddTime(i int32) *SubmissionCaseUpdate {
 	scu.mutation.AddTime(i)
 	return scu
 }
 
 // SetMemory sets the "memory" field.
-func (scu *SubmitCaseUpdate) SetMemory(i int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetMemory(i int32) *SubmissionCaseUpdate {
 	scu.mutation.ResetMemory()
 	scu.mutation.SetMemory(i)
 	return scu
 }
 
 // SetNillableMemory sets the "memory" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableMemory(i *int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillableMemory(i *int32) *SubmissionCaseUpdate {
 	if i != nil {
 		scu.SetMemory(*i)
 	}
@@ -122,85 +122,79 @@ func (scu *SubmitCaseUpdate) SetNillableMemory(i *int32) *SubmitCaseUpdate {
 }
 
 // AddMemory adds i to the "memory" field.
-func (scu *SubmitCaseUpdate) AddMemory(i int32) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) AddMemory(i int32) *SubmissionCaseUpdate {
 	scu.mutation.AddMemory(i)
 	return scu
 }
 
-// SetSubmitID sets the "submit_id" field.
-func (scu *SubmitCaseUpdate) SetSubmitID(i int64) *SubmitCaseUpdate {
-	scu.mutation.SetSubmitID(i)
+// SetSubmissionID sets the "submission_id" field.
+func (scu *SubmissionCaseUpdate) SetSubmissionID(i int64) *SubmissionCaseUpdate {
+	scu.mutation.SetSubmissionID(i)
 	return scu
 }
 
-// SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableSubmitID(i *int64) *SubmitCaseUpdate {
+// SetNillableSubmissionID sets the "submission_id" field if the given value is not nil.
+func (scu *SubmissionCaseUpdate) SetNillableSubmissionID(i *int64) *SubmissionCaseUpdate {
 	if i != nil {
-		scu.SetSubmitID(*i)
+		scu.SetSubmissionID(*i)
 	}
 	return scu
 }
 
 // SetProblemCaseID sets the "problem_case_id" field.
-func (scu *SubmitCaseUpdate) SetProblemCaseID(i int64) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetProblemCaseID(i int64) *SubmissionCaseUpdate {
 	scu.mutation.SetProblemCaseID(i)
 	return scu
 }
 
 // SetNillableProblemCaseID sets the "problem_case_id" field if the given value is not nil.
-func (scu *SubmitCaseUpdate) SetNillableProblemCaseID(i *int64) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetNillableProblemCaseID(i *int64) *SubmissionCaseUpdate {
 	if i != nil {
 		scu.SetProblemCaseID(*i)
 	}
 	return scu
 }
 
-// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
-func (scu *SubmitCaseUpdate) SetSubmissionID(id int64) *SubmitCaseUpdate {
-	scu.mutation.SetSubmissionID(id)
-	return scu
-}
-
-// SetSubmission sets the "submission" edge to the Submit entity.
-func (scu *SubmitCaseUpdate) SetSubmission(s *Submit) *SubmitCaseUpdate {
+// SetSubmission sets the "submission" edge to the Submission entity.
+func (scu *SubmissionCaseUpdate) SetSubmission(s *Submission) *SubmissionCaseUpdate {
 	return scu.SetSubmissionID(s.ID)
 }
 
 // SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
-func (scu *SubmitCaseUpdate) SetProblemCasesID(id int64) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetProblemCasesID(id int64) *SubmissionCaseUpdate {
 	scu.mutation.SetProblemCasesID(id)
 	return scu
 }
 
 // SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
-func (scu *SubmitCaseUpdate) SetProblemCases(p *ProblemCase) *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) SetProblemCases(p *ProblemCase) *SubmissionCaseUpdate {
 	return scu.SetProblemCasesID(p.ID)
 }
 
-// Mutation returns the SubmitCaseMutation object of the builder.
-func (scu *SubmitCaseUpdate) Mutation() *SubmitCaseMutation {
+// Mutation returns the SubmissionCaseMutation object of the builder.
+func (scu *SubmissionCaseUpdate) Mutation() *SubmissionCaseMutation {
 	return scu.mutation
 }
 
-// ClearSubmission clears the "submission" edge to the Submit entity.
-func (scu *SubmitCaseUpdate) ClearSubmission() *SubmitCaseUpdate {
+// ClearSubmission clears the "submission" edge to the Submission entity.
+func (scu *SubmissionCaseUpdate) ClearSubmission() *SubmissionCaseUpdate {
 	scu.mutation.ClearSubmission()
 	return scu
 }
 
 // ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
-func (scu *SubmitCaseUpdate) ClearProblemCases() *SubmitCaseUpdate {
+func (scu *SubmissionCaseUpdate) ClearProblemCases() *SubmissionCaseUpdate {
 	scu.mutation.ClearProblemCases()
 	return scu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (scu *SubmitCaseUpdate) Save(ctx context.Context) (int, error) {
+func (scu *SubmissionCaseUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, scu.sqlSave, scu.mutation, scu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scu *SubmitCaseUpdate) SaveX(ctx context.Context) int {
+func (scu *SubmissionCaseUpdate) SaveX(ctx context.Context) int {
 	affected, err := scu.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -209,54 +203,54 @@ func (scu *SubmitCaseUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (scu *SubmitCaseUpdate) Exec(ctx context.Context) error {
+func (scu *SubmissionCaseUpdate) Exec(ctx context.Context) error {
 	_, err := scu.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scu *SubmitCaseUpdate) ExecX(ctx context.Context) {
+func (scu *SubmissionCaseUpdate) ExecX(ctx context.Context) {
 	if err := scu.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (scu *SubmitCaseUpdate) check() error {
+func (scu *SubmissionCaseUpdate) check() error {
 	if v, ok := scu.mutation.State(); ok {
-		if err := submitcase.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.state": %w`, err)}
+		if err := submissioncase.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.state": %w`, err)}
 		}
 	}
 	if v, ok := scu.mutation.Point(); ok {
-		if err := submitcase.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.point": %w`, err)}
+		if err := submissioncase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.point": %w`, err)}
 		}
 	}
 	if v, ok := scu.mutation.Time(); ok {
-		if err := submitcase.TimeValidator(v); err != nil {
-			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.time": %w`, err)}
+		if err := submissioncase.TimeValidator(v); err != nil {
+			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.time": %w`, err)}
 		}
 	}
 	if v, ok := scu.mutation.Memory(); ok {
-		if err := submitcase.MemoryValidator(v); err != nil {
-			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.memory": %w`, err)}
+		if err := submissioncase.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.memory": %w`, err)}
 		}
 	}
 	if _, ok := scu.mutation.SubmissionID(); scu.mutation.SubmissionCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "SubmitCase.submission"`)
+		return errors.New(`ent: clearing a required unique edge "SubmissionCase.submission"`)
 	}
 	if _, ok := scu.mutation.ProblemCasesID(); scu.mutation.ProblemCasesCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "SubmitCase.problem_cases"`)
+		return errors.New(`ent: clearing a required unique edge "SubmissionCase.problem_cases"`)
 	}
 	return nil
 }
 
-func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (scu *SubmissionCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := scu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
+	_spec := sqlgraph.NewUpdateSpec(submissioncase.Table, submissioncase.Columns, sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64))
 	if ps := scu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -265,41 +259,41 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := scu.mutation.State(); ok {
-		_spec.SetField(submitcase.FieldState, field.TypeInt16, value)
+		_spec.SetField(submissioncase.FieldState, field.TypeInt16, value)
 	}
 	if value, ok := scu.mutation.AddedState(); ok {
-		_spec.AddField(submitcase.FieldState, field.TypeInt16, value)
+		_spec.AddField(submissioncase.FieldState, field.TypeInt16, value)
 	}
 	if value, ok := scu.mutation.Point(); ok {
-		_spec.SetField(submitcase.FieldPoint, field.TypeInt16, value)
+		_spec.SetField(submissioncase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := scu.mutation.AddedPoint(); ok {
-		_spec.AddField(submitcase.FieldPoint, field.TypeInt16, value)
+		_spec.AddField(submissioncase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := scu.mutation.Message(); ok {
-		_spec.SetField(submitcase.FieldMessage, field.TypeString, value)
+		_spec.SetField(submissioncase.FieldMessage, field.TypeString, value)
 	}
 	if value, ok := scu.mutation.Time(); ok {
-		_spec.SetField(submitcase.FieldTime, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.AddedTime(); ok {
-		_spec.AddField(submitcase.FieldTime, field.TypeInt32, value)
+		_spec.AddField(submissioncase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.Memory(); ok {
-		_spec.SetField(submitcase.FieldMemory, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldMemory, field.TypeInt32, value)
 	}
 	if value, ok := scu.mutation.AddedMemory(); ok {
-		_spec.AddField(submitcase.FieldMemory, field.TypeInt32, value)
+		_spec.AddField(submissioncase.FieldMemory, field.TypeInt32, value)
 	}
 	if scu.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.SubmissionTable,
-			Columns: []string{submitcase.SubmissionColumn},
+			Table:   submissioncase.SubmissionTable,
+			Columns: []string{submissioncase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -308,11 +302,11 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.SubmissionTable,
-			Columns: []string{submitcase.SubmissionColumn},
+			Table:   submissioncase.SubmissionTable,
+			Columns: []string{submissioncase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -324,8 +318,8 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.ProblemCasesTable,
-			Columns: []string{submitcase.ProblemCasesColumn},
+			Table:   submissioncase.ProblemCasesTable,
+			Columns: []string{submissioncase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
@@ -337,8 +331,8 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.ProblemCasesTable,
-			Columns: []string{submitcase.ProblemCasesColumn},
+			Table:   submissioncase.ProblemCasesTable,
+			Columns: []string{submissioncase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
@@ -351,7 +345,7 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, scu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{submitcase.Label}
+			err = &NotFoundError{submissioncase.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -361,23 +355,23 @@ func (scu *SubmitCaseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	return n, nil
 }
 
-// SubmitCaseUpdateOne is the builder for updating a single SubmitCase entity.
-type SubmitCaseUpdateOne struct {
+// SubmissionCaseUpdateOne is the builder for updating a single SubmissionCase entity.
+type SubmissionCaseUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *SubmitCaseMutation
+	mutation *SubmissionCaseMutation
 }
 
 // SetState sets the "state" field.
-func (scuo *SubmitCaseUpdateOne) SetState(i int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetState(i int16) *SubmissionCaseUpdateOne {
 	scuo.mutation.ResetState()
 	scuo.mutation.SetState(i)
 	return scuo
 }
 
 // SetNillableState sets the "state" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableState(i *int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillableState(i *int16) *SubmissionCaseUpdateOne {
 	if i != nil {
 		scuo.SetState(*i)
 	}
@@ -385,20 +379,20 @@ func (scuo *SubmitCaseUpdateOne) SetNillableState(i *int16) *SubmitCaseUpdateOne
 }
 
 // AddState adds i to the "state" field.
-func (scuo *SubmitCaseUpdateOne) AddState(i int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) AddState(i int16) *SubmissionCaseUpdateOne {
 	scuo.mutation.AddState(i)
 	return scuo
 }
 
 // SetPoint sets the "point" field.
-func (scuo *SubmitCaseUpdateOne) SetPoint(i int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetPoint(i int16) *SubmissionCaseUpdateOne {
 	scuo.mutation.ResetPoint()
 	scuo.mutation.SetPoint(i)
 	return scuo
 }
 
 // SetNillablePoint sets the "point" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillablePoint(i *int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillablePoint(i *int16) *SubmissionCaseUpdateOne {
 	if i != nil {
 		scuo.SetPoint(*i)
 	}
@@ -406,19 +400,19 @@ func (scuo *SubmitCaseUpdateOne) SetNillablePoint(i *int16) *SubmitCaseUpdateOne
 }
 
 // AddPoint adds i to the "point" field.
-func (scuo *SubmitCaseUpdateOne) AddPoint(i int16) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) AddPoint(i int16) *SubmissionCaseUpdateOne {
 	scuo.mutation.AddPoint(i)
 	return scuo
 }
 
 // SetMessage sets the "message" field.
-func (scuo *SubmitCaseUpdateOne) SetMessage(s string) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetMessage(s string) *SubmissionCaseUpdateOne {
 	scuo.mutation.SetMessage(s)
 	return scuo
 }
 
 // SetNillableMessage sets the "message" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableMessage(s *string) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillableMessage(s *string) *SubmissionCaseUpdateOne {
 	if s != nil {
 		scuo.SetMessage(*s)
 	}
@@ -426,14 +420,14 @@ func (scuo *SubmitCaseUpdateOne) SetNillableMessage(s *string) *SubmitCaseUpdate
 }
 
 // SetTime sets the "time" field.
-func (scuo *SubmitCaseUpdateOne) SetTime(i int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetTime(i int32) *SubmissionCaseUpdateOne {
 	scuo.mutation.ResetTime()
 	scuo.mutation.SetTime(i)
 	return scuo
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableTime(i *int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillableTime(i *int32) *SubmissionCaseUpdateOne {
 	if i != nil {
 		scuo.SetTime(*i)
 	}
@@ -441,20 +435,20 @@ func (scuo *SubmitCaseUpdateOne) SetNillableTime(i *int32) *SubmitCaseUpdateOne 
 }
 
 // AddTime adds i to the "time" field.
-func (scuo *SubmitCaseUpdateOne) AddTime(i int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) AddTime(i int32) *SubmissionCaseUpdateOne {
 	scuo.mutation.AddTime(i)
 	return scuo
 }
 
 // SetMemory sets the "memory" field.
-func (scuo *SubmitCaseUpdateOne) SetMemory(i int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetMemory(i int32) *SubmissionCaseUpdateOne {
 	scuo.mutation.ResetMemory()
 	scuo.mutation.SetMemory(i)
 	return scuo
 }
 
 // SetNillableMemory sets the "memory" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableMemory(i *int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillableMemory(i *int32) *SubmissionCaseUpdateOne {
 	if i != nil {
 		scuo.SetMemory(*i)
 	}
@@ -462,98 +456,92 @@ func (scuo *SubmitCaseUpdateOne) SetNillableMemory(i *int32) *SubmitCaseUpdateOn
 }
 
 // AddMemory adds i to the "memory" field.
-func (scuo *SubmitCaseUpdateOne) AddMemory(i int32) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) AddMemory(i int32) *SubmissionCaseUpdateOne {
 	scuo.mutation.AddMemory(i)
 	return scuo
 }
 
-// SetSubmitID sets the "submit_id" field.
-func (scuo *SubmitCaseUpdateOne) SetSubmitID(i int64) *SubmitCaseUpdateOne {
-	scuo.mutation.SetSubmitID(i)
+// SetSubmissionID sets the "submission_id" field.
+func (scuo *SubmissionCaseUpdateOne) SetSubmissionID(i int64) *SubmissionCaseUpdateOne {
+	scuo.mutation.SetSubmissionID(i)
 	return scuo
 }
 
-// SetNillableSubmitID sets the "submit_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableSubmitID(i *int64) *SubmitCaseUpdateOne {
+// SetNillableSubmissionID sets the "submission_id" field if the given value is not nil.
+func (scuo *SubmissionCaseUpdateOne) SetNillableSubmissionID(i *int64) *SubmissionCaseUpdateOne {
 	if i != nil {
-		scuo.SetSubmitID(*i)
+		scuo.SetSubmissionID(*i)
 	}
 	return scuo
 }
 
 // SetProblemCaseID sets the "problem_case_id" field.
-func (scuo *SubmitCaseUpdateOne) SetProblemCaseID(i int64) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetProblemCaseID(i int64) *SubmissionCaseUpdateOne {
 	scuo.mutation.SetProblemCaseID(i)
 	return scuo
 }
 
 // SetNillableProblemCaseID sets the "problem_case_id" field if the given value is not nil.
-func (scuo *SubmitCaseUpdateOne) SetNillableProblemCaseID(i *int64) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetNillableProblemCaseID(i *int64) *SubmissionCaseUpdateOne {
 	if i != nil {
 		scuo.SetProblemCaseID(*i)
 	}
 	return scuo
 }
 
-// SetSubmissionID sets the "submission" edge to the Submit entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetSubmissionID(id int64) *SubmitCaseUpdateOne {
-	scuo.mutation.SetSubmissionID(id)
-	return scuo
-}
-
-// SetSubmission sets the "submission" edge to the Submit entity.
-func (scuo *SubmitCaseUpdateOne) SetSubmission(s *Submit) *SubmitCaseUpdateOne {
+// SetSubmission sets the "submission" edge to the Submission entity.
+func (scuo *SubmissionCaseUpdateOne) SetSubmission(s *Submission) *SubmissionCaseUpdateOne {
 	return scuo.SetSubmissionID(s.ID)
 }
 
 // SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
-func (scuo *SubmitCaseUpdateOne) SetProblemCasesID(id int64) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetProblemCasesID(id int64) *SubmissionCaseUpdateOne {
 	scuo.mutation.SetProblemCasesID(id)
 	return scuo
 }
 
 // SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
-func (scuo *SubmitCaseUpdateOne) SetProblemCases(p *ProblemCase) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) SetProblemCases(p *ProblemCase) *SubmissionCaseUpdateOne {
 	return scuo.SetProblemCasesID(p.ID)
 }
 
-// Mutation returns the SubmitCaseMutation object of the builder.
-func (scuo *SubmitCaseUpdateOne) Mutation() *SubmitCaseMutation {
+// Mutation returns the SubmissionCaseMutation object of the builder.
+func (scuo *SubmissionCaseUpdateOne) Mutation() *SubmissionCaseMutation {
 	return scuo.mutation
 }
 
-// ClearSubmission clears the "submission" edge to the Submit entity.
-func (scuo *SubmitCaseUpdateOne) ClearSubmission() *SubmitCaseUpdateOne {
+// ClearSubmission clears the "submission" edge to the Submission entity.
+func (scuo *SubmissionCaseUpdateOne) ClearSubmission() *SubmissionCaseUpdateOne {
 	scuo.mutation.ClearSubmission()
 	return scuo
 }
 
 // ClearProblemCases clears the "problem_cases" edge to the ProblemCase entity.
-func (scuo *SubmitCaseUpdateOne) ClearProblemCases() *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) ClearProblemCases() *SubmissionCaseUpdateOne {
 	scuo.mutation.ClearProblemCases()
 	return scuo
 }
 
-// Where appends a list predicates to the SubmitCaseUpdate builder.
-func (scuo *SubmitCaseUpdateOne) Where(ps ...predicate.SubmitCase) *SubmitCaseUpdateOne {
+// Where appends a list predicates to the SubmissionCaseUpdate builder.
+func (scuo *SubmissionCaseUpdateOne) Where(ps ...predicate.SubmissionCase) *SubmissionCaseUpdateOne {
 	scuo.mutation.Where(ps...)
 	return scuo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (scuo *SubmitCaseUpdateOne) Select(field string, fields ...string) *SubmitCaseUpdateOne {
+func (scuo *SubmissionCaseUpdateOne) Select(field string, fields ...string) *SubmissionCaseUpdateOne {
 	scuo.fields = append([]string{field}, fields...)
 	return scuo
 }
 
-// Save executes the query and returns the updated SubmitCase entity.
-func (scuo *SubmitCaseUpdateOne) Save(ctx context.Context) (*SubmitCase, error) {
+// Save executes the query and returns the updated SubmissionCase entity.
+func (scuo *SubmissionCaseUpdateOne) Save(ctx context.Context) (*SubmissionCase, error) {
 	return withHooks(ctx, scuo.sqlSave, scuo.mutation, scuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scuo *SubmitCaseUpdateOne) SaveX(ctx context.Context) *SubmitCase {
+func (scuo *SubmissionCaseUpdateOne) SaveX(ctx context.Context) *SubmissionCase {
 	node, err := scuo.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -562,67 +550,67 @@ func (scuo *SubmitCaseUpdateOne) SaveX(ctx context.Context) *SubmitCase {
 }
 
 // Exec executes the query on the entity.
-func (scuo *SubmitCaseUpdateOne) Exec(ctx context.Context) error {
+func (scuo *SubmissionCaseUpdateOne) Exec(ctx context.Context) error {
 	_, err := scuo.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scuo *SubmitCaseUpdateOne) ExecX(ctx context.Context) {
+func (scuo *SubmissionCaseUpdateOne) ExecX(ctx context.Context) {
 	if err := scuo.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (scuo *SubmitCaseUpdateOne) check() error {
+func (scuo *SubmissionCaseUpdateOne) check() error {
 	if v, ok := scuo.mutation.State(); ok {
-		if err := submitcase.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.state": %w`, err)}
+		if err := submissioncase.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.state": %w`, err)}
 		}
 	}
 	if v, ok := scuo.mutation.Point(); ok {
-		if err := submitcase.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.point": %w`, err)}
+		if err := submissioncase.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.point": %w`, err)}
 		}
 	}
 	if v, ok := scuo.mutation.Time(); ok {
-		if err := submitcase.TimeValidator(v); err != nil {
-			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.time": %w`, err)}
+		if err := submissioncase.TimeValidator(v); err != nil {
+			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.time": %w`, err)}
 		}
 	}
 	if v, ok := scuo.mutation.Memory(); ok {
-		if err := submitcase.MemoryValidator(v); err != nil {
-			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmitCase.memory": %w`, err)}
+		if err := submissioncase.MemoryValidator(v); err != nil {
+			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.memory": %w`, err)}
 		}
 	}
 	if _, ok := scuo.mutation.SubmissionID(); scuo.mutation.SubmissionCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "SubmitCase.submission"`)
+		return errors.New(`ent: clearing a required unique edge "SubmissionCase.submission"`)
 	}
 	if _, ok := scuo.mutation.ProblemCasesID(); scuo.mutation.ProblemCasesCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "SubmitCase.problem_cases"`)
+		return errors.New(`ent: clearing a required unique edge "SubmissionCase.problem_cases"`)
 	}
 	return nil
 }
 
-func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase, err error) {
+func (scuo *SubmissionCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmissionCase, err error) {
 	if err := scuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
+	_spec := sqlgraph.NewUpdateSpec(submissioncase.Table, submissioncase.Columns, sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64))
 	id, ok := scuo.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "SubmitCase.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "SubmissionCase.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := scuo.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, submitcase.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, submissioncase.FieldID)
 		for _, f := range fields {
-			if !submitcase.ValidColumn(f) {
+			if !submissioncase.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != submitcase.FieldID {
+			if f != submissioncase.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -635,41 +623,41 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		}
 	}
 	if value, ok := scuo.mutation.State(); ok {
-		_spec.SetField(submitcase.FieldState, field.TypeInt16, value)
+		_spec.SetField(submissioncase.FieldState, field.TypeInt16, value)
 	}
 	if value, ok := scuo.mutation.AddedState(); ok {
-		_spec.AddField(submitcase.FieldState, field.TypeInt16, value)
+		_spec.AddField(submissioncase.FieldState, field.TypeInt16, value)
 	}
 	if value, ok := scuo.mutation.Point(); ok {
-		_spec.SetField(submitcase.FieldPoint, field.TypeInt16, value)
+		_spec.SetField(submissioncase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := scuo.mutation.AddedPoint(); ok {
-		_spec.AddField(submitcase.FieldPoint, field.TypeInt16, value)
+		_spec.AddField(submissioncase.FieldPoint, field.TypeInt16, value)
 	}
 	if value, ok := scuo.mutation.Message(); ok {
-		_spec.SetField(submitcase.FieldMessage, field.TypeString, value)
+		_spec.SetField(submissioncase.FieldMessage, field.TypeString, value)
 	}
 	if value, ok := scuo.mutation.Time(); ok {
-		_spec.SetField(submitcase.FieldTime, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.AddedTime(); ok {
-		_spec.AddField(submitcase.FieldTime, field.TypeInt32, value)
+		_spec.AddField(submissioncase.FieldTime, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.Memory(); ok {
-		_spec.SetField(submitcase.FieldMemory, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldMemory, field.TypeInt32, value)
 	}
 	if value, ok := scuo.mutation.AddedMemory(); ok {
-		_spec.AddField(submitcase.FieldMemory, field.TypeInt32, value)
+		_spec.AddField(submissioncase.FieldMemory, field.TypeInt32, value)
 	}
 	if scuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.SubmissionTable,
-			Columns: []string{submitcase.SubmissionColumn},
+			Table:   submissioncase.SubmissionTable,
+			Columns: []string{submissioncase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -678,11 +666,11 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.SubmissionTable,
-			Columns: []string{submitcase.SubmissionColumn},
+			Table:   submissioncase.SubmissionTable,
+			Columns: []string{submissioncase.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -694,8 +682,8 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.ProblemCasesTable,
-			Columns: []string{submitcase.ProblemCasesColumn},
+			Table:   submissioncase.ProblemCasesTable,
+			Columns: []string{submissioncase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
@@ -707,8 +695,8 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submitcase.ProblemCasesTable,
-			Columns: []string{submitcase.ProblemCasesColumn},
+			Table:   submissioncase.ProblemCasesTable,
+			Columns: []string{submissioncase.ProblemCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
@@ -719,12 +707,12 @@ func (scuo *SubmitCaseUpdateOne) sqlSave(ctx context.Context) (_node *SubmitCase
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &SubmitCase{config: scuo.config}
+	_node = &SubmissionCase{config: scuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, scuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{submitcase.Label}
+			err = &NotFoundError{submissioncase.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

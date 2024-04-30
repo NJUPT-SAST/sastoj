@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submissioncase"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -67,42 +67,30 @@ func (pcc *ProblemCaseCreate) SetProblemID(i int64) *ProblemCaseCreate {
 	return pcc
 }
 
-// SetFileLocation sets the "file_location" field.
-func (pcc *ProblemCaseCreate) SetFileLocation(s string) *ProblemCaseCreate {
-	pcc.mutation.SetFileLocation(s)
-	return pcc
-}
-
 // SetID sets the "id" field.
 func (pcc *ProblemCaseCreate) SetID(i int64) *ProblemCaseCreate {
 	pcc.mutation.SetID(i)
 	return pcc
 }
 
-// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (pcc *ProblemCaseCreate) AddSubmitCaseIDs(ids ...int64) *ProblemCaseCreate {
-	pcc.mutation.AddSubmitCaseIDs(ids...)
+// AddSubmissionCaseIDs adds the "submission_cases" edge to the SubmissionCase entity by IDs.
+func (pcc *ProblemCaseCreate) AddSubmissionCaseIDs(ids ...int64) *ProblemCaseCreate {
+	pcc.mutation.AddSubmissionCaseIDs(ids...)
 	return pcc
 }
 
-// AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
-func (pcc *ProblemCaseCreate) AddSubmitCases(s ...*SubmitCase) *ProblemCaseCreate {
+// AddSubmissionCases adds the "submission_cases" edges to the SubmissionCase entity.
+func (pcc *ProblemCaseCreate) AddSubmissionCases(s ...*SubmissionCase) *ProblemCaseCreate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return pcc.AddSubmitCaseIDs(ids...)
+	return pcc.AddSubmissionCaseIDs(ids...)
 }
 
-// SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (pcc *ProblemCaseCreate) SetProblemsID(id int64) *ProblemCaseCreate {
-	pcc.mutation.SetProblemsID(id)
-	return pcc
-}
-
-// SetProblems sets the "problems" edge to the Problem entity.
-func (pcc *ProblemCaseCreate) SetProblems(p *Problem) *ProblemCaseCreate {
-	return pcc.SetProblemsID(p.ID)
+// SetProblem sets the "problem" edge to the Problem entity.
+func (pcc *ProblemCaseCreate) SetProblem(p *Problem) *ProblemCaseCreate {
+	return pcc.SetProblemID(p.ID)
 }
 
 // Mutation returns the ProblemCaseMutation object of the builder.
@@ -177,11 +165,8 @@ func (pcc *ProblemCaseCreate) check() error {
 	if _, ok := pcc.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "ProblemCase.problem_id"`)}
 	}
-	if _, ok := pcc.mutation.FileLocation(); !ok {
-		return &ValidationError{Name: "file_location", err: errors.New(`ent: missing required field "ProblemCase.file_location"`)}
-	}
-	if _, ok := pcc.mutation.ProblemsID(); !ok {
-		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "ProblemCase.problems"`)}
+	if _, ok := pcc.mutation.ProblemID(); !ok {
+		return &ValidationError{Name: "problem", err: errors.New(`ent: missing required edge "ProblemCase.problem"`)}
 	}
 	return nil
 }
@@ -231,19 +216,15 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		_spec.SetField(problemcase.FieldIsDeleted, field.TypeBool, value)
 		_node.IsDeleted = value
 	}
-	if value, ok := pcc.mutation.FileLocation(); ok {
-		_spec.SetField(problemcase.FieldFileLocation, field.TypeString, value)
-		_node.FileLocation = value
-	}
-	if nodes := pcc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
+	if nodes := pcc.mutation.SubmissionCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   problemcase.SubmitCasesTable,
-			Columns: []string{problemcase.SubmitCasesColumn},
+			Table:   problemcase.SubmissionCasesTable,
+			Columns: []string{problemcase.SubmissionCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -251,12 +232,12 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pcc.mutation.ProblemsIDs(); len(nodes) > 0 {
+	if nodes := pcc.mutation.ProblemIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   problemcase.ProblemsTable,
-			Columns: []string{problemcase.ProblemsColumn},
+			Table:   problemcase.ProblemTable,
+			Columns: []string{problemcase.ProblemColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),

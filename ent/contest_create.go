@@ -113,34 +113,34 @@ func (cc *ContestCreate) AddProblems(p ...*Problem) *ContestCreate {
 	return cc.AddProblemIDs(ids...)
 }
 
-// AddContestIDs adds the "contest" edge to the Group entity by IDs.
-func (cc *ContestCreate) AddContestIDs(ids ...int64) *ContestCreate {
-	cc.mutation.AddContestIDs(ids...)
+// AddContestantIDs adds the "contestants" edge to the Group entity by IDs.
+func (cc *ContestCreate) AddContestantIDs(ids ...int64) *ContestCreate {
+	cc.mutation.AddContestantIDs(ids...)
 	return cc
 }
 
-// AddContest adds the "contest" edges to the Group entity.
-func (cc *ContestCreate) AddContest(g ...*Group) *ContestCreate {
+// AddContestants adds the "contestants" edges to the Group entity.
+func (cc *ContestCreate) AddContestants(g ...*Group) *ContestCreate {
 	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
-	return cc.AddContestIDs(ids...)
+	return cc.AddContestantIDs(ids...)
 }
 
-// AddManageIDs adds the "manage" edge to the Group entity by IDs.
-func (cc *ContestCreate) AddManageIDs(ids ...int64) *ContestCreate {
-	cc.mutation.AddManageIDs(ids...)
+// AddManagerIDs adds the "managers" edge to the Group entity by IDs.
+func (cc *ContestCreate) AddManagerIDs(ids ...int64) *ContestCreate {
+	cc.mutation.AddManagerIDs(ids...)
 	return cc
 }
 
-// AddManage adds the "manage" edges to the Group entity.
-func (cc *ContestCreate) AddManage(g ...*Group) *ContestCreate {
+// AddManagers adds the "managers" edges to the Group entity.
+func (cc *ContestCreate) AddManagers(g ...*Group) *ContestCreate {
 	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
-	return cc.AddManageIDs(ids...)
+	return cc.AddManagerIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -316,12 +316,12 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cc.mutation.ContestIDs(); len(nodes) > 0 {
+	if nodes := cc.mutation.ContestantsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   contest.ContestTable,
-			Columns: contest.ContestPrimaryKey,
+			Inverse: false,
+			Table:   contest.ContestantsTable,
+			Columns: contest.ContestantsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
@@ -332,12 +332,12 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := cc.mutation.ManageIDs(); len(nodes) > 0 {
+	if nodes := cc.mutation.ManagersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   contest.ManageTable,
-			Columns: contest.ManagePrimaryKey,
+			Inverse: false,
+			Table:   contest.ManagersTable,
+			Columns: contest.ManagersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),

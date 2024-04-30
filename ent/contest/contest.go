@@ -34,10 +34,10 @@ const (
 	FieldCreateTime = "create_time"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
-	// EdgeContest holds the string denoting the contest edge name in mutations.
-	EdgeContest = "contest"
-	// EdgeManage holds the string denoting the manage edge name in mutations.
-	EdgeManage = "manage"
+	// EdgeContestants holds the string denoting the contestants edge name in mutations.
+	EdgeContestants = "contestants"
+	// EdgeManagers holds the string denoting the managers edge name in mutations.
+	EdgeManagers = "managers"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
 	// ProblemsTable is the table that holds the problems relation/edge.
@@ -47,16 +47,16 @@ const (
 	ProblemsInverseTable = "problems"
 	// ProblemsColumn is the table column denoting the problems relation/edge.
 	ProblemsColumn = "contest_id"
-	// ContestTable is the table that holds the contest relation/edge. The primary key declared below.
-	ContestTable = "group_contestants"
-	// ContestInverseTable is the table name for the Group entity.
+	// ContestantsTable is the table that holds the contestants relation/edge. The primary key declared below.
+	ContestantsTable = "contest_contestants"
+	// ContestantsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	ContestInverseTable = "groups"
-	// ManageTable is the table that holds the manage relation/edge. The primary key declared below.
-	ManageTable = "group_admins"
-	// ManageInverseTable is the table name for the Group entity.
+	ContestantsInverseTable = "groups"
+	// ManagersTable is the table that holds the managers relation/edge. The primary key declared below.
+	ManagersTable = "contest_managers"
+	// ManagersInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	ManageInverseTable = "groups"
+	ManagersInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for contest fields.
@@ -74,12 +74,12 @@ var Columns = []string{
 }
 
 var (
-	// ContestPrimaryKey and ContestColumn2 are the table columns denoting the
-	// primary key for the contest relation (M2M).
-	ContestPrimaryKey = []string{"group_id", "contest_id"}
-	// ManagePrimaryKey and ManageColumn2 are the table columns denoting the
-	// primary key for the manage relation (M2M).
-	ManagePrimaryKey = []string{"group_id", "contest_id"}
+	// ContestantsPrimaryKey and ContestantsColumn2 are the table columns denoting the
+	// primary key for the contestants relation (M2M).
+	ContestantsPrimaryKey = []string{"contest_id", "group_id"}
+	// ManagersPrimaryKey and ManagersColumn2 are the table columns denoting the
+	// primary key for the managers relation (M2M).
+	ManagersPrimaryKey = []string{"contest_id", "group_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -172,31 +172,31 @@ func ByProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByContestCount orders the results by contest count.
-func ByContestCount(opts ...sql.OrderTermOption) OrderOption {
+// ByContestantsCount orders the results by contestants count.
+func ByContestantsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newContestStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newContestantsStep(), opts...)
 	}
 }
 
-// ByContest orders the results by contest terms.
-func ByContest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByContestants orders the results by contestants terms.
+func ByContestants(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newContestantsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByManageCount orders the results by manage count.
-func ByManageCount(opts ...sql.OrderTermOption) OrderOption {
+// ByManagersCount orders the results by managers count.
+func ByManagersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newManageStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newManagersStep(), opts...)
 	}
 }
 
-// ByManage orders the results by manage terms.
-func ByManage(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByManagers orders the results by managers terms.
+func ByManagers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newManageStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newManagersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newProblemsStep() *sqlgraph.Step {
@@ -206,17 +206,17 @@ func newProblemsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, ProblemsTable, ProblemsColumn),
 	)
 }
-func newContestStep() *sqlgraph.Step {
+func newContestantsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, ContestTable, ContestPrimaryKey...),
+		sqlgraph.To(ContestantsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, ContestantsTable, ContestantsPrimaryKey...),
 	)
 }
-func newManageStep() *sqlgraph.Step {
+func newManagersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ManageInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, ManageTable, ManagePrimaryKey...),
+		sqlgraph.To(ManagersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, ManagersTable, ManagersPrimaryKey...),
 	)
 }

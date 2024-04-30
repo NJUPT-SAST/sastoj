@@ -15,6 +15,12 @@ service User {
 			body: "*"
 		};
 	};
+	rpc BatchCreateUser ( BatchCreateUserRequest) returns (BatchCreateUserReply) {
+		option (google.api.http) = {
+			post: "/users"
+			body: "*"
+		};
+	};
 	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply){
 		option (google.api.http) = {
 			put: "/user"
@@ -46,7 +52,17 @@ message CreateUserRequest {
 message CreateUserReply {
 	int64 id = 1;
 }
-
+message BatchCreateUserRequest {
+	int64 group_id = 1;
+	int64 number = 2;
+}
+message BatchCreateUserReply {
+	message User {
+		string username = 1;
+		string password = 2;
+	}
+	repeated User users = 1;
+}
 message UpdateUserRequest {
 	int64 id = 1;
 	string username = 2;
