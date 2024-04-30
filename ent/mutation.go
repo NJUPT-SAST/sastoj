@@ -3624,7 +3624,6 @@ type ProblemCaseMutation struct {
 	addindex            *int16
 	is_auto             *bool
 	is_deleted          *bool
-	file_location       *string
 	clearedFields       map[string]struct{}
 	submit_cases        map[int64]struct{}
 	removedsubmit_cases map[int64]struct{}
@@ -3960,42 +3959,6 @@ func (m *ProblemCaseMutation) ResetProblemID() {
 	m.problems = nil
 }
 
-// SetFileLocation sets the "file_location" field.
-func (m *ProblemCaseMutation) SetFileLocation(s string) {
-	m.file_location = &s
-}
-
-// FileLocation returns the value of the "file_location" field in the mutation.
-func (m *ProblemCaseMutation) FileLocation() (r string, exists bool) {
-	v := m.file_location
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldFileLocation returns the old "file_location" field's value of the ProblemCase entity.
-// If the ProblemCase object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemCaseMutation) OldFileLocation(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFileLocation is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFileLocation requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFileLocation: %w", err)
-	}
-	return oldValue.FileLocation, nil
-}
-
-// ResetFileLocation resets all changes to the "file_location" field.
-func (m *ProblemCaseMutation) ResetFileLocation() {
-	m.file_location = nil
-}
-
 // AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by ids.
 func (m *ProblemCaseMutation) AddSubmitCaseIDs(ids ...int64) {
 	if m.submit_cases == nil {
@@ -4124,7 +4087,7 @@ func (m *ProblemCaseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemCaseMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 5)
 	if m.point != nil {
 		fields = append(fields, problemcase.FieldPoint)
 	}
@@ -4139,9 +4102,6 @@ func (m *ProblemCaseMutation) Fields() []string {
 	}
 	if m.problems != nil {
 		fields = append(fields, problemcase.FieldProblemID)
-	}
-	if m.file_location != nil {
-		fields = append(fields, problemcase.FieldFileLocation)
 	}
 	return fields
 }
@@ -4161,8 +4121,6 @@ func (m *ProblemCaseMutation) Field(name string) (ent.Value, bool) {
 		return m.IsDeleted()
 	case problemcase.FieldProblemID:
 		return m.ProblemID()
-	case problemcase.FieldFileLocation:
-		return m.FileLocation()
 	}
 	return nil, false
 }
@@ -4182,8 +4140,6 @@ func (m *ProblemCaseMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldIsDeleted(ctx)
 	case problemcase.FieldProblemID:
 		return m.OldProblemID(ctx)
-	case problemcase.FieldFileLocation:
-		return m.OldFileLocation(ctx)
 	}
 	return nil, fmt.Errorf("unknown ProblemCase field %s", name)
 }
@@ -4227,13 +4183,6 @@ func (m *ProblemCaseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProblemID(v)
-		return nil
-	case problemcase.FieldFileLocation:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetFileLocation(v)
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase field %s", name)
@@ -4325,9 +4274,6 @@ func (m *ProblemCaseMutation) ResetField(name string) error {
 		return nil
 	case problemcase.FieldProblemID:
 		m.ResetProblemID()
-		return nil
-	case problemcase.FieldFileLocation:
-		m.ResetFileLocation()
 		return nil
 	}
 	return fmt.Errorf("unknown ProblemCase field %s", name)

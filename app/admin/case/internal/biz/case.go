@@ -2,7 +2,12 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"mime/multipart"
+	"sastoj/pkg/util"
+	"strconv"
+	"strings"
 )
 
 type Case struct {
@@ -19,6 +24,7 @@ type CaseRepo interface {
 	DeleteByCaseIds(context.Context, []int64) error
 	DeleteByProblemId(context.Context, int64) error
 	FindByProblemId(context.Context, int64) ([]*Case, error)
+	UploadCasesFile(int64, multipart.File, string) (util.Simple, error)
 }
 
 type CaseUsecase struct {
@@ -69,4 +75,41 @@ func (uc *CaseUsecase) UpdateCase(ctx context.Context, c *Case) error {
 		return err
 	}
 	return nil
+}
+
+func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFile multipart.File, filename string) ([]int64, error) {
+	uc.log.WithContext(ctx).Infof("start uploading %v", filename)
+	config, err := uc.repo.UploadCasesFile(problemId, casesFile, filename)
+	if err != nil {
+		return nil, err
+	}
+	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
+	var cases []*Case
+	for _, c := range config.Judge.Cases {
+		fmt.Println("case index: ", strings.Split(c.Input, ".")[0])
+		index, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
+		if err != nil {
+			return nil, err
+		}
+		if c.Score == 0 {
+			cases = append(cases, &Case{
+				ProblemId: problemId,
+				Point:     int32(config.Score / int16(len(config.Judge.Cases))),
+				Index:     int32(index),
+				IsAuto:    true,
+			})
+			continue
+		}
+		cases = append(cases, &Case{
+			ProblemId: problemId,
+			Point:     int32(c.Score),
+			Index:     int32(index),
+			IsAuto:    false,
+		})
+	}
+	out, err := uc.repo.Save(ctx, problemId, cases)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }

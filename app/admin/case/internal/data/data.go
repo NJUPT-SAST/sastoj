@@ -20,7 +20,8 @@ var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo)
 
 // Data .
 type Data struct {
-	db *ent.Client
+	db                  *ent.Client
+	uploadCasesLocation string
 }
 
 // NewData .
@@ -55,5 +56,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client}, cleanup, nil
+	return &Data{db: client, uploadCasesLocation: c.Load.GetUploadCasesLocation()}, cleanup, nil
 }

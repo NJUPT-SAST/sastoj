@@ -101,7 +101,6 @@ var (
 		{Name: "index", Type: field.TypeInt16},
 		{Name: "is_auto", Type: field.TypeBool, Default: false},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
-		{Name: "file_location", Type: field.TypeString},
 		{Name: "problem_id", Type: field.TypeInt64},
 	}
 	// ProblemCasesTable holds the schema information for the "problem_cases" table.
@@ -112,7 +111,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "problem_cases_problems_problem_cases",
-				Columns:    []*schema.Column{ProblemCasesColumns[6]},
+				Columns:    []*schema.Column{ProblemCasesColumns[5]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

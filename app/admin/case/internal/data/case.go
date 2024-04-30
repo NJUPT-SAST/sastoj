@@ -3,10 +3,16 @@ package data
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/mholt/archiver/v3"
+	"io"
+	"mime/multipart"
+	"os"
 	"sastoj/app/admin/case/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
+	"sastoj/pkg/util"
+	"strconv"
 )
 
 type caseRepo struct {
@@ -23,16 +29,8 @@ func NewProblemCaseRepo(data *Data, logger log.Logger) biz.CaseRepo {
 }
 
 func (r *caseRepo) Save(ctx context.Context, pi int64, cs []*biz.Case) ([]int64, error) {
-	var points []int32
-	var indexes []int32
-	var isAutos []bool
-	for _, c := range cs {
-		points = append(points, c.Point)
-		indexes = append(indexes, c.Index)
-		isAutos = append(isAutos, c.IsAuto)
-	}
-	rcs, err := r.data.db.ProblemCase.MapCreateBulk(points, func(c *ent.ProblemCaseCreate, i int) {
-		c.SetPoint(int16(points[i])).SetIndex(int16(indexes[i])).SetIsAuto(isAutos[i]).SetProblemsID(pi)
+	rcs, err := r.data.db.ProblemCase.MapCreateBulk(cs, func(c *ent.ProblemCaseCreate, i int) {
+		c.SetPoint(int16(cs[i].Point)).SetIndex(int16(cs[i].Index)).SetIsAuto(cs[i].IsAuto).SetProblemsID(pi)
 	}).Save(ctx)
 	if err != nil {
 		return nil, err
@@ -89,4 +87,73 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 		})
 	}
 	return rv, nil
+}
+
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string) (util.Simple, error) {
+	base := r.data.uploadCasesLocation
+	location := base + "/" + strconv.FormatInt(problemId, 10) + "/"
+	if _, err := os.Stat(location); err == nil {
+		err := os.RemoveAll(location)
+		if err != nil {
+			return util.Simple{}, err
+		}
+	}
+	err := os.Mkdir(location, os.ModePerm)
+	if err != nil {
+		return util.Simple{}, err
+	}
+	f, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
+	if err != nil {
+		return util.Simple{}, err
+	}
+	defer f.Close()
+	_, _ = io.Copy(f, casesFile)
+
+	// decompressed
+	err = archiver.Unarchive(location+filename, location)
+	if err != nil {
+		return util.Simple{}, err
+	}
+
+	// unmarshal toml
+	tomlText, err := os.ReadFile(location + "testdata" + "/" + "config.toml")
+	if err != nil {
+		return util.Simple{}, err
+	}
+	config := util.UnmarshalToml(tomlText)
+	return config, nil
+	//err = r.data.db.Problem.Update().SetPoint(config.Score).Where(problem.IDEQ(problemId)).Save(ctx)
+
+	//zst := archiver.Zstd{
+	//	EncoderOptions: nil,
+	//	DecoderOptions: nil,
+	//}
+	//
+	//cw, err := os.OpenFile(location+strconv.FormatInt(problemId, 10)+".tar.zst", os.O_RDWR|os.O_CREATE, 0o666)
+	//cr, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
+	//if err != nil {
+	//	return err
+	//}
+	//t := archiver.Tar{
+	//	OverwriteExisting:      false,
+	//	MkdirAll:               false,
+	//	ImplicitTopLevelFolder: false,
+	//	StripComponents:        0,
+	//	ContinueOnError:        false,
+	//}
+	//err = t.Archive([]string{location + strings.Split(filename, ".")[0] + "/" + "testdata"}, location+strings.Split(filename, ".")[0]+".tar")
+	//if err != nil {
+	//	return err
+	//}
+	//cr, err = os.OpenFile(location+strings.Split(filename, ".")[0]+".tar", os.O_RDWR|os.O_CREATE, 0o666)
+	//err = zst.Compress(cr, cw)
+	//defer cw.Close()
+	//defer cr.Close()
+	//if err != nil {
+	//	return err
+	//}
+
+	//r.data.db.ProblemCase.CreateBulk(
+	//	for cb :=
+	//	)
 }

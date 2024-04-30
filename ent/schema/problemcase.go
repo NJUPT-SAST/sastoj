@@ -20,7 +20,6 @@ func (ProblemCase) Fields() []ent.Field {
 		field.Bool("is_auto").Default(false).Comment("是否自动均分"),
 		field.Bool("is_deleted").Default(false),
 		field.Int64("problem_id"),
-		field.String("file_location"),
 	}
 }
 

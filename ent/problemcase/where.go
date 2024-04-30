@@ -79,11 +79,6 @@ func ProblemID(v int64) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldEQ(FieldProblemID, v))
 }
 
-// FileLocation applies equality check predicate on the "file_location" field. It's identical to FileLocationEQ.
-func FileLocation(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEQ(FieldFileLocation, v))
-}
-
 // PointEQ applies the EQ predicate on the "point" field.
 func PointEQ(v int16) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldEQ(FieldPoint, v))
@@ -202,71 +197,6 @@ func ProblemIDIn(vs ...int64) predicate.ProblemCase {
 // ProblemIDNotIn applies the NotIn predicate on the "problem_id" field.
 func ProblemIDNotIn(vs ...int64) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldNotIn(FieldProblemID, vs...))
-}
-
-// FileLocationEQ applies the EQ predicate on the "file_location" field.
-func FileLocationEQ(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEQ(FieldFileLocation, v))
-}
-
-// FileLocationNEQ applies the NEQ predicate on the "file_location" field.
-func FileLocationNEQ(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldNEQ(FieldFileLocation, v))
-}
-
-// FileLocationIn applies the In predicate on the "file_location" field.
-func FileLocationIn(vs ...string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldIn(FieldFileLocation, vs...))
-}
-
-// FileLocationNotIn applies the NotIn predicate on the "file_location" field.
-func FileLocationNotIn(vs ...string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldNotIn(FieldFileLocation, vs...))
-}
-
-// FileLocationGT applies the GT predicate on the "file_location" field.
-func FileLocationGT(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldGT(FieldFileLocation, v))
-}
-
-// FileLocationGTE applies the GTE predicate on the "file_location" field.
-func FileLocationGTE(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldGTE(FieldFileLocation, v))
-}
-
-// FileLocationLT applies the LT predicate on the "file_location" field.
-func FileLocationLT(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldLT(FieldFileLocation, v))
-}
-
-// FileLocationLTE applies the LTE predicate on the "file_location" field.
-func FileLocationLTE(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldLTE(FieldFileLocation, v))
-}
-
-// FileLocationContains applies the Contains predicate on the "file_location" field.
-func FileLocationContains(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldContains(FieldFileLocation, v))
-}
-
-// FileLocationHasPrefix applies the HasPrefix predicate on the "file_location" field.
-func FileLocationHasPrefix(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldHasPrefix(FieldFileLocation, v))
-}
-
-// FileLocationHasSuffix applies the HasSuffix predicate on the "file_location" field.
-func FileLocationHasSuffix(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldHasSuffix(FieldFileLocation, v))
-}
-
-// FileLocationEqualFold applies the EqualFold predicate on the "file_location" field.
-func FileLocationEqualFold(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldEqualFold(FieldFileLocation, v))
-}
-
-// FileLocationContainsFold applies the ContainsFold predicate on the "file_location" field.
-func FileLocationContainsFold(v string) predicate.ProblemCase {
-	return predicate.ProblemCase(sql.FieldContainsFold(FieldFileLocation, v))
 }
 
 // HasSubmitCases applies the HasEdge predicate on the "submit_cases" edge.

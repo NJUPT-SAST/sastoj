@@ -24,9 +24,6 @@ service CaseService {
   rpc GetCases(GetCasesRequest) returns (GetCasesReply) {
     option (google.api.http) = {get: "/case/{problem_id}"};
   };
-  rpc UploadCases(stream Chunk) returns (UploadCasesReply){
-    option (google.api.http) = {post: "/case/upload/{problem_id}" body: "*"};
-  }
 }
 
 message Case {
@@ -34,10 +31,6 @@ message Case {
   int32 point = 2;
   int32 index = 3;
   bool is_auto = 4;
-}
-
-message Chunk {
-  bytes Content = 1;
 }
 
 message CreateCasesRequest {
@@ -72,11 +65,4 @@ message GetCasesRequest {
 }
 message GetCasesReply {
   repeated Case results = 1;
-}
-
-message UploadCasesRequest {
-
-}
-message UploadCasesReply {
-  bool success = 1;
 }
