@@ -26,7 +26,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 		po, err = c.data.db.Contest.
 			Query().
 			Where(
-				contest.HasContestWith(
+				contest.HasContestantsWith(
 					group.HasUsersWith(
 						user.IDEQ(userID),
 					),
@@ -49,7 +49,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 	var ret []*biz.Contest
 	for _, v := range po {
 		var groups []int64
-		for _, g := range v.Edges.Contest {
+		for _, g := range v.Edges.Contestants {
 			groups = append(groups, g.ID)
 		}
 		ret = append(ret, &biz.Contest{
