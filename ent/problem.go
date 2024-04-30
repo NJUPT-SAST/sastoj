@@ -44,11 +44,11 @@ type ProblemEdges struct {
 	// ProblemCases holds the value of the problem_cases edge.
 	ProblemCases []*ProblemCase `json:"problem_cases,omitempty"`
 	// Submission holds the value of the submission edge.
-	Submission []*Submit `json:"submission,omitempty"`
+	Submission []*Submission `json:"submission,omitempty"`
 	// Contests holds the value of the contests edge.
 	Contests *Contest `json:"contests,omitempty"`
-	// Groups holds the value of the groups edge.
-	Groups []*Group `json:"groups,omitempty"`
+	// Judgers holds the value of the judgers edge.
+	Judgers []*Group `json:"judgers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -65,7 +65,7 @@ func (e ProblemEdges) ProblemCasesOrErr() ([]*ProblemCase, error) {
 
 // SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProblemEdges) SubmissionOrErr() ([]*Submit, error) {
+func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
 	if e.loadedTypes[1] {
 		return e.Submission, nil
 	}
@@ -85,13 +85,13 @@ func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
 	return nil, &NotLoadedError{edge: "contests"}
 }
 
-// GroupsOrErr returns the Groups value or an error if the edge
+// JudgersOrErr returns the Judgers value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProblemEdges) GroupsOrErr() ([]*Group, error) {
+func (e ProblemEdges) JudgersOrErr() ([]*Group, error) {
 	if e.loadedTypes[3] {
-		return e.Groups, nil
+		return e.Judgers, nil
 	}
-	return nil, &NotLoadedError{edge: "groups"}
+	return nil, &NotLoadedError{edge: "judgers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -193,7 +193,7 @@ func (pr *Problem) QueryProblemCases() *ProblemCaseQuery {
 }
 
 // QuerySubmission queries the "submission" edge of the Problem entity.
-func (pr *Problem) QuerySubmission() *SubmitQuery {
+func (pr *Problem) QuerySubmission() *SubmissionQuery {
 	return NewProblemClient(pr.config).QuerySubmission(pr)
 }
 
@@ -202,9 +202,9 @@ func (pr *Problem) QueryContests() *ContestQuery {
 	return NewProblemClient(pr.config).QueryContests(pr)
 }
 
-// QueryGroups queries the "groups" edge of the Problem entity.
-func (pr *Problem) QueryGroups() *GroupQuery {
-	return NewProblemClient(pr.config).QueryGroups(pr)
+// QueryJudgers queries the "judgers" edge of the Problem entity.
+func (pr *Problem) QueryJudgers() *GroupQuery {
+	return NewProblemClient(pr.config).QueryJudgers(pr)
 }
 
 // Update returns a builder for updating this Problem.

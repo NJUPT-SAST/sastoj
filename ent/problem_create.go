@@ -10,7 +10,7 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -108,14 +108,14 @@ func (pc *ProblemCreate) AddProblemCases(p ...*ProblemCase) *ProblemCreate {
 	return pc.AddProblemCaseIDs(ids...)
 }
 
-// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+// AddSubmissionIDs adds the "submission" edge to the Submission entity by IDs.
 func (pc *ProblemCreate) AddSubmissionIDs(ids ...int64) *ProblemCreate {
 	pc.mutation.AddSubmissionIDs(ids...)
 	return pc
 }
 
-// AddSubmission adds the "submission" edges to the Submit entity.
-func (pc *ProblemCreate) AddSubmission(s ...*Submit) *ProblemCreate {
+// AddSubmission adds the "submission" edges to the Submission entity.
+func (pc *ProblemCreate) AddSubmission(s ...*Submission) *ProblemCreate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -134,19 +134,19 @@ func (pc *ProblemCreate) SetContests(c *Contest) *ProblemCreate {
 	return pc.SetContestsID(c.ID)
 }
 
-// AddGroupIDs adds the "groups" edge to the Group entity by IDs.
-func (pc *ProblemCreate) AddGroupIDs(ids ...int64) *ProblemCreate {
-	pc.mutation.AddGroupIDs(ids...)
+// AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
+func (pc *ProblemCreate) AddJudgerIDs(ids ...int64) *ProblemCreate {
+	pc.mutation.AddJudgerIDs(ids...)
 	return pc
 }
 
-// AddGroups adds the "groups" edges to the Group entity.
-func (pc *ProblemCreate) AddGroups(g ...*Group) *ProblemCreate {
+// AddJudgers adds the "judgers" edges to the Group entity.
+func (pc *ProblemCreate) AddJudgers(g ...*Group) *ProblemCreate {
 	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
-	return pc.AddGroupIDs(ids...)
+	return pc.AddJudgerIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -317,7 +317,7 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			Columns: []string{problem.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -342,12 +342,12 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.ContestID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.GroupsIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.JudgersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   problem.GroupsTable,
-			Columns: problem.GroupsPrimaryKey,
+			Inverse: false,
+			Table:   problem.JudgersTable,
+			Columns: problem.JudgersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),

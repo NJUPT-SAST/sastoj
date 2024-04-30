@@ -2,26 +2,18 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"time"
 )
 
-// Submit holds the schema definition for the Submit entity.
-type Submit struct {
+// Submission holds the schema definition for the Submission entity.
+type Submission struct {
 	ent.Schema
 }
 
-func (Submit) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "submit"},
-	}
-}
-
-// Fields of the Submit.
-func (Submit) Fields() []ent.Field {
+// Fields of the Submission.
+func (Submission) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique(),
 		field.Text("code"),
@@ -37,10 +29,10 @@ func (Submit) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Submit.
-func (Submit) Edges() []ent.Edge {
+// Edges of the Submission.
+func (Submission) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("submit_cases", SubmitCase.Type),
+		edge.To("submission_cases", SubmissionCase.Type),
 		edge.From("problems", Problem.Type).Ref("submission").Field("problem_id").Unique().Required(),
 		edge.From("users", User.Type).Ref("submission").Field("user_id").Unique().Required(),
 	}

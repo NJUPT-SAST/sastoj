@@ -199,21 +199,21 @@ func ProblemIDNotIn(vs ...int64) predicate.ProblemCase {
 	return predicate.ProblemCase(sql.FieldNotIn(FieldProblemID, vs...))
 }
 
-// HasSubmitCases applies the HasEdge predicate on the "submit_cases" edge.
-func HasSubmitCases() predicate.ProblemCase {
+// HasSubmissionCases applies the HasEdge predicate on the "submission_cases" edge.
+func HasSubmissionCases() predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SubmitCasesTable, SubmitCasesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionCasesTable, SubmissionCasesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSubmitCasesWith applies the HasEdge predicate on the "submit_cases" edge with a given conditions (other predicates).
-func HasSubmitCasesWith(preds ...predicate.SubmitCase) predicate.ProblemCase {
+// HasSubmissionCasesWith applies the HasEdge predicate on the "submission_cases" edge with a given conditions (other predicates).
+func HasSubmissionCasesWith(preds ...predicate.SubmissionCase) predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
-		step := newSubmitCasesStep()
+		step := newSubmissionCasesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -222,21 +222,21 @@ func HasSubmitCasesWith(preds ...predicate.SubmitCase) predicate.ProblemCase {
 	})
 }
 
-// HasProblems applies the HasEdge predicate on the "problems" edge.
-func HasProblems() predicate.ProblemCase {
+// HasProblem applies the HasEdge predicate on the "problem" edge.
+func HasProblem() predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProblemsTable, ProblemsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProblemTable, ProblemColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProblemsWith applies the HasEdge predicate on the "problems" edge with a given conditions (other predicates).
-func HasProblemsWith(preds ...predicate.Problem) predicate.ProblemCase {
+// HasProblemWith applies the HasEdge predicate on the "problem" edge with a given conditions (other predicates).
+func HasProblemWith(preds ...predicate.Problem) predicate.ProblemCase {
 	return predicate.ProblemCase(func(s *sql.Selector) {
-		step := newProblemsStep()
+		step := newProblemStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

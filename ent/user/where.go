@@ -346,7 +346,7 @@ func HasSubmission() predicate.User {
 }
 
 // HasSubmissionWith applies the HasEdge predicate on the "submission" edge with a given conditions (other predicates).
-func HasSubmissionWith(preds ...predicate.Submit) predicate.User {
+func HasSubmissionWith(preds ...predicate.Submission) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newSubmissionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {

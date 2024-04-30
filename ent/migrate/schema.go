@@ -117,8 +117,8 @@ var (
 			},
 		},
 	}
-	// SubmitColumns holds the columns for the "submit" table.
-	SubmitColumns = []*schema.Column{
+	// SubmissionsColumns holds the columns for the "submissions" table.
+	SubmissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "status", Type: field.TypeInt16},
@@ -131,28 +131,28 @@ var (
 		{Name: "problem_id", Type: field.TypeInt64},
 		{Name: "user_id", Type: field.TypeInt64},
 	}
-	// SubmitTable holds the schema information for the "submit" table.
-	SubmitTable = &schema.Table{
-		Name:       "submit",
-		Columns:    SubmitColumns,
-		PrimaryKey: []*schema.Column{SubmitColumns[0]},
+	// SubmissionsTable holds the schema information for the "submissions" table.
+	SubmissionsTable = &schema.Table{
+		Name:       "submissions",
+		Columns:    SubmissionsColumns,
+		PrimaryKey: []*schema.Column{SubmissionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submit_problems_submission",
-				Columns:    []*schema.Column{SubmitColumns[9]},
+				Symbol:     "submissions_problems_submission",
+				Columns:    []*schema.Column{SubmissionsColumns[9]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "submit_users_submission",
-				Columns:    []*schema.Column{SubmitColumns[10]},
+				Symbol:     "submissions_users_submission",
+				Columns:    []*schema.Column{SubmissionsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 	}
-	// SubmitCasesColumns holds the columns for the "submit_cases" table.
-	SubmitCasesColumns = []*schema.Column{
+	// SubmissionCasesColumns holds the columns for the "submission_cases" table.
+	SubmissionCasesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "state", Type: field.TypeInt16},
 		{Name: "point", Type: field.TypeInt16},
@@ -160,24 +160,24 @@ var (
 		{Name: "time", Type: field.TypeInt32},
 		{Name: "memory", Type: field.TypeInt32},
 		{Name: "problem_case_id", Type: field.TypeInt64},
-		{Name: "submit_id", Type: field.TypeInt64},
+		{Name: "submission_id", Type: field.TypeInt64},
 	}
-	// SubmitCasesTable holds the schema information for the "submit_cases" table.
-	SubmitCasesTable = &schema.Table{
-		Name:       "submit_cases",
-		Columns:    SubmitCasesColumns,
-		PrimaryKey: []*schema.Column{SubmitCasesColumns[0]},
+	// SubmissionCasesTable holds the schema information for the "submission_cases" table.
+	SubmissionCasesTable = &schema.Table{
+		Name:       "submission_cases",
+		Columns:    SubmissionCasesColumns,
+		PrimaryKey: []*schema.Column{SubmissionCasesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submit_cases_problem_cases_submit_cases",
-				Columns:    []*schema.Column{SubmitCasesColumns[6]},
+				Symbol:     "submission_cases_problem_cases_submission_cases",
+				Columns:    []*schema.Column{SubmissionCasesColumns[6]},
 				RefColumns: []*schema.Column{ProblemCasesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "submit_cases_submit_submit_cases",
-				Columns:    []*schema.Column{SubmitCasesColumns[7]},
-				RefColumns: []*schema.Column{SubmitColumns[0]},
+				Symbol:     "submission_cases_submissions_submission_cases",
+				Columns:    []*schema.Column{SubmissionCasesColumns[7]},
+				RefColumns: []*schema.Column{SubmissionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -205,77 +205,77 @@ var (
 			},
 		},
 	}
-	// GroupAdminsColumns holds the columns for the "group_admins" table.
-	GroupAdminsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt64},
+	// ContestContestantsColumns holds the columns for the "contest_contestants" table.
+	ContestContestantsColumns = []*schema.Column{
 		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "group_id", Type: field.TypeInt64},
 	}
-	// GroupAdminsTable holds the schema information for the "group_admins" table.
-	GroupAdminsTable = &schema.Table{
-		Name:       "group_admins",
-		Columns:    GroupAdminsColumns,
-		PrimaryKey: []*schema.Column{GroupAdminsColumns[0], GroupAdminsColumns[1]},
+	// ContestContestantsTable holds the schema information for the "contest_contestants" table.
+	ContestContestantsTable = &schema.Table{
+		Name:       "contest_contestants",
+		Columns:    ContestContestantsColumns,
+		PrimaryKey: []*schema.Column{ContestContestantsColumns[0], ContestContestantsColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "group_admins_group_id",
-				Columns:    []*schema.Column{GroupAdminsColumns[0]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
+				Symbol:     "contest_contestants_contest_id",
+				Columns:    []*schema.Column{ContestContestantsColumns[0]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "group_admins_contest_id",
-				Columns:    []*schema.Column{GroupAdminsColumns[1]},
-				RefColumns: []*schema.Column{ContestsColumns[0]},
+				Symbol:     "contest_contestants_group_id",
+				Columns:    []*schema.Column{ContestContestantsColumns[1]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
-	// GroupContestantsColumns holds the columns for the "group_contestants" table.
-	GroupContestantsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt64},
+	// ContestManagersColumns holds the columns for the "contest_managers" table.
+	ContestManagersColumns = []*schema.Column{
 		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "group_id", Type: field.TypeInt64},
 	}
-	// GroupContestantsTable holds the schema information for the "group_contestants" table.
-	GroupContestantsTable = &schema.Table{
-		Name:       "group_contestants",
-		Columns:    GroupContestantsColumns,
-		PrimaryKey: []*schema.Column{GroupContestantsColumns[0], GroupContestantsColumns[1]},
+	// ContestManagersTable holds the schema information for the "contest_managers" table.
+	ContestManagersTable = &schema.Table{
+		Name:       "contest_managers",
+		Columns:    ContestManagersColumns,
+		PrimaryKey: []*schema.Column{ContestManagersColumns[0], ContestManagersColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "group_contestants_group_id",
-				Columns:    []*schema.Column{GroupContestantsColumns[0]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
+				Symbol:     "contest_managers_contest_id",
+				Columns:    []*schema.Column{ContestManagersColumns[0]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "group_contestants_contest_id",
-				Columns:    []*schema.Column{GroupContestantsColumns[1]},
-				RefColumns: []*schema.Column{ContestsColumns[0]},
+				Symbol:     "contest_managers_group_id",
+				Columns:    []*schema.Column{ContestManagersColumns[1]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
-	// GroupProblemsColumns holds the columns for the "group_problems" table.
-	GroupProblemsColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt64},
+	// ProblemJudgersColumns holds the columns for the "problem_judgers" table.
+	ProblemJudgersColumns = []*schema.Column{
 		{Name: "problem_id", Type: field.TypeInt64},
+		{Name: "group_id", Type: field.TypeInt64},
 	}
-	// GroupProblemsTable holds the schema information for the "group_problems" table.
-	GroupProblemsTable = &schema.Table{
-		Name:       "group_problems",
-		Columns:    GroupProblemsColumns,
-		PrimaryKey: []*schema.Column{GroupProblemsColumns[0], GroupProblemsColumns[1]},
+	// ProblemJudgersTable holds the schema information for the "problem_judgers" table.
+	ProblemJudgersTable = &schema.Table{
+		Name:       "problem_judgers",
+		Columns:    ProblemJudgersColumns,
+		PrimaryKey: []*schema.Column{ProblemJudgersColumns[0], ProblemJudgersColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "group_problems_group_id",
-				Columns:    []*schema.Column{GroupProblemsColumns[0]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
+				Symbol:     "problem_judgers_problem_id",
+				Columns:    []*schema.Column{ProblemJudgersColumns[0]},
+				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "group_problems_problem_id",
-				Columns:    []*schema.Column{GroupProblemsColumns[1]},
-				RefColumns: []*schema.Column{ProblemsColumns[0]},
+				Symbol:     "problem_judgers_group_id",
+				Columns:    []*schema.Column{ProblemJudgersColumns[1]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -287,12 +287,12 @@ var (
 		LoginSessionTable,
 		ProblemsTable,
 		ProblemCasesTable,
-		SubmitTable,
-		SubmitCasesTable,
+		SubmissionsTable,
+		SubmissionCasesTable,
 		UsersTable,
-		GroupAdminsTable,
-		GroupContestantsTable,
-		GroupProblemsTable,
+		ContestContestantsTable,
+		ContestManagersTable,
+		ProblemJudgersTable,
 	}
 )
 
@@ -304,18 +304,15 @@ func init() {
 	}
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
 	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
-	SubmitTable.ForeignKeys[0].RefTable = ProblemsTable
-	SubmitTable.ForeignKeys[1].RefTable = UsersTable
-	SubmitTable.Annotation = &entsql.Annotation{
-		Table: "submit",
-	}
-	SubmitCasesTable.ForeignKeys[0].RefTable = ProblemCasesTable
-	SubmitCasesTable.ForeignKeys[1].RefTable = SubmitTable
+	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
+	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
+	SubmissionCasesTable.ForeignKeys[0].RefTable = ProblemCasesTable
+	SubmissionCasesTable.ForeignKeys[1].RefTable = SubmissionsTable
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
-	GroupAdminsTable.ForeignKeys[0].RefTable = GroupsTable
-	GroupAdminsTable.ForeignKeys[1].RefTable = ContestsTable
-	GroupContestantsTable.ForeignKeys[0].RefTable = GroupsTable
-	GroupContestantsTable.ForeignKeys[1].RefTable = ContestsTable
-	GroupProblemsTable.ForeignKeys[0].RefTable = GroupsTable
-	GroupProblemsTable.ForeignKeys[1].RefTable = ProblemsTable
+	ContestContestantsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestContestantsTable.ForeignKeys[1].RefTable = GroupsTable
+	ContestManagersTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestManagersTable.ForeignKeys[1].RefTable = GroupsTable
+	ProblemJudgersTable.ForeignKeys[0].RefTable = ProblemsTable
+	ProblemJudgersTable.ForeignKeys[1].RefTable = GroupsTable
 }

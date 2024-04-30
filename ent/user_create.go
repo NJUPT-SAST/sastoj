@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -66,14 +66,14 @@ func (uc *UserCreate) SetID(i int64) *UserCreate {
 	return uc
 }
 
-// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+// AddSubmissionIDs adds the "submission" edge to the Submission entity by IDs.
 func (uc *UserCreate) AddSubmissionIDs(ids ...int64) *UserCreate {
 	uc.mutation.AddSubmissionIDs(ids...)
 	return uc
 }
 
-// AddSubmission adds the "submission" edges to the Submit entity.
-func (uc *UserCreate) AddSubmission(s ...*Submit) *UserCreate {
+// AddSubmission adds the "submission" edges to the Submission entity.
+func (uc *UserCreate) AddSubmission(s ...*Submission) *UserCreate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -229,7 +229,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

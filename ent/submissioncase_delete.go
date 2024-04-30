@@ -5,33 +5,33 @@ package ent
 import (
 	"context"
 	"sastoj/ent/predicate"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submissioncase"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitCaseDelete is the builder for deleting a SubmitCase entity.
-type SubmitCaseDelete struct {
+// SubmissionCaseDelete is the builder for deleting a SubmissionCase entity.
+type SubmissionCaseDelete struct {
 	config
 	hooks    []Hook
-	mutation *SubmitCaseMutation
+	mutation *SubmissionCaseMutation
 }
 
-// Where appends a list predicates to the SubmitCaseDelete builder.
-func (scd *SubmitCaseDelete) Where(ps ...predicate.SubmitCase) *SubmitCaseDelete {
+// Where appends a list predicates to the SubmissionCaseDelete builder.
+func (scd *SubmissionCaseDelete) Where(ps ...predicate.SubmissionCase) *SubmissionCaseDelete {
 	scd.mutation.Where(ps...)
 	return scd
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (scd *SubmitCaseDelete) Exec(ctx context.Context) (int, error) {
+func (scd *SubmissionCaseDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, scd.sqlExec, scd.mutation, scd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scd *SubmitCaseDelete) ExecX(ctx context.Context) int {
+func (scd *SubmissionCaseDelete) ExecX(ctx context.Context) int {
 	n, err := scd.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (scd *SubmitCaseDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (scd *SubmitCaseDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(submitcase.Table, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
+func (scd *SubmissionCaseDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(submissioncase.Table, sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64))
 	if ps := scd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (scd *SubmitCaseDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// SubmitCaseDeleteOne is the builder for deleting a single SubmitCase entity.
-type SubmitCaseDeleteOne struct {
-	scd *SubmitCaseDelete
+// SubmissionCaseDeleteOne is the builder for deleting a single SubmissionCase entity.
+type SubmissionCaseDeleteOne struct {
+	scd *SubmissionCaseDelete
 }
 
-// Where appends a list predicates to the SubmitCaseDelete builder.
-func (scdo *SubmitCaseDeleteOne) Where(ps ...predicate.SubmitCase) *SubmitCaseDeleteOne {
+// Where appends a list predicates to the SubmissionCaseDelete builder.
+func (scdo *SubmissionCaseDeleteOne) Where(ps ...predicate.SubmissionCase) *SubmissionCaseDeleteOne {
 	scdo.scd.mutation.Where(ps...)
 	return scdo
 }
 
 // Exec executes the deletion query.
-func (scdo *SubmitCaseDeleteOne) Exec(ctx context.Context) error {
+func (scdo *SubmissionCaseDeleteOne) Exec(ctx context.Context) error {
 	n, err := scdo.scd.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{submitcase.Label}
+		return &NotFoundError{submissioncase.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scdo *SubmitCaseDeleteOne) ExecX(ctx context.Context) {
+func (scdo *SubmissionCaseDeleteOne) ExecX(ctx context.Context) {
 	if err := scdo.Exec(ctx); err != nil {
 		panic(err)
 	}

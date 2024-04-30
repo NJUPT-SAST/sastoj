@@ -45,10 +45,10 @@ type Contest struct {
 type ContestEdges struct {
 	// Problems holds the value of the problems edge.
 	Problems []*Problem `json:"problems,omitempty"`
-	// Contest holds the value of the contest edge.
-	Contest []*Group `json:"contest,omitempty"`
-	// Manage holds the value of the manage edge.
-	Manage []*Group `json:"manage,omitempty"`
+	// Contestants holds the value of the contestants edge.
+	Contestants []*Group `json:"contestants,omitempty"`
+	// Managers holds the value of the managers edge.
+	Managers []*Group `json:"managers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -63,22 +63,22 @@ func (e ContestEdges) ProblemsOrErr() ([]*Problem, error) {
 	return nil, &NotLoadedError{edge: "problems"}
 }
 
-// ContestOrErr returns the Contest value or an error if the edge
+// ContestantsOrErr returns the Contestants value or an error if the edge
 // was not loaded in eager-loading.
-func (e ContestEdges) ContestOrErr() ([]*Group, error) {
+func (e ContestEdges) ContestantsOrErr() ([]*Group, error) {
 	if e.loadedTypes[1] {
-		return e.Contest, nil
+		return e.Contestants, nil
 	}
-	return nil, &NotLoadedError{edge: "contest"}
+	return nil, &NotLoadedError{edge: "contestants"}
 }
 
-// ManageOrErr returns the Manage value or an error if the edge
+// ManagersOrErr returns the Managers value or an error if the edge
 // was not loaded in eager-loading.
-func (e ContestEdges) ManageOrErr() ([]*Group, error) {
+func (e ContestEdges) ManagersOrErr() ([]*Group, error) {
 	if e.loadedTypes[2] {
-		return e.Manage, nil
+		return e.Managers, nil
 	}
-	return nil, &NotLoadedError{edge: "manage"}
+	return nil, &NotLoadedError{edge: "managers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -185,14 +185,14 @@ func (c *Contest) QueryProblems() *ProblemQuery {
 	return NewContestClient(c.config).QueryProblems(c)
 }
 
-// QueryContest queries the "contest" edge of the Contest entity.
-func (c *Contest) QueryContest() *GroupQuery {
-	return NewContestClient(c.config).QueryContest(c)
+// QueryContestants queries the "contestants" edge of the Contest entity.
+func (c *Contest) QueryContestants() *GroupQuery {
+	return NewContestClient(c.config).QueryContestants(c)
 }
 
-// QueryManage queries the "manage" edge of the Contest entity.
-func (c *Contest) QueryManage() *GroupQuery {
-	return NewContestClient(c.config).QueryManage(c)
+// QueryManagers queries the "managers" edge of the Contest entity.
+func (c *Contest) QueryManagers() *GroupQuery {
+	return NewContestClient(c.config).QueryManagers(c)
 }
 
 // Update returns a builder for updating this Contest.

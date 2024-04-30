@@ -34,8 +34,8 @@ const (
 	EdgeSubmission = "submission"
 	// EdgeContests holds the string denoting the contests edge name in mutations.
 	EdgeContests = "contests"
-	// EdgeGroups holds the string denoting the groups edge name in mutations.
-	EdgeGroups = "groups"
+	// EdgeJudgers holds the string denoting the judgers edge name in mutations.
+	EdgeJudgers = "judgers"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
 	// ProblemCasesTable is the table that holds the problem_cases relation/edge.
@@ -46,10 +46,10 @@ const (
 	// ProblemCasesColumn is the table column denoting the problem_cases relation/edge.
 	ProblemCasesColumn = "problem_id"
 	// SubmissionTable is the table that holds the submission relation/edge.
-	SubmissionTable = "submit"
-	// SubmissionInverseTable is the table name for the Submit entity.
-	// It exists in this package in order to avoid circular dependency with the "submit" package.
-	SubmissionInverseTable = "submit"
+	SubmissionTable = "submissions"
+	// SubmissionInverseTable is the table name for the Submission entity.
+	// It exists in this package in order to avoid circular dependency with the "submission" package.
+	SubmissionInverseTable = "submissions"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
 	SubmissionColumn = "problem_id"
 	// ContestsTable is the table that holds the contests relation/edge.
@@ -59,11 +59,11 @@ const (
 	ContestsInverseTable = "contests"
 	// ContestsColumn is the table column denoting the contests relation/edge.
 	ContestsColumn = "contest_id"
-	// GroupsTable is the table that holds the groups relation/edge. The primary key declared below.
-	GroupsTable = "group_problems"
-	// GroupsInverseTable is the table name for the Group entity.
+	// JudgersTable is the table that holds the judgers relation/edge. The primary key declared below.
+	JudgersTable = "problem_judgers"
+	// JudgersInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	GroupsInverseTable = "groups"
+	JudgersInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -80,9 +80,9 @@ var Columns = []string{
 }
 
 var (
-	// GroupsPrimaryKey and GroupsColumn2 are the table columns denoting the
-	// primary key for the groups relation (M2M).
-	GroupsPrimaryKey = []string{"group_id", "problem_id"}
+	// JudgersPrimaryKey and JudgersColumn2 are the table columns denoting the
+	// primary key for the judgers relation (M2M).
+	JudgersPrimaryKey = []string{"problem_id", "group_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -189,17 +189,17 @@ func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByGroupsCount orders the results by groups count.
-func ByGroupsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByJudgersCount orders the results by judgers count.
+func ByJudgersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newGroupsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newJudgersStep(), opts...)
 	}
 }
 
-// ByGroups orders the results by groups terms.
-func ByGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByJudgers orders the results by judgers terms.
+func ByJudgers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newJudgersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newProblemCasesStep() *sqlgraph.Step {
@@ -223,10 +223,10 @@ func newContestsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
 	)
 }
-func newGroupsStep() *sqlgraph.Step {
+func newJudgersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GroupsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
+		sqlgraph.To(JudgersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, JudgersTable, JudgersPrimaryKey...),
 	)
 }

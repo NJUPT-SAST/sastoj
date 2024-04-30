@@ -36,7 +36,7 @@ type User struct {
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
 	// Submission holds the value of the submission edge.
-	Submission []*Submit `json:"submission,omitempty"`
+	Submission []*Submission `json:"submission,omitempty"`
 	// LoginSessions holds the value of the login_sessions edge.
 	LoginSessions []*LoginSession `json:"login_sessions,omitempty"`
 	// Groups holds the value of the groups edge.
@@ -48,7 +48,7 @@ type UserEdges struct {
 
 // SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) SubmissionOrErr() ([]*Submit, error) {
+func (e UserEdges) SubmissionOrErr() ([]*Submission, error) {
 	if e.loadedTypes[0] {
 		return e.Submission, nil
 	}
@@ -151,7 +151,7 @@ func (u *User) Value(name string) (ent.Value, error) {
 }
 
 // QuerySubmission queries the "submission" edge of the User entity.
-func (u *User) QuerySubmission() *SubmitQuery {
+func (u *User) QuerySubmission() *SubmissionQuery {
 	return NewUserClient(u.config).QuerySubmission(u)
 }
 
