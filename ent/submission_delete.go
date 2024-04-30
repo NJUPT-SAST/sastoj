@@ -5,33 +5,33 @@ package ent
 import (
 	"context"
 	"sastoj/ent/predicate"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitDelete is the builder for deleting a Submit entity.
-type SubmitDelete struct {
+// SubmissionDelete is the builder for deleting a Submission entity.
+type SubmissionDelete struct {
 	config
 	hooks    []Hook
-	mutation *SubmitMutation
+	mutation *SubmissionMutation
 }
 
-// Where appends a list predicates to the SubmitDelete builder.
-func (sd *SubmitDelete) Where(ps ...predicate.Submit) *SubmitDelete {
+// Where appends a list predicates to the SubmissionDelete builder.
+func (sd *SubmissionDelete) Where(ps ...predicate.Submission) *SubmissionDelete {
 	sd.mutation.Where(ps...)
 	return sd
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (sd *SubmitDelete) Exec(ctx context.Context) (int, error) {
+func (sd *SubmissionDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, sd.sqlExec, sd.mutation, sd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sd *SubmitDelete) ExecX(ctx context.Context) int {
+func (sd *SubmissionDelete) ExecX(ctx context.Context) int {
 	n, err := sd.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (sd *SubmitDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (sd *SubmitDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(submit.Table, sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64))
+func (sd *SubmissionDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(submission.Table, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64))
 	if ps := sd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (sd *SubmitDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// SubmitDeleteOne is the builder for deleting a single Submit entity.
-type SubmitDeleteOne struct {
-	sd *SubmitDelete
+// SubmissionDeleteOne is the builder for deleting a single Submission entity.
+type SubmissionDeleteOne struct {
+	sd *SubmissionDelete
 }
 
-// Where appends a list predicates to the SubmitDelete builder.
-func (sdo *SubmitDeleteOne) Where(ps ...predicate.Submit) *SubmitDeleteOne {
+// Where appends a list predicates to the SubmissionDelete builder.
+func (sdo *SubmissionDeleteOne) Where(ps ...predicate.Submission) *SubmissionDeleteOne {
 	sdo.sd.mutation.Where(ps...)
 	return sdo
 }
 
 // Exec executes the deletion query.
-func (sdo *SubmitDeleteOne) Exec(ctx context.Context) error {
+func (sdo *SubmissionDeleteOne) Exec(ctx context.Context) error {
 	n, err := sdo.sd.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{submit.Label}
+		return &NotFoundError{submission.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sdo *SubmitDeleteOne) ExecX(ctx context.Context) {
+func (sdo *SubmissionDeleteOne) ExecX(ctx context.Context) {
 	if err := sdo.Exec(ctx); err != nil {
 		panic(err)
 	}

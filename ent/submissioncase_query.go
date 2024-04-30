@@ -8,62 +8,62 @@ import (
 	"math"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submit"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitCaseQuery is the builder for querying SubmitCase entities.
-type SubmitCaseQuery struct {
+// SubmissionCaseQuery is the builder for querying SubmissionCase entities.
+type SubmissionCaseQuery struct {
 	config
 	ctx              *QueryContext
-	order            []submitcase.OrderOption
+	order            []submissioncase.OrderOption
 	inters           []Interceptor
-	predicates       []predicate.SubmitCase
-	withSubmission   *SubmitQuery
+	predicates       []predicate.SubmissionCase
+	withSubmission   *SubmissionQuery
 	withProblemCases *ProblemCaseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the SubmitCaseQuery builder.
-func (scq *SubmitCaseQuery) Where(ps ...predicate.SubmitCase) *SubmitCaseQuery {
+// Where adds a new predicate for the SubmissionCaseQuery builder.
+func (scq *SubmissionCaseQuery) Where(ps ...predicate.SubmissionCase) *SubmissionCaseQuery {
 	scq.predicates = append(scq.predicates, ps...)
 	return scq
 }
 
 // Limit the number of records to be returned by this query.
-func (scq *SubmitCaseQuery) Limit(limit int) *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) Limit(limit int) *SubmissionCaseQuery {
 	scq.ctx.Limit = &limit
 	return scq
 }
 
 // Offset to start from.
-func (scq *SubmitCaseQuery) Offset(offset int) *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) Offset(offset int) *SubmissionCaseQuery {
 	scq.ctx.Offset = &offset
 	return scq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (scq *SubmitCaseQuery) Unique(unique bool) *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) Unique(unique bool) *SubmissionCaseQuery {
 	scq.ctx.Unique = &unique
 	return scq
 }
 
 // Order specifies how the records should be ordered.
-func (scq *SubmitCaseQuery) Order(o ...submitcase.OrderOption) *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) Order(o ...submissioncase.OrderOption) *SubmissionCaseQuery {
 	scq.order = append(scq.order, o...)
 	return scq
 }
 
 // QuerySubmission chains the current query on the "submission" edge.
-func (scq *SubmitCaseQuery) QuerySubmission() *SubmitQuery {
-	query := (&SubmitClient{config: scq.config}).Query()
+func (scq *SubmissionCaseQuery) QuerySubmission() *SubmissionQuery {
+	query := (&SubmissionClient{config: scq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := scq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -73,9 +73,9 @@ func (scq *SubmitCaseQuery) QuerySubmission() *SubmitQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(submitcase.Table, submitcase.FieldID, selector),
-			sqlgraph.To(submit.Table, submit.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submitcase.SubmissionTable, submitcase.SubmissionColumn),
+			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, selector),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.SubmissionTable, submissioncase.SubmissionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(scq.driver.Dialect(), step)
 		return fromU, nil
@@ -84,7 +84,7 @@ func (scq *SubmitCaseQuery) QuerySubmission() *SubmitQuery {
 }
 
 // QueryProblemCases chains the current query on the "problem_cases" edge.
-func (scq *SubmitCaseQuery) QueryProblemCases() *ProblemCaseQuery {
+func (scq *SubmissionCaseQuery) QueryProblemCases() *ProblemCaseQuery {
 	query := (&ProblemCaseClient{config: scq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := scq.prepareQuery(ctx); err != nil {
@@ -95,9 +95,9 @@ func (scq *SubmitCaseQuery) QueryProblemCases() *ProblemCaseQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(submitcase.Table, submitcase.FieldID, selector),
+			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, selector),
 			sqlgraph.To(problemcase.Table, problemcase.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submitcase.ProblemCasesTable, submitcase.ProblemCasesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.ProblemCasesTable, submissioncase.ProblemCasesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(scq.driver.Dialect(), step)
 		return fromU, nil
@@ -105,21 +105,21 @@ func (scq *SubmitCaseQuery) QueryProblemCases() *ProblemCaseQuery {
 	return query
 }
 
-// First returns the first SubmitCase entity from the query.
-// Returns a *NotFoundError when no SubmitCase was found.
-func (scq *SubmitCaseQuery) First(ctx context.Context) (*SubmitCase, error) {
+// First returns the first SubmissionCase entity from the query.
+// Returns a *NotFoundError when no SubmissionCase was found.
+func (scq *SubmissionCaseQuery) First(ctx context.Context) (*SubmissionCase, error) {
 	nodes, err := scq.Limit(1).All(setContextOp(ctx, scq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{submitcase.Label}
+		return nil, &NotFoundError{submissioncase.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (scq *SubmitCaseQuery) FirstX(ctx context.Context) *SubmitCase {
+func (scq *SubmissionCaseQuery) FirstX(ctx context.Context) *SubmissionCase {
 	node, err := scq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -127,22 +127,22 @@ func (scq *SubmitCaseQuery) FirstX(ctx context.Context) *SubmitCase {
 	return node
 }
 
-// FirstID returns the first SubmitCase ID from the query.
-// Returns a *NotFoundError when no SubmitCase ID was found.
-func (scq *SubmitCaseQuery) FirstID(ctx context.Context) (id int64, err error) {
+// FirstID returns the first SubmissionCase ID from the query.
+// Returns a *NotFoundError when no SubmissionCase ID was found.
+func (scq *SubmissionCaseQuery) FirstID(ctx context.Context) (id int64, err error) {
 	var ids []int64
 	if ids, err = scq.Limit(1).IDs(setContextOp(ctx, scq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{submitcase.Label}
+		err = &NotFoundError{submissioncase.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (scq *SubmitCaseQuery) FirstIDX(ctx context.Context) int64 {
+func (scq *SubmissionCaseQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := scq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -150,10 +150,10 @@ func (scq *SubmitCaseQuery) FirstIDX(ctx context.Context) int64 {
 	return id
 }
 
-// Only returns a single SubmitCase entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one SubmitCase entity is found.
-// Returns a *NotFoundError when no SubmitCase entities are found.
-func (scq *SubmitCaseQuery) Only(ctx context.Context) (*SubmitCase, error) {
+// Only returns a single SubmissionCase entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one SubmissionCase entity is found.
+// Returns a *NotFoundError when no SubmissionCase entities are found.
+func (scq *SubmissionCaseQuery) Only(ctx context.Context) (*SubmissionCase, error) {
 	nodes, err := scq.Limit(2).All(setContextOp(ctx, scq.ctx, "Only"))
 	if err != nil {
 		return nil, err
@@ -162,14 +162,14 @@ func (scq *SubmitCaseQuery) Only(ctx context.Context) (*SubmitCase, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{submitcase.Label}
+		return nil, &NotFoundError{submissioncase.Label}
 	default:
-		return nil, &NotSingularError{submitcase.Label}
+		return nil, &NotSingularError{submissioncase.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (scq *SubmitCaseQuery) OnlyX(ctx context.Context) *SubmitCase {
+func (scq *SubmissionCaseQuery) OnlyX(ctx context.Context) *SubmissionCase {
 	node, err := scq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -177,10 +177,10 @@ func (scq *SubmitCaseQuery) OnlyX(ctx context.Context) *SubmitCase {
 	return node
 }
 
-// OnlyID is like Only, but returns the only SubmitCase ID in the query.
-// Returns a *NotSingularError when more than one SubmitCase ID is found.
+// OnlyID is like Only, but returns the only SubmissionCase ID in the query.
+// Returns a *NotSingularError when more than one SubmissionCase ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (scq *SubmitCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
+func (scq *SubmissionCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	var ids []int64
 	if ids, err = scq.Limit(2).IDs(setContextOp(ctx, scq.ctx, "OnlyID")); err != nil {
 		return
@@ -189,15 +189,15 @@ func (scq *SubmitCaseQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{submitcase.Label}
+		err = &NotFoundError{submissioncase.Label}
 	default:
-		err = &NotSingularError{submitcase.Label}
+		err = &NotSingularError{submissioncase.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (scq *SubmitCaseQuery) OnlyIDX(ctx context.Context) int64 {
+func (scq *SubmissionCaseQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := scq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -205,18 +205,18 @@ func (scq *SubmitCaseQuery) OnlyIDX(ctx context.Context) int64 {
 	return id
 }
 
-// All executes the query and returns a list of SubmitCases.
-func (scq *SubmitCaseQuery) All(ctx context.Context) ([]*SubmitCase, error) {
+// All executes the query and returns a list of SubmissionCases.
+func (scq *SubmissionCaseQuery) All(ctx context.Context) ([]*SubmissionCase, error) {
 	ctx = setContextOp(ctx, scq.ctx, "All")
 	if err := scq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*SubmitCase, *SubmitCaseQuery]()
-	return withInterceptors[[]*SubmitCase](ctx, scq, qr, scq.inters)
+	qr := querierAll[[]*SubmissionCase, *SubmissionCaseQuery]()
+	return withInterceptors[[]*SubmissionCase](ctx, scq, qr, scq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (scq *SubmitCaseQuery) AllX(ctx context.Context) []*SubmitCase {
+func (scq *SubmissionCaseQuery) AllX(ctx context.Context) []*SubmissionCase {
 	nodes, err := scq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -224,20 +224,20 @@ func (scq *SubmitCaseQuery) AllX(ctx context.Context) []*SubmitCase {
 	return nodes
 }
 
-// IDs executes the query and returns a list of SubmitCase IDs.
-func (scq *SubmitCaseQuery) IDs(ctx context.Context) (ids []int64, err error) {
+// IDs executes the query and returns a list of SubmissionCase IDs.
+func (scq *SubmissionCaseQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if scq.ctx.Unique == nil && scq.path != nil {
 		scq.Unique(true)
 	}
 	ctx = setContextOp(ctx, scq.ctx, "IDs")
-	if err = scq.Select(submitcase.FieldID).Scan(ctx, &ids); err != nil {
+	if err = scq.Select(submissioncase.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (scq *SubmitCaseQuery) IDsX(ctx context.Context) []int64 {
+func (scq *SubmissionCaseQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := scq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -246,16 +246,16 @@ func (scq *SubmitCaseQuery) IDsX(ctx context.Context) []int64 {
 }
 
 // Count returns the count of the given query.
-func (scq *SubmitCaseQuery) Count(ctx context.Context) (int, error) {
+func (scq *SubmissionCaseQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, scq.ctx, "Count")
 	if err := scq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, scq, querierCount[*SubmitCaseQuery](), scq.inters)
+	return withInterceptors[int](ctx, scq, querierCount[*SubmissionCaseQuery](), scq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (scq *SubmitCaseQuery) CountX(ctx context.Context) int {
+func (scq *SubmissionCaseQuery) CountX(ctx context.Context) int {
 	count, err := scq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -264,7 +264,7 @@ func (scq *SubmitCaseQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (scq *SubmitCaseQuery) Exist(ctx context.Context) (bool, error) {
+func (scq *SubmissionCaseQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, scq.ctx, "Exist")
 	switch _, err := scq.FirstID(ctx); {
 	case IsNotFound(err):
@@ -277,7 +277,7 @@ func (scq *SubmitCaseQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (scq *SubmitCaseQuery) ExistX(ctx context.Context) bool {
+func (scq *SubmissionCaseQuery) ExistX(ctx context.Context) bool {
 	exist, err := scq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -285,18 +285,18 @@ func (scq *SubmitCaseQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the SubmitCaseQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the SubmissionCaseQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (scq *SubmitCaseQuery) Clone() *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) Clone() *SubmissionCaseQuery {
 	if scq == nil {
 		return nil
 	}
-	return &SubmitCaseQuery{
+	return &SubmissionCaseQuery{
 		config:           scq.config,
 		ctx:              scq.ctx.Clone(),
-		order:            append([]submitcase.OrderOption{}, scq.order...),
+		order:            append([]submissioncase.OrderOption{}, scq.order...),
 		inters:           append([]Interceptor{}, scq.inters...),
-		predicates:       append([]predicate.SubmitCase{}, scq.predicates...),
+		predicates:       append([]predicate.SubmissionCase{}, scq.predicates...),
 		withSubmission:   scq.withSubmission.Clone(),
 		withProblemCases: scq.withProblemCases.Clone(),
 		// clone intermediate query.
@@ -307,8 +307,8 @@ func (scq *SubmitCaseQuery) Clone() *SubmitCaseQuery {
 
 // WithSubmission tells the query-builder to eager-load the nodes that are connected to
 // the "submission" edge. The optional arguments are used to configure the query builder of the edge.
-func (scq *SubmitCaseQuery) WithSubmission(opts ...func(*SubmitQuery)) *SubmitCaseQuery {
-	query := (&SubmitClient{config: scq.config}).Query()
+func (scq *SubmissionCaseQuery) WithSubmission(opts ...func(*SubmissionQuery)) *SubmissionCaseQuery {
+	query := (&SubmissionClient{config: scq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -318,7 +318,7 @@ func (scq *SubmitCaseQuery) WithSubmission(opts ...func(*SubmitQuery)) *SubmitCa
 
 // WithProblemCases tells the query-builder to eager-load the nodes that are connected to
 // the "problem_cases" edge. The optional arguments are used to configure the query builder of the edge.
-func (scq *SubmitCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *SubmitCaseQuery {
+func (scq *SubmissionCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *SubmissionCaseQuery {
 	query := (&ProblemCaseClient{config: scq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -337,15 +337,15 @@ func (scq *SubmitCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *S
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.SubmitCase.Query().
-//		GroupBy(submitcase.FieldState).
+//	client.SubmissionCase.Query().
+//		GroupBy(submissioncase.FieldState).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (scq *SubmitCaseQuery) GroupBy(field string, fields ...string) *SubmitCaseGroupBy {
+func (scq *SubmissionCaseQuery) GroupBy(field string, fields ...string) *SubmissionCaseGroupBy {
 	scq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &SubmitCaseGroupBy{build: scq}
+	grbuild := &SubmissionCaseGroupBy{build: scq}
 	grbuild.flds = &scq.ctx.Fields
-	grbuild.label = submitcase.Label
+	grbuild.label = submissioncase.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -359,23 +359,23 @@ func (scq *SubmitCaseQuery) GroupBy(field string, fields ...string) *SubmitCaseG
 //		State int16 `json:"state,omitempty"`
 //	}
 //
-//	client.SubmitCase.Query().
-//		Select(submitcase.FieldState).
+//	client.SubmissionCase.Query().
+//		Select(submissioncase.FieldState).
 //		Scan(ctx, &v)
-func (scq *SubmitCaseQuery) Select(fields ...string) *SubmitCaseSelect {
+func (scq *SubmissionCaseQuery) Select(fields ...string) *SubmissionCaseSelect {
 	scq.ctx.Fields = append(scq.ctx.Fields, fields...)
-	sbuild := &SubmitCaseSelect{SubmitCaseQuery: scq}
-	sbuild.label = submitcase.Label
+	sbuild := &SubmissionCaseSelect{SubmissionCaseQuery: scq}
+	sbuild.label = submissioncase.Label
 	sbuild.flds, sbuild.scan = &scq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a SubmitCaseSelect configured with the given aggregations.
-func (scq *SubmitCaseQuery) Aggregate(fns ...AggregateFunc) *SubmitCaseSelect {
+// Aggregate returns a SubmissionCaseSelect configured with the given aggregations.
+func (scq *SubmissionCaseQuery) Aggregate(fns ...AggregateFunc) *SubmissionCaseSelect {
 	return scq.Select().Aggregate(fns...)
 }
 
-func (scq *SubmitCaseQuery) prepareQuery(ctx context.Context) error {
+func (scq *SubmissionCaseQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range scq.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -387,7 +387,7 @@ func (scq *SubmitCaseQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range scq.ctx.Fields {
-		if !submitcase.ValidColumn(f) {
+		if !submissioncase.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -401,9 +401,9 @@ func (scq *SubmitCaseQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (scq *SubmitCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SubmitCase, error) {
+func (scq *SubmissionCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SubmissionCase, error) {
 	var (
-		nodes       = []*SubmitCase{}
+		nodes       = []*SubmissionCase{}
 		_spec       = scq.querySpec()
 		loadedTypes = [2]bool{
 			scq.withSubmission != nil,
@@ -411,10 +411,10 @@ func (scq *SubmitCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*SubmitCase).scanValues(nil, columns)
+		return (*SubmissionCase).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &SubmitCase{config: scq.config}
+		node := &SubmissionCase{config: scq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -430,24 +430,24 @@ func (scq *SubmitCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	}
 	if query := scq.withSubmission; query != nil {
 		if err := scq.loadSubmission(ctx, query, nodes, nil,
-			func(n *SubmitCase, e *Submit) { n.Edges.Submission = e }); err != nil {
+			func(n *SubmissionCase, e *Submission) { n.Edges.Submission = e }); err != nil {
 			return nil, err
 		}
 	}
 	if query := scq.withProblemCases; query != nil {
 		if err := scq.loadProblemCases(ctx, query, nodes, nil,
-			func(n *SubmitCase, e *ProblemCase) { n.Edges.ProblemCases = e }); err != nil {
+			func(n *SubmissionCase, e *ProblemCase) { n.Edges.ProblemCases = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*SubmitCase, init func(*SubmitCase), assign func(*SubmitCase, *Submit)) error {
+func (scq *SubmissionCaseQuery) loadSubmission(ctx context.Context, query *SubmissionQuery, nodes []*SubmissionCase, init func(*SubmissionCase), assign func(*SubmissionCase, *Submission)) error {
 	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*SubmitCase)
+	nodeids := make(map[int64][]*SubmissionCase)
 	for i := range nodes {
-		fk := nodes[i].SubmitID
+		fk := nodes[i].SubmissionID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -456,7 +456,7 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(submit.IDIn(ids...))
+	query.Where(submission.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -464,7 +464,7 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "submit_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "submission_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -472,9 +472,9 @@ func (scq *SubmitCaseQuery) loadSubmission(ctx context.Context, query *SubmitQue
 	}
 	return nil
 }
-func (scq *SubmitCaseQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*SubmitCase, init func(*SubmitCase), assign func(*SubmitCase, *ProblemCase)) error {
+func (scq *SubmissionCaseQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*SubmissionCase, init func(*SubmissionCase), assign func(*SubmissionCase, *ProblemCase)) error {
 	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*SubmitCase)
+	nodeids := make(map[int64][]*SubmissionCase)
 	for i := range nodes {
 		fk := nodes[i].ProblemCaseID
 		if _, ok := nodeids[fk]; !ok {
@@ -502,7 +502,7 @@ func (scq *SubmitCaseQuery) loadProblemCases(ctx context.Context, query *Problem
 	return nil
 }
 
-func (scq *SubmitCaseQuery) sqlCount(ctx context.Context) (int, error) {
+func (scq *SubmissionCaseQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := scq.querySpec()
 	_spec.Node.Columns = scq.ctx.Fields
 	if len(scq.ctx.Fields) > 0 {
@@ -511,8 +511,8 @@ func (scq *SubmitCaseQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, scq.driver, _spec)
 }
 
-func (scq *SubmitCaseQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(submitcase.Table, submitcase.Columns, sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64))
+func (scq *SubmissionCaseQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(submissioncase.Table, submissioncase.Columns, sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64))
 	_spec.From = scq.sql
 	if unique := scq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -521,17 +521,17 @@ func (scq *SubmitCaseQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := scq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, submitcase.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, submissioncase.FieldID)
 		for i := range fields {
-			if fields[i] != submitcase.FieldID {
+			if fields[i] != submissioncase.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
 		if scq.withSubmission != nil {
-			_spec.Node.AddColumnOnce(submitcase.FieldSubmitID)
+			_spec.Node.AddColumnOnce(submissioncase.FieldSubmissionID)
 		}
 		if scq.withProblemCases != nil {
-			_spec.Node.AddColumnOnce(submitcase.FieldProblemCaseID)
+			_spec.Node.AddColumnOnce(submissioncase.FieldProblemCaseID)
 		}
 	}
 	if ps := scq.predicates; len(ps) > 0 {
@@ -557,12 +557,12 @@ func (scq *SubmitCaseQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (scq *SubmitCaseQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (scq *SubmissionCaseQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(scq.driver.Dialect())
-	t1 := builder.Table(submitcase.Table)
+	t1 := builder.Table(submissioncase.Table)
 	columns := scq.ctx.Fields
 	if len(columns) == 0 {
-		columns = submitcase.Columns
+		columns = submissioncase.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if scq.sql != nil {
@@ -589,28 +589,28 @@ func (scq *SubmitCaseQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// SubmitCaseGroupBy is the group-by builder for SubmitCase entities.
-type SubmitCaseGroupBy struct {
+// SubmissionCaseGroupBy is the group-by builder for SubmissionCase entities.
+type SubmissionCaseGroupBy struct {
 	selector
-	build *SubmitCaseQuery
+	build *SubmissionCaseQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (scgb *SubmitCaseGroupBy) Aggregate(fns ...AggregateFunc) *SubmitCaseGroupBy {
+func (scgb *SubmissionCaseGroupBy) Aggregate(fns ...AggregateFunc) *SubmissionCaseGroupBy {
 	scgb.fns = append(scgb.fns, fns...)
 	return scgb
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (scgb *SubmitCaseGroupBy) Scan(ctx context.Context, v any) error {
+func (scgb *SubmissionCaseGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, scgb.build.ctx, "GroupBy")
 	if err := scgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SubmitCaseQuery, *SubmitCaseGroupBy](ctx, scgb.build, scgb, scgb.build.inters, v)
+	return scanWithInterceptors[*SubmissionCaseQuery, *SubmissionCaseGroupBy](ctx, scgb.build, scgb, scgb.build.inters, v)
 }
 
-func (scgb *SubmitCaseGroupBy) sqlScan(ctx context.Context, root *SubmitCaseQuery, v any) error {
+func (scgb *SubmissionCaseGroupBy) sqlScan(ctx context.Context, root *SubmissionCaseQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(scgb.fns))
 	for _, fn := range scgb.fns {
@@ -637,28 +637,28 @@ func (scgb *SubmitCaseGroupBy) sqlScan(ctx context.Context, root *SubmitCaseQuer
 	return sql.ScanSlice(rows, v)
 }
 
-// SubmitCaseSelect is the builder for selecting fields of SubmitCase entities.
-type SubmitCaseSelect struct {
-	*SubmitCaseQuery
+// SubmissionCaseSelect is the builder for selecting fields of SubmissionCase entities.
+type SubmissionCaseSelect struct {
+	*SubmissionCaseQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (scs *SubmitCaseSelect) Aggregate(fns ...AggregateFunc) *SubmitCaseSelect {
+func (scs *SubmissionCaseSelect) Aggregate(fns ...AggregateFunc) *SubmissionCaseSelect {
 	scs.fns = append(scs.fns, fns...)
 	return scs
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (scs *SubmitCaseSelect) Scan(ctx context.Context, v any) error {
+func (scs *SubmissionCaseSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, scs.ctx, "Select")
 	if err := scs.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SubmitCaseQuery, *SubmitCaseSelect](ctx, scs.SubmitCaseQuery, scs, scs.inters, v)
+	return scanWithInterceptors[*SubmissionCaseQuery, *SubmissionCaseSelect](ctx, scs.SubmissionCaseQuery, scs, scs.inters, v)
 }
 
-func (scs *SubmitCaseSelect) sqlScan(ctx context.Context, root *SubmitCaseQuery, v any) error {
+func (scs *SubmissionCaseSelect) sqlScan(ctx context.Context, root *SubmissionCaseQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(scs.fns))
 	for _, fn := range scs.fns {

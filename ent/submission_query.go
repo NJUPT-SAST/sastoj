@@ -9,8 +9,8 @@ import (
 	"math"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
-	"sastoj/ent/submit"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -18,55 +18,55 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitQuery is the builder for querying Submit entities.
-type SubmitQuery struct {
+// SubmissionQuery is the builder for querying Submission entities.
+type SubmissionQuery struct {
 	config
-	ctx             *QueryContext
-	order           []submit.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Submit
-	withSubmitCases *SubmitCaseQuery
-	withProblems    *ProblemQuery
-	withUsers       *UserQuery
+	ctx                 *QueryContext
+	order               []submission.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.Submission
+	withSubmissionCases *SubmissionCaseQuery
+	withProblems        *ProblemQuery
+	withUsers           *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the SubmitQuery builder.
-func (sq *SubmitQuery) Where(ps ...predicate.Submit) *SubmitQuery {
+// Where adds a new predicate for the SubmissionQuery builder.
+func (sq *SubmissionQuery) Where(ps ...predicate.Submission) *SubmissionQuery {
 	sq.predicates = append(sq.predicates, ps...)
 	return sq
 }
 
 // Limit the number of records to be returned by this query.
-func (sq *SubmitQuery) Limit(limit int) *SubmitQuery {
+func (sq *SubmissionQuery) Limit(limit int) *SubmissionQuery {
 	sq.ctx.Limit = &limit
 	return sq
 }
 
 // Offset to start from.
-func (sq *SubmitQuery) Offset(offset int) *SubmitQuery {
+func (sq *SubmissionQuery) Offset(offset int) *SubmissionQuery {
 	sq.ctx.Offset = &offset
 	return sq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (sq *SubmitQuery) Unique(unique bool) *SubmitQuery {
+func (sq *SubmissionQuery) Unique(unique bool) *SubmissionQuery {
 	sq.ctx.Unique = &unique
 	return sq
 }
 
 // Order specifies how the records should be ordered.
-func (sq *SubmitQuery) Order(o ...submit.OrderOption) *SubmitQuery {
+func (sq *SubmissionQuery) Order(o ...submission.OrderOption) *SubmissionQuery {
 	sq.order = append(sq.order, o...)
 	return sq
 }
 
-// QuerySubmitCases chains the current query on the "submit_cases" edge.
-func (sq *SubmitQuery) QuerySubmitCases() *SubmitCaseQuery {
-	query := (&SubmitCaseClient{config: sq.config}).Query()
+// QuerySubmissionCases chains the current query on the "submission_cases" edge.
+func (sq *SubmissionQuery) QuerySubmissionCases() *SubmissionCaseQuery {
+	query := (&SubmissionCaseClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -76,9 +76,9 @@ func (sq *SubmitQuery) QuerySubmitCases() *SubmitCaseQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(submit.Table, submit.FieldID, selector),
-			sqlgraph.To(submitcase.Table, submitcase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submit.SubmitCasesTable, submit.SubmitCasesColumn),
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
+			sqlgraph.To(submissioncase.Table, submissioncase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submission.SubmissionCasesTable, submission.SubmissionCasesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -87,7 +87,7 @@ func (sq *SubmitQuery) QuerySubmitCases() *SubmitCaseQuery {
 }
 
 // QueryProblems chains the current query on the "problems" edge.
-func (sq *SubmitQuery) QueryProblems() *ProblemQuery {
+func (sq *SubmissionQuery) QueryProblems() *ProblemQuery {
 	query := (&ProblemClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
@@ -98,9 +98,9 @@ func (sq *SubmitQuery) QueryProblems() *ProblemQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(submit.Table, submit.FieldID, selector),
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submit.ProblemsTable, submit.ProblemsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.ProblemsTable, submission.ProblemsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -109,7 +109,7 @@ func (sq *SubmitQuery) QueryProblems() *ProblemQuery {
 }
 
 // QueryUsers chains the current query on the "users" edge.
-func (sq *SubmitQuery) QueryUsers() *UserQuery {
+func (sq *SubmissionQuery) QueryUsers() *UserQuery {
 	query := (&UserClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
@@ -120,9 +120,9 @@ func (sq *SubmitQuery) QueryUsers() *UserQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(submit.Table, submit.FieldID, selector),
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submit.UsersTable, submit.UsersColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, submission.UsersTable, submission.UsersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -130,21 +130,21 @@ func (sq *SubmitQuery) QueryUsers() *UserQuery {
 	return query
 }
 
-// First returns the first Submit entity from the query.
-// Returns a *NotFoundError when no Submit was found.
-func (sq *SubmitQuery) First(ctx context.Context) (*Submit, error) {
+// First returns the first Submission entity from the query.
+// Returns a *NotFoundError when no Submission was found.
+func (sq *SubmissionQuery) First(ctx context.Context) (*Submission, error) {
 	nodes, err := sq.Limit(1).All(setContextOp(ctx, sq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{submit.Label}
+		return nil, &NotFoundError{submission.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (sq *SubmitQuery) FirstX(ctx context.Context) *Submit {
+func (sq *SubmissionQuery) FirstX(ctx context.Context) *Submission {
 	node, err := sq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -152,22 +152,22 @@ func (sq *SubmitQuery) FirstX(ctx context.Context) *Submit {
 	return node
 }
 
-// FirstID returns the first Submit ID from the query.
-// Returns a *NotFoundError when no Submit ID was found.
-func (sq *SubmitQuery) FirstID(ctx context.Context) (id int64, err error) {
+// FirstID returns the first Submission ID from the query.
+// Returns a *NotFoundError when no Submission ID was found.
+func (sq *SubmissionQuery) FirstID(ctx context.Context) (id int64, err error) {
 	var ids []int64
 	if ids, err = sq.Limit(1).IDs(setContextOp(ctx, sq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{submit.Label}
+		err = &NotFoundError{submission.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *SubmitQuery) FirstIDX(ctx context.Context) int64 {
+func (sq *SubmissionQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -175,10 +175,10 @@ func (sq *SubmitQuery) FirstIDX(ctx context.Context) int64 {
 	return id
 }
 
-// Only returns a single Submit entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Submit entity is found.
-// Returns a *NotFoundError when no Submit entities are found.
-func (sq *SubmitQuery) Only(ctx context.Context) (*Submit, error) {
+// Only returns a single Submission entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Submission entity is found.
+// Returns a *NotFoundError when no Submission entities are found.
+func (sq *SubmissionQuery) Only(ctx context.Context) (*Submission, error) {
 	nodes, err := sq.Limit(2).All(setContextOp(ctx, sq.ctx, "Only"))
 	if err != nil {
 		return nil, err
@@ -187,14 +187,14 @@ func (sq *SubmitQuery) Only(ctx context.Context) (*Submit, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{submit.Label}
+		return nil, &NotFoundError{submission.Label}
 	default:
-		return nil, &NotSingularError{submit.Label}
+		return nil, &NotSingularError{submission.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (sq *SubmitQuery) OnlyX(ctx context.Context) *Submit {
+func (sq *SubmissionQuery) OnlyX(ctx context.Context) *Submission {
 	node, err := sq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -202,10 +202,10 @@ func (sq *SubmitQuery) OnlyX(ctx context.Context) *Submit {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Submit ID in the query.
-// Returns a *NotSingularError when more than one Submit ID is found.
+// OnlyID is like Only, but returns the only Submission ID in the query.
+// Returns a *NotSingularError when more than one Submission ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *SubmitQuery) OnlyID(ctx context.Context) (id int64, err error) {
+func (sq *SubmissionQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	var ids []int64
 	if ids, err = sq.Limit(2).IDs(setContextOp(ctx, sq.ctx, "OnlyID")); err != nil {
 		return
@@ -214,15 +214,15 @@ func (sq *SubmitQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{submit.Label}
+		err = &NotFoundError{submission.Label}
 	default:
-		err = &NotSingularError{submit.Label}
+		err = &NotSingularError{submission.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *SubmitQuery) OnlyIDX(ctx context.Context) int64 {
+func (sq *SubmissionQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -230,18 +230,18 @@ func (sq *SubmitQuery) OnlyIDX(ctx context.Context) int64 {
 	return id
 }
 
-// All executes the query and returns a list of Submits.
-func (sq *SubmitQuery) All(ctx context.Context) ([]*Submit, error) {
+// All executes the query and returns a list of Submissions.
+func (sq *SubmissionQuery) All(ctx context.Context) ([]*Submission, error) {
 	ctx = setContextOp(ctx, sq.ctx, "All")
 	if err := sq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Submit, *SubmitQuery]()
-	return withInterceptors[[]*Submit](ctx, sq, qr, sq.inters)
+	qr := querierAll[[]*Submission, *SubmissionQuery]()
+	return withInterceptors[[]*Submission](ctx, sq, qr, sq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (sq *SubmitQuery) AllX(ctx context.Context) []*Submit {
+func (sq *SubmissionQuery) AllX(ctx context.Context) []*Submission {
 	nodes, err := sq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -249,20 +249,20 @@ func (sq *SubmitQuery) AllX(ctx context.Context) []*Submit {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Submit IDs.
-func (sq *SubmitQuery) IDs(ctx context.Context) (ids []int64, err error) {
+// IDs executes the query and returns a list of Submission IDs.
+func (sq *SubmissionQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if sq.ctx.Unique == nil && sq.path != nil {
 		sq.Unique(true)
 	}
 	ctx = setContextOp(ctx, sq.ctx, "IDs")
-	if err = sq.Select(submit.FieldID).Scan(ctx, &ids); err != nil {
+	if err = sq.Select(submission.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *SubmitQuery) IDsX(ctx context.Context) []int64 {
+func (sq *SubmissionQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -271,16 +271,16 @@ func (sq *SubmitQuery) IDsX(ctx context.Context) []int64 {
 }
 
 // Count returns the count of the given query.
-func (sq *SubmitQuery) Count(ctx context.Context) (int, error) {
+func (sq *SubmissionQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, sq.ctx, "Count")
 	if err := sq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, sq, querierCount[*SubmitQuery](), sq.inters)
+	return withInterceptors[int](ctx, sq, querierCount[*SubmissionQuery](), sq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (sq *SubmitQuery) CountX(ctx context.Context) int {
+func (sq *SubmissionQuery) CountX(ctx context.Context) int {
 	count, err := sq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -289,7 +289,7 @@ func (sq *SubmitQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (sq *SubmitQuery) Exist(ctx context.Context) (bool, error) {
+func (sq *SubmissionQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, sq.ctx, "Exist")
 	switch _, err := sq.FirstID(ctx); {
 	case IsNotFound(err):
@@ -302,7 +302,7 @@ func (sq *SubmitQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (sq *SubmitQuery) ExistX(ctx context.Context) bool {
+func (sq *SubmissionQuery) ExistX(ctx context.Context) bool {
 	exist, err := sq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -310,41 +310,41 @@ func (sq *SubmitQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the SubmitQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the SubmissionQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (sq *SubmitQuery) Clone() *SubmitQuery {
+func (sq *SubmissionQuery) Clone() *SubmissionQuery {
 	if sq == nil {
 		return nil
 	}
-	return &SubmitQuery{
-		config:          sq.config,
-		ctx:             sq.ctx.Clone(),
-		order:           append([]submit.OrderOption{}, sq.order...),
-		inters:          append([]Interceptor{}, sq.inters...),
-		predicates:      append([]predicate.Submit{}, sq.predicates...),
-		withSubmitCases: sq.withSubmitCases.Clone(),
-		withProblems:    sq.withProblems.Clone(),
-		withUsers:       sq.withUsers.Clone(),
+	return &SubmissionQuery{
+		config:              sq.config,
+		ctx:                 sq.ctx.Clone(),
+		order:               append([]submission.OrderOption{}, sq.order...),
+		inters:              append([]Interceptor{}, sq.inters...),
+		predicates:          append([]predicate.Submission{}, sq.predicates...),
+		withSubmissionCases: sq.withSubmissionCases.Clone(),
+		withProblems:        sq.withProblems.Clone(),
+		withUsers:           sq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
 }
 
-// WithSubmitCases tells the query-builder to eager-load the nodes that are connected to
-// the "submit_cases" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithSubmitCases(opts ...func(*SubmitCaseQuery)) *SubmitQuery {
-	query := (&SubmitCaseClient{config: sq.config}).Query()
+// WithSubmissionCases tells the query-builder to eager-load the nodes that are connected to
+// the "submission_cases" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SubmissionQuery) WithSubmissionCases(opts ...func(*SubmissionCaseQuery)) *SubmissionQuery {
+	query := (&SubmissionCaseClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withSubmitCases = query
+	sq.withSubmissionCases = query
 	return sq
 }
 
 // WithProblems tells the query-builder to eager-load the nodes that are connected to
 // the "problems" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithProblems(opts ...func(*ProblemQuery)) *SubmitQuery {
+func (sq *SubmissionQuery) WithProblems(opts ...func(*ProblemQuery)) *SubmissionQuery {
 	query := (&ProblemClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -355,7 +355,7 @@ func (sq *SubmitQuery) WithProblems(opts ...func(*ProblemQuery)) *SubmitQuery {
 
 // WithUsers tells the query-builder to eager-load the nodes that are connected to
 // the "users" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmitQuery) WithUsers(opts ...func(*UserQuery)) *SubmitQuery {
+func (sq *SubmissionQuery) WithUsers(opts ...func(*UserQuery)) *SubmissionQuery {
 	query := (&UserClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -374,15 +374,15 @@ func (sq *SubmitQuery) WithUsers(opts ...func(*UserQuery)) *SubmitQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Submit.Query().
-//		GroupBy(submit.FieldCode).
+//	client.Submission.Query().
+//		GroupBy(submission.FieldCode).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (sq *SubmitQuery) GroupBy(field string, fields ...string) *SubmitGroupBy {
+func (sq *SubmissionQuery) GroupBy(field string, fields ...string) *SubmissionGroupBy {
 	sq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &SubmitGroupBy{build: sq}
+	grbuild := &SubmissionGroupBy{build: sq}
 	grbuild.flds = &sq.ctx.Fields
-	grbuild.label = submit.Label
+	grbuild.label = submission.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -396,23 +396,23 @@ func (sq *SubmitQuery) GroupBy(field string, fields ...string) *SubmitGroupBy {
 //		Code string `json:"code,omitempty"`
 //	}
 //
-//	client.Submit.Query().
-//		Select(submit.FieldCode).
+//	client.Submission.Query().
+//		Select(submission.FieldCode).
 //		Scan(ctx, &v)
-func (sq *SubmitQuery) Select(fields ...string) *SubmitSelect {
+func (sq *SubmissionQuery) Select(fields ...string) *SubmissionSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)
-	sbuild := &SubmitSelect{SubmitQuery: sq}
-	sbuild.label = submit.Label
+	sbuild := &SubmissionSelect{SubmissionQuery: sq}
+	sbuild.label = submission.Label
 	sbuild.flds, sbuild.scan = &sq.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a SubmitSelect configured with the given aggregations.
-func (sq *SubmitQuery) Aggregate(fns ...AggregateFunc) *SubmitSelect {
+// Aggregate returns a SubmissionSelect configured with the given aggregations.
+func (sq *SubmissionQuery) Aggregate(fns ...AggregateFunc) *SubmissionSelect {
 	return sq.Select().Aggregate(fns...)
 }
 
-func (sq *SubmitQuery) prepareQuery(ctx context.Context) error {
+func (sq *SubmissionQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range sq.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -424,7 +424,7 @@ func (sq *SubmitQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range sq.ctx.Fields {
-		if !submit.ValidColumn(f) {
+		if !submission.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -438,21 +438,21 @@ func (sq *SubmitQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submit, error) {
+func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submission, error) {
 	var (
-		nodes       = []*Submit{}
+		nodes       = []*Submission{}
 		_spec       = sq.querySpec()
 		loadedTypes = [3]bool{
-			sq.withSubmitCases != nil,
+			sq.withSubmissionCases != nil,
 			sq.withProblems != nil,
 			sq.withUsers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Submit).scanValues(nil, columns)
+		return (*Submission).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Submit{config: sq.config}
+		node := &Submission{config: sq.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -466,31 +466,31 @@ func (sq *SubmitQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Submi
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withSubmitCases; query != nil {
-		if err := sq.loadSubmitCases(ctx, query, nodes,
-			func(n *Submit) { n.Edges.SubmitCases = []*SubmitCase{} },
-			func(n *Submit, e *SubmitCase) { n.Edges.SubmitCases = append(n.Edges.SubmitCases, e) }); err != nil {
+	if query := sq.withSubmissionCases; query != nil {
+		if err := sq.loadSubmissionCases(ctx, query, nodes,
+			func(n *Submission) { n.Edges.SubmissionCases = []*SubmissionCase{} },
+			func(n *Submission, e *SubmissionCase) { n.Edges.SubmissionCases = append(n.Edges.SubmissionCases, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := sq.withProblems; query != nil {
 		if err := sq.loadProblems(ctx, query, nodes, nil,
-			func(n *Submit, e *Problem) { n.Edges.Problems = e }); err != nil {
+			func(n *Submission, e *Problem) { n.Edges.Problems = e }); err != nil {
 			return nil, err
 		}
 	}
 	if query := sq.withUsers; query != nil {
 		if err := sq.loadUsers(ctx, query, nodes, nil,
-			func(n *Submit, e *User) { n.Edges.Users = e }); err != nil {
+			func(n *Submission, e *User) { n.Edges.Users = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *SubmitCase)) error {
+func (sq *SubmissionQuery) loadSubmissionCases(ctx context.Context, query *SubmissionCaseQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *SubmissionCase)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int64]*Submit)
+	nodeids := make(map[int64]*Submission)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -499,28 +499,28 @@ func (sq *SubmitQuery) loadSubmitCases(ctx context.Context, query *SubmitCaseQue
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(submitcase.FieldSubmitID)
+		query.ctx.AppendFieldOnce(submissioncase.FieldSubmissionID)
 	}
-	query.Where(predicate.SubmitCase(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(submit.SubmitCasesColumn), fks...))
+	query.Where(predicate.SubmissionCase(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(submission.SubmissionCasesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.SubmitID
+		fk := n.SubmissionID
 		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "submit_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "submission_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
-func (sq *SubmitQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *Problem)) error {
+func (sq *SubmissionQuery) loadProblems(ctx context.Context, query *ProblemQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *Problem)) error {
 	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*Submit)
+	nodeids := make(map[int64][]*Submission)
 	for i := range nodes {
 		fk := nodes[i].ProblemID
 		if _, ok := nodeids[fk]; !ok {
@@ -547,9 +547,9 @@ func (sq *SubmitQuery) loadProblems(ctx context.Context, query *ProblemQuery, no
 	}
 	return nil
 }
-func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Submit, init func(*Submit), assign func(*Submit, *User)) error {
+func (sq *SubmissionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *User)) error {
 	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*Submit)
+	nodeids := make(map[int64][]*Submission)
 	for i := range nodes {
 		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
@@ -577,7 +577,7 @@ func (sq *SubmitQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []
 	return nil
 }
 
-func (sq *SubmitQuery) sqlCount(ctx context.Context) (int, error) {
+func (sq *SubmissionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
 	_spec.Node.Columns = sq.ctx.Fields
 	if len(sq.ctx.Fields) > 0 {
@@ -586,8 +586,8 @@ func (sq *SubmitQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, sq.driver, _spec)
 }
 
-func (sq *SubmitQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(submit.Table, submit.Columns, sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64))
+func (sq *SubmissionQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(submission.Table, submission.Columns, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64))
 	_spec.From = sq.sql
 	if unique := sq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -596,17 +596,17 @@ func (sq *SubmitQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := sq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, submit.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, submission.FieldID)
 		for i := range fields {
-			if fields[i] != submit.FieldID {
+			if fields[i] != submission.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
 		if sq.withProblems != nil {
-			_spec.Node.AddColumnOnce(submit.FieldProblemID)
+			_spec.Node.AddColumnOnce(submission.FieldProblemID)
 		}
 		if sq.withUsers != nil {
-			_spec.Node.AddColumnOnce(submit.FieldUserID)
+			_spec.Node.AddColumnOnce(submission.FieldUserID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {
@@ -632,12 +632,12 @@ func (sq *SubmitQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (sq *SubmitQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (sq *SubmissionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(sq.driver.Dialect())
-	t1 := builder.Table(submit.Table)
+	t1 := builder.Table(submission.Table)
 	columns := sq.ctx.Fields
 	if len(columns) == 0 {
-		columns = submit.Columns
+		columns = submission.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if sq.sql != nil {
@@ -664,28 +664,28 @@ func (sq *SubmitQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// SubmitGroupBy is the group-by builder for Submit entities.
-type SubmitGroupBy struct {
+// SubmissionGroupBy is the group-by builder for Submission entities.
+type SubmissionGroupBy struct {
 	selector
-	build *SubmitQuery
+	build *SubmissionQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (sgb *SubmitGroupBy) Aggregate(fns ...AggregateFunc) *SubmitGroupBy {
+func (sgb *SubmissionGroupBy) Aggregate(fns ...AggregateFunc) *SubmissionGroupBy {
 	sgb.fns = append(sgb.fns, fns...)
 	return sgb
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (sgb *SubmitGroupBy) Scan(ctx context.Context, v any) error {
+func (sgb *SubmissionGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, sgb.build.ctx, "GroupBy")
 	if err := sgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SubmitQuery, *SubmitGroupBy](ctx, sgb.build, sgb, sgb.build.inters, v)
+	return scanWithInterceptors[*SubmissionQuery, *SubmissionGroupBy](ctx, sgb.build, sgb, sgb.build.inters, v)
 }
 
-func (sgb *SubmitGroupBy) sqlScan(ctx context.Context, root *SubmitQuery, v any) error {
+func (sgb *SubmissionGroupBy) sqlScan(ctx context.Context, root *SubmissionQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(sgb.fns))
 	for _, fn := range sgb.fns {
@@ -712,28 +712,28 @@ func (sgb *SubmitGroupBy) sqlScan(ctx context.Context, root *SubmitQuery, v any)
 	return sql.ScanSlice(rows, v)
 }
 
-// SubmitSelect is the builder for selecting fields of Submit entities.
-type SubmitSelect struct {
-	*SubmitQuery
+// SubmissionSelect is the builder for selecting fields of Submission entities.
+type SubmissionSelect struct {
+	*SubmissionQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (ss *SubmitSelect) Aggregate(fns ...AggregateFunc) *SubmitSelect {
+func (ss *SubmissionSelect) Aggregate(fns ...AggregateFunc) *SubmissionSelect {
 	ss.fns = append(ss.fns, fns...)
 	return ss
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ss *SubmitSelect) Scan(ctx context.Context, v any) error {
+func (ss *SubmissionSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, ss.ctx, "Select")
 	if err := ss.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SubmitQuery, *SubmitSelect](ctx, ss.SubmitQuery, ss, ss.inters, v)
+	return scanWithInterceptors[*SubmissionQuery, *SubmissionSelect](ctx, ss.SubmissionQuery, ss, ss.inters, v)
 }
 
-func (ss *SubmitSelect) sqlScan(ctx context.Context, root *SubmitQuery, v any) error {
+func (ss *SubmissionSelect) sqlScan(ctx context.Context, root *SubmissionQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(ss.fns))
 	for _, fn := range ss.fns {

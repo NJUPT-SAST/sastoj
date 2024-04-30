@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/problem"
-	"sastoj/ent/submit"
-	"sastoj/ent/submitcase"
+	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 	"sastoj/ent/user"
 	"time"
 
@@ -16,39 +16,39 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// SubmitCreate is the builder for creating a Submit entity.
-type SubmitCreate struct {
+// SubmissionCreate is the builder for creating a Submission entity.
+type SubmissionCreate struct {
 	config
-	mutation *SubmitMutation
+	mutation *SubmissionMutation
 	hooks    []Hook
 }
 
 // SetCode sets the "code" field.
-func (sc *SubmitCreate) SetCode(s string) *SubmitCreate {
+func (sc *SubmissionCreate) SetCode(s string) *SubmissionCreate {
 	sc.mutation.SetCode(s)
 	return sc
 }
 
 // SetStatus sets the "status" field.
-func (sc *SubmitCreate) SetStatus(i int16) *SubmitCreate {
+func (sc *SubmissionCreate) SetStatus(i int16) *SubmissionCreate {
 	sc.mutation.SetStatus(i)
 	return sc
 }
 
 // SetPoint sets the "point" field.
-func (sc *SubmitCreate) SetPoint(i int16) *SubmitCreate {
+func (sc *SubmissionCreate) SetPoint(i int16) *SubmissionCreate {
 	sc.mutation.SetPoint(i)
 	return sc
 }
 
 // SetCreateTime sets the "create_time" field.
-func (sc *SubmitCreate) SetCreateTime(t time.Time) *SubmitCreate {
+func (sc *SubmissionCreate) SetCreateTime(t time.Time) *SubmissionCreate {
 	sc.mutation.SetCreateTime(t)
 	return sc
 }
 
 // SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (sc *SubmitCreate) SetNillableCreateTime(t *time.Time) *SubmitCreate {
+func (sc *SubmissionCreate) SetNillableCreateTime(t *time.Time) *SubmissionCreate {
 	if t != nil {
 		sc.SetCreateTime(*t)
 	}
@@ -56,97 +56,97 @@ func (sc *SubmitCreate) SetNillableCreateTime(t *time.Time) *SubmitCreate {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (sc *SubmitCreate) SetTotalTime(i int32) *SubmitCreate {
+func (sc *SubmissionCreate) SetTotalTime(i int32) *SubmissionCreate {
 	sc.mutation.SetTotalTime(i)
 	return sc
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (sc *SubmitCreate) SetMaxMemory(i int32) *SubmitCreate {
+func (sc *SubmissionCreate) SetMaxMemory(i int32) *SubmissionCreate {
 	sc.mutation.SetMaxMemory(i)
 	return sc
 }
 
 // SetLanguage sets the "language" field.
-func (sc *SubmitCreate) SetLanguage(s string) *SubmitCreate {
+func (sc *SubmissionCreate) SetLanguage(s string) *SubmissionCreate {
 	sc.mutation.SetLanguage(s)
 	return sc
 }
 
 // SetCaseVersion sets the "case_version" field.
-func (sc *SubmitCreate) SetCaseVersion(i int8) *SubmitCreate {
+func (sc *SubmissionCreate) SetCaseVersion(i int8) *SubmissionCreate {
 	sc.mutation.SetCaseVersion(i)
 	return sc
 }
 
 // SetProblemID sets the "problem_id" field.
-func (sc *SubmitCreate) SetProblemID(i int64) *SubmitCreate {
+func (sc *SubmissionCreate) SetProblemID(i int64) *SubmissionCreate {
 	sc.mutation.SetProblemID(i)
 	return sc
 }
 
 // SetUserID sets the "user_id" field.
-func (sc *SubmitCreate) SetUserID(i int64) *SubmitCreate {
+func (sc *SubmissionCreate) SetUserID(i int64) *SubmissionCreate {
 	sc.mutation.SetUserID(i)
 	return sc
 }
 
 // SetID sets the "id" field.
-func (sc *SubmitCreate) SetID(i int64) *SubmitCreate {
+func (sc *SubmissionCreate) SetID(i int64) *SubmissionCreate {
 	sc.mutation.SetID(i)
 	return sc
 }
 
-// AddSubmitCaseIDs adds the "submit_cases" edge to the SubmitCase entity by IDs.
-func (sc *SubmitCreate) AddSubmitCaseIDs(ids ...int64) *SubmitCreate {
-	sc.mutation.AddSubmitCaseIDs(ids...)
+// AddSubmissionCaseIDs adds the "submission_cases" edge to the SubmissionCase entity by IDs.
+func (sc *SubmissionCreate) AddSubmissionCaseIDs(ids ...int64) *SubmissionCreate {
+	sc.mutation.AddSubmissionCaseIDs(ids...)
 	return sc
 }
 
-// AddSubmitCases adds the "submit_cases" edges to the SubmitCase entity.
-func (sc *SubmitCreate) AddSubmitCases(s ...*SubmitCase) *SubmitCreate {
+// AddSubmissionCases adds the "submission_cases" edges to the SubmissionCase entity.
+func (sc *SubmissionCreate) AddSubmissionCases(s ...*SubmissionCase) *SubmissionCreate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return sc.AddSubmitCaseIDs(ids...)
+	return sc.AddSubmissionCaseIDs(ids...)
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
-func (sc *SubmitCreate) SetProblemsID(id int64) *SubmitCreate {
+func (sc *SubmissionCreate) SetProblemsID(id int64) *SubmissionCreate {
 	sc.mutation.SetProblemsID(id)
 	return sc
 }
 
 // SetProblems sets the "problems" edge to the Problem entity.
-func (sc *SubmitCreate) SetProblems(p *Problem) *SubmitCreate {
+func (sc *SubmissionCreate) SetProblems(p *Problem) *SubmissionCreate {
 	return sc.SetProblemsID(p.ID)
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
-func (sc *SubmitCreate) SetUsersID(id int64) *SubmitCreate {
+func (sc *SubmissionCreate) SetUsersID(id int64) *SubmissionCreate {
 	sc.mutation.SetUsersID(id)
 	return sc
 }
 
 // SetUsers sets the "users" edge to the User entity.
-func (sc *SubmitCreate) SetUsers(u *User) *SubmitCreate {
+func (sc *SubmissionCreate) SetUsers(u *User) *SubmissionCreate {
 	return sc.SetUsersID(u.ID)
 }
 
-// Mutation returns the SubmitMutation object of the builder.
-func (sc *SubmitCreate) Mutation() *SubmitMutation {
+// Mutation returns the SubmissionMutation object of the builder.
+func (sc *SubmissionCreate) Mutation() *SubmissionMutation {
 	return sc.mutation
 }
 
-// Save creates the Submit in the database.
-func (sc *SubmitCreate) Save(ctx context.Context) (*Submit, error) {
+// Save creates the Submission in the database.
+func (sc *SubmissionCreate) Save(ctx context.Context) (*Submission, error) {
 	sc.defaults()
 	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (sc *SubmitCreate) SaveX(ctx context.Context) *Submit {
+func (sc *SubmissionCreate) SaveX(ctx context.Context) *Submission {
 	v, err := sc.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -155,93 +155,93 @@ func (sc *SubmitCreate) SaveX(ctx context.Context) *Submit {
 }
 
 // Exec executes the query.
-func (sc *SubmitCreate) Exec(ctx context.Context) error {
+func (sc *SubmissionCreate) Exec(ctx context.Context) error {
 	_, err := sc.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sc *SubmitCreate) ExecX(ctx context.Context) {
+func (sc *SubmissionCreate) ExecX(ctx context.Context) {
 	if err := sc.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (sc *SubmitCreate) defaults() {
+func (sc *SubmissionCreate) defaults() {
 	if _, ok := sc.mutation.CreateTime(); !ok {
-		v := submit.DefaultCreateTime
+		v := submission.DefaultCreateTime
 		sc.mutation.SetCreateTime(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (sc *SubmitCreate) check() error {
+func (sc *SubmissionCreate) check() error {
 	if _, ok := sc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Submit.code"`)}
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Submission.code"`)}
 	}
 	if _, ok := sc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Submit.status"`)}
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Submission.status"`)}
 	}
 	if v, ok := sc.mutation.Status(); ok {
-		if err := submit.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submit.status": %w`, err)}
+		if err := submission.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submission.status": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.Point(); !ok {
-		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Submit.point"`)}
+		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Submission.point"`)}
 	}
 	if v, ok := sc.mutation.Point(); ok {
-		if err := submit.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Submit.point": %w`, err)}
+		if err := submission.PointValidator(v); err != nil {
+			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Submission.point": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Submit.create_time"`)}
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Submission.create_time"`)}
 	}
 	if _, ok := sc.mutation.TotalTime(); !ok {
-		return &ValidationError{Name: "total_time", err: errors.New(`ent: missing required field "Submit.total_time"`)}
+		return &ValidationError{Name: "total_time", err: errors.New(`ent: missing required field "Submission.total_time"`)}
 	}
 	if v, ok := sc.mutation.TotalTime(); ok {
-		if err := submit.TotalTimeValidator(v); err != nil {
-			return &ValidationError{Name: "total_time", err: fmt.Errorf(`ent: validator failed for field "Submit.total_time": %w`, err)}
+		if err := submission.TotalTimeValidator(v); err != nil {
+			return &ValidationError{Name: "total_time", err: fmt.Errorf(`ent: validator failed for field "Submission.total_time": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.MaxMemory(); !ok {
-		return &ValidationError{Name: "max_memory", err: errors.New(`ent: missing required field "Submit.max_memory"`)}
+		return &ValidationError{Name: "max_memory", err: errors.New(`ent: missing required field "Submission.max_memory"`)}
 	}
 	if v, ok := sc.mutation.MaxMemory(); ok {
-		if err := submit.MaxMemoryValidator(v); err != nil {
-			return &ValidationError{Name: "max_memory", err: fmt.Errorf(`ent: validator failed for field "Submit.max_memory": %w`, err)}
+		if err := submission.MaxMemoryValidator(v); err != nil {
+			return &ValidationError{Name: "max_memory", err: fmt.Errorf(`ent: validator failed for field "Submission.max_memory": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.Language(); !ok {
-		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Submit.language"`)}
+		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Submission.language"`)}
 	}
 	if _, ok := sc.mutation.CaseVersion(); !ok {
-		return &ValidationError{Name: "case_version", err: errors.New(`ent: missing required field "Submit.case_version"`)}
+		return &ValidationError{Name: "case_version", err: errors.New(`ent: missing required field "Submission.case_version"`)}
 	}
 	if v, ok := sc.mutation.CaseVersion(); ok {
-		if err := submit.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submit.case_version": %w`, err)}
+		if err := submission.CaseVersionValidator(v); err != nil {
+			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submission.case_version": %w`, err)}
 		}
 	}
 	if _, ok := sc.mutation.ProblemID(); !ok {
-		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "Submit.problem_id"`)}
+		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "Submission.problem_id"`)}
 	}
 	if _, ok := sc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Submit.user_id"`)}
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Submission.user_id"`)}
 	}
 	if _, ok := sc.mutation.ProblemsID(); !ok {
-		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "Submit.problems"`)}
+		return &ValidationError{Name: "problems", err: errors.New(`ent: missing required edge "Submission.problems"`)}
 	}
 	if _, ok := sc.mutation.UsersID(); !ok {
-		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "Submit.users"`)}
+		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "Submission.users"`)}
 	}
 	return nil
 }
 
-func (sc *SubmitCreate) sqlSave(ctx context.Context) (*Submit, error) {
+func (sc *SubmissionCreate) sqlSave(ctx context.Context) (*Submission, error) {
 	if err := sc.check(); err != nil {
 		return nil, err
 	}
@@ -261,56 +261,56 @@ func (sc *SubmitCreate) sqlSave(ctx context.Context) (*Submit, error) {
 	return _node, nil
 }
 
-func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
+func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Submit{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(submit.Table, sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64))
+		_node = &Submission{config: sc.config}
+		_spec = sqlgraph.NewCreateSpec(submission.Table, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64))
 	)
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.Code(); ok {
-		_spec.SetField(submit.FieldCode, field.TypeString, value)
+		_spec.SetField(submission.FieldCode, field.TypeString, value)
 		_node.Code = value
 	}
 	if value, ok := sc.mutation.Status(); ok {
-		_spec.SetField(submit.FieldStatus, field.TypeInt16, value)
+		_spec.SetField(submission.FieldStatus, field.TypeInt16, value)
 		_node.Status = value
 	}
 	if value, ok := sc.mutation.Point(); ok {
-		_spec.SetField(submit.FieldPoint, field.TypeInt16, value)
+		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
 	if value, ok := sc.mutation.CreateTime(); ok {
-		_spec.SetField(submit.FieldCreateTime, field.TypeTime, value)
+		_spec.SetField(submission.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
 	}
 	if value, ok := sc.mutation.TotalTime(); ok {
-		_spec.SetField(submit.FieldTotalTime, field.TypeInt32, value)
+		_spec.SetField(submission.FieldTotalTime, field.TypeInt32, value)
 		_node.TotalTime = value
 	}
 	if value, ok := sc.mutation.MaxMemory(); ok {
-		_spec.SetField(submit.FieldMaxMemory, field.TypeInt32, value)
+		_spec.SetField(submission.FieldMaxMemory, field.TypeInt32, value)
 		_node.MaxMemory = value
 	}
 	if value, ok := sc.mutation.Language(); ok {
-		_spec.SetField(submit.FieldLanguage, field.TypeString, value)
+		_spec.SetField(submission.FieldLanguage, field.TypeString, value)
 		_node.Language = value
 	}
 	if value, ok := sc.mutation.CaseVersion(); ok {
-		_spec.SetField(submit.FieldCaseVersion, field.TypeInt8, value)
+		_spec.SetField(submission.FieldCaseVersion, field.TypeInt8, value)
 		_node.CaseVersion = value
 	}
-	if nodes := sc.mutation.SubmitCasesIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.SubmissionCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submit.SubmitCasesTable,
-			Columns: []string{submit.SubmitCasesColumn},
+			Table:   submission.SubmissionCasesTable,
+			Columns: []string{submission.SubmissionCasesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submitcase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -322,8 +322,8 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submit.ProblemsTable,
-			Columns: []string{submit.ProblemsColumn},
+			Table:   submission.ProblemsTable,
+			Columns: []string{submission.ProblemsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
@@ -339,8 +339,8 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submit.UsersTable,
-			Columns: []string{submit.UsersColumn},
+			Table:   submission.UsersTable,
+			Columns: []string{submission.UsersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
@@ -355,27 +355,27 @@ func (sc *SubmitCreate) createSpec() (*Submit, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// SubmitCreateBulk is the builder for creating many Submit entities in bulk.
-type SubmitCreateBulk struct {
+// SubmissionCreateBulk is the builder for creating many Submission entities in bulk.
+type SubmissionCreateBulk struct {
 	config
 	err      error
-	builders []*SubmitCreate
+	builders []*SubmissionCreate
 }
 
-// Save creates the Submit entities in the database.
-func (scb *SubmitCreateBulk) Save(ctx context.Context) ([]*Submit, error) {
+// Save creates the Submission entities in the database.
+func (scb *SubmissionCreateBulk) Save(ctx context.Context) ([]*Submission, error) {
 	if scb.err != nil {
 		return nil, scb.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(scb.builders))
-	nodes := make([]*Submit, len(scb.builders))
+	nodes := make([]*Submission, len(scb.builders))
 	mutators := make([]Mutator, len(scb.builders))
 	for i := range scb.builders {
 		func(i int, root context.Context) {
 			builder := scb.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*SubmitMutation)
+				mutation, ok := m.(*SubmissionMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -422,7 +422,7 @@ func (scb *SubmitCreateBulk) Save(ctx context.Context) ([]*Submit, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scb *SubmitCreateBulk) SaveX(ctx context.Context) []*Submit {
+func (scb *SubmissionCreateBulk) SaveX(ctx context.Context) []*Submission {
 	v, err := scb.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -431,13 +431,13 @@ func (scb *SubmitCreateBulk) SaveX(ctx context.Context) []*Submit {
 }
 
 // Exec executes the query.
-func (scb *SubmitCreateBulk) Exec(ctx context.Context) error {
+func (scb *SubmissionCreateBulk) Exec(ctx context.Context) error {
 	_, err := scb.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scb *SubmitCreateBulk) ExecX(ctx context.Context) {
+func (scb *SubmissionCreateBulk) ExecX(ctx context.Context) {
 	if err := scb.Exec(ctx); err != nil {
 		panic(err)
 	}

@@ -10,7 +10,7 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -25,7 +25,7 @@ type UserQuery struct {
 	order             []user.OrderOption
 	inters            []Interceptor
 	predicates        []predicate.User
-	withSubmission    *SubmitQuery
+	withSubmission    *SubmissionQuery
 	withLoginSessions *LoginSessionQuery
 	withGroups        *GroupQuery
 	// intermediate query (i.e. traversal path).
@@ -65,8 +65,8 @@ func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 }
 
 // QuerySubmission chains the current query on the "submission" edge.
-func (uq *UserQuery) QuerySubmission() *SubmitQuery {
-	query := (&SubmitClient{config: uq.config}).Query()
+func (uq *UserQuery) QuerySubmission() *SubmissionQuery {
+	query := (&SubmissionClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func (uq *UserQuery) QuerySubmission() *SubmitQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(submit.Table, submit.FieldID),
+			sqlgraph.To(submission.Table, submission.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.SubmissionTable, user.SubmissionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
@@ -333,8 +333,8 @@ func (uq *UserQuery) Clone() *UserQuery {
 
 // WithSubmission tells the query-builder to eager-load the nodes that are connected to
 // the "submission" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithSubmission(opts ...func(*SubmitQuery)) *UserQuery {
-	query := (&SubmitClient{config: uq.config}).Query()
+func (uq *UserQuery) WithSubmission(opts ...func(*SubmissionQuery)) *UserQuery {
+	query := (&SubmissionClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -468,8 +468,8 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if query := uq.withSubmission; query != nil {
 		if err := uq.loadSubmission(ctx, query, nodes,
-			func(n *User) { n.Edges.Submission = []*Submit{} },
-			func(n *User, e *Submit) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
+			func(n *User) { n.Edges.Submission = []*Submission{} },
+			func(n *User, e *Submission) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -489,7 +489,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
-func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*User, init func(*User), assign func(*User, *Submit)) error {
+func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmissionQuery, nodes []*User, init func(*User), assign func(*User, *Submission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*User)
 	for i := range nodes {
@@ -500,9 +500,9 @@ func (uq *UserQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nod
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(submit.FieldUserID)
+		query.ctx.AppendFieldOnce(submission.FieldUserID)
 	}
-	query.Where(predicate.Submit(func(s *sql.Selector) {
+	query.Where(predicate.Submission(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.SubmissionColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)

@@ -12,7 +12,7 @@ import (
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,9 +27,9 @@ type ProblemQuery struct {
 	inters           []Interceptor
 	predicates       []predicate.Problem
 	withProblemCases *ProblemCaseQuery
-	withSubmission   *SubmitQuery
+	withSubmission   *SubmissionQuery
 	withContests     *ContestQuery
-	withGroups       *GroupQuery
+	withJudgers      *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -89,8 +89,8 @@ func (pq *ProblemQuery) QueryProblemCases() *ProblemCaseQuery {
 }
 
 // QuerySubmission chains the current query on the "submission" edge.
-func (pq *ProblemQuery) QuerySubmission() *SubmitQuery {
-	query := (&SubmitClient{config: pq.config}).Query()
+func (pq *ProblemQuery) QuerySubmission() *SubmissionQuery {
+	query := (&SubmissionClient{config: pq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -101,7 +101,7 @@ func (pq *ProblemQuery) QuerySubmission() *SubmitQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
-			sqlgraph.To(submit.Table, submit.FieldID),
+			sqlgraph.To(submission.Table, submission.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, problem.SubmissionTable, problem.SubmissionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
@@ -132,8 +132,8 @@ func (pq *ProblemQuery) QueryContests() *ContestQuery {
 	return query
 }
 
-// QueryGroups chains the current query on the "groups" edge.
-func (pq *ProblemQuery) QueryGroups() *GroupQuery {
+// QueryJudgers chains the current query on the "judgers" edge.
+func (pq *ProblemQuery) QueryJudgers() *GroupQuery {
 	query := (&GroupClient{config: pq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -146,7 +146,7 @@ func (pq *ProblemQuery) QueryGroups() *GroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, problem.GroupsTable, problem.GroupsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, problem.JudgersTable, problem.JudgersPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,7 +349,7 @@ func (pq *ProblemQuery) Clone() *ProblemQuery {
 		withProblemCases: pq.withProblemCases.Clone(),
 		withSubmission:   pq.withSubmission.Clone(),
 		withContests:     pq.withContests.Clone(),
-		withGroups:       pq.withGroups.Clone(),
+		withJudgers:      pq.withJudgers.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
@@ -369,8 +369,8 @@ func (pq *ProblemQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *Probl
 
 // WithSubmission tells the query-builder to eager-load the nodes that are connected to
 // the "submission" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProblemQuery) WithSubmission(opts ...func(*SubmitQuery)) *ProblemQuery {
-	query := (&SubmitClient{config: pq.config}).Query()
+func (pq *ProblemQuery) WithSubmission(opts ...func(*SubmissionQuery)) *ProblemQuery {
+	query := (&SubmissionClient{config: pq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -389,14 +389,14 @@ func (pq *ProblemQuery) WithContests(opts ...func(*ContestQuery)) *ProblemQuery 
 	return pq
 }
 
-// WithGroups tells the query-builder to eager-load the nodes that are connected to
-// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProblemQuery) WithGroups(opts ...func(*GroupQuery)) *ProblemQuery {
+// WithJudgers tells the query-builder to eager-load the nodes that are connected to
+// the "judgers" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithJudgers(opts ...func(*GroupQuery)) *ProblemQuery {
 	query := (&GroupClient{config: pq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withGroups = query
+	pq.withJudgers = query
 	return pq
 }
 
@@ -482,7 +482,7 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			pq.withProblemCases != nil,
 			pq.withSubmission != nil,
 			pq.withContests != nil,
-			pq.withGroups != nil,
+			pq.withJudgers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -512,8 +512,8 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	}
 	if query := pq.withSubmission; query != nil {
 		if err := pq.loadSubmission(ctx, query, nodes,
-			func(n *Problem) { n.Edges.Submission = []*Submit{} },
-			func(n *Problem, e *Submit) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
+			func(n *Problem) { n.Edges.Submission = []*Submission{} },
+			func(n *Problem, e *Submission) { n.Edges.Submission = append(n.Edges.Submission, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -523,10 +523,10 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			return nil, err
 		}
 	}
-	if query := pq.withGroups; query != nil {
-		if err := pq.loadGroups(ctx, query, nodes,
-			func(n *Problem) { n.Edges.Groups = []*Group{} },
-			func(n *Problem, e *Group) { n.Edges.Groups = append(n.Edges.Groups, e) }); err != nil {
+	if query := pq.withJudgers; query != nil {
+		if err := pq.loadJudgers(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Judgers = []*Group{} },
+			func(n *Problem, e *Group) { n.Edges.Judgers = append(n.Edges.Judgers, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -563,7 +563,7 @@ func (pq *ProblemQuery) loadProblemCases(ctx context.Context, query *ProblemCase
 	}
 	return nil
 }
-func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Submit)) error {
+func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmissionQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Submission)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*Problem)
 	for i := range nodes {
@@ -574,9 +574,9 @@ func (pq *ProblemQuery) loadSubmission(ctx context.Context, query *SubmitQuery, 
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(submit.FieldProblemID)
+		query.ctx.AppendFieldOnce(submission.FieldProblemID)
 	}
-	query.Where(predicate.Submit(func(s *sql.Selector) {
+	query.Where(predicate.Submission(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(problem.SubmissionColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
@@ -622,7 +622,7 @@ func (pq *ProblemQuery) loadContests(ctx context.Context, query *ContestQuery, n
 	}
 	return nil
 }
-func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
+func (pq *ProblemQuery) loadJudgers(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int64]*Problem)
 	nids := make(map[int64]map[*Problem]struct{})
@@ -634,11 +634,11 @@ func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(problem.GroupsTable)
-		s.Join(joinT).On(s.C(group.FieldID), joinT.C(problem.GroupsPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(problem.GroupsPrimaryKey[1]), edgeIDs...))
+		joinT := sql.Table(problem.JudgersTable)
+		s.Join(joinT).On(s.C(group.FieldID), joinT.C(problem.JudgersPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(problem.JudgersPrimaryKey[0]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(problem.GroupsPrimaryKey[1]))
+		s.Select(joinT.C(problem.JudgersPrimaryKey[0]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -675,7 +675,7 @@ func (pq *ProblemQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "groups" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "judgers" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

@@ -68,28 +68,28 @@ func (f ProblemCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemCaseMutation", m)
 }
 
-// The SubmitFunc type is an adapter to allow the use of ordinary
-// function as Submit mutator.
-type SubmitFunc func(context.Context, *ent.SubmitMutation) (ent.Value, error)
+// The SubmissionFunc type is an adapter to allow the use of ordinary
+// function as Submission mutator.
+type SubmissionFunc func(context.Context, *ent.SubmissionMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f SubmitFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.SubmitMutation); ok {
+func (f SubmissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmissionMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmitMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmissionMutation", m)
 }
 
-// The SubmitCaseFunc type is an adapter to allow the use of ordinary
-// function as SubmitCase mutator.
-type SubmitCaseFunc func(context.Context, *ent.SubmitCaseMutation) (ent.Value, error)
+// The SubmissionCaseFunc type is an adapter to allow the use of ordinary
+// function as SubmissionCase mutator.
+type SubmissionCaseFunc func(context.Context, *ent.SubmissionCaseMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f SubmitCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.SubmitCaseMutation); ok {
+func (f SubmissionCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmissionCaseMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmitCaseMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmissionCaseMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

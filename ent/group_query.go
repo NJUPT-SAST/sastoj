@@ -21,16 +21,16 @@ import (
 // GroupQuery is the builder for querying Group entities.
 type GroupQuery struct {
 	config
-	ctx             *QueryContext
-	order           []group.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Group
-	withAdmins      *ContestQuery
-	withContestants *ContestQuery
-	withProblems    *ProblemQuery
-	withUsers       *UserQuery
-	withRootGroup   *GroupQuery
-	withSubgroups   *GroupQuery
+	ctx           *QueryContext
+	order         []group.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Group
+	withManage    *ContestQuery
+	withContests  *ContestQuery
+	withProblems  *ProblemQuery
+	withUsers     *UserQuery
+	withRootGroup *GroupQuery
+	withSubgroups *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -67,8 +67,8 @@ func (gq *GroupQuery) Order(o ...group.OrderOption) *GroupQuery {
 	return gq
 }
 
-// QueryAdmins chains the current query on the "admins" edge.
-func (gq *GroupQuery) QueryAdmins() *ContestQuery {
+// QueryManage chains the current query on the "manage" edge.
+func (gq *GroupQuery) QueryManage() *ContestQuery {
 	query := (&ContestClient{config: gq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := gq.prepareQuery(ctx); err != nil {
@@ -81,7 +81,7 @@ func (gq *GroupQuery) QueryAdmins() *ContestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(group.Table, group.FieldID, selector),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, group.AdminsTable, group.AdminsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, group.ManageTable, group.ManagePrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -89,8 +89,8 @@ func (gq *GroupQuery) QueryAdmins() *ContestQuery {
 	return query
 }
 
-// QueryContestants chains the current query on the "contestants" edge.
-func (gq *GroupQuery) QueryContestants() *ContestQuery {
+// QueryContests chains the current query on the "contests" edge.
+func (gq *GroupQuery) QueryContests() *ContestQuery {
 	query := (&ContestClient{config: gq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := gq.prepareQuery(ctx); err != nil {
@@ -103,7 +103,7 @@ func (gq *GroupQuery) QueryContestants() *ContestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(group.Table, group.FieldID, selector),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, group.ContestantsTable, group.ContestantsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, group.ContestsTable, group.ContestsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -125,7 +125,7 @@ func (gq *GroupQuery) QueryProblems() *ProblemQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(group.Table, group.FieldID, selector),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, group.ProblemsTable, group.ProblemsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, group.ProblemsTable, group.ProblemsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -386,42 +386,42 @@ func (gq *GroupQuery) Clone() *GroupQuery {
 		return nil
 	}
 	return &GroupQuery{
-		config:          gq.config,
-		ctx:             gq.ctx.Clone(),
-		order:           append([]group.OrderOption{}, gq.order...),
-		inters:          append([]Interceptor{}, gq.inters...),
-		predicates:      append([]predicate.Group{}, gq.predicates...),
-		withAdmins:      gq.withAdmins.Clone(),
-		withContestants: gq.withContestants.Clone(),
-		withProblems:    gq.withProblems.Clone(),
-		withUsers:       gq.withUsers.Clone(),
-		withRootGroup:   gq.withRootGroup.Clone(),
-		withSubgroups:   gq.withSubgroups.Clone(),
+		config:        gq.config,
+		ctx:           gq.ctx.Clone(),
+		order:         append([]group.OrderOption{}, gq.order...),
+		inters:        append([]Interceptor{}, gq.inters...),
+		predicates:    append([]predicate.Group{}, gq.predicates...),
+		withManage:    gq.withManage.Clone(),
+		withContests:  gq.withContests.Clone(),
+		withProblems:  gq.withProblems.Clone(),
+		withUsers:     gq.withUsers.Clone(),
+		withRootGroup: gq.withRootGroup.Clone(),
+		withSubgroups: gq.withSubgroups.Clone(),
 		// clone intermediate query.
 		sql:  gq.sql.Clone(),
 		path: gq.path,
 	}
 }
 
-// WithAdmins tells the query-builder to eager-load the nodes that are connected to
-// the "admins" edge. The optional arguments are used to configure the query builder of the edge.
-func (gq *GroupQuery) WithAdmins(opts ...func(*ContestQuery)) *GroupQuery {
+// WithManage tells the query-builder to eager-load the nodes that are connected to
+// the "manage" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GroupQuery) WithManage(opts ...func(*ContestQuery)) *GroupQuery {
 	query := (&ContestClient{config: gq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	gq.withAdmins = query
+	gq.withManage = query
 	return gq
 }
 
-// WithContestants tells the query-builder to eager-load the nodes that are connected to
-// the "contestants" edge. The optional arguments are used to configure the query builder of the edge.
-func (gq *GroupQuery) WithContestants(opts ...func(*ContestQuery)) *GroupQuery {
+// WithContests tells the query-builder to eager-load the nodes that are connected to
+// the "contests" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GroupQuery) WithContests(opts ...func(*ContestQuery)) *GroupQuery {
 	query := (&ContestClient{config: gq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	gq.withContestants = query
+	gq.withContests = query
 	return gq
 }
 
@@ -548,8 +548,8 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 		nodes       = []*Group{}
 		_spec       = gq.querySpec()
 		loadedTypes = [6]bool{
-			gq.withAdmins != nil,
-			gq.withContestants != nil,
+			gq.withManage != nil,
+			gq.withContests != nil,
 			gq.withProblems != nil,
 			gq.withUsers != nil,
 			gq.withRootGroup != nil,
@@ -574,17 +574,17 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := gq.withAdmins; query != nil {
-		if err := gq.loadAdmins(ctx, query, nodes,
-			func(n *Group) { n.Edges.Admins = []*Contest{} },
-			func(n *Group, e *Contest) { n.Edges.Admins = append(n.Edges.Admins, e) }); err != nil {
+	if query := gq.withManage; query != nil {
+		if err := gq.loadManage(ctx, query, nodes,
+			func(n *Group) { n.Edges.Manage = []*Contest{} },
+			func(n *Group, e *Contest) { n.Edges.Manage = append(n.Edges.Manage, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := gq.withContestants; query != nil {
-		if err := gq.loadContestants(ctx, query, nodes,
-			func(n *Group) { n.Edges.Contestants = []*Contest{} },
-			func(n *Group, e *Contest) { n.Edges.Contestants = append(n.Edges.Contestants, e) }); err != nil {
+	if query := gq.withContests; query != nil {
+		if err := gq.loadContests(ctx, query, nodes,
+			func(n *Group) { n.Edges.Contests = []*Contest{} },
+			func(n *Group, e *Contest) { n.Edges.Contests = append(n.Edges.Contests, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -618,7 +618,7 @@ func (gq *GroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Group,
 	return nodes, nil
 }
 
-func (gq *GroupQuery) loadAdmins(ctx context.Context, query *ContestQuery, nodes []*Group, init func(*Group), assign func(*Group, *Contest)) error {
+func (gq *GroupQuery) loadManage(ctx context.Context, query *ContestQuery, nodes []*Group, init func(*Group), assign func(*Group, *Contest)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int64]*Group)
 	nids := make(map[int64]map[*Group]struct{})
@@ -630,11 +630,11 @@ func (gq *GroupQuery) loadAdmins(ctx context.Context, query *ContestQuery, nodes
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(group.AdminsTable)
-		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(group.AdminsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(group.AdminsPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(group.ManageTable)
+		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(group.ManagePrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(group.ManagePrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(group.AdminsPrimaryKey[0]))
+		s.Select(joinT.C(group.ManagePrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -671,7 +671,7 @@ func (gq *GroupQuery) loadAdmins(ctx context.Context, query *ContestQuery, nodes
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "admins" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "manage" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -679,7 +679,7 @@ func (gq *GroupQuery) loadAdmins(ctx context.Context, query *ContestQuery, nodes
 	}
 	return nil
 }
-func (gq *GroupQuery) loadContestants(ctx context.Context, query *ContestQuery, nodes []*Group, init func(*Group), assign func(*Group, *Contest)) error {
+func (gq *GroupQuery) loadContests(ctx context.Context, query *ContestQuery, nodes []*Group, init func(*Group), assign func(*Group, *Contest)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int64]*Group)
 	nids := make(map[int64]map[*Group]struct{})
@@ -691,11 +691,11 @@ func (gq *GroupQuery) loadContestants(ctx context.Context, query *ContestQuery, 
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(group.ContestantsTable)
-		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(group.ContestantsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(group.ContestantsPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(group.ContestsTable)
+		s.Join(joinT).On(s.C(contest.FieldID), joinT.C(group.ContestsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(group.ContestsPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(group.ContestantsPrimaryKey[0]))
+		s.Select(joinT.C(group.ContestsPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -732,7 +732,7 @@ func (gq *GroupQuery) loadContestants(ctx context.Context, query *ContestQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "contestants" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "contests" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -753,10 +753,10 @@ func (gq *GroupQuery) loadProblems(ctx context.Context, query *ProblemQuery, nod
 	}
 	query.Where(func(s *sql.Selector) {
 		joinT := sql.Table(group.ProblemsTable)
-		s.Join(joinT).On(s.C(problem.FieldID), joinT.C(group.ProblemsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(group.ProblemsPrimaryKey[0]), edgeIDs...))
+		s.Join(joinT).On(s.C(problem.FieldID), joinT.C(group.ProblemsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(group.ProblemsPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(group.ProblemsPrimaryKey[0]))
+		s.Select(joinT.C(group.ProblemsPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})

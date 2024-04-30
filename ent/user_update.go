@@ -9,7 +9,7 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -107,14 +107,14 @@ func (uu *UserUpdate) SetNillableGroupID(i *int64) *UserUpdate {
 	return uu
 }
 
-// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+// AddSubmissionIDs adds the "submission" edge to the Submission entity by IDs.
 func (uu *UserUpdate) AddSubmissionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.AddSubmissionIDs(ids...)
 	return uu
 }
 
-// AddSubmission adds the "submission" edges to the Submit entity.
-func (uu *UserUpdate) AddSubmission(s ...*Submit) *UserUpdate {
+// AddSubmission adds the "submission" edges to the Submission entity.
+func (uu *UserUpdate) AddSubmission(s ...*Submission) *UserUpdate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -153,20 +153,20 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
 }
 
-// ClearSubmission clears all "submission" edges to the Submit entity.
+// ClearSubmission clears all "submission" edges to the Submission entity.
 func (uu *UserUpdate) ClearSubmission() *UserUpdate {
 	uu.mutation.ClearSubmission()
 	return uu
 }
 
-// RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
+// RemoveSubmissionIDs removes the "submission" edge to Submission entities by IDs.
 func (uu *UserUpdate) RemoveSubmissionIDs(ids ...int64) *UserUpdate {
 	uu.mutation.RemoveSubmissionIDs(ids...)
 	return uu
 }
 
-// RemoveSubmission removes "submission" edges to Submit entities.
-func (uu *UserUpdate) RemoveSubmission(s ...*Submit) *UserUpdate {
+// RemoveSubmission removes "submission" edges to Submission entities.
+func (uu *UserUpdate) RemoveSubmission(s ...*Submission) *UserUpdate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -276,7 +276,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -289,7 +289,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -305,7 +305,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -484,14 +484,14 @@ func (uuo *UserUpdateOne) SetNillableGroupID(i *int64) *UserUpdateOne {
 	return uuo
 }
 
-// AddSubmissionIDs adds the "submission" edge to the Submit entity by IDs.
+// AddSubmissionIDs adds the "submission" edge to the Submission entity by IDs.
 func (uuo *UserUpdateOne) AddSubmissionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.AddSubmissionIDs(ids...)
 	return uuo
 }
 
-// AddSubmission adds the "submission" edges to the Submit entity.
-func (uuo *UserUpdateOne) AddSubmission(s ...*Submit) *UserUpdateOne {
+// AddSubmission adds the "submission" edges to the Submission entity.
+func (uuo *UserUpdateOne) AddSubmission(s ...*Submission) *UserUpdateOne {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -530,20 +530,20 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
 }
 
-// ClearSubmission clears all "submission" edges to the Submit entity.
+// ClearSubmission clears all "submission" edges to the Submission entity.
 func (uuo *UserUpdateOne) ClearSubmission() *UserUpdateOne {
 	uuo.mutation.ClearSubmission()
 	return uuo
 }
 
-// RemoveSubmissionIDs removes the "submission" edge to Submit entities by IDs.
+// RemoveSubmissionIDs removes the "submission" edge to Submission entities by IDs.
 func (uuo *UserUpdateOne) RemoveSubmissionIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.RemoveSubmissionIDs(ids...)
 	return uuo
 }
 
-// RemoveSubmission removes "submission" edges to Submit entities.
-func (uuo *UserUpdateOne) RemoveSubmission(s ...*Submit) *UserUpdateOne {
+// RemoveSubmission removes "submission" edges to Submission entities.
+func (uuo *UserUpdateOne) RemoveSubmission(s ...*Submission) *UserUpdateOne {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
@@ -683,7 +683,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -696,7 +696,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -712,7 +712,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.SubmissionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submit.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
