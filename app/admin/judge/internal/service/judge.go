@@ -20,7 +20,7 @@ func NewJudgeService(usecase *biz.JudgeUsecase) *JudgeService {
 }
 
 func (s *JudgeService) SubmitJudge(ctx context.Context, req *pb.SubmitJudgeRequest) (*pb.SubmitJudgeReply, error) {
-	err := s.uc.SubmitJudge(ctx, req.SubmitId, req.Point)
+	err := s.uc.SubmitJudge(ctx, req.SubmissionId, req.Point)
 	if err != nil {
 		return nil, err
 	}

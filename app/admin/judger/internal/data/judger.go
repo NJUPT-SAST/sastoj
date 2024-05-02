@@ -24,15 +24,15 @@ func NewjudgerRepo(data *Data, logger log.Logger) biz.JudgerRepo {
 }
 
 func (r *judgerRepo) Save(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().AddGroupIDs(groupIds...).Exec(ctx)
+	return r.data.db.Problem.Update().AddJudgerIDs(groupIds...).Exec(ctx)
 }
 
 func (r *judgerRepo) Update(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().ClearGroups().AddGroupIDs(groupIds...).Exec(ctx)
+	return r.data.db.Problem.Update().ClearJudgers().AddJudgerIDs(groupIds...).Exec(ctx)
 }
 
 func (r *judgerRepo) FindByID(ctx context.Context, problemId int64) (*biz.Judger, error) {
-	groups, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemId)).QueryGroups().All(ctx)
+	groups, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemId)).QueryJudgers().All(ctx)
 	if err != nil {
 		return nil, err
 	}

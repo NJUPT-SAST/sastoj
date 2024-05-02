@@ -9,7 +9,6 @@ import (
 	"os"
 	"sastoj/app/admin/case/internal/biz"
 	"sastoj/ent"
-	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
 	"sastoj/pkg/util"
 	"strconv"
@@ -30,7 +29,7 @@ func NewProblemCaseRepo(data *Data, logger log.Logger) biz.CaseRepo {
 
 func (r *caseRepo) Save(ctx context.Context, pi int64, cs []*biz.Case) ([]int64, error) {
 	rcs, err := r.data.db.ProblemCase.MapCreateBulk(cs, func(c *ent.ProblemCaseCreate, i int) {
-		c.SetPoint(int16(cs[i].Point)).SetIndex(int16(cs[i].Index)).SetIsAuto(cs[i].IsAuto).SetProblemsID(pi)
+		c.SetPoint(int16(cs[i].Point)).SetIndex(int16(cs[i].Index)).SetIsAuto(cs[i].IsAuto).SetProblemID(pi)
 	}).Save(ctx)
 	if err != nil {
 		return nil, err
@@ -65,7 +64,7 @@ func (r *caseRepo) DeleteByCaseIds(ctx context.Context, cis []int64) error {
 
 func (r *caseRepo) DeleteByProblemId(ctx context.Context, pi int64) error {
 	_, err := r.data.db.ProblemCase.Update().Where(
-		problemcase.HasProblemsWith(problem.ID(pi))).SetIsDeleted(true).Save(ctx)
+		problemcase.ProblemIDEQ(pi)).SetIsDeleted(true).Save(ctx)
 	if err != nil {
 		return err
 	}
@@ -73,12 +72,12 @@ func (r *caseRepo) DeleteByProblemId(ctx context.Context, pi int64) error {
 }
 
 func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, error) {
-	problemcase, err := r.data.db.ProblemCase.Query().Where(problemcase.HasProblemsWith(problem.ID(pi))).All(ctx)
+	problemCases, err := r.data.db.ProblemCase.Query().Where(problemcase.ProblemIDEQ(pi)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
 	rv := make([]*biz.Case, 0)
-	for _, p := range problemcase {
+	for _, p := range problemCases {
 		rv = append(rv, &biz.Case{
 			Id:     p.ID,
 			Point:  int32(p.Point),
@@ -122,38 +121,4 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	}
 	config := util.UnmarshalToml(tomlText)
 	return config, nil
-	//err = r.data.db.Problem.Update().SetPoint(config.Score).Where(problem.IDEQ(problemId)).Save(ctx)
-
-	//zst := archiver.Zstd{
-	//	EncoderOptions: nil,
-	//	DecoderOptions: nil,
-	//}
-	//
-	//cw, err := os.OpenFile(location+strconv.FormatInt(problemId, 10)+".tar.zst", os.O_RDWR|os.O_CREATE, 0o666)
-	//cr, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
-	//if err != nil {
-	//	return err
-	//}
-	//t := archiver.Tar{
-	//	OverwriteExisting:      false,
-	//	MkdirAll:               false,
-	//	ImplicitTopLevelFolder: false,
-	//	StripComponents:        0,
-	//	ContinueOnError:        false,
-	//}
-	//err = t.Archive([]string{location + strings.Split(filename, ".")[0] + "/" + "testdata"}, location+strings.Split(filename, ".")[0]+".tar")
-	//if err != nil {
-	//	return err
-	//}
-	//cr, err = os.OpenFile(location+strings.Split(filename, ".")[0]+".tar", os.O_RDWR|os.O_CREATE, 0o666)
-	//err = zst.Compress(cr, cw)
-	//defer cw.Close()
-	//defer cr.Close()
-	//if err != nil {
-	//	return err
-	//}
-
-	//r.data.db.ProblemCase.CreateBulk(
-	//	for cb :=
-	//	)
 }

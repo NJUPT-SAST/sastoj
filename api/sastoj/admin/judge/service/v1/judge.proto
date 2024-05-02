@@ -11,7 +11,7 @@ option java_package = "api.sastoj.admin.judge.service.v1";
 
 service Judge {
 	rpc SubmitJudge (SubmitJudgeRequest) returns (SubmitJudgeReply){
-		option (google.api.http) = {post: "/judge/{submit_id}" body: "*"};
+		option (google.api.http) = {post: "/judge/{submission_id}" body: "*"};
 	};
 	rpc GetJudgableProblems (GetJudgableProblemsRequest) returns (GetJudgableProblemsReply){
 		option (google.api.http) = {get: "/judge"};
@@ -41,7 +41,7 @@ message Submission {
 }
 
 message SubmitJudgeRequest {
-	int64 submit_id = 1;
+	int64 submission_id = 1;
 	int32 point = 2;
 }
 message SubmitJudgeReply {

@@ -27,7 +27,7 @@ func (r *ProblemRepo) Save(ctx context.Context, g *biz.Problem) (*biz.Problem, e
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetPoint(int16(g.Point)).
-		//SetContestID(g.ContestId).
+		SetContestID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
@@ -44,7 +44,7 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetPoint(int16(g.Point)).
-		//SetContestID(g.ContestId).
+		SetContestID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
@@ -62,11 +62,11 @@ func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	return &biz.Problem{
-		Id:      int64(v.ID),
-		Title:   v.Title,
-		Content: v.Content,
-		Point:   int32(v.Point),
-		//ContestId:   int64(v.ContestID),
+		Id:          v.ID,
+		Title:       v.Title,
+		Content:     v.Content,
+		Point:       int32(v.Point),
+		ContestId:   v.ContestID,
 		CaseVersion: int32(v.CaseVersion),
 		Index:       int32(v.Index),
 		Config:      v.Config,
@@ -89,11 +89,11 @@ func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
 		list = append(list, &biz.Problem{
-			Id:      int64(v.ID),
-			Title:   v.Title,
-			Content: v.Content,
-			Point:   int32(v.Point),
-			//ContestId:   int64(v.ContestID),
+			Id:          v.ID,
+			Title:       v.Title,
+			Content:     v.Content,
+			Point:       int32(v.Point),
+			ContestId:   v.ContestID,
 			CaseVersion: int32(v.CaseVersion),
 			Index:       int32(v.Index),
 			Config:      v.Config,
