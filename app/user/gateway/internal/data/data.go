@@ -6,12 +6,9 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/redis/go-redis/v9"
 	v1 "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/app/user/gateway/internal/conf"
-	"strconv"
-	"time"
 )
 
 // ProviderSet is data providers.
@@ -19,9 +16,17 @@ var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo, NewSubmis
 
 // Data .
 type Data struct {
-	redis *redis.Client
+	cache *Cache
 	ch    *amqp.Channel
 	cc    v1.ContestServiceClient
+}
+
+// Cache is a map store.
+type Cache struct {
+	group2contests   map[int64][]*biz.Contest
+	contest2problems map[int64][]*biz.Problem
+	problems         map[int64]*biz.Problem
+	submissions      map[string]*biz.Submission
 }
 
 // NewData .
@@ -30,16 +35,12 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	// connect to redis
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: c.Redis.Addr,
-		DB:   int(c.Redis.Db),
-	})
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
-		log.Errorf("failed connecting to redis: %v", err)
-		return nil, nil, err
+	cache := &Cache{
+		group2contests:   make(map[int64][]*biz.Contest),
+		contest2problems: make(map[int64][]*biz.Problem),
+		problems:         make(map[int64]*biz.Problem),
+		submissions:      make(map[string]*biz.Submission),
 	}
-
-	// init redis
 	// get today contests
 	contestsDTO, err := cc.GetContests(context.Background(), &v1.GetContestsRequest{})
 	if err != nil {
@@ -63,7 +64,7 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		}
 	}
 	for groupID, contests := range groupID2contests {
-		redisClient.Set(context.Background(), "group:"+strconv.FormatInt(groupID, 10), contests, 24*time.Hour)
+		cache.group2contests[groupID] = contests
 	}
 
 	// get problems
@@ -75,39 +76,30 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 			ContestId: contest.Id,
 		})
 		if err != nil {
-			log.Errorf("failed getting problems: %v", err)
+			log.Errorf("failed getting contest2problems: %v", err)
 			return nil, nil, err
 		}
-		for _, problemDTO := range problemsDTO.Problems {
+		for _, problem := range problemsDTO.Problems {
 			problems = append(problems, &biz.Problem{
-				ID:    problemDTO.Id,
-				Title: problemDTO.Title,
-				Point: int16(problemDTO.Point),
-				Index: int16(problemDTO.Index),
+				ID:    problem.Id,
+				Title: problem.Title,
+				Point: int16(problem.Point),
+				Index: int16(problem.Index),
 			})
+			problemDTO, err := cc.GetProblem(context.Background(), &v1.GetProblemRequest{
+				ProblemId: problem.Id,
+			})
+			if err != nil {
+				log.Errorf("failed getting problem: %v", err)
+			}
+			cache.problems[problem.Id] = &biz.Problem{
+				ID:      problem.Id,
+				Title:   problem.Title,
+				Content: problemDTO.Content,
+				Point:   int16(problem.Point),
+			}
 		}
-		redisClient.Set(context.Background(), "contest:"+strconv.FormatInt(contest.Id, 10), problems, 24*time.Hour)
-		// }()
-	}
-
-	// get problem
-	for _, problem := range problems {
-
-		problemID := problem.ID
-		// go func() {
-		problemDTO, err := cc.GetProblem(context.Background(), &v1.GetProblemRequest{
-			ProblemId: problemID,
-		})
-		if err != nil {
-			return nil, nil, err
-		}
-		problem := &biz.Problem{
-			ID:      problemDTO.Id,
-			Title:   problemDTO.Title,
-			Content: problemDTO.Content,
-			Point:   int16(problemDTO.Point),
-		}
-		redisClient.Set(context.Background(), "problem:"+strconv.FormatInt(problem.ID, 10), problem, 24*time.Hour)
+		cache.contest2problems[contest.Id] = problems
 		// }()
 	}
 
@@ -121,7 +113,7 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		log.Errorf("failed opening a channel")
 	}
 	return &Data{
-		redis: redisClient,
+		cache: cache,
 		cc:    cc,
 		ch:    ch,
 	}, cleanup, nil

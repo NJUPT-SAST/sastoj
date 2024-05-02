@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sastoj/app/user/gateway/internal/biz"
@@ -68,12 +69,16 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 			ContentType: "text/plain",
 			Body:        body,
 		})
+	s.data.cache.submissions[submission.ID] = submission
 	return submission.ID, nil
 }
 
 func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, userID int64) (*biz.Submission, error) {
-	// TODO: Get Submission from cache
-	return nil, nil
+	po := s.data.cache.submissions[submissionID]
+	if po.UserID != userID {
+		return nil, errors.New("permission denied")
+	}
+	return po, nil
 }
 
 // NewSubmissionRepo .

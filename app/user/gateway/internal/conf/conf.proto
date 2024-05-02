@@ -41,10 +41,5 @@ message Client {
 }
 
 message Data {
-  message Redis {
-    string addr = 1;
-    int32 db = 2;
-  }
-  Redis redis = 1;
-  string mq = 2;
+  string mq = 1;
 }
