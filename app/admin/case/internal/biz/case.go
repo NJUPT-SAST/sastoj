@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"mime/multipart"
 	"sastoj/pkg/util"
@@ -24,7 +24,7 @@ type CaseRepo interface {
 	DeleteByCaseIds(context.Context, []int64) error
 	DeleteByProblemId(context.Context, int64) error
 	FindByProblemId(context.Context, int64) ([]*Case, error)
-	UploadCasesFile(int64, multipart.File, string) (util.Simple, error)
+	UploadCasesFile(int64, multipart.File, string) (util.JudgeConfig, error)
 }
 
 type CaseUsecase struct {
@@ -85,31 +85,45 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 	}
 	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
 	var cases []*Case
-	for _, c := range config.Judge.Cases {
-		fmt.Println("case index: ", strings.Split(c.Input, ".")[0])
-		index, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
-		if err != nil {
-			return nil, err
+	// TODO: judge problem as special-judge, interactive or subtask type
+	switch config.Judge.JudgeType {
+	case "classic":
+		{
+			if config.Judge.TaskType == "simple" {
+				for _, c := range config.Judge.Cases {
+					index, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
+					if err != nil {
+						return nil, err
+					}
+					if c.Score == 0 {
+						cases = append(cases, &Case{
+							ProblemId: problemId,
+							Point:     int32(config.Score / int16(len(config.Judge.Cases))),
+							Index:     int32(index),
+							IsAuto:    true,
+						})
+						continue
+					}
+					cases = append(cases, &Case{
+						ProblemId: problemId,
+						Point:     int32(c.Score),
+						Index:     int32(index),
+						IsAuto:    false,
+					})
+				}
+				out, err := uc.repo.Save(ctx, problemId, cases)
+				if err != nil {
+					return nil, err
+				}
+				return out, nil
+			}
+			return nil, nil
 		}
-		if c.Score == 0 {
-			cases = append(cases, &Case{
-				ProblemId: problemId,
-				Point:     int32(config.Score / int16(len(config.Judge.Cases))),
-				Index:     int32(index),
-				IsAuto:    true,
-			})
-			continue
-		}
-		cases = append(cases, &Case{
-			ProblemId: problemId,
-			Point:     int32(c.Score),
-			Index:     int32(index),
-			IsAuto:    false,
-		})
+	case "special-judge":
+		return nil, nil
+	case "interactive":
+		return nil, nil
 	}
-	out, err := uc.repo.Save(ctx, problemId, cases)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	err = errors.New("missing judge-type in config.toml")
+	return nil, err
 }

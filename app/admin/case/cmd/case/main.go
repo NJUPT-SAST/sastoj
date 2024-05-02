@@ -81,7 +81,7 @@ func main() {
 	defer cleanup()
 
 	// start and wait for stop signal
-	println(bc.GetData().GetLoad().GetUploadCasesLocation())
+	println(bc.GetData().GetLoad().GetProblemCasesLocation())
 	if err := app.Run(); err != nil {
 		panic(err)
 	}

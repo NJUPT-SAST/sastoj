@@ -37,7 +37,7 @@ message Data {
     google.protobuf.Duration write_timeout = 4;
   }
   message Load {
-    string upload_cases_location = 1;
+    string problem_cases_location = 1;
   }
   Database database = 1;
   Redis redis = 2;
