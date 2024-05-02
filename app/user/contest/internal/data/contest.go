@@ -20,7 +20,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 	po, err := c.data.db.Contest.
 		Query().
 		Where(
-			contest.HasContestWith(
+			contest.HasContestantsWith(
 				group.HasUsersWith(
 					user.IDEQ(userID),
 				),

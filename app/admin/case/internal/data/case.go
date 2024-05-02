@@ -36,7 +36,7 @@ func (r *caseRepo) Save(ctx context.Context, pi int64, cs []*biz.Case) ([]int64,
 	}
 	var ids []int64
 	for _, rc := range rcs {
-		ids = append(ids, int64(rc.ID))
+		ids = append(ids, rc.ID)
 	}
 	return ids, nil
 }
@@ -88,22 +88,22 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 	return rv, nil
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string) (util.Simple, error) {
-	base := r.data.uploadCasesLocation
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string) (util.JudgeConfig, error) {
+	base := r.data.problemCasesLocation
 	location := base + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
 		err := os.RemoveAll(location)
 		if err != nil {
-			return util.Simple{}, err
+			return util.JudgeConfig{}, err
 		}
 	}
 	err := os.Mkdir(location, os.ModePerm)
 	if err != nil {
-		return util.Simple{}, err
+		return util.JudgeConfig{}, err
 	}
 	f, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
 	if err != nil {
-		return util.Simple{}, err
+		return util.JudgeConfig{}, err
 	}
 	defer f.Close()
 	_, _ = io.Copy(f, casesFile)
@@ -111,14 +111,17 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	// decompressed
 	err = archiver.Unarchive(location+filename, location)
 	if err != nil {
-		return util.Simple{}, err
+		return util.JudgeConfig{}, err
 	}
 
 	// unmarshal toml
 	tomlText, err := os.ReadFile(location + "testdata" + "/" + "config.toml")
 	if err != nil {
-		return util.Simple{}, err
+		return util.JudgeConfig{}, err
 	}
-	config := util.UnmarshalToml(tomlText)
+	config, err := util.UnmarshalToml(tomlText)
+	if err != nil {
+		return util.JudgeConfig{}, err
+	}
 	return config, nil
 }

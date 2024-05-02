@@ -43,7 +43,7 @@ func (s submitRepo) CreatePretest(ctx context.Context, p *biz.Pretest) error {
 }
 
 func (s submitRepo) GetSubmission(ctx context.Context, submitID int64, userID int64) (*biz.Submit, error) {
-	po, err := s.data.db.Submit.Get(ctx, submitID)
+	po, err := s.data.db.Submission.Get(ctx, submitID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (s submitRepo) GetSubmission(ctx context.Context, submitID int64, userID in
 }
 
 func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64, error) {
-	po, err := s.data.db.Submit.Create().
+	po, err := s.data.db.Submission.Create().
 		SetUsersID(submit.UserID).
 		SetProblemsID(submit.ProblemID).
 		SetCode(submit.Code).
@@ -110,14 +110,14 @@ func (s submitRepo) CreateSubmit(ctx context.Context, submit *biz.Submit) (int64
 }
 
 func (s submitRepo) UpdateStatus(ctx context.Context, submitID int64, status int16) error {
-	_, err := s.data.db.Submit.UpdateOneID(submitID).
+	_, err := s.data.db.Submission.UpdateOneID(submitID).
 		SetStatus(status).
 		Save(ctx)
 	return err
 }
 
 func (s submitRepo) UpdateSubmit(ctx context.Context, submit *biz.Submit) error {
-	_, err := s.data.db.Submit.UpdateOneID(submit.ID).
+	_, err := s.data.db.Submission.UpdateOneID(submit.ID).
 		SetStatus(submit.Status).
 		SetPoint(submit.Point).
 		SetTotalTime(submit.TotalTime).
