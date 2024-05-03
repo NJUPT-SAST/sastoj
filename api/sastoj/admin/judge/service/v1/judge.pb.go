@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.32.0
 // 	protoc        v5.26.1
-// source: api/sastoj/admin/judge/service/v1/judge.proto
+// source: api/sastoj/admin/cases/service/v1/cases.proto
 
 package v1
 
@@ -598,26 +598,26 @@ func file_api_sastoj_admin_judge_service_v1_judge_proto_rawDescGZIP() []byte {
 
 var file_api_sastoj_admin_judge_service_v1_judge_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_api_sastoj_admin_judge_service_v1_judge_proto_goTypes = []interface{}{
-	(*Problem)(nil),                    // 0: api.sastoj.admin.judge.service.v1.Problem
-	(*Submission)(nil),                 // 1: api.sastoj.admin.judge.service.v1.Submission
-	(*SubmitJudgeRequest)(nil),         // 2: api.sastoj.admin.judge.service.v1.SubmitJudgeRequest
-	(*SubmitJudgeReply)(nil),           // 3: api.sastoj.admin.judge.service.v1.SubmitJudgeReply
-	(*GetJudgableProblemsRequest)(nil), // 4: api.sastoj.admin.judge.service.v1.GetJudgableProblemsRequest
-	(*GetJudgableProblemsReply)(nil),   // 5: api.sastoj.admin.judge.service.v1.GetJudgableProblemsReply
-	(*GetSubmissionsRequest)(nil),      // 6: api.sastoj.admin.judge.service.v1.GetSubmissionsRequest
-	(*GetSubmissionsReply)(nil),        // 7: api.sastoj.admin.judge.service.v1.GetSubmissionsReply
+	(*Problem)(nil),                    // 0: api.sastoj.admin.cases.service.v1.Problem
+	(*Submission)(nil),                 // 1: api.sastoj.admin.cases.service.v1.Submission
+	(*SubmitJudgeRequest)(nil),         // 2: api.sastoj.admin.cases.service.v1.SubmitJudgeRequest
+	(*SubmitJudgeReply)(nil),           // 3: api.sastoj.admin.cases.service.v1.SubmitJudgeReply
+	(*GetJudgableProblemsRequest)(nil), // 4: api.sastoj.admin.cases.service.v1.GetJudgableProblemsRequest
+	(*GetJudgableProblemsReply)(nil),   // 5: api.sastoj.admin.cases.service.v1.GetJudgableProblemsReply
+	(*GetSubmissionsRequest)(nil),      // 6: api.sastoj.admin.cases.service.v1.GetSubmissionsRequest
+	(*GetSubmissionsReply)(nil),        // 7: api.sastoj.admin.cases.service.v1.GetSubmissionsReply
 	(*timestamppb.Timestamp)(nil),      // 8: google.protobuf.Timestamp
 }
 var file_api_sastoj_admin_judge_service_v1_judge_proto_depIdxs = []int32{
-	8, // 0: api.sastoj.admin.judge.service.v1.Submission.create_time:type_name -> google.protobuf.Timestamp
-	0, // 1: api.sastoj.admin.judge.service.v1.GetJudgableProblemsReply.results:type_name -> api.sastoj.admin.judge.service.v1.Problem
-	1, // 2: api.sastoj.admin.judge.service.v1.GetSubmissionsReply.submissions:type_name -> api.sastoj.admin.judge.service.v1.Submission
-	2, // 3: api.sastoj.admin.judge.service.v1.Judge.SubmitJudge:input_type -> api.sastoj.admin.judge.service.v1.SubmitJudgeRequest
-	4, // 4: api.sastoj.admin.judge.service.v1.Judge.GetJudgableProblems:input_type -> api.sastoj.admin.judge.service.v1.GetJudgableProblemsRequest
-	6, // 5: api.sastoj.admin.judge.service.v1.Judge.GetSubmissions:input_type -> api.sastoj.admin.judge.service.v1.GetSubmissionsRequest
-	3, // 6: api.sastoj.admin.judge.service.v1.Judge.SubmitJudge:output_type -> api.sastoj.admin.judge.service.v1.SubmitJudgeReply
-	5, // 7: api.sastoj.admin.judge.service.v1.Judge.GetJudgableProblems:output_type -> api.sastoj.admin.judge.service.v1.GetJudgableProblemsReply
-	7, // 8: api.sastoj.admin.judge.service.v1.Judge.GetSubmissions:output_type -> api.sastoj.admin.judge.service.v1.GetSubmissionsReply
+	8, // 0: api.sastoj.admin.cases.service.v1.Submission.create_time:type_name -> google.protobuf.Timestamp
+	0, // 1: api.sastoj.admin.cases.service.v1.GetJudgableProblemsReply.results:type_name -> api.sastoj.admin.cases.service.v1.Problem
+	1, // 2: api.sastoj.admin.cases.service.v1.GetSubmissionsReply.submissions:type_name -> api.sastoj.admin.cases.service.v1.Submission
+	2, // 3: api.sastoj.admin.cases.service.v1.Judge.SubmitJudge:input_type -> api.sastoj.admin.cases.service.v1.SubmitJudgeRequest
+	4, // 4: api.sastoj.admin.cases.service.v1.Judge.GetJudgableProblems:input_type -> api.sastoj.admin.cases.service.v1.GetJudgableProblemsRequest
+	6, // 5: api.sastoj.admin.cases.service.v1.Judge.GetSubmissions:input_type -> api.sastoj.admin.cases.service.v1.GetSubmissionsRequest
+	3, // 6: api.sastoj.admin.cases.service.v1.Judge.SubmitJudge:output_type -> api.sastoj.admin.cases.service.v1.SubmitJudgeReply
+	5, // 7: api.sastoj.admin.cases.service.v1.Judge.GetJudgableProblems:output_type -> api.sastoj.admin.cases.service.v1.GetJudgableProblemsReply
+	7, // 8: api.sastoj.admin.cases.service.v1.Judge.GetSubmissions:output_type -> api.sastoj.admin.cases.service.v1.GetSubmissionsReply
 	6, // [6:9] is the sub-list for method output_type
 	3, // [3:6] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

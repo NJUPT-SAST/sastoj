@@ -5,19 +5,19 @@ package api.sastoj.admin.judge.service.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "sastoj//api/sastoj/admin/judge/service/v1;v1";
+option go_package = "sastoj//api/sastoj/admin/cases/service/v1;v1";
 option java_multiple_files = true;
-option java_package = "api.sastoj.admin.judge.service.v1";
+option java_package = "api.sastoj.admin.cases.service.v1";
 
 service Judge {
 	rpc SubmitJudge (SubmitJudgeRequest) returns (SubmitJudgeReply){
-		option (google.api.http) = {post: "/judge/{submission_id}" body: "*"};
+		option (google.api.http) = {post: "/cases/{submission_id}" body: "*"};
 	};
 	rpc GetJudgableProblems (GetJudgableProblemsRequest) returns (GetJudgableProblemsReply){
-		option (google.api.http) = {get: "/judge"};
+		option (google.api.http) = {get: "/cases"};
 	};
 	rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply){
-		option (google.api.http) = {get: "/judge/{problem_id}"};
+		option (google.api.http) = {get: "/cases/{problem_id}"};
 	};
 }
 
