@@ -85,7 +85,7 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 	}
 	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
 	var cases []*Case
-	// TODO: judge problem as special-judge, interactive or subtask type
+	// TODO: cases problem as special-cases, interactive or subtask type
 	switch config.Judge.JudgeType {
 	case "classic":
 		{
@@ -119,11 +119,11 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 			}
 			return nil, nil
 		}
-	case "special-judge":
+	case "special-cases":
 		return nil, nil
 	case "interactive":
 		return nil, nil
 	}
-	err = errors.New("missing judge-type in config.toml")
+	err = errors.New("missing cases-type in config.toml")
 	return nil, err
 }

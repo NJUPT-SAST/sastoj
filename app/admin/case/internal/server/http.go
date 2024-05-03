@@ -30,23 +30,6 @@ func NewHTTPServer(c *conf.Server, problemCase *service.CaseService, logger log.
 	customRoute.POST("/case/upload", func(ctx http.Context) error {
 		return problemCase.UploadCases(ctx)
 	})
-	//customRoute.POST("/case/upload", handler.UploadCasesHandler)
-	//customRoute.POST("/case/upload", func(ctx http.Context) error {
-	//
-	//	//ids, err := problemCase.UploadCases(ctx)
-	//	//byteIds := make([]byte, len(ids))
-	//	//for i, val := range ids {
-	//	//	byteIds[i] = byte(val)
-	//	//}
-	//	//ctx.Response().Write(byteIds)
-	//
-	//	ctx.Response().Write([]byte("dwsaewfsdaf"))
-	//	ctx.Result(200, *UploadCasesReply)
-	//	ctx.Response().Header().Set("Content-Type", "application/json")
-	//	reply := out.(*UploadCasesReply)
-	//	return ctx.Result(200, reply)
-	//	return nil
-	//})
 	v1.RegisterCaseServiceHTTPServer(srv, problemCase)
 	return srv
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.2
 // - protoc             v5.26.1
-// source: api/sastoj/admin/judge/service/v1/judge.proto
+// source: api/sastoj/admin/cases/service/v1/cases.proto
 
 package v1
 
@@ -19,9 +19,9 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationJudgeGetJudgableProblems = "/api.sastoj.admin.judge.service.v1.Judge/GetJudgableProblems"
-const OperationJudgeGetSubmissions = "/api.sastoj.admin.judge.service.v1.Judge/GetSubmissions"
-const OperationJudgeSubmitJudge = "/api.sastoj.admin.judge.service.v1.Judge/SubmitJudge"
+const OperationJudgeGetJudgableProblems = "/api.sastoj.admin.cases.service.v1.Judge/GetJudgableProblems"
+const OperationJudgeGetSubmissions = "/api.sastoj.admin.cases.service.v1.Judge/GetSubmissions"
+const OperationJudgeSubmitJudge = "/api.sastoj.admin.cases.service.v1.Judge/SubmitJudge"
 
 type JudgeHTTPServer interface {
 	GetJudgableProblems(context.Context, *GetJudgableProblemsRequest) (*GetJudgableProblemsReply, error)
@@ -31,9 +31,9 @@ type JudgeHTTPServer interface {
 
 func RegisterJudgeHTTPServer(s *http.Server, srv JudgeHTTPServer) {
 	r := s.Route("/")
-	r.POST("/judge/{submission_id}", _Judge_SubmitJudge0_HTTP_Handler(srv))
-	r.GET("/judge", _Judge_GetJudgableProblems0_HTTP_Handler(srv))
-	r.GET("/judge/{problem_id}", _Judge_GetSubmissions0_HTTP_Handler(srv))
+	r.POST("/cases/{submission_id}", _Judge_SubmitJudge0_HTTP_Handler(srv))
+	r.GET("/cases", _Judge_GetJudgableProblems0_HTTP_Handler(srv))
+	r.GET("/cases/{problem_id}", _Judge_GetSubmissions0_HTTP_Handler(srv))
 }
 
 func _Judge_SubmitJudge0_HTTP_Handler(srv JudgeHTTPServer) func(ctx http.Context) error {
@@ -118,7 +118,7 @@ func NewJudgeHTTPClient(client *http.Client) JudgeHTTPClient {
 
 func (c *JudgeHTTPClientImpl) GetJudgableProblems(ctx context.Context, in *GetJudgableProblemsRequest, opts ...http.CallOption) (*GetJudgableProblemsReply, error) {
 	var out GetJudgableProblemsReply
-	pattern := "/judge"
+	pattern := "/cases"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationJudgeGetJudgableProblems))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -131,7 +131,7 @@ func (c *JudgeHTTPClientImpl) GetJudgableProblems(ctx context.Context, in *GetJu
 
 func (c *JudgeHTTPClientImpl) GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...http.CallOption) (*GetSubmissionsReply, error) {
 	var out GetSubmissionsReply
-	pattern := "/judge/{problem_id}"
+	pattern := "/cases/{problem_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationJudgeGetSubmissions))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -144,7 +144,7 @@ func (c *JudgeHTTPClientImpl) GetSubmissions(ctx context.Context, in *GetSubmiss
 
 func (c *JudgeHTTPClientImpl) SubmitJudge(ctx context.Context, in *SubmitJudgeRequest, opts ...http.CallOption) (*SubmitJudgeReply, error) {
 	var out SubmitJudgeReply
-	pattern := "/judge/{submission_id}"
+	pattern := "/cases/{submission_id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationJudgeSubmitJudge))
 	opts = append(opts, http.PathTemplate(pattern))
