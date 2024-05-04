@@ -2,18 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/go-kratos/kratos/v2"
 	"os"
+	"sastoj/app/rsjudge/cases/internal/conf"
 
-	"sastoj/app/admin/case/internal/conf"
-
+	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/go-kratos/kratos/v2/transport/http"
-
 	_ "go.uber.org/automaxprocs"
 )
 
@@ -33,7 +30,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -42,7 +39,6 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 		kratos.Logger(logger),
 		kratos.Server(
 			gs,
-			hs,
 		),
 	)
 }
@@ -81,7 +77,6 @@ func main() {
 	defer cleanup()
 
 	// start and wait for stop signal
-	println(bc.GetData().GetLoad().GetProblemCasesLocation())
 	if err := app.Run(); err != nil {
 		panic(err)
 	}

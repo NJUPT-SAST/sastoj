@@ -46,9 +46,9 @@ func NewJudgeUsecase(repo JudgeRepo, logger log.Logger) *JudgeUsecase {
 	return &JudgeUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *JudgeUsecase) SubmitJudge(ctx context.Context, submitId int64, point int32) error {
-	uc.log.WithContext(ctx).Infof("SubmitJudge : %d", submitId)
-	return uc.repo.SubmitJudge(ctx, submitId, point)
+func (uc *JudgeUsecase) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
+	uc.log.WithContext(ctx).Infof("SubmitJudge : %d", submissionId)
+	return uc.repo.SubmitJudge(ctx, submissionId, point)
 }
 
 func (uc *JudgeUsecase) GetJudgableProblems(ctx context.Context, userId int64) ([]*Problem, error) {

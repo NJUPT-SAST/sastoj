@@ -5,7 +5,7 @@ import (
 	"sastoj/app/admin/judge/internal/biz"
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
-	"sastoj/ent/submit"
+	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -24,8 +24,8 @@ func NewJudgeRepo(data *Data, logger log.Logger) biz.JudgeRepo {
 	}
 }
 
-func (r *judgeRepo) SubmitJudge(ctx context.Context, submitId int64, point int32) error {
-	_, err := r.data.db.Submit.Update().SetStatus(2).SetPoint(int16(point)).Where(submit.IDEQ(submitId)).Save(ctx)
+func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
+	_, err := r.data.db.Submission.Update().SetStatus(2).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submitId int64, point int32
 }
 
 func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*biz.Problem, error) {
-	problems, err := r.data.db.Problem.Query().Where(problem.HasGroupsWith(group.HasUsersWith(user.IDEQ(userId)))).All(ctx)
+	problems, err := r.data.db.Problem.Query().Where(problem.HasJudgersWith(group.HasUsersWith(user.IDEQ(userId)))).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 }
 
 func (r *judgeRepo) GetSubmissions(ctx context.Context, problemId int64) ([]*biz.Submission, error) {
-	submissions, err := r.data.db.Submit.Query().Where(submit.ProblemIDEQ(problemId)).All(ctx)
+	submissions, err := r.data.db.Submission.Query().Where(submission.ProblemIDEQ(problemId)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (r *judgeRepo) GetSubmissions(ctx context.Context, problemId int64) ([]*biz
 }
 
 func (r *judgeRepo) GetSubmissionsWithStatus(ctx context.Context, problemId int64, status int32) ([]*biz.Submission, error) {
-	submissions, err := r.data.db.Submit.Query().Where(submit.And(submit.ProblemIDEQ(problemId), submit.StatusEQ(int16(status)))).All(ctx)
+	submissions, err := r.data.db.Submission.Query().Where(submission.And(submission.ProblemIDEQ(problemId), submission.StatusEQ(int16(status)))).All(ctx)
 	if err != nil {
 		return nil, err
 	}

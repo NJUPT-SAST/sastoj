@@ -41,7 +41,6 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 				contest.StartTimeLT(time.Now().Add(24*time.Hour)),
 			).
 			All(ctx)
-
 	}
 	if err != nil {
 		return nil, err
