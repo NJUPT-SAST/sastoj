@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
@@ -17,22 +18,39 @@ type contestRepo struct {
 }
 
 func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Contest, error) {
-	po, err := c.data.db.Contest.
-		Query().
-		Where(
-			contest.HasContestantsWith(
-				group.HasUsersWith(
-					user.IDEQ(userID),
+	var (
+		po  []*ent.Contest
+		err error
+	)
+	if userID != 0 {
+		po, err = c.data.db.Contest.
+			Query().
+			Where(
+				contest.HasContestantsWith(
+					group.HasUsersWith(
+						user.IDEQ(userID),
+					),
 				),
-			),
-		).
-		All(ctx)
-
+			).
+			All(ctx)
+	} else {
+		po, err = c.data.db.Contest.
+			Query().
+			Where(
+				contest.StartTimeGT(time.Now()),
+				contest.StartTimeLT(time.Now().Add(24*time.Hour)),
+			).
+			All(ctx)
+	}
 	if err != nil {
 		return nil, err
 	}
 	var ret []*biz.Contest
 	for _, v := range po {
+		var groups []int64
+		for _, g := range v.Edges.Contestants {
+			groups = append(groups, g.ID)
+		}
 		ret = append(ret, &biz.Contest{
 			ID:          v.ID,
 			Title:       v.Title,
@@ -44,6 +62,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 			Language:    v.Language,
 			ExtraTime:   v.ExtraTime,
 			CreateTime:  v.CreateTime,
+			Groups:      groups,
 		})
 	}
 	return ret, nil

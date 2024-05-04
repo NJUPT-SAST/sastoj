@@ -18,12 +18,11 @@ type Contest struct {
 	Language    string
 	ExtraTime   int16
 	CreateTime  time.Time
-	Groups      []int64
 }
 
 // ContestRepo is a Contest repo.
 type ContestRepo interface {
-	ListContest(ctx context.Context, userID int64) ([]*Contest, error)
+	GetContests(ctx context.Context, userID int64) ([]*Contest, error)
 	JoinContest(ctx context.Context, userID, contestID int64, isJoin bool) error
 }
 
@@ -38,10 +37,10 @@ func NewContestUsecase(repo ContestRepo, logger log.Logger) *ContestUsecase {
 	return &ContestUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-// ListContest list all contests.
-func (uc *ContestUsecase) ListContest(ctx context.Context, userID int64) ([]*Contest, error) {
+// GetContests list all contests.
+func (uc *ContestUsecase) GetContests(ctx context.Context, userID int64) ([]*Contest, error) {
 	uc.log.Infof("userID: %d", userID)
-	contests, err := uc.repo.ListContest(ctx, userID)
+	contests, err := uc.repo.GetContests(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

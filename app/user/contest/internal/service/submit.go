@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func (s *UserContestService) SubmitProblem(ctx context.Context, req *pb.SubmitProblemRequest) (*pb.SubmitProblemReply, error) {
+func (s *UserContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
 	if err != nil {
 		return nil, err
@@ -29,12 +29,12 @@ func (s *UserContestService) SubmitProblem(ctx context.Context, req *pb.SubmitPr
 	if err != nil {
 		return nil, err
 	}
-	return &pb.SubmitProblemReply{
+	return &pb.SubmitReply{
 		SubmitId: submit,
 	}, nil
 }
 
-func (s *UserContestService) PretestProblem(ctx context.Context, req *pb.PretestProblemRequest) (*pb.PretestProblemReply, error) {
+func (s *UserContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
 	pretestId := uuid.New().String()
 	err := s.submitUc.PretestProblem(ctx, &biz.Pretest{
 		ID:       pretestId,
@@ -46,12 +46,13 @@ func (s *UserContestService) PretestProblem(ctx context.Context, req *pb.Pretest
 	if err != nil {
 		return nil, err
 	}
-	return &pb.PretestProblemReply{
+	return &pb.SelfTestReply{
 		PretestId: pretestId,
 	}, nil
 }
+
 func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
-	submission, err := s.submitUc.GetSubmission(ctx, req.SubmitId, 1) // TODO: Get the userID from context
+	submission, err := s.submitUc.GetSubmission(ctx, req.SubmissionId, 1) // TODO: Get the userID from context
 	if err != nil {
 		return nil, err
 	}

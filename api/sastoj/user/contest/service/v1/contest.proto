@@ -10,47 +10,47 @@ option java_multiple_files = true;
 option java_package = "api.sastoj.user.contest.service.v1";
 
 service ContestService {
-  rpc ListContest (ListContestRequest) returns (ListContestReply) {
+  rpc GetContests (GetContestsRequest) returns (GetContestsReply) {
     option (google.api.http) = {
-      get: "/user/contest"
+      get: "/user/contests"
     };
   };
   rpc JoinContest (JoinContestRequest) returns (JoinContestReply) {
     option (google.api.http) = {
-      post: "/user/contest/{contest_id}",
+      post: "/user/contests/{contest_id}",
       body: "joinContestBody"
     };
   };
   rpc GetProblems (GetProblemsRequest) returns (GetProblemsReply) {
     option (google.api.http) = {
-      get: "/user/contest/{contest_id}/problems"
+      get: "/user/contests/{contest_id}/problems"
     };
   }
   rpc GetProblem (GetProblemRequest) returns (GetProblemReply) {
     option (google.api.http) = {
-      get: "/user/contest/{contest_id}/problem/{problem_id}"
+      get: "/user/contests/{contest_id}/problems/{problem_id}"
     };
   };
-  rpc SubmitProblem (SubmitProblemRequest) returns (SubmitProblemReply) {
+  rpc Submit (SubmitRequest) returns (SubmitReply) {
     option (google.api.http) = {
-      post: "/user/contest/{contest_id}/problem/{problem_id}",
+      post: "/user/contests/{contest_id}/problems/{problem_id}/submission",
       body: "*"
     };
   };
-  rpc PretestProblem (PretestProblemRequest) returns (PretestProblemReply) {
+  rpc SelfTest (SelfTestRequest) returns (SelfTestReply) {
     option (google.api.http) = {
-      post: "/user/contest/{contest_id}/problem/{problem_id}/pretest",
+      post: "/user/contests/{contest_id}/problems/{problem_id}/test",
       body: "*"
     };
   };
   rpc GetSubmission (GetSubmissionRequest) returns (GetSubmissionReply) {
     option (google.api.http) = {
-      get: "/user/contest/{contest_id}/problem/{problem_id}/submit/{submit_id}"
+      get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}"
     };
   };
-  rpc GetRanking (GetRankingRequest) returns (GetRankingReply) {
+  rpc ListRanking (ListRankingRequest) returns (ListRankingReply) {
     option (google.api.http) = {
-      get: "/user/contest/{contest_id}/ranking"
+      get: "/user/contests/{contest_id}/ranking"
     };
   };
 }
@@ -65,10 +65,11 @@ message Contest {
   google.protobuf.Timestamp end_time = 7;
   string language = 8;
   int32 extra_time = 9;
+  repeated int64 groups = 10;
 }
 
-message ListContestRequest {}
-message ListContestReply {
+message GetContestsRequest {}
+message GetContestsReply {
   repeated Contest contests = 1;
 }
 
@@ -85,18 +86,6 @@ message JoinContestReply {
   bool is_join = 1;
 }
 
-message GetProblemRequest {
-  int64 contest_id = 1;
-  int64 problem_id = 2;
-}
-
-message GetProblemReply {
-  int64 id = 1;
-  string title = 2;
-  string content = 3;
-  int32 point = 4;
-}
-
 message GetProblemsRequest {
   int64 contest_id = 1;
 }
@@ -111,18 +100,30 @@ message GetProblemsReply {
   repeated Problem problems = 1;
 }
 
-message SubmitProblemRequest {
+message GetProblemRequest {
+  int64 contest_id = 1;
+  int64 problem_id = 2;
+}
+
+message GetProblemReply {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  int32 point = 4;
+}
+
+message SubmitRequest {
   int64 contest_id = 1;
   int64 problem_id = 2;
   string code = 3;
   string language = 4;
 }
 
-message SubmitProblemReply {
+message SubmitReply {
   int64 submit_id = 1;
 }
 
-message PretestProblemRequest {
+message SelfTestRequest {
   int64 contest_id = 1;
   int64 problem_id = 2;
   string code = 3;
@@ -130,14 +131,14 @@ message PretestProblemRequest {
   string input = 5;
 }
 
-message PretestProblemReply {
+message SelfTestReply {
   string pretest_id = 1;
 }
 
 message GetSubmissionRequest {
   int64 contest_id = 1;
   int64 problem_id = 2;
-  int64 submit_id = 3;
+  int64 submission_id = 3;
 }
 
 message GetSubmissionReply {
@@ -152,11 +153,11 @@ message GetSubmissionReply {
   int32 max_memory = 9;
 }
 
-message GetRankingRequest {
+message ListRankingRequest {
   int64 contest_id = 1;
 }
 
-message GetRankingReply {
+message ListRankingReply {
   message User {
     int64 id = 1;
     string username = 2;

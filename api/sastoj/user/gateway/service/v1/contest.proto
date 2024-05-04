@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package api.sastoj.user.gateway.service.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "sastoj/api/sastoj/user/gateway/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.user.gateway.service.v1";
+
+service Contest {
+  rpc GetContests (GetContestsRequest) returns (GetContestsReply) {
+		option (google.api.http) = {
+			get: "/user/contests"
+		};
+	};
+  rpc JoinContest (JoinContestRequest) returns (JoinContestReply) {
+		option (google.api.http) = {
+			post: "/user/contests/{contest_id}"
+			body: "*"
+		};
+	};
+}
+
+message GetContestsRequest {}
+message GetContestsReply {
+	message Contest {
+		int64 id = 1;
+		string title = 2;
+		string description = 3;
+		int32 state = 4;
+		int32 type = 5;
+		google.protobuf.Timestamp start_time = 6;
+		google.protobuf.Timestamp end_time = 7;
+		string language = 8;
+		int32 extra_time = 9;
+	}
+	repeated Contest contests = 1;
+}
+
+message JoinContestRequest {
+	int64 contest_id = 1;
+	message JoinContestBody {
+		bool is_join = 1;
+	}
+	JoinContestBody body = 2;
+}
+message JoinContestReply {
+	bool is_join = 1;
+}
+
+
+service Problem {
+  rpc GetProblems (GetProblemsRequest) returns (GetProblemsReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/problems"
+		};
+	};
+  rpc GetProblem (GetProblemRequest) returns (GetProblemReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/problems/{problem_id}"
+		};
+	};
+}
+
+message GetProblemsRequest {
+	int64 contest_id = 1;
+}
+message GetProblemsReply {
+	message Problem {
+		int64 id = 1;
+		string title = 2;
+		int32 point = 3;
+		int32 index = 4;
+	}
+	repeated Problem problems = 1;
+}
+
+message GetProblemRequest {
+	int64 contest_id = 1;
+	int64 problem_id = 2;
+}
+message GetProblemReply {
+	int64 id = 1;
+	string title = 2;
+	string content = 3;
+	int32 point = 4;
+}
+
+service Submission {
+  rpc Submit (SubmitRequest) returns (SubmitReply) {
+		option (google.api.http) = {
+			post: "/user/contests/{contest_id}/problems/{problem_id}/submission"
+			body: "*"
+		};
+	};
+  rpc SelfTest (SelfTestRequest) returns (SelfTestReply) {
+		option (google.api.http) = {
+			post: "/user/contests/{contest_id}/problems/{problem_id}/test"
+			body: "*"
+		};
+	};
+  rpc GetSubmission (GetSubmissionRequest) returns (GetSubmissionReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
+		};
+	};
+  rpc ListRanking (ListRankingRequest) returns (ListRankingReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/ranking"
+		};
+	};
+}
+
+message SubmitRequest {
+	int64 contest_id = 1;
+	int64 problem_id = 2;
+	string code = 3;
+	string language = 4;
+}
+message SubmitReply {
+	string uuid = 1;
+}
+
+message SelfTestRequest {
+	int64 contest_id = 1;
+	int64 problem_id = 2;
+	string code = 3;
+	string language = 4;
+	string input = 5;
+}
+message SelfTestReply {
+	string uuid = 1;
+}
+
+message GetSubmissionRequest {
+	int64 contest_id = 1;
+	int64 problem_id = 2;
+	int64 submission_id = 3;
+}
+message GetSubmissionReply {
+	string uuid = 1;
+	string code = 2;
+	string language = 3;
+	int32 point = 4;
+	int32 state = 5;
+	google.protobuf.Timestamp created_at = 6;
+	google.protobuf.Timestamp updated_at = 7;
+	int32 total_time = 8;
+	int32 max_memory = 9;
+}
+
+message ListRankingRequest {
+	int64 contest_id = 1;
+}
+message ListRankingReply {
+	message User {
+		int64 id = 1;
+		string username = 2;
+		int32 score = 3;
+		int32 rank = 4;
+	}
+	repeated User users = 1;
+}
