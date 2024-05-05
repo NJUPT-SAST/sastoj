@@ -5,7 +5,8 @@ WORKDIR /src
 
 RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && cd app/admin \
-        && for p in case group judge problem user contest; do cd $p && make build && cd ..; done
+        && for p in case group judge problem user contest; do cd $p && make build && cd ..; done \
+        && cd app/user/contest && make build && cd ../..
 
 
 FROM debian:stable-slim AS case
@@ -60,3 +61,13 @@ EXPOSE 8000
 EXPOSE 9000
 VOLUME /data/conf
 CMD ["/contest", "-conf", "/data/conf"]
+
+
+FROM debian:stable-slim AS user-contest
+
+COPY --from=builder /src/app/user/contest/bin/contest /
+EXPOSE 8000
+EXPOSE 9000
+VOLUME /data/conf
+CMD ["/user_contest", "-conf", "/data/conf"]
+
