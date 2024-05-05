@@ -19,14 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ContestService_GetContests_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/GetContests"
-	ContestService_JoinContest_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
-	ContestService_GetProblems_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
-	ContestService_GetProblem_FullMethodName    = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
-	ContestService_Submit_FullMethodName        = "/api.sastoj.user.contest.service.v1.ContestService/Submit"
-	ContestService_SelfTest_FullMethodName      = "/api.sastoj.user.contest.service.v1.ContestService/SelfTest"
-	ContestService_GetSubmission_FullMethodName = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmission"
-	ContestService_ListRanking_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/ListRanking"
+	ContestService_GetContests_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/GetContests"
+	ContestService_JoinContest_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
+	ContestService_GetProblems_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
+	ContestService_GetProblem_FullMethodName      = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
+	ContestService_Submit_FullMethodName          = "/api.sastoj.user.contest.service.v1.ContestService/Submit"
+	ContestService_SelfTest_FullMethodName        = "/api.sastoj.user.contest.service.v1.ContestService/SelfTest"
+	ContestService_GetSubmission_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmission"
+	ContestService_ListRanking_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/ListRanking"
+	ContestService_RegisterGateway_FullMethodName = "/api.sastoj.user.contest.service.v1.ContestService/RegisterGateway"
 )
 
 // ContestServiceClient is the client API for ContestService service.
@@ -41,6 +42,7 @@ type ContestServiceClient interface {
 	SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error)
 	GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
 	ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error)
+	RegisterGateway(ctx context.Context, in *RegisterGatewayRequest, opts ...grpc.CallOption) (*RegisterGatewayReply, error)
 }
 
 type contestServiceClient struct {
@@ -123,6 +125,15 @@ func (c *contestServiceClient) ListRanking(ctx context.Context, in *ListRankingR
 	return out, nil
 }
 
+func (c *contestServiceClient) RegisterGateway(ctx context.Context, in *RegisterGatewayRequest, opts ...grpc.CallOption) (*RegisterGatewayReply, error) {
+	out := new(RegisterGatewayReply)
+	err := c.cc.Invoke(ctx, ContestService_RegisterGateway_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContestServiceServer is the server API for ContestService service.
 // All implementations must embed UnimplementedContestServiceServer
 // for forward compatibility
@@ -135,6 +146,7 @@ type ContestServiceServer interface {
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
+	RegisterGateway(context.Context, *RegisterGatewayRequest) (*RegisterGatewayReply, error)
 	mustEmbedUnimplementedContestServiceServer()
 }
 
@@ -165,6 +177,9 @@ func (UnimplementedContestServiceServer) GetSubmission(context.Context, *GetSubm
 }
 func (UnimplementedContestServiceServer) ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRanking not implemented")
+}
+func (UnimplementedContestServiceServer) RegisterGateway(context.Context, *RegisterGatewayRequest) (*RegisterGatewayReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterGateway not implemented")
 }
 func (UnimplementedContestServiceServer) mustEmbedUnimplementedContestServiceServer() {}
 
@@ -323,6 +338,24 @@ func _ContestService_ListRanking_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContestService_RegisterGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterGatewayRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContestServiceServer).RegisterGateway(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContestService_RegisterGateway_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContestServiceServer).RegisterGateway(ctx, req.(*RegisterGatewayRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContestService_ServiceDesc is the grpc.ServiceDesc for ContestService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -361,6 +394,10 @@ var ContestService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRanking",
 			Handler:    _ContestService_ListRanking_Handler,
+		},
+		{
+			MethodName: "RegisterGateway",
+			Handler:    _ContestService_RegisterGateway_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

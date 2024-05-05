@@ -111,6 +111,8 @@ service Submission {
 			get: "/user/contests/{contest_id}/ranking"
 		};
 	};
+	rpc UpdateSubmission (UpdateSubmissionRequest) returns (UpdateSubmissionReply);
+	rpc UpdateSelfTest (UpdateSelfTestRequest) returns (UpdateSelfTestReply);
 }
 
 message SubmitRequest {
@@ -162,4 +164,24 @@ message ListRankingReply {
 		int32 rank = 4;
 	}
 	repeated User users = 1;
+}
+
+message UpdateSubmissionRequest {
+	string submission_id = 1;
+	int32 status = 2;
+	optional int32 point = 3;
+	optional int32 total_time = 4;
+	optional int32 max_memory = 5;
+}
+message UpdateSubmissionReply {
+	bool success = 1;
+}
+
+message UpdateSelfTestRequest {
+	string self_test_id = 1;
+	string output = 2;
+}
+
+message UpdateSelfTestReply {
+	bool success = 1;
 }

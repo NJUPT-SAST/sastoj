@@ -4,11 +4,10 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	pb "sastoj/api/sastoj/user/gateway/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"strconv"
 	"time"
-
-	pb "sastoj/api/sastoj/user/gateway/service/v1"
 )
 
 func (s *GatewayService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
@@ -68,4 +67,33 @@ func (s *GatewayService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 }
 func (s *GatewayService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
 	return &pb.ListRankingReply{}, nil
+}
+
+func (s *GatewayService) UpdateSubmission(ctx context.Context, req *pb.UpdateSubmissionRequest) (*pb.UpdateSubmissionReply, error) {
+	err := s.submissionUc.UpdateSubmission(ctx, &biz.Submission{
+		ID:        req.SubmissionId,
+		Status:    int16(req.Status),
+		Point:     int16(*req.Point),
+		TotalTime: *req.TotalTime,
+		MaxMemory: *req.MaxMemory,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpdateSubmissionReply{
+		Success: true,
+	}, nil
+}
+
+func (s *GatewayService) UpdateSelfTest(ctx context.Context, req *pb.UpdateSelfTestRequest) (*pb.UpdateSelfTestReply, error) {
+	err := s.submissionUc.UpdateSelfTest(ctx, &biz.SelfTest{
+		ID:     req.SelfTestId,
+		Output: req.Output,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpdateSelfTestReply{
+		Success: true,
+	}, nil
 }

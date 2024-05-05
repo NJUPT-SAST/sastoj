@@ -42,4 +42,6 @@ message Client {
 
 message Data {
   string mq = 1;
+  int64 port = 2;
+  string secret = 3;
 }
