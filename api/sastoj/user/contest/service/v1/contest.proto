@@ -53,6 +53,7 @@ service ContestService {
       get: "/user/contests/{contest_id}/ranking"
     };
   };
+  rpc RegisterGateway (RegisterGatewayRequest) returns (RegisterGatewayReply) {};
 }
 
 message Contest {
@@ -165,4 +166,13 @@ message ListRankingReply {
     int32 rank = 4;
   }
   repeated User users = 1;
+}
+
+message RegisterGatewayRequest {
+  string endpoint = 1;
+  string secret = 2;
+}
+
+message RegisterGatewayReply {
+  string token = 1;
 }

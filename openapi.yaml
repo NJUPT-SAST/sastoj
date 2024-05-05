@@ -5,6 +5,1659 @@ openapi: 3.0.3
 info:
     title: ""
     version: 0.0.1
-paths: {}
+paths:
+    /case:
+        put:
+            tags:
+                - CaseService
+            operationId: CaseService_UpdateCase
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.UpdateCaseRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.UpdateCaseReply'
+    /case/delete:
+        put:
+            tags:
+                - CaseService
+            operationId: CaseService_DeleteCasesByCaseIds
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.DeleteCaseByCaseIdsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.DeleteCaseByCaseIdsReply'
+    /case/{problemId}:
+        get:
+            tags:
+                - CaseService
+            operationId: CaseService_GetCases
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.GetCasesReply'
+        post:
+            tags:
+                - CaseService
+            operationId: CaseService_CreateCases
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.CreateCasesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.CreateCasesReply'
+        delete:
+            tags:
+                - CaseService
+            operationId: CaseService_DeleteCasesByProblemId
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.DeleteCasesByProblemIdReply'
+    /cases:
+        get:
+            tags:
+                - Judge
+            operationId: Judge_GetJudgableProblems
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.GetJudgableProblemsReply'
+    /cases/{problemId}:
+        get:
+            tags:
+                - Judge
+            operationId: Judge_GetSubmissions
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.GetSubmissionsReply'
+    /cases/{submissionId}:
+        post:
+            tags:
+                - Judge
+            operationId: Judge_SubmitJudge
+            parameters:
+                - name: submissionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.SubmitJudgeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.SubmitJudgeReply'
+    /contest:
+        get:
+            tags:
+                - Contest
+            operationId: Contest_ListContest
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.ListContestReply'
+        put:
+            tags:
+                - Contest
+            operationId: Contest_UpdateContest
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.contest.UpdateContestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.UpdateContestReply'
+        post:
+            tags:
+                - Contest
+            operationId: Contest_CreateContest
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.contest.CreateContestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.CreateContestReply'
+    /contest/{id}:
+        get:
+            tags:
+                - Contest
+            operationId: Contest_GetContest
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.GetContestReply'
+        delete:
+            tags:
+                - Contest
+            operationId: Contest_DeleteContest
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.DeleteContestReply'
+    /group:
+        get:
+            tags:
+                - Group
+            operationId: Group_ListGroup
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.ListGroupReply'
+        put:
+            tags:
+                - Group
+            operationId: Group_UpdateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.UpdateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.UpdateGroupReply'
+        post:
+            tags:
+                - Group
+            operationId: Group_CreateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.CreateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.CreateGroupReply'
+    /group/{id}:
+        get:
+            tags:
+                - Group
+            operationId: Group_GetGroup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.GetGroupReply'
+        delete:
+            tags:
+                - Group
+            operationId: Group_DeleteGroup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.DeleteGroupReply'
+    /judger/{problemId}:
+        get:
+            tags:
+                - Judger
+            operationId: Judger_GetJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply'
+        post:
+            tags:
+                - Judger
+            operationId: Judger_UpdateJudger
+            parameters:
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply'
+    /problem:
+        put:
+            tags:
+                - Problem
+            operationId: Problem_UpdateProblem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.problem.UpdateProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.UpdateProblemReply'
+        post:
+            tags:
+                - Problem
+            operationId: Problem_CreateProblem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.problem.CreateProblemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.CreateProblemReply'
+    /problem/list:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_ListProblem
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: currency
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.ListProblemReply'
+    /problem/{id}:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_GetProblem
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.GetProblemReply'
+        delete:
+            tags:
+                - Problem
+            operationId: Problem_DeleteProblem
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.problem.DeleteProblemReply'
+    /user:
+        get:
+            tags:
+                - User
+            operationId: User_ListUser
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply'
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserReply'
+        post:
+            tags:
+                - User
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserReply'
+    /user/contests:
+        get:
+            tags:
+                - Contest
+            operationId: Contest_GetContests
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetContestsReply'
+    /user/contests/{contestId}:
+        post:
+            tags:
+                - Contest
+            operationId: Contest_JoinContest
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.JoinContestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.JoinContestReply'
+    /user/contests/{contestId}/problems:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_GetProblems
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetProblemsReply'
+    /user/contests/{contestId}/problems/{problemId}:
+        get:
+            tags:
+                - Problem
+            operationId: Problem_GetProblem
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetProblemReply'
+    /user/contests/{contestId}/problems/{problemId}/submission:
+        post:
+            tags:
+                - Submission
+            operationId: Submission_Submit
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.SubmitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.SubmitReply'
+    /user/contests/{contestId}/problems/{problemId}/submission/{submissionId}:
+        get:
+            tags:
+                - ContestService
+            operationId: ContestService_GetSubmission
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: submissionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetSubmissionReply'
+    /user/contests/{contestId}/problems/{problemId}/submissions/{submissionId}:
+        get:
+            tags:
+                - Submission
+            operationId: Submission_GetSubmission
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: submissionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetSubmissionReply'
+    /user/contests/{contestId}/problems/{problemId}/test:
+        post:
+            tags:
+                - Submission
+            operationId: Submission_SelfTest
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: problemId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.SelfTestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.SelfTestReply'
+    /user/contests/{contestId}/ranking:
+        get:
+            tags:
+                - Submission
+            operationId: Submission_ListRanking
+            parameters:
+                - name: contestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.ListRankingReply'
+    /user/{id}:
+        get:
+            tags:
+                - User
+            operationId: User_GetUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.GetUserReply'
+        delete:
+            tags:
+                - User
+            operationId: User_DeleteUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.DeleteUserReply'
+    /users:
+        post:
+            tags:
+                - User
+            operationId: User_BatchCreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply'
 components:
-    schemas: {}
+    schemas:
+        api.sastoj.admin.case.service.v1.Case:
+            type: object
+            properties:
+                id:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                isAuto:
+                    type: boolean
+        api.sastoj.admin.case.service.v1.CreateCasesReply:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+        api.sastoj.admin.case.service.v1.CreateCasesRequest:
+            type: object
+            properties:
+                problemId:
+                    type: string
+                requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.Case'
+        api.sastoj.admin.case.service.v1.DeleteCaseByCaseIdsReply:
+            type: object
+            properties: {}
+        api.sastoj.admin.case.service.v1.DeleteCaseByCaseIdsRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+        api.sastoj.admin.case.service.v1.DeleteCasesByProblemIdReply:
+            type: object
+            properties: {}
+        api.sastoj.admin.case.service.v1.GetCasesReply:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.case.service.v1.Case'
+        api.sastoj.admin.case.service.v1.UpdateCaseReply:
+            type: object
+            properties: {}
+        api.sastoj.admin.case.service.v1.UpdateCaseRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                isAuto:
+                    type: boolean
+                problemId:
+                    type: string
+        api.sastoj.admin.contest.CreateContestReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.contest.CreateContestRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                description:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        api.sastoj.admin.contest.DeleteContestReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.contest.GetContestReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        api.sastoj.admin.contest.ListContestReply:
+            type: object
+            properties:
+                contests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.contest.ListContestReply_Contest'
+        api.sastoj.admin.contest.ListContestReply_Contest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        api.sastoj.admin.contest.UpdateContestReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.contest.UpdateContestRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        api.sastoj.admin.group.service.v1.CreateGroupReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.group.service.v1.CreateGroupRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+        api.sastoj.admin.group.service.v1.DeleteGroupReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.group.service.v1.GetGroupReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.group.service.v1.ListGroupReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.group.service.v1.ListGroupReply_Group'
+        api.sastoj.admin.group.service.v1.ListGroupReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.group.service.v1.UpdateGroupReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.group.service.v1.UpdateGroupRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.judge.service.v1.GetJudgableProblemsReply:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.Problem'
+        api.sastoj.admin.judge.service.v1.GetSubmissionsReply:
+            type: object
+            properties:
+                submissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judge.service.v1.Submission'
+        api.sastoj.admin.judge.service.v1.Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.judge.service.v1.Submission:
+            type: object
+            properties:
+                id:
+                    type: string
+                code:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                point:
+                    type: integer
+                    format: int32
+                createTime:
+                    type: string
+                    format: date-time
+        api.sastoj.admin.judge.service.v1.SubmitJudgeReply:
+            type: object
+            properties: {}
+        api.sastoj.admin.judge.service.v1.SubmitJudgeRequest:
+            type: object
+            properties:
+                submissionId:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+        api.sastoj.admin.judger.service.v1.GetJudgerReply:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.GetJudgerReply_Group'
+        api.sastoj.admin.judger.service.v1.GetJudgerReply_Group:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+        api.sastoj.admin.judger.service.v1.UpdateJudgerReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.judger.service.v1.UpdateJudgerRequest:
+            type: object
+            properties:
+                problemId:
+                    type: string
+                judgerGroupIds:
+                    type: array
+                    items:
+                        type: string
+        api.sastoj.admin.problem.CreateProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.problem.CreateProblemRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.DeleteProblemReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.problem.GetProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.ListProblemReply:
+            type: object
+            properties:
+                currency:
+                    type: integer
+                    format: int32
+                total:
+                    type: integer
+                    format: int32
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.problem.ListProblemReply_Problem'
+        api.sastoj.admin.problem.ListProblemReply_Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.problem.UpdateProblemReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.problem.UpdateProblemRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                contestId:
+                    type: string
+                caseVersion:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+                config:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply_User'
+        api.sastoj.admin.user.service.v1.BatchCreateUserReply_User:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+        api.sastoj.admin.user.service.v1.BatchCreateUserRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                number:
+                    type: string
+        api.sastoj.admin.user.service.v1.CreateUserReply:
+            type: object
+            properties:
+                id:
+                    type: string
+        api.sastoj.admin.user.service.v1.CreateUserRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                groupId:
+                    type: string
+        api.sastoj.admin.user.service.v1.DeleteUserReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.user.service.v1.GetUserReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+        api.sastoj.admin.user.service.v1.ListUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply_User'
+        api.sastoj.admin.user.service.v1.ListUserReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+        api.sastoj.admin.user.service.v1.UpdateUserReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.user.service.v1.UpdateUserRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                password:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.Contest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                state:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+                groups:
+                    type: array
+                    items:
+                        type: string
+        api.sastoj.user.contest.service.v1.GetContestsReply:
+            type: object
+            properties:
+                contests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.Contest'
+        api.sastoj.user.contest.service.v1.GetProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.GetProblemsReply:
+            type: object
+            properties:
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.GetProblemsReply_Problem'
+        api.sastoj.user.contest.service.v1.GetProblemsReply_Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.GetSubmissionReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                totalTime:
+                    type: integer
+                    format: int32
+                maxMemory:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.JoinContestBody:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
+        api.sastoj.user.contest.service.v1.JoinContestReply:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
+        api.sastoj.user.contest.service.v1.ListRankingReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.ListRankingReply_User'
+        api.sastoj.user.contest.service.v1.ListRankingReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                rank:
+                    type: integer
+                    format: int32
+        api.sastoj.user.contest.service.v1.SelfTestReply:
+            type: object
+            properties:
+                pretestId:
+                    type: string
+        api.sastoj.user.contest.service.v1.SelfTestRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+                input:
+                    type: string
+        api.sastoj.user.contest.service.v1.SubmitReply:
+            type: object
+            properties:
+                submitId:
+                    type: string
+        api.sastoj.user.contest.service.v1.SubmitRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+        api.sastoj.user.gateway.service.v1.GetContestsReply:
+            type: object
+            properties:
+                contests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetContestsReply_Contest'
+        api.sastoj.user.gateway.service.v1.GetContestsReply_Contest:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                state:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                    format: date-time
+                endTime:
+                    type: string
+                    format: date-time
+                language:
+                    type: string
+                extraTime:
+                    type: integer
+                    format: int32
+        api.sastoj.user.gateway.service.v1.GetProblemReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+        api.sastoj.user.gateway.service.v1.GetProblemsReply:
+            type: object
+            properties:
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.GetProblemsReply_Problem'
+        api.sastoj.user.gateway.service.v1.GetProblemsReply_Problem:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                index:
+                    type: integer
+                    format: int32
+        api.sastoj.user.gateway.service.v1.GetSubmissionReply:
+            type: object
+            properties:
+                uuid:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+                point:
+                    type: integer
+                    format: int32
+                state:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                totalTime:
+                    type: integer
+                    format: int32
+                maxMemory:
+                    type: integer
+                    format: int32
+        api.sastoj.user.gateway.service.v1.JoinContestReply:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
+        api.sastoj.user.gateway.service.v1.JoinContestRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                body:
+                    $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.JoinContestRequest_JoinContestBody'
+        api.sastoj.user.gateway.service.v1.JoinContestRequest_JoinContestBody:
+            type: object
+            properties:
+                isJoin:
+                    type: boolean
+        api.sastoj.user.gateway.service.v1.ListRankingReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.ListRankingReply_User'
+        api.sastoj.user.gateway.service.v1.ListRankingReply_User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                score:
+                    type: integer
+                    format: int32
+                rank:
+                    type: integer
+                    format: int32
+        api.sastoj.user.gateway.service.v1.SelfTestReply:
+            type: object
+            properties:
+                uuid:
+                    type: string
+        api.sastoj.user.gateway.service.v1.SelfTestRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+                input:
+                    type: string
+        api.sastoj.user.gateway.service.v1.SubmitReply:
+            type: object
+            properties:
+                uuid:
+                    type: string
+        api.sastoj.user.gateway.service.v1.SubmitRequest:
+            type: object
+            properties:
+                contestId:
+                    type: string
+                problemId:
+                    type: string
+                code:
+                    type: string
+                language:
+                    type: string
+tags:
+    - name: CaseService
+    - name: Contest
+    - name: Contest
+    - name: ContestService
+    - name: Group
+    - name: Judge
+    - name: Judger
+    - name: Problem
+    - name: Problem
+    - name: Submission
+    - name: User

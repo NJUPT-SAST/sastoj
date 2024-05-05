@@ -2,13 +2,17 @@ package data
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"net"
 	v1 "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/app/user/gateway/internal/conf"
+	"strconv"
 )
 
 // ProviderSet is data providers.
@@ -27,6 +31,8 @@ type Cache struct {
 	contest2problems map[int64][]*biz.Problem
 	problems         map[int64]*biz.Problem
 	submissions      map[string]*biz.Submission
+	selfTests        map[string]*biz.SelfTest
+	token            string
 }
 
 // NewData .
@@ -40,7 +46,22 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		contest2problems: make(map[int64][]*biz.Problem),
 		problems:         make(map[int64]*biz.Problem),
 		submissions:      make(map[string]*biz.Submission),
+		selfTests:        make(map[string]*biz.SelfTest),
 	}
+	// get registerGateway
+	ip, err := getIP()
+	if err != nil {
+		return nil, nil, err
+	}
+	endpoint := ip + ":" + strconv.FormatInt(c.Port, 10)
+	registerGateway, err := cc.RegisterGateway(context.Background(), &v1.RegisterGatewayRequest{
+		Endpoint: endpoint,
+		Secret:   c.Secret,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	cache.token = registerGateway.Token
 	// get today contests
 	contestsDTO, err := cc.GetContests(context.Background(), &v1.GetContestsRequest{})
 	if err != nil {
@@ -129,4 +150,22 @@ func NewContestServiceClient(conf *conf.Client) v1.ContestServiceClient {
 	}
 	c := v1.NewContestServiceClient(conn)
 	return c
+}
+
+func getIP() (string, error) {
+	// Get the current user's IPs
+	adds, err := net.InterfaceAddrs()
+	if err != nil {
+		fmt.Println(err)
+		return "", errors.New("system IP not found")
+	}
+	for _, address := range adds {
+		if aspnet, ok := address.(*net.IPNet); !(!ok || aspnet.IP.IsLoopback()) {
+			// Get the first IPv4 starting with 10
+			if aspnet.IP.To4() != nil && aspnet.IP.To4()[0] == 10 {
+				return aspnet.IP.String(), nil
+			}
+		}
+	}
+	return "", errors.New("school network IP not found")
 }

@@ -7,11 +7,48 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sastoj/app/user/gateway/internal/biz"
+	"time"
 )
+
+type submissionDTO struct {
+	ID         string    `json:"id,omitempty"`
+	UserID     int64     `json:"user_id,omitempty"`
+	ProblemID  int64     `json:"problem_id,omitempty"`
+	Code       string    `json:"code,omitempty"`
+	Status     int16     `json:"state,omitempty"`
+	Point      int16     `json:"point,omitempty"`
+	CreateTime time.Time `json:"create_time"`
+	TotalTime  int32     `json:"total_time,omitempty"`
+	MaxMemory  int32     `json:"max_memory,omitempty"`
+	Language   string    `json:"language,omitempty"`
+	Token      string    `json:"secret,omitempty"`
+}
+
+type selfTestDTO struct {
+	ID       string `json:"id,omitempty"`
+	UserID   int64  `json:"user_id,omitempty"`
+	Code     string `json:"code,omitempty"`
+	Language string `json:"language,omitempty"`
+	Input    string `json:"input,omitempty"`
+	Token    string `json:"secret,omitempty"`
+}
 
 type submissionRepo struct {
 	data *Data
 	log  *log.Helper
+}
+
+func (s *submissionRepo) UpdateSubmission(ctx context.Context, submission *biz.Submission) error {
+	s.data.cache.submissions[submission.ID].Point = submission.Point
+	s.data.cache.submissions[submission.ID].Status = submission.Status
+	s.data.cache.submissions[submission.ID].TotalTime = submission.TotalTime
+	s.data.cache.submissions[submission.ID].MaxMemory = submission.MaxMemory
+	return nil
+}
+
+func (s *submissionRepo) UpdateSelfTest(ctx context.Context, selfTest *biz.SelfTest) error {
+	s.data.cache.selfTests[selfTest.ID].Output = selfTest.Output
+	return nil
 }
 
 func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfTest) error {
@@ -26,7 +63,15 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 	if err != nil {
 		return err
 	}
-	body, err := json.Marshal(selfTest)
+	sDTO := &selfTestDTO{
+		ID:       selfTest.ID,
+		UserID:   selfTest.UserID,
+		Code:     selfTest.Code,
+		Language: selfTest.Language,
+		Input:    selfTest.Input,
+		Token:    s.data.cache.token,
+	}
+	body, err := json.Marshal(sDTO)
 	if err != nil {
 		return err
 	}
@@ -39,11 +84,14 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 			ContentType: "text/plain",
 			Body:        body,
 		})
-	return err
+	if err != nil {
+		return err
+	}
+	s.data.cache.selfTests[selfTest.ID] = selfTest
+	return nil
 }
 
 func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.Submission) (string, error) {
-	// TODO: store into cache
 	// store into mq
 	q, err := s.data.ch.QueueDeclare(
 		"submission", // name
@@ -56,7 +104,20 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 	if err != nil {
 		return "", err
 	}
-	body, err := json.Marshal(submission)
+	sDTO := &submissionDTO{
+		ID:         submission.ID,
+		UserID:     submission.UserID,
+		ProblemID:  submission.ProblemID,
+		Code:       submission.Code,
+		Status:     submission.Status,
+		Point:      submission.Point,
+		CreateTime: submission.CreateTime,
+		TotalTime:  submission.TotalTime,
+		MaxMemory:  submission.MaxMemory,
+		Language:   submission.Language,
+		Token:      s.data.cache.token,
+	}
+	body, err := json.Marshal(sDTO)
 	if err != nil {
 		return "", err
 	}

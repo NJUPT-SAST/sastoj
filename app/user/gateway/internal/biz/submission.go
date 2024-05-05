@@ -25,12 +25,15 @@ type SelfTest struct {
 	Code     string `json:"code,omitempty"`
 	Language string `json:"language,omitempty"`
 	Input    string `json:"input,omitempty"`
+	Output   string `json:"output,omitempty"`
 }
 
 type SubmissionRepo interface {
 	CreateSubmission(ctx context.Context, submission *Submission) (string, error)
 	GetSubmission(ctx context.Context, submissionID string, userID int64) (*Submission, error)
 	CreateSelfTest(ctx context.Context, selfTest *SelfTest) error
+	UpdateSubmission(ctx context.Context, submission *Submission) error
+	UpdateSelfTest(ctx context.Context, selfTest *SelfTest) error
 }
 
 type SubmissionUsecase struct {
@@ -56,6 +59,14 @@ func (uc *SubmissionUsecase) GetSubmission(ctx context.Context, submissionID str
 
 func (uc *SubmissionUsecase) CreateSelfTest(ctx context.Context, selfTest *SelfTest) error {
 	return uc.repo.CreateSelfTest(ctx, selfTest)
+}
+
+func (uc *SubmissionUsecase) UpdateSubmission(ctx context.Context, submission *Submission) error {
+	return uc.repo.UpdateSubmission(ctx, submission)
+}
+
+func (uc *SubmissionUsecase) UpdateSelfTest(ctx context.Context, selfTest *SelfTest) error {
+	return uc.repo.UpdateSelfTest(ctx, selfTest)
 }
 
 func NewSubmissionUsecase(repo SubmissionRepo, logger log.Logger) *SubmissionUsecase {

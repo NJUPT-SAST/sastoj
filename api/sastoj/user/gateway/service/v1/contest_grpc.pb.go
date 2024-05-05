@@ -273,10 +273,12 @@ var Problem_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Submission_Submit_FullMethodName        = "/api.sastoj.user.gateway.service.v1.Submission/Submit"
-	Submission_SelfTest_FullMethodName      = "/api.sastoj.user.gateway.service.v1.Submission/SelfTest"
-	Submission_GetSubmission_FullMethodName = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmission"
-	Submission_ListRanking_FullMethodName   = "/api.sastoj.user.gateway.service.v1.Submission/ListRanking"
+	Submission_Submit_FullMethodName           = "/api.sastoj.user.gateway.service.v1.Submission/Submit"
+	Submission_SelfTest_FullMethodName         = "/api.sastoj.user.gateway.service.v1.Submission/SelfTest"
+	Submission_GetSubmission_FullMethodName    = "/api.sastoj.user.gateway.service.v1.Submission/GetSubmission"
+	Submission_ListRanking_FullMethodName      = "/api.sastoj.user.gateway.service.v1.Submission/ListRanking"
+	Submission_UpdateSubmission_FullMethodName = "/api.sastoj.user.gateway.service.v1.Submission/UpdateSubmission"
+	Submission_UpdateSelfTest_FullMethodName   = "/api.sastoj.user.gateway.service.v1.Submission/UpdateSelfTest"
 )
 
 // SubmissionClient is the client API for Submission service.
@@ -287,6 +289,8 @@ type SubmissionClient interface {
 	SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error)
 	GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
 	ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error)
+	UpdateSubmission(ctx context.Context, in *UpdateSubmissionRequest, opts ...grpc.CallOption) (*UpdateSubmissionReply, error)
+	UpdateSelfTest(ctx context.Context, in *UpdateSelfTestRequest, opts ...grpc.CallOption) (*UpdateSelfTestReply, error)
 }
 
 type submissionClient struct {
@@ -333,6 +337,24 @@ func (c *submissionClient) ListRanking(ctx context.Context, in *ListRankingReque
 	return out, nil
 }
 
+func (c *submissionClient) UpdateSubmission(ctx context.Context, in *UpdateSubmissionRequest, opts ...grpc.CallOption) (*UpdateSubmissionReply, error) {
+	out := new(UpdateSubmissionReply)
+	err := c.cc.Invoke(ctx, Submission_UpdateSubmission_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *submissionClient) UpdateSelfTest(ctx context.Context, in *UpdateSelfTestRequest, opts ...grpc.CallOption) (*UpdateSelfTestReply, error) {
+	out := new(UpdateSelfTestReply)
+	err := c.cc.Invoke(ctx, Submission_UpdateSelfTest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SubmissionServer is the server API for Submission service.
 // All implementations must embed UnimplementedSubmissionServer
 // for forward compatibility
@@ -341,6 +363,8 @@ type SubmissionServer interface {
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
+	UpdateSubmission(context.Context, *UpdateSubmissionRequest) (*UpdateSubmissionReply, error)
+	UpdateSelfTest(context.Context, *UpdateSelfTestRequest) (*UpdateSelfTestReply, error)
 	mustEmbedUnimplementedSubmissionServer()
 }
 
@@ -359,6 +383,12 @@ func (UnimplementedSubmissionServer) GetSubmission(context.Context, *GetSubmissi
 }
 func (UnimplementedSubmissionServer) ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRanking not implemented")
+}
+func (UnimplementedSubmissionServer) UpdateSubmission(context.Context, *UpdateSubmissionRequest) (*UpdateSubmissionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSubmission not implemented")
+}
+func (UnimplementedSubmissionServer) UpdateSelfTest(context.Context, *UpdateSelfTestRequest) (*UpdateSelfTestReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSelfTest not implemented")
 }
 func (UnimplementedSubmissionServer) mustEmbedUnimplementedSubmissionServer() {}
 
@@ -445,6 +475,42 @@ func _Submission_ListRanking_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Submission_UpdateSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSubmissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SubmissionServer).UpdateSubmission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Submission_UpdateSubmission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SubmissionServer).UpdateSubmission(ctx, req.(*UpdateSubmissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Submission_UpdateSelfTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSelfTestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SubmissionServer).UpdateSelfTest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Submission_UpdateSelfTest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SubmissionServer).UpdateSelfTest(ctx, req.(*UpdateSelfTestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Submission_ServiceDesc is the grpc.ServiceDesc for Submission service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -467,6 +533,14 @@ var Submission_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRanking",
 			Handler:    _Submission_ListRanking_Handler,
+		},
+		{
+			MethodName: "UpdateSubmission",
+			Handler:    _Submission_UpdateSubmission_Handler,
+		},
+		{
+			MethodName: "UpdateSelfTest",
+			Handler:    _Submission_UpdateSelfTest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
