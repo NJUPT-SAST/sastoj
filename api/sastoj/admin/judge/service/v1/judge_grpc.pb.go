@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: api/sastoj/admin/cases/service/v1/cases.proto
+// source: sastoj/admin/judge/service/v1/judge.proto
 
 package v1
 
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Judge_SubmitJudge_FullMethodName         = "/api.sastoj.admin.cases.service.v1.Judge/SubmitJudge"
-	Judge_GetJudgableProblems_FullMethodName = "/api.sastoj.admin.cases.service.v1.Judge/GetJudgableProblems"
-	Judge_GetSubmissions_FullMethodName      = "/api.sastoj.admin.cases.service.v1.Judge/GetSubmissions"
+	Judge_SubmitJudge_FullMethodName         = "/api.sastoj.admin.judge.service.v1.Judge/SubmitJudge"
+	Judge_GetJudgableProblems_FullMethodName = "/api.sastoj.admin.judge.service.v1.Judge/GetJudgableProblems"
+	Judge_GetSubmissions_FullMethodName      = "/api.sastoj.admin.judge.service.v1.Judge/GetSubmissions"
 )
 
 // JudgeClient is the client API for Judge service.
@@ -162,7 +162,7 @@ func _Judge_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Judge_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.sastoj.admin.cases.service.v1.Judge",
+	ServiceName: "api.sastoj.admin.judge.service.v1.Judge",
 	HandlerType: (*JudgeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -179,5 +179,5 @@ var Judge_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/sastoj/admin/cases/service/v1/cases.proto",
+	Metadata: "sastoj/admin/judge/service/v1/judge.proto",
 }
