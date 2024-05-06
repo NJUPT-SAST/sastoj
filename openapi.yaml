@@ -380,6 +380,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.judger.service.v1.UpdateJudgerReply'
+    /login:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.public.auth.service.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.public.auth.service.v1.LoginReply'
+    /logout:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.public.auth.service.v1.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.public.auth.service.v1.LogoutReply'
     /problem:
         put:
             tags:
@@ -1326,6 +1362,26 @@ components:
                 status:
                     type: integer
                     format: int32
+        api.sastoj.public.auth.service.v1.LoginReply:
+            type: object
+            properties:
+                token:
+                    type: string
+        api.sastoj.public.auth.service.v1.LoginRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+        api.sastoj.public.auth.service.v1.LogoutReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.public.auth.service.v1.LogoutRequest:
+            type: object
+            properties: {}
         api.sastoj.user.contest.service.v1.Contest:
             type: object
             properties:
@@ -1650,6 +1706,7 @@ components:
                 language:
                     type: string
 tags:
+    - name: Auth
     - name: CaseService
     - name: Contest
     - name: Contest

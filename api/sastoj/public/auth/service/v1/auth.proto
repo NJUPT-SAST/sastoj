@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api.sastoj.public.auth.service.v1;
+import "google/api/annotations.proto";
+option go_package = "sastoj/api/sastoj/public/auth/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.public.auth.service.v1";
+
+service Auth {
+	rpc Login (LoginRequest) returns (LoginReply){
+		option (google.api.http) = {
+			post: "/login"
+			body: "*"
+		};
+	}
+	rpc Logout (LogoutRequest) returns (LogoutReply){
+		option (google.api.http) = {
+			post: "/logout"
+			body: "*"
+		};
+
+	}
+
+}
+
+message LoginRequest {
+	string username = 1;
+	string password = 2;
+}
+message LoginReply {
+	string token = 1;
+}
+
+message LogoutRequest {}
+message LogoutReply {
+	bool success = 1;
+}
