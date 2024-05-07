@@ -107,6 +107,15 @@ func (s *ContestService) ListContest(ctx context.Context, req *v1.ListContestReq
 		Contests: list,
 	}, nil
 }
+func (s *ContestService) AddContestants(ctx context.Context, req *v1.AddContestantsRequest) (*v1.AddContestantsReply, error) {
+	err := s.cs.AddContestants(ctx, req.ContestId, req.GroupId, req.Role)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AddContestantsReply{
+		Success: true,
+	}, nil
+}
 
 func convertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {
 

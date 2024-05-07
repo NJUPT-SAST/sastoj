@@ -2,9 +2,9 @@ package data
 
 import (
 	"context"
-	"sastoj/ent/contest"
-
+	"errors"
 	"sastoj/app/admin/contest/internal/biz"
+	"sastoj/ent/contest"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -104,4 +104,23 @@ func (r *ContestRepo) ListPages(ctx context.Context, current int64, size int64) 
 		})
 	}
 	return rv, nil
+}
+func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+	switch role {
+	case 0:
+		_, err := r.data.db.Contest.UpdateOneID(contestId).AddContestantIDs(groupId).Save(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	case 1:
+		_, err := r.data.db.Contest.UpdateOneID(contestId).AddManagerIDs(groupId).Save(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.New("role not exist")
+	}
+
 }
