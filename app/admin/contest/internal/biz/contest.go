@@ -25,6 +25,7 @@ type ContestRepo interface {
 	Delete(context.Context, int64) error
 	FindByID(context.Context, int64) (*Contest, error)
 	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
+	AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error
 }
 
 type ContestUsecase struct {
@@ -50,4 +51,7 @@ func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, 
 }
 func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, error) {
 	return uc.repo.ListPages(ctx, current, size)
+}
+func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+	return uc.repo.AddContestants(ctx, contestId, groupId, role)
 }

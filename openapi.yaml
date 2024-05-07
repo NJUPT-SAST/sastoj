@@ -214,6 +214,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.contest.CreateContestReply'
+    /contest/contestants:
+        post:
+            tags:
+                - Contest
+            operationId: Contest_AddContestants
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.contest.AddContestantsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.contest.AddContestantsReply'
     /contest/{id}:
         get:
             tags:
@@ -895,6 +913,21 @@ components:
                     type: boolean
                 problemId:
                     type: string
+        api.sastoj.admin.contest.AddContestantsReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        api.sastoj.admin.contest.AddContestantsRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                contestId:
+                    type: string
+                role:
+                    type: integer
+                    format: int32
         api.sastoj.admin.contest.CreateContestReply:
             type: object
             properties:

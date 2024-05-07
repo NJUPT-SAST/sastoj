@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationContestAddContestants = "/api.sastoj.admin.contest.Contest/AddContestants"
 const OperationContestCreateContest = "/api.sastoj.admin.contest.Contest/CreateContest"
 const OperationContestDeleteContest = "/api.sastoj.admin.contest.Contest/DeleteContest"
 const OperationContestGetContest = "/api.sastoj.admin.contest.Contest/GetContest"
@@ -26,6 +27,7 @@ const OperationContestListContest = "/api.sastoj.admin.contest.Contest/ListConte
 const OperationContestUpdateContest = "/api.sastoj.admin.contest.Contest/UpdateContest"
 
 type ContestHTTPServer interface {
+	AddContestants(context.Context, *AddContestantsRequest) (*AddContestantsReply, error)
 	CreateContest(context.Context, *CreateContestRequest) (*CreateContestReply, error)
 	DeleteContest(context.Context, *DeleteContestRequest) (*DeleteContestReply, error)
 	GetContest(context.Context, *GetContestRequest) (*GetContestReply, error)
@@ -40,6 +42,7 @@ func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r.DELETE("/contest/{id}", _Contest_DeleteContest0_HTTP_Handler(srv))
 	r.GET("/contest/{id}", _Contest_GetContest0_HTTP_Handler(srv))
 	r.GET("/contest", _Contest_ListContest0_HTTP_Handler(srv))
+	r.POST("/contest/contestants", _Contest_AddContestants0_HTTP_Handler(srv))
 }
 
 func _Contest_CreateContest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
@@ -149,7 +152,30 @@ func _Contest_ListContest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Contest_AddContestants0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AddContestantsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationContestAddContestants)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AddContestants(ctx, req.(*AddContestantsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AddContestantsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type ContestHTTPClient interface {
+	AddContestants(ctx context.Context, req *AddContestantsRequest, opts ...http.CallOption) (rsp *AddContestantsReply, err error)
 	CreateContest(ctx context.Context, req *CreateContestRequest, opts ...http.CallOption) (rsp *CreateContestReply, err error)
 	DeleteContest(ctx context.Context, req *DeleteContestRequest, opts ...http.CallOption) (rsp *DeleteContestReply, err error)
 	GetContest(ctx context.Context, req *GetContestRequest, opts ...http.CallOption) (rsp *GetContestReply, err error)
@@ -163,6 +189,19 @@ type ContestHTTPClientImpl struct {
 
 func NewContestHTTPClient(client *http.Client) ContestHTTPClient {
 	return &ContestHTTPClientImpl{client}
+}
+
+func (c *ContestHTTPClientImpl) AddContestants(ctx context.Context, in *AddContestantsRequest, opts ...http.CallOption) (*AddContestantsReply, error) {
+	var out AddContestantsReply
+	pattern := "/contest/contestants"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationContestAddContestants))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *ContestHTTPClientImpl) CreateContest(ctx context.Context, in *CreateContestRequest, opts ...http.CallOption) (*CreateContestReply, error) {
