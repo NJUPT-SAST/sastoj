@@ -41,9 +41,11 @@ type UserEdges struct {
 	LoginSessions []*LoginSession `json:"login_sessions,omitempty"`
 	// Groups holds the value of the groups edge.
 	Groups *Group `json:"groups,omitempty"`
+	// ContestResults holds the value of the contest_results edge.
+	ContestResults []*ContestResult `json:"contest_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // SubmissionOrErr returns the Submission value or an error if the edge
@@ -67,14 +69,21 @@ func (e UserEdges) LoginSessionsOrErr() ([]*LoginSession, error) {
 // GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) GroupsOrErr() (*Group, error) {
-	if e.loadedTypes[2] {
-		if e.Groups == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: group.Label}
-		}
+	if e.Groups != nil {
 		return e.Groups, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: group.Label}
 	}
 	return nil, &NotLoadedError{edge: "groups"}
+}
+
+// ContestResultsOrErr returns the ContestResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ContestResultsOrErr() ([]*ContestResult, error) {
+	if e.loadedTypes[3] {
+		return e.ContestResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_results"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -163,6 +172,11 @@ func (u *User) QueryLoginSessions() *LoginSessionQuery {
 // QueryGroups queries the "groups" edge of the User entity.
 func (u *User) QueryGroups() *GroupQuery {
 	return NewUserClient(u.config).QueryGroups(u)
+}
+
+// QueryContestResults queries the "contest_results" edge of the User entity.
+func (u *User) QueryContestResults() *ContestResultQuery {
+	return NewUserClient(u.config).QueryContestResults(u)
 }
 
 // Update returns a builder for updating this User.

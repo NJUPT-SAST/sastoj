@@ -9,6 +9,9 @@ import (
 // Contest is the predicate function for contest builders.
 type Contest func(*sql.Selector)
 
+// ContestResult is the predicate function for contestresult builders.
+type ContestResult func(*sql.Selector)
+
 // Group is the predicate function for group builders.
 type Group func(*sql.Selector)
 

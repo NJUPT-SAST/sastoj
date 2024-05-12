@@ -75,12 +75,10 @@ func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
 // ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
-	if e.loadedTypes[2] {
-		if e.Contests == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: contest.Label}
-		}
+	if e.Contests != nil {
 		return e.Contests, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: contest.Label}
 	}
 	return nil, &NotLoadedError{edge: "contests"}
 }

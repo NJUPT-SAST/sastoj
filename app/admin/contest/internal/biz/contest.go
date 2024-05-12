@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+const ContestTypeIOI = 1
+const ContestTypeACM = 2
+
 type Contest struct {
 	Id          int64
 	Title       string

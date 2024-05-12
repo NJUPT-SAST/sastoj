@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"time"
@@ -141,6 +142,21 @@ func (cc *ContestCreate) AddManagers(g ...*Group) *ContestCreate {
 		ids[i] = g[i].ID
 	}
 	return cc.AddManagerIDs(ids...)
+}
+
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (cc *ContestCreate) AddContestResultIDs(ids ...int) *ContestCreate {
+	cc.mutation.AddContestResultIDs(ids...)
+	return cc
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (cc *ContestCreate) AddContestResults(c ...*ContestResult) *ContestCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cc.AddContestResultIDs(ids...)
 }
 
 // Mutation returns the ContestMutation object of the builder.
@@ -341,6 +357,22 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   contest.ContestResultsTable,
+			Columns: []string{contest.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

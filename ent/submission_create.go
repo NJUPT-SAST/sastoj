@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
@@ -132,6 +133,21 @@ func (sc *SubmissionCreate) SetUsersID(id int64) *SubmissionCreate {
 // SetUsers sets the "users" edge to the User entity.
 func (sc *SubmissionCreate) SetUsers(u *User) *SubmissionCreate {
 	return sc.SetUsersID(u.ID)
+}
+
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (sc *SubmissionCreate) AddContestResultIDs(ids ...int) *SubmissionCreate {
+	sc.mutation.AddContestResultIDs(ids...)
+	return sc
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (sc *SubmissionCreate) AddContestResults(c ...*ContestResult) *SubmissionCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return sc.AddContestResultIDs(ids...)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -350,6 +366,22 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

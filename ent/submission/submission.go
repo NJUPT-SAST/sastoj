@@ -40,6 +40,8 @@ const (
 	EdgeProblems = "problems"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
+	// EdgeContestResults holds the string denoting the contest_results edge name in mutations.
+	EdgeContestResults = "contest_results"
 	// Table holds the table name of the submission in the database.
 	Table = "submissions"
 	// SubmissionCasesTable is the table that holds the submission_cases relation/edge.
@@ -63,6 +65,11 @@ const (
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
 	UsersColumn = "user_id"
+	// ContestResultsTable is the table that holds the contest_results relation/edge. The primary key declared below.
+	ContestResultsTable = "submission_contest_results"
+	// ContestResultsInverseTable is the table name for the ContestResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestresult" package.
+	ContestResultsInverseTable = "contest_results"
 )
 
 // Columns holds all SQL columns for submission fields.
@@ -79,6 +86,12 @@ var Columns = []string{
 	FieldProblemID,
 	FieldUserID,
 }
+
+var (
+	// ContestResultsPrimaryKey and ContestResultsColumn2 are the table columns denoting the
+	// primary key for the contest_results relation (M2M).
+	ContestResultsPrimaryKey = []string{"submission_id", "contest_result_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -190,6 +203,20 @@ func ByUsersField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByContestResultsCount orders the results by contest_results count.
+func ByContestResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestResultsStep(), opts...)
+	}
+}
+
+// ByContestResults orders the results by contest_results terms.
+func ByContestResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSubmissionCasesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -209,5 +236,12 @@ func newUsersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
+	)
+}
+func newContestResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, ContestResultsTable, ContestResultsPrimaryKey...),
 	)
 }

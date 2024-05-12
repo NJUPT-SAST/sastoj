@@ -12,6 +12,7 @@ import (
 	"sastoj/ent/migrate"
 
 	"sastoj/ent/contest"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
@@ -33,6 +34,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Contest is the client for interacting with the Contest builders.
 	Contest *ContestClient
+	// ContestResult is the client for interacting with the ContestResult builders.
+	ContestResult *ContestResultClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// LoginSession is the client for interacting with the LoginSession builders.
@@ -59,6 +62,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Contest = NewContestClient(c.config)
+	c.ContestResult = NewContestResultClient(c.config)
 	c.Group = NewGroupClient(c.config)
 	c.LoginSession = NewLoginSessionClient(c.config)
 	c.Problem = NewProblemClient(c.config)
@@ -159,6 +163,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:            ctx,
 		config:         cfg,
 		Contest:        NewContestClient(cfg),
+		ContestResult:  NewContestResultClient(cfg),
 		Group:          NewGroupClient(cfg),
 		LoginSession:   NewLoginSessionClient(cfg),
 		Problem:        NewProblemClient(cfg),
@@ -186,6 +191,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:            ctx,
 		config:         cfg,
 		Contest:        NewContestClient(cfg),
+		ContestResult:  NewContestResultClient(cfg),
 		Group:          NewGroupClient(cfg),
 		LoginSession:   NewLoginSessionClient(cfg),
 		Problem:        NewProblemClient(cfg),
@@ -222,8 +228,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Contest, c.Group, c.LoginSession, c.Problem, c.ProblemCase, c.Submission,
-		c.SubmissionCase, c.User,
+		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
+		c.Submission, c.SubmissionCase, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -233,8 +239,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Contest, c.Group, c.LoginSession, c.Problem, c.ProblemCase, c.Submission,
-		c.SubmissionCase, c.User,
+		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
+		c.Submission, c.SubmissionCase, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -245,6 +251,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *ContestMutation:
 		return c.Contest.mutate(ctx, m)
+	case *ContestResultMutation:
+		return c.ContestResult.mutate(ctx, m)
 	case *GroupMutation:
 		return c.Group.mutate(ctx, m)
 	case *LoginSessionMutation:
@@ -420,6 +428,22 @@ func (c *ContestClient) QueryManagers(co *Contest) *GroupQuery {
 	return query
 }
 
+// QueryContestResults queries the contest_results edge of a Contest.
+func (c *ContestClient) QueryContestResults(co *Contest) *ContestResultQuery {
+	query := (&ContestResultClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, id),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestResultsTable, contest.ContestResultsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ContestClient) Hooks() []Hook {
 	return c.hooks.Contest
@@ -442,6 +466,187 @@ func (c *ContestClient) mutate(ctx context.Context, m *ContestMutation) (Value, 
 		return (&ContestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Contest mutation op: %q", m.Op())
+	}
+}
+
+// ContestResultClient is a client for the ContestResult schema.
+type ContestResultClient struct {
+	config
+}
+
+// NewContestResultClient returns a client for the ContestResult from the given config.
+func NewContestResultClient(c config) *ContestResultClient {
+	return &ContestResultClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `contestresult.Hooks(f(g(h())))`.
+func (c *ContestResultClient) Use(hooks ...Hook) {
+	c.hooks.ContestResult = append(c.hooks.ContestResult, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `contestresult.Intercept(f(g(h())))`.
+func (c *ContestResultClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ContestResult = append(c.inters.ContestResult, interceptors...)
+}
+
+// Create returns a builder for creating a ContestResult entity.
+func (c *ContestResultClient) Create() *ContestResultCreate {
+	mutation := newContestResultMutation(c.config, OpCreate)
+	return &ContestResultCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ContestResult entities.
+func (c *ContestResultClient) CreateBulk(builders ...*ContestResultCreate) *ContestResultCreateBulk {
+	return &ContestResultCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ContestResultClient) MapCreateBulk(slice any, setFunc func(*ContestResultCreate, int)) *ContestResultCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ContestResultCreateBulk{err: fmt.Errorf("calling to ContestResultClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ContestResultCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ContestResultCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ContestResult.
+func (c *ContestResultClient) Update() *ContestResultUpdate {
+	mutation := newContestResultMutation(c.config, OpUpdate)
+	return &ContestResultUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContestResultClient) UpdateOne(cr *ContestResult) *ContestResultUpdateOne {
+	mutation := newContestResultMutation(c.config, OpUpdateOne, withContestResult(cr))
+	return &ContestResultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContestResultClient) UpdateOneID(id int) *ContestResultUpdateOne {
+	mutation := newContestResultMutation(c.config, OpUpdateOne, withContestResultID(id))
+	return &ContestResultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ContestResult.
+func (c *ContestResultClient) Delete() *ContestResultDelete {
+	mutation := newContestResultMutation(c.config, OpDelete)
+	return &ContestResultDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ContestResultClient) DeleteOne(cr *ContestResult) *ContestResultDeleteOne {
+	return c.DeleteOneID(cr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ContestResultClient) DeleteOneID(id int) *ContestResultDeleteOne {
+	builder := c.Delete().Where(contestresult.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContestResultDeleteOne{builder}
+}
+
+// Query returns a query builder for ContestResult.
+func (c *ContestResultClient) Query() *ContestResultQuery {
+	return &ContestResultQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeContestResult},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ContestResult entity by its id.
+func (c *ContestResultClient) Get(ctx context.Context, id int) (*ContestResult, error) {
+	return c.Query().Where(contestresult.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContestResultClient) GetX(ctx context.Context, id int) *ContestResult {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryContest queries the contest edge of a ContestResult.
+func (c *ContestResultClient) QueryContest(cr *ContestResult) *ContestQuery {
+	query := (&ContestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestresult.Table, contestresult.FieldID, id),
+			sqlgraph.To(contest.Table, contest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestresult.ContestTable, contestresult.ContestColumn),
+		)
+		fromV = sqlgraph.Neighbors(cr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a ContestResult.
+func (c *ContestResultClient) QueryUser(cr *ContestResult) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestresult.Table, contestresult.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, contestresult.UserTable, contestresult.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(cr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmissions queries the submissions edge of a ContestResult.
+func (c *ContestResultClient) QuerySubmissions(cr *ContestResult) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contestresult.Table, contestresult.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, contestresult.SubmissionsTable, contestresult.SubmissionsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(cr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContestResultClient) Hooks() []Hook {
+	return c.hooks.ContestResult
+}
+
+// Interceptors returns the client interceptors.
+func (c *ContestResultClient) Interceptors() []Interceptor {
+	return c.inters.ContestResult
+}
+
+func (c *ContestResultClient) mutate(ctx context.Context, m *ContestResultMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ContestResultCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ContestResultUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ContestResultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ContestResultDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ContestResult mutation op: %q", m.Op())
 	}
 }
 
@@ -1341,6 +1546,22 @@ func (c *SubmissionClient) QueryUsers(s *Submission) *UserQuery {
 	return query
 }
 
+// QueryContestResults queries the contest_results edge of a Submission.
+func (c *SubmissionClient) QueryContestResults(s *Submission) *ContestResultQuery {
+	query := (&ContestResultClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, id),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, submission.ContestResultsTable, submission.ContestResultsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SubmissionClient) Hooks() []Hook {
 	return c.hooks.Submission
@@ -1687,6 +1908,22 @@ func (c *UserClient) QueryGroups(u *User) *GroupQuery {
 	return query
 }
 
+// QueryContestResults queries the contest_results edge of a User.
+func (c *UserClient) QueryContestResults(u *User) *ContestResultQuery {
+	query := (&ContestResultClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestResultsTable, user.ContestResultsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -1715,11 +1952,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Contest, Group, LoginSession, Problem, ProblemCase, Submission, SubmissionCase,
-		User []ent.Hook
+		Contest, ContestResult, Group, LoginSession, Problem, ProblemCase, Submission,
+		SubmissionCase, User []ent.Hook
 	}
 	inters struct {
-		Contest, Group, LoginSession, Problem, ProblemCase, Submission, SubmissionCase,
-		User []ent.Interceptor
+		Contest, ContestResult, Group, LoginSession, Problem, ProblemCase, Submission,
+		SubmissionCase, User []ent.Interceptor
 	}
 )

@@ -28,6 +28,8 @@ const (
 	EdgeLoginSessions = "login_sessions"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
 	EdgeGroups = "groups"
+	// EdgeContestResults holds the string denoting the contest_results edge name in mutations.
+	EdgeContestResults = "contest_results"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// SubmissionTable is the table that holds the submission relation/edge.
@@ -51,6 +53,13 @@ const (
 	GroupsInverseTable = "groups"
 	// GroupsColumn is the table column denoting the groups relation/edge.
 	GroupsColumn = "group_id"
+	// ContestResultsTable is the table that holds the contest_results relation/edge.
+	ContestResultsTable = "contest_results"
+	// ContestResultsInverseTable is the table name for the ContestResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestresult" package.
+	ContestResultsInverseTable = "contest_results"
+	// ContestResultsColumn is the table column denoting the contest_results relation/edge.
+	ContestResultsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -147,6 +156,20 @@ func ByGroupsField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByContestResultsCount orders the results by contest_results count.
+func ByContestResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestResultsStep(), opts...)
+	}
+}
+
+// ByContestResults orders the results by contest_results terms.
+func ByContestResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSubmissionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -166,5 +189,12 @@ func newGroupsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(GroupsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, GroupsTable, GroupsColumn),
+	)
+}
+func newContestResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestResultsTable, ContestResultsColumn),
 	)
 }

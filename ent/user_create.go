@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/submission"
@@ -105,6 +106,21 @@ func (uc *UserCreate) SetGroupsID(id int64) *UserCreate {
 // SetGroups sets the "groups" edge to the Group entity.
 func (uc *UserCreate) SetGroups(g *Group) *UserCreate {
 	return uc.SetGroupsID(g.ID)
+}
+
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (uc *UserCreate) AddContestResultIDs(ids ...int) *UserCreate {
+	uc.mutation.AddContestResultIDs(ids...)
+	return uc
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (uc *UserCreate) AddContestResults(c ...*ContestResult) *UserCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddContestResultIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -268,6 +284,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.GroupID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
