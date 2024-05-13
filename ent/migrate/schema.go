@@ -31,10 +31,10 @@ var (
 	// ContestResultsColumns holds the columns for the "contest_results" table.
 	ContestResultsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "score", Type: field.TypeInt32, Unique: true},
-		{Name: "rank", Type: field.TypeInt32, Unique: true},
-		{Name: "score_time", Type: field.TypeInt32, Unique: true},
-		{Name: "penalty", Type: field.TypeInt32, Unique: true},
+		{Name: "score", Type: field.TypeInt32},
+		{Name: "rank", Type: field.TypeInt32},
+		{Name: "score_time", Type: field.TypeInt32},
+		{Name: "penalty", Type: field.TypeInt32},
 		{Name: "contest_id", Type: field.TypeInt64},
 		{Name: "user_id", Type: field.TypeInt64},
 	}

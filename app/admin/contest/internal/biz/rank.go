@@ -73,11 +73,11 @@ func (r *RankUsecase) RefreshRank(ctx context.Context, contest *Contest) (*Rank,
 		// TODO: define error
 		return nil, nil
 	}
-	submission, err := r.repo.FindNewSubmissions(ctx, contest.Id, contest.StartTime)
+	rank, err := r.repo.Find(ctx, contest)
 	if err != nil {
 		return nil, err
 	}
-	rank, err := r.repo.Find(ctx, contest)
+	submission, err := r.repo.FindNewSubmissions(ctx, contest.Id, rank.RefreshTime)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (i *IOIRank) Update(rank *Rank, submission map[int64]*UserContestResult) *R
 	}
 	var userResult = make(map[int64]*UserContestResult)
 	for _, v := range rank.Users {
-		userProblem[v.UserID] = make(map[int64]*UserProblemResult, 0)
+		userProblem[v.UserID] = make(map[int64]*UserProblemResult)
 		for _, p := range v.Problems {
 			userProblem[v.UserID][p.ProblemID] = p
 		}

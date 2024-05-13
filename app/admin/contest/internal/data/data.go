@@ -5,15 +5,14 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"fmt"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"sastoj/app/admin/contest/internal/conf"
 	"sastoj/ent"
-
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
 )
 
 // ProviderSet is data providers.
@@ -67,5 +66,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client}, cleanup, nil
+	return &Data{db: client, redis: redisClient}, cleanup, nil
 }

@@ -14,9 +14,9 @@ type ContestResult struct {
 // Fields of the ContestResult.
 func (ContestResult) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int32("score").Unique(),
-		field.Int32("rank").Unique(),
-		field.Int32("score_time").Unique(),
+		field.Int32("score"),
+		field.Int32("rank"),
+		field.Int32("score_time"),
 		field.Int32("penalty"),
 		field.Int64("contest_id"),
 		field.Int64("user_id"),

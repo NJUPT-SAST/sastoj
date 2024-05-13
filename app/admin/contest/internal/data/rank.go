@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/contest/internal/biz"
 	"sastoj/ent/contest"
@@ -25,10 +26,14 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 }
 
 func (r *RankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
-	if contest.EndTime.Before(time.Now()) {
+	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
-		err := r.data.redis.Set(ctx, key, rank, contest.EndTime.Sub(time.Now())).Err()
+		rankData, err := json.Marshal(rank)
+		if err != nil {
+			return err
+		}
+		err = r.data.redis.Set(ctx, key, rankData, contest.EndTime.Sub(time.Now())).Err()
 		if err != nil {
 			return err
 		}
@@ -42,12 +47,12 @@ func (r *RankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Ran
 				SetPenalty(v.Penalty).
 				SetScoreTime(v.ScoreTime).
 				Save(ctx)
-			if err == nil {
+			if err != nil {
 				return err
 			}
 			submissionIds := make([]int64, len(v.Problems))
-			for _, p := range v.Problems {
-				submissionIds = append(submissionIds, p.SubmissionID)
+			for id, p := range v.Problems {
+				submissionIds[id] = p.SubmissionID
 			}
 			_, err = r.data.db.ContestResult.Update().
 				Where(contestresult.UserID(v.UserID), contestresult.ContestID(contest.Id)).
@@ -61,10 +66,14 @@ func (r *RankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Ran
 }
 
 func (r *RankRepo) Update(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
-	if contest.EndTime.Before(time.Now()) {
+	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
-		err := r.data.redis.Set(ctx, key, rank, contest.EndTime.Sub(time.Now())).Err()
+		rankData, err := json.Marshal(rank)
+		if err != nil {
+			return err
+		}
+		err = r.data.redis.Set(ctx, key, rankData, contest.EndTime.Sub(time.Now())).Err()
 		if err != nil {
 			return err
 		}
@@ -85,8 +94,8 @@ func (r *RankRepo) Update(ctx context.Context, contest *biz.Contest, rank *biz.R
 				return err
 			}
 			submissionIds := make([]int64, len(v.Problems))
-			for _, p := range v.Problems {
-				submissionIds = append(submissionIds, p.SubmissionID)
+			for id, p := range v.Problems {
+				submissionIds[id] = p.SubmissionID
 			}
 			_, err = r.data.db.ContestResult.Update().
 				Where(contestresult.UserID(v.UserID), contestresult.ContestID(contest.Id)).
@@ -117,19 +126,35 @@ func (r *RankRepo) Delete(ctx context.Context, contest *biz.Contest) error {
 }
 
 func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
-	if contest.EndTime.Before(time.Now()) {
+	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
+		var rankData string
+		err := r.data.redis.Get(ctx, key).Scan(&rankData)
+		if err != nil {
+			return nil, err
+		}
 		var rank biz.Rank
-		err := r.data.redis.Get(ctx, key).Scan(&rank)
+		err = json.Unmarshal([]byte(rankData), &rank)
 		if err != nil {
 			return nil, err
 		}
 		return &rank, nil
 	} else {
-		results, err := r.data.db.ContestResult.Query().Where(contestresult.ContestID(contest.Id)).All(ctx)
+		results, err := r.data.db.ContestResult.Query().
+			Where(contestresult.ContestID(contest.Id)).
+			WithUser().WithSubmissions().
+			All(ctx)
 		if err != nil {
 			return nil, err
+		}
+		problemList, err := r.data.db.Problem.Query().Where(problem.ContestID(contest.Id)).All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		var problemId = make(map[int64]int16)
+		for _, v := range problemList {
+			problemId[v.ID] = v.Index
 		}
 		var rank = &biz.Rank{
 			ContestID: contest.Id,
@@ -138,6 +163,7 @@ func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 		for _, v := range results {
 			const SubmissionAccepted int16 = 1
 			var problems []*biz.UserProblemResult
+			var acceptCount int32 = 0
 			for _, p := range v.Edges.Submissions {
 				problems = append(problems, &biz.UserProblemResult{
 					SubmissionID: p.ID,
@@ -145,20 +171,21 @@ func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 					SubmitTime:   p.CreateTime,
 					Status:       p.Status,
 					Point:        p.Point,
-					Index:        p.Edges.Problems.Index,
+					Index:        problemId[p.ProblemID],
 				})
 				if p.Status == SubmissionAccepted {
-					rank.Users[v.UserID].AcceptCount++
+					acceptCount += 1
 				}
 			}
 			rank.Users = append(rank.Users, &biz.UserContestResult{
-				UserID:    v.UserID,
-				UserName:  v.Edges.User.Username,
-				Rank:      v.Rank,
-				Score:     v.Score,
-				ScoreTime: v.ScoreTime,
-				Penalty:   v.Penalty,
-				Problems:  problems,
+				UserID:      v.UserID,
+				UserName:    v.Edges.User.Username,
+				Rank:        v.Rank,
+				Score:       v.Score,
+				ScoreTime:   v.ScoreTime,
+				Penalty:     v.Penalty,
+				AcceptCount: acceptCount,
+				Problems:    problems,
 			})
 		}
 		return rank, nil
@@ -166,7 +193,10 @@ func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 }
 
 func (r *RankRepo) FindNewSubmissions(ctx context.Context, contestId int64, startTime time.Time) (map[int64]*biz.UserContestResult, error) {
-	res, err := r.data.db.Submission.Query().Where(submission.HasProblemsWith(problem.HasContestsWith(contest.ID(contestId))), submission.CreateTimeGT(startTime)).All(ctx)
+	res, err := r.data.db.Submission.Query().
+		Where(submission.HasProblemsWith(problem.HasContestsWith(contest.ID(contestId))), submission.CreateTimeGT(startTime)).
+		WithUsers().WithProblems().
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
