@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/user/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/user"
 )
 
@@ -71,4 +72,19 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64) ([]
 		})
 	}
 	return rv, nil
+}
+func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]string, error) {
+	createdUsers, err := r.data.db.User.MapCreateBulk(users, func(c *ent.UserCreate, i int) {
+		c.SetUsername(users[i].Username).
+			SetSalt(users[i].Salt).
+			SetPassword(users[i].Password).
+			SetGroupID(users[i].GroupID).
+			SetStatus(0)
+	}).Save(ctx)
+	//返回usernames是为了防止有些账户没有创建成功
+	usernames := make([]string, 0)
+	for _, u := range createdUsers {
+		usernames = append(usernames, u.Username)
+	}
+	return usernames, err
 }

@@ -2,14 +2,11 @@ package service
 
 import (
 	"context"
-	"crypto/md5"
 	_ "crypto/md5"
-	"encoding/hex"
 	_ "encoding/hex"
-	"github.com/go-kratos/kratos/v2/log"
-	"math/rand"
 	pb "sastoj/api/sastoj/admin/user/service/v1"
 	"sastoj/app/admin/user/internal/biz"
+	"sastoj/pkg/util"
 )
 
 type UserService struct {
@@ -24,8 +21,8 @@ func NewUserService(user *biz.UserUsecase) *UserService {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
-	var salt = generateRandomString(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	var md5Password = generateMD5Password(req.Password, salt)
+	var salt = util.GenerateRandomString(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	var md5Password = util.GenerateMD5Password(req.Password, salt)
 	//var b = verifyPassword(req.Password, salt, md5Password)
 	//print(b)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
@@ -43,25 +40,12 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	}, nil
 }
 func (s *UserService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUserRequest) (*pb.BatchCreateUserReply, error) {
-	var resMap = make(map[string]string)
-	for i := 0; i < int(req.Number); i++ {
-		var username = "user_" + generateRandomString(8, "")
-		var salt = generateRandomString(5, "")
-		var password = generateRandomString(8, "")
-		var md5Password = generateMD5Password(password, salt)
-		_, err := s.uc.CreateUser(ctx, &biz.User{
-			Username: username,
-			Password: md5Password,
-			GroupID:  req.GroupId,
-			Salt:     salt,
-			Status:   0,
-		})
-		if err != nil {
-			log.Debug("BatchCreateUser error: ", err)
-			continue
-		}
-		resMap[username] = password
+
+	resMap, err := s.uc.BatchSave(ctx, int32(req.Number), req.GroupId)
+	if err != nil {
+		return nil, err
 	}
+
 	var users []*pb.BatchCreateUserReply_User
 	for k, v := range resMap {
 		users = append(users, &pb.BatchCreateUserReply_User{
@@ -107,26 +91,4 @@ func (s *UserService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*p
 	return &pb.ListUserReply{
 		Users: users,
 	}, nil
-}
-
-func generateRandomString(length int, charset string) string {
-	if charset == "" {
-		charset = "abcdefghjkmnpqrstwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-	}
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(b)
-}
-func generateMD5Password(password string, salt string) string {
-	hash := md5.New()
-	hash.Write([]byte(password + salt))
-	hashBytes := hash.Sum(nil)
-	hashString := hex.EncodeToString(hashBytes)
-	return hashString
-}
-
-func verifyPassword(password string, salt string, hash string) bool {
-	return generateMD5Password(password, salt) == hash
 }
