@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"sastoj/pkg/util"
 )
 
 var (
@@ -19,6 +20,12 @@ type User struct {
 	Status   int32
 	GroupID  int64
 }
+type UserCreate struct {
+	Username string
+	Password string
+	Salt     string
+	GroupID  int64
+}
 
 // UserRepo is a Greater repo.
 type UserRepo interface {
@@ -26,6 +33,7 @@ type UserRepo interface {
 	Update(context.Context, *User) (*int64, error)
 	FindByID(context.Context, int64) (*User, error)
 	ListPages(ctx context.Context, current int64, size int64) ([]*User, error)
+	BatchSave(ctx context.Context, users []*UserCreate) ([]string, error)
 }
 
 // UserUsecase is a User usecase.
@@ -70,4 +78,34 @@ func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64) 
 		return nil, err
 	}
 	return res, nil
+}
+
+func (uc *UserUsecase) BatchSave(ctx context.Context, number int32, groupId int64) (map[string]string, error) {
+	users := make([]*UserCreate, 0)
+	passwordMap := make(map[string]string)
+	for i := 0; i < int(number); i++ {
+		var username = "user_" + util.GenerateRandomString(8, "")
+		var salt = util.GenerateRandomString(5, "")
+		var password = util.GenerateRandomString(8, "")
+		var md5Password = util.GenerateMD5Password(password, salt)
+		users = append(users, &UserCreate{
+			Username: username,
+			Salt:     salt,
+			Password: md5Password,
+			GroupID:  groupId,
+		})
+		passwordMap[username] = password
+	}
+	usernames, err := uc.repo.BatchSave(ctx, users)
+	if err != nil {
+		return nil, err
+	}
+	returnedMaps := make(map[string]string)
+	for _, v := range usernames {
+		//只返回创建成功的账户
+		if _, ok := passwordMap[v]; ok {
+			returnedMaps[v] = passwordMap[v]
+		}
+	}
+	return returnedMaps, nil
 }
