@@ -3,6 +3,7 @@
 package problemcase
 
 import (
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -64,7 +65,13 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "sastoj/ent/runtime"
 var (
+	Hooks [1]ent.Hook
 	// PointValidator is a validator for the "point" field. It is called by the builders before save.
 	PointValidator func(int16) error
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.

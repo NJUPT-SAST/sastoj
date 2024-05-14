@@ -100,7 +100,9 @@ func (pcc *ProblemCaseCreate) Mutation() *ProblemCaseMutation {
 
 // Save creates the ProblemCase in the database.
 func (pcc *ProblemCaseCreate) Save(ctx context.Context) (*ProblemCase, error) {
-	pcc.defaults()
+	if err := pcc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, pcc.sqlSave, pcc.mutation, pcc.hooks)
 }
 
@@ -127,7 +129,7 @@ func (pcc *ProblemCaseCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pcc *ProblemCaseCreate) defaults() {
+func (pcc *ProblemCaseCreate) defaults() error {
 	if _, ok := pcc.mutation.IsAuto(); !ok {
 		v := problemcase.DefaultIsAuto
 		pcc.mutation.SetIsAuto(v)
@@ -136,6 +138,7 @@ func (pcc *ProblemCaseCreate) defaults() {
 		v := problemcase.DefaultIsDeleted
 		pcc.mutation.SetIsDeleted(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
