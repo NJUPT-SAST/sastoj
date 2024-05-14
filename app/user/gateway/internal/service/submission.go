@@ -6,6 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/gateway/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
+	"sastoj/pkg/util"
 	"strconv"
 	"time"
 )
@@ -16,7 +17,7 @@ func (s *GatewayService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 		ID:         uuid.New().String(),
 		UserID:     0,
 		ProblemID:  req.ProblemId,
-		Code:       req.Code,
+		Code:       util.Crlf2lf(req.Code),
 		Status:     0,
 		Point:      0,
 		CreateTime: time.Now(),
@@ -37,9 +38,9 @@ func (s *GatewayService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) 
 	err := s.submissionUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:       id,
 		UserID:   0,
-		Code:     req.Code,
+		Code:     util.Crlf2lf(req.Code),
 		Language: req.Language,
-		Input:    req.Input,
+		Input:    util.Crlf2lf(req.Input),
 	})
 	if err != nil {
 		return nil, err
