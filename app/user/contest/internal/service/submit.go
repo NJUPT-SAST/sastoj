@@ -6,6 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
+	"sastoj/pkg/util"
 	"time"
 )
 
@@ -17,7 +18,7 @@ func (s *UserContestService) Submit(ctx context.Context, req *pb.SubmitRequest) 
 	submit, err := s.submitUc.CreateSubmit(ctx, &biz.Submit{
 		UserID:      1, // TODO: Get the userID from context
 		ProblemID:   req.ProblemId,
-		Code:        req.Code,
+		Code:        util.Crlf2lf(req.Code),
 		Status:      0,
 		Point:       0,
 		CreateTime:  time.Now(),
@@ -39,9 +40,9 @@ func (s *UserContestService) SelfTest(ctx context.Context, req *pb.SelfTestReque
 	err := s.submitUc.PretestProblem(ctx, &biz.Pretest{
 		ID:       pretestId,
 		UserID:   1, // TODO: Get the userID from context
-		Code:     req.Code,
+		Code:     util.Crlf2lf(req.Code),
 		Language: req.Language,
-		Input:    req.Input,
+		Input:    util.Crlf2lf(req.Input),
 	})
 	if err != nil {
 		return nil, err
