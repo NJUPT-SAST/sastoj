@@ -10,6 +10,7 @@ import (
 	"sastoj/ent/problemcase"
 	"sastoj/ent/submissioncase"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -19,6 +20,7 @@ type ProblemCaseCreate struct {
 	config
 	mutation *ProblemCaseMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPoint sets the "point" field.
@@ -196,6 +198,7 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 		_node = &ProblemCase{config: pcc.config}
 		_spec = sqlgraph.NewCreateSpec(problemcase.Table, sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64))
 	)
+	_spec.OnConflict = pcc.conflict
 	if id, ok := pcc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -252,11 +255,298 @@ func (pcc *ProblemCaseCreate) createSpec() (*ProblemCase, *sqlgraph.CreateSpec) 
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ProblemCase.Create().
+//		SetPoint(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ProblemCaseUpsert) {
+//			SetPoint(v+v).
+//		}).
+//		Exec(ctx)
+func (pcc *ProblemCaseCreate) OnConflict(opts ...sql.ConflictOption) *ProblemCaseUpsertOne {
+	pcc.conflict = opts
+	return &ProblemCaseUpsertOne{
+		create: pcc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (pcc *ProblemCaseCreate) OnConflictColumns(columns ...string) *ProblemCaseUpsertOne {
+	pcc.conflict = append(pcc.conflict, sql.ConflictColumns(columns...))
+	return &ProblemCaseUpsertOne{
+		create: pcc,
+	}
+}
+
+type (
+	// ProblemCaseUpsertOne is the builder for "upsert"-ing
+	//  one ProblemCase node.
+	ProblemCaseUpsertOne struct {
+		create *ProblemCaseCreate
+	}
+
+	// ProblemCaseUpsert is the "OnConflict" setter.
+	ProblemCaseUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPoint sets the "point" field.
+func (u *ProblemCaseUpsert) SetPoint(v int16) *ProblemCaseUpsert {
+	u.Set(problemcase.FieldPoint, v)
+	return u
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *ProblemCaseUpsert) UpdatePoint() *ProblemCaseUpsert {
+	u.SetExcluded(problemcase.FieldPoint)
+	return u
+}
+
+// AddPoint adds v to the "point" field.
+func (u *ProblemCaseUpsert) AddPoint(v int16) *ProblemCaseUpsert {
+	u.Add(problemcase.FieldPoint, v)
+	return u
+}
+
+// SetIndex sets the "index" field.
+func (u *ProblemCaseUpsert) SetIndex(v int16) *ProblemCaseUpsert {
+	u.Set(problemcase.FieldIndex, v)
+	return u
+}
+
+// UpdateIndex sets the "index" field to the value that was provided on create.
+func (u *ProblemCaseUpsert) UpdateIndex() *ProblemCaseUpsert {
+	u.SetExcluded(problemcase.FieldIndex)
+	return u
+}
+
+// AddIndex adds v to the "index" field.
+func (u *ProblemCaseUpsert) AddIndex(v int16) *ProblemCaseUpsert {
+	u.Add(problemcase.FieldIndex, v)
+	return u
+}
+
+// SetIsAuto sets the "is_auto" field.
+func (u *ProblemCaseUpsert) SetIsAuto(v bool) *ProblemCaseUpsert {
+	u.Set(problemcase.FieldIsAuto, v)
+	return u
+}
+
+// UpdateIsAuto sets the "is_auto" field to the value that was provided on create.
+func (u *ProblemCaseUpsert) UpdateIsAuto() *ProblemCaseUpsert {
+	u.SetExcluded(problemcase.FieldIsAuto)
+	return u
+}
+
+// SetIsDeleted sets the "is_deleted" field.
+func (u *ProblemCaseUpsert) SetIsDeleted(v bool) *ProblemCaseUpsert {
+	u.Set(problemcase.FieldIsDeleted, v)
+	return u
+}
+
+// UpdateIsDeleted sets the "is_deleted" field to the value that was provided on create.
+func (u *ProblemCaseUpsert) UpdateIsDeleted() *ProblemCaseUpsert {
+	u.SetExcluded(problemcase.FieldIsDeleted)
+	return u
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *ProblemCaseUpsert) SetProblemID(v int64) *ProblemCaseUpsert {
+	u.Set(problemcase.FieldProblemID, v)
+	return u
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *ProblemCaseUpsert) UpdateProblemID() *ProblemCaseUpsert {
+	u.SetExcluded(problemcase.FieldProblemID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(problemcase.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ProblemCaseUpsertOne) UpdateNewValues() *ProblemCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(problemcase.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *ProblemCaseUpsertOne) Ignore() *ProblemCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ProblemCaseUpsertOne) DoNothing() *ProblemCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ProblemCaseCreate.OnConflict
+// documentation for more info.
+func (u *ProblemCaseUpsertOne) Update(set func(*ProblemCaseUpsert)) *ProblemCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ProblemCaseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPoint sets the "point" field.
+func (u *ProblemCaseUpsertOne) SetPoint(v int16) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *ProblemCaseUpsertOne) AddPoint(v int16) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *ProblemCaseUpsertOne) UpdatePoint() *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetIndex sets the "index" field.
+func (u *ProblemCaseUpsertOne) SetIndex(v int16) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIndex(v)
+	})
+}
+
+// AddIndex adds v to the "index" field.
+func (u *ProblemCaseUpsertOne) AddIndex(v int16) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.AddIndex(v)
+	})
+}
+
+// UpdateIndex sets the "index" field to the value that was provided on create.
+func (u *ProblemCaseUpsertOne) UpdateIndex() *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIndex()
+	})
+}
+
+// SetIsAuto sets the "is_auto" field.
+func (u *ProblemCaseUpsertOne) SetIsAuto(v bool) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIsAuto(v)
+	})
+}
+
+// UpdateIsAuto sets the "is_auto" field to the value that was provided on create.
+func (u *ProblemCaseUpsertOne) UpdateIsAuto() *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIsAuto()
+	})
+}
+
+// SetIsDeleted sets the "is_deleted" field.
+func (u *ProblemCaseUpsertOne) SetIsDeleted(v bool) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIsDeleted(v)
+	})
+}
+
+// UpdateIsDeleted sets the "is_deleted" field to the value that was provided on create.
+func (u *ProblemCaseUpsertOne) UpdateIsDeleted() *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIsDeleted()
+	})
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *ProblemCaseUpsertOne) SetProblemID(v int64) *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetProblemID(v)
+	})
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *ProblemCaseUpsertOne) UpdateProblemID() *ProblemCaseUpsertOne {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateProblemID()
+	})
+}
+
+// Exec executes the query.
+func (u *ProblemCaseUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ProblemCaseCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ProblemCaseUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ProblemCaseUpsertOne) ID(ctx context.Context) (id int64, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ProblemCaseUpsertOne) IDX(ctx context.Context) int64 {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // ProblemCaseCreateBulk is the builder for creating many ProblemCase entities in bulk.
 type ProblemCaseCreateBulk struct {
 	config
 	err      error
 	builders []*ProblemCaseCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the ProblemCase entities in the database.
@@ -286,6 +576,7 @@ func (pccb *ProblemCaseCreateBulk) Save(ctx context.Context) ([]*ProblemCase, er
 					_, err = mutators[i+1].Mutate(root, pccb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = pccb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, pccb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -336,6 +627,204 @@ func (pccb *ProblemCaseCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (pccb *ProblemCaseCreateBulk) ExecX(ctx context.Context) {
 	if err := pccb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ProblemCase.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ProblemCaseUpsert) {
+//			SetPoint(v+v).
+//		}).
+//		Exec(ctx)
+func (pccb *ProblemCaseCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProblemCaseUpsertBulk {
+	pccb.conflict = opts
+	return &ProblemCaseUpsertBulk{
+		create: pccb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (pccb *ProblemCaseCreateBulk) OnConflictColumns(columns ...string) *ProblemCaseUpsertBulk {
+	pccb.conflict = append(pccb.conflict, sql.ConflictColumns(columns...))
+	return &ProblemCaseUpsertBulk{
+		create: pccb,
+	}
+}
+
+// ProblemCaseUpsertBulk is the builder for "upsert"-ing
+// a bulk of ProblemCase nodes.
+type ProblemCaseUpsertBulk struct {
+	create *ProblemCaseCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(problemcase.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ProblemCaseUpsertBulk) UpdateNewValues() *ProblemCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(problemcase.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ProblemCase.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *ProblemCaseUpsertBulk) Ignore() *ProblemCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ProblemCaseUpsertBulk) DoNothing() *ProblemCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ProblemCaseCreateBulk.OnConflict
+// documentation for more info.
+func (u *ProblemCaseUpsertBulk) Update(set func(*ProblemCaseUpsert)) *ProblemCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ProblemCaseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPoint sets the "point" field.
+func (u *ProblemCaseUpsertBulk) SetPoint(v int16) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *ProblemCaseUpsertBulk) AddPoint(v int16) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *ProblemCaseUpsertBulk) UpdatePoint() *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetIndex sets the "index" field.
+func (u *ProblemCaseUpsertBulk) SetIndex(v int16) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIndex(v)
+	})
+}
+
+// AddIndex adds v to the "index" field.
+func (u *ProblemCaseUpsertBulk) AddIndex(v int16) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.AddIndex(v)
+	})
+}
+
+// UpdateIndex sets the "index" field to the value that was provided on create.
+func (u *ProblemCaseUpsertBulk) UpdateIndex() *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIndex()
+	})
+}
+
+// SetIsAuto sets the "is_auto" field.
+func (u *ProblemCaseUpsertBulk) SetIsAuto(v bool) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIsAuto(v)
+	})
+}
+
+// UpdateIsAuto sets the "is_auto" field to the value that was provided on create.
+func (u *ProblemCaseUpsertBulk) UpdateIsAuto() *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIsAuto()
+	})
+}
+
+// SetIsDeleted sets the "is_deleted" field.
+func (u *ProblemCaseUpsertBulk) SetIsDeleted(v bool) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetIsDeleted(v)
+	})
+}
+
+// UpdateIsDeleted sets the "is_deleted" field to the value that was provided on create.
+func (u *ProblemCaseUpsertBulk) UpdateIsDeleted() *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateIsDeleted()
+	})
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *ProblemCaseUpsertBulk) SetProblemID(v int64) *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.SetProblemID(v)
+	})
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *ProblemCaseUpsertBulk) UpdateProblemID() *ProblemCaseUpsertBulk {
+	return u.Update(func(s *ProblemCaseUpsert) {
+		s.UpdateProblemID()
+	})
+}
+
+// Exec executes the query.
+func (u *ProblemCaseUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ProblemCaseCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ProblemCaseCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ProblemCaseUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

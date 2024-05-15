@@ -40,6 +40,7 @@ type RankRepo interface {
 	Update(context.Context, *Contest, *Rank) error
 	Delete(ctx context.Context, contest *Contest) error
 	Find(ctx context.Context, contest *Contest) (*Rank, error)
+	ListPage(ctx context.Context, contest *Contest, current int64, size int64) (*Rank, error)
 	FindNewSubmissions(ctx context.Context, contestId int64, startTime time.Time) (map[int64]*UserContestResult, error)
 }
 
@@ -56,6 +57,10 @@ func (r *RankUsecase) FindRank(ctx context.Context, contest *Contest) (*Rank, er
 	return r.repo.Find(ctx, contest)
 }
 
+func (r *RankUsecase) ListPage(ctx context.Context, contest *Contest, current int64, size int64) (*Rank, error) {
+	return r.repo.ListPage(ctx, contest, current, size)
+}
+
 func (r *RankUsecase) SaveRank(ctx context.Context, contest *Contest, rank *Rank) error {
 	return r.repo.Save(ctx, contest, rank)
 }
@@ -68,25 +73,21 @@ func (r *RankUsecase) DeleteRank(ctx context.Context, contest *Contest) error {
 	return r.repo.Delete(ctx, contest)
 }
 
-func (r *RankUsecase) RefreshRank(ctx context.Context, contest *Contest) (*Rank, error) {
+func (r *RankUsecase) RefreshRank(ctx context.Context, contest *Contest, oldRank *Rank) (*Rank, error) {
 	if _, ok := ContestRankRuleMap[contest.Type]; !ok {
 		// TODO: define error
 		return nil, nil
 	}
-	rank, err := r.repo.Find(ctx, contest)
+	submission, err := r.repo.FindNewSubmissions(ctx, contest.Id, oldRank.RefreshTime)
 	if err != nil {
 		return nil, err
 	}
-	submission, err := r.repo.FindNewSubmissions(ctx, contest.Id, rank.RefreshTime)
-	if err != nil {
-		return nil, err
-	}
-	rank = ContestRankRuleMap[contest.Type].Update(rank, submission)
+	rank := ContestRankRuleMap[contest.Type].Update(oldRank, contest, submission)
 	return rank, nil
 }
 
 type ContestRankRule interface {
-	Update(*Rank, map[int64]*UserContestResult) *Rank
+	Update(*Rank, *Contest, map[int64]*UserContestResult) *Rank
 }
 
 var ContestRankRuleMap = map[int32]ContestRankRule{
@@ -96,7 +97,7 @@ var ContestRankRuleMap = map[int32]ContestRankRule{
 
 type IOIRank struct{}
 
-func (i *IOIRank) Update(rank *Rank, submission map[int64]*UserContestResult) *Rank {
+func (i *IOIRank) Update(rank *Rank, contest *Contest, submission map[int64]*UserContestResult) *Rank {
 	const SubmissionAccepted int16 = 1
 	var userProblem = make(map[int64]map[int64]*UserProblemResult)
 	var rankResult = Rank{
@@ -137,7 +138,7 @@ func (i *IOIRank) Update(rank *Rank, submission map[int64]*UserContestResult) *R
 		for _, p := range v {
 			userResult[id].Problems = append(userResult[id].Problems, p)
 			userResult[id].Score += int32(p.Point)
-			userResult[id].ScoreTime = max(userResult[id].ScoreTime, p.AcceptTime)
+			userResult[id].ScoreTime = max(userResult[id].ScoreTime, int32(p.SubmitTime.Sub(contest.StartTime).Minutes()))
 			if p.Status == SubmissionAccepted {
 				userResult[id].AcceptCount++
 			}
@@ -173,7 +174,7 @@ func (i *IOIRank) Update(rank *Rank, submission map[int64]*UserContestResult) *R
 
 type ACMRank struct{}
 
-func (a *ACMRank) Update(rank *Rank, submission map[int64]*UserContestResult) *Rank {
+func (a *ACMRank) Update(rank *Rank, contest *Contest, submission map[int64]*UserContestResult) *Rank {
 	const SubmissionAccepted int16 = 1
 	var userProblem = make(map[int64]map[int64]*UserProblemResult)
 	var rankResult = Rank{
@@ -203,7 +204,7 @@ func (a *ACMRank) Update(rank *Rank, submission map[int64]*UserContestResult) *R
 			if _, ok := userProblem[v.UserID][p.ProblemID]; !ok {
 				userProblem[v.UserID][p.ProblemID] = p
 				if p.Status == SubmissionAccepted {
-					userProblem[v.UserID][p.ProblemID].AcceptTime = int32(p.SubmitTime.Sub(rank.RefreshTime).Minutes())
+					userProblem[v.UserID][p.ProblemID].AcceptTime = int32(p.SubmitTime.Sub(contest.StartTime).Minutes())
 				} else {
 					userProblem[v.UserID][p.ProblemID].Point = 0
 					userProblem[v.UserID][p.ProblemID].TriedCount = 1
