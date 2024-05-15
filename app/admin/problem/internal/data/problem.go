@@ -2,9 +2,8 @@ package data
 
 import (
 	"context"
+	problem2 "sastoj/api/sastoj/admin/problem/service/v1"
 	"sastoj/ent/problem"
-
-	"sastoj/app/admin/problem/internal/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -15,19 +14,19 @@ type ProblemRepo struct {
 }
 
 // NewProblemRepo problem
-func NewProblemRepo(data *Data, logger log.Logger) biz.ProblemRepo {
+func NewProblemRepo(data *Data, logger log.Logger) *ProblemRepo {
 	return &ProblemRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (r *ProblemRepo) Save(ctx context.Context, g *biz.Problem) (*biz.Problem, error) {
+func (r *ProblemRepo) Save(ctx context.Context, g *problem2.CreateProblemRequest) (*problem2.CreateProblemReply, error) {
 	res, err := r.data.db.Problem.Create().
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetPoint(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetContestsID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
@@ -35,16 +34,15 @@ func (r *ProblemRepo) Save(ctx context.Context, g *biz.Problem) (*biz.Problem, e
 	if err != nil {
 		return nil, err
 	}
-	g.Id = res.ID
-	return g, nil
+	return &problem2.CreateProblemReply{Id: res.ID}, nil
 }
 
-func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) {
+func (r *ProblemRepo) Update(ctx context.Context, g *problem2.UpdateProblemRequest) (*int, error) {
 	res, err := r.data.db.Problem.Update().
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetPoint(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetContestsID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
@@ -57,15 +55,15 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 	return &res, nil
 }
 
-func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, error) {
+func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*problem2.GetProblemReply, error) {
 	v, err := r.data.db.Problem.Query().
 		Where(problem.ID(id)).
 		Where(problem.IsDeleted(false)).
-		Only(ctx) //return nil while delete
+		First(ctx) //return nil while delete
 	if err != nil {
 		return nil, err
 	}
-	return &biz.Problem{
+	return &problem2.GetProblemReply{
 		Id:          v.ID,
 		Title:       v.Title,
 		Content:     v.Content,
@@ -88,14 +86,14 @@ func (r *ProblemRepo) Delete(ctx context.Context, id int64) (*int, error) {
 	return &res, nil
 }
 
-func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*biz.Problem, error) {
+func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*problem2.ListProblemReply_Problem, error) {
 	res, err := r.data.db.Problem.Query().Limit(int(size)).Offset(int((currency - 1) * size)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*biz.Problem, 0)
+	list := make([]*problem2.ListProblemReply_Problem, 0)
 	for _, v := range res {
-		list = append(list, &biz.Problem{
+		list = append(list, &problem2.ListProblemReply_Problem{
 			Id:          v.ID,
 			Title:       v.Title,
 			Content:     v.Content,
