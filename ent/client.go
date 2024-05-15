@@ -1162,7 +1162,8 @@ func (c *ProblemCaseClient) QueryProblem(pc *ProblemCase) *ProblemQuery {
 
 // Hooks returns the client hooks.
 func (c *ProblemCaseClient) Hooks() []Hook {
-	return c.hooks.ProblemCase
+	hooks := c.hooks.ProblemCase
+	return append(hooks[:len(hooks):len(hooks)], problemcase.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

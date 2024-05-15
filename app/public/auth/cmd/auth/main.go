@@ -15,6 +15,7 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 
 	_ "go.uber.org/automaxprocs"
+	_ "sastoj/ent/runtime"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
