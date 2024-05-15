@@ -11,14 +11,14 @@ type Cases struct {
 }
 
 type Judge struct {
-	JudgeType string
-	TaskType  string
-	Cases     []Cases
-
-	Checker string
-
+	JudgeType  string
 	Interactor string
-	Subtasks   []Subtasks
+}
+type Task struct {
+	TaskType string
+	Cases    []Cases
+	Checker  string
+	Subtasks []Subtasks
 }
 
 type Subtasks struct {
@@ -28,13 +28,14 @@ type Subtasks struct {
 
 type ResourceLimits struct {
 	Time   int16
-	Memory int16
+	Memory int32
 }
 
 type JudgeConfig struct {
 	Score          int16
 	Judge          Judge
 	ResourceLimits ResourceLimits
+	Task           Task
 }
 
 func UnmarshalToml(doc []byte) (JudgeConfig, error) {

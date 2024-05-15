@@ -44,9 +44,6 @@ func (ProblemCase) Hooks() []ent.Hook {
 					if isAutoOk && pointOk && !isAuto && point == 0 {
 						return nil, fmt.Errorf("refuse to set point to 0 and isAuto to false at the same time")
 					}
-					if isAutoOk && pointOk && isAuto && point != 0 {
-						return nil, fmt.Errorf("refuse to set point and isAuto at the same time")
-					}
 					return next.Mutate(ctx, m)
 				})
 			},
