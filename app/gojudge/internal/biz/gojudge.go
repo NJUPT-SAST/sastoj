@@ -62,7 +62,7 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 	maxMemory := uint64(0)
 	score := 0
 	var builder []*ent.SubmissionCaseCreate
-	for index, c := range config.Judge.Cases {
+	for index, c := range config.Task.Cases {
 		in, ans, err := g.cm.FetchCase(v.ProblemID, c.Input, c.Answer)
 		if err != nil {
 			_ = deleteFile(g.exec, fileID)
