@@ -19,6 +19,7 @@ import (
 import (
 	_ "github.com/lib/pq"
 	_ "go.uber.org/automaxprocs"
+	_ "sastoj/ent/runtime"
 )
 
 // Injectors from wire.go:
@@ -30,7 +31,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 		return nil, nil, err
 	}
 	problemRepo := data.NewProblemRepo(dataData, logger)
-	problemUsecase := biz.NewProblemUsecase(problemRepo, logger)
+	contestRepo := data.NewContestRepo(dataData, logger)
+	problemUsecase := biz.NewProblemUsecase(problemRepo, contestRepo, logger)
 	problemService := service.NewProblemService(problemUsecase)
 	grpcServer := server.NewGRPCServer(confServer, problemService, logger)
 	httpServer := server.NewHTTPServer(confServer, problemService, logger)
