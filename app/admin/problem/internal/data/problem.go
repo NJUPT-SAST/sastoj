@@ -14,7 +14,7 @@ type ProblemRepo struct {
 	log  *log.Helper
 }
 
-// NewProblemRepo .
+// NewProblemRepo problem
 func NewProblemRepo(data *Data, logger log.Logger) biz.ProblemRepo {
 	return &ProblemRepo{
 		data: data,
@@ -49,6 +49,7 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 		SetIndex(int16(g.Index)).
 		SetConfig(g.Config).
 		Where(problem.ID(g.Id)).
+		Where(problem.IsDeleted(false)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -57,7 +58,10 @@ func (r *ProblemRepo) Update(ctx context.Context, g *biz.Problem) (*int, error) 
 }
 
 func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, error) {
-	v, err := r.data.db.Problem.Query().Where(problem.ID(id)).First(ctx)
+	v, err := r.data.db.Problem.Query().
+		Where(problem.ID(id)).
+		Where(problem.IsDeleted(false)).
+		Only(ctx) //return nil while delete
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +78,10 @@ func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 }
 
 func (r *ProblemRepo) Delete(ctx context.Context, id int64) (*int, error) {
-	res, err := r.data.db.Problem.Delete().Where(problem.ID(id)).Exec(ctx)
+	res, err := r.data.db.Problem.Update().
+		SetIsDeleted(true).
+		Where(problem.ID(id)).
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
