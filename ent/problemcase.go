@@ -56,12 +56,10 @@ func (e ProblemCaseEdges) SubmissionCasesOrErr() ([]*SubmissionCase, error) {
 // ProblemOrErr returns the Problem value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemCaseEdges) ProblemOrErr() (*Problem, error) {
-	if e.loadedTypes[1] {
-		if e.Problem == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: problem.Label}
-		}
+	if e.Problem != nil {
 		return e.Problem, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: problem.Label}
 	}
 	return nil, &NotLoadedError{edge: "problem"}
 }

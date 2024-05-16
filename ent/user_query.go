@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
@@ -21,13 +22,14 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx               *QueryContext
-	order             []user.OrderOption
-	inters            []Interceptor
-	predicates        []predicate.User
-	withSubmission    *SubmissionQuery
-	withLoginSessions *LoginSessionQuery
-	withGroups        *GroupQuery
+	ctx                *QueryContext
+	order              []user.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.User
+	withSubmission     *SubmissionQuery
+	withLoginSessions  *LoginSessionQuery
+	withGroups         *GroupQuery
+	withContestResults *ContestResultQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -123,6 +125,28 @@ func (uq *UserQuery) QueryGroups() *GroupQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupsTable, user.GroupsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestResults chains the current query on the "contest_results" edge.
+func (uq *UserQuery) QueryContestResults() *ContestResultQuery {
+	query := (&ContestResultClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ContestResultsTable, user.ContestResultsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -317,14 +341,15 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:            uq.config,
-		ctx:               uq.ctx.Clone(),
-		order:             append([]user.OrderOption{}, uq.order...),
-		inters:            append([]Interceptor{}, uq.inters...),
-		predicates:        append([]predicate.User{}, uq.predicates...),
-		withSubmission:    uq.withSubmission.Clone(),
-		withLoginSessions: uq.withLoginSessions.Clone(),
-		withGroups:        uq.withGroups.Clone(),
+		config:             uq.config,
+		ctx:                uq.ctx.Clone(),
+		order:              append([]user.OrderOption{}, uq.order...),
+		inters:             append([]Interceptor{}, uq.inters...),
+		predicates:         append([]predicate.User{}, uq.predicates...),
+		withSubmission:     uq.withSubmission.Clone(),
+		withLoginSessions:  uq.withLoginSessions.Clone(),
+		withGroups:         uq.withGroups.Clone(),
+		withContestResults: uq.withContestResults.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -361,6 +386,17 @@ func (uq *UserQuery) WithGroups(opts ...func(*GroupQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withGroups = query
+	return uq
+}
+
+// WithContestResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithContestResults(opts ...func(*ContestResultQuery)) *UserQuery {
+	query := (&ContestResultClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withContestResults = query
 	return uq
 }
 
@@ -442,10 +478,11 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			uq.withSubmission != nil,
 			uq.withLoginSessions != nil,
 			uq.withGroups != nil,
+			uq.withContestResults != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -483,6 +520,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if query := uq.withGroups; query != nil {
 		if err := uq.loadGroups(ctx, query, nodes, nil,
 			func(n *User, e *Group) { n.Edges.Groups = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withContestResults; query != nil {
+		if err := uq.loadContestResults(ctx, query, nodes,
+			func(n *User) { n.Edges.ContestResults = []*ContestResult{} },
+			func(n *User, e *ContestResult) { n.Edges.ContestResults = append(n.Edges.ContestResults, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -575,6 +619,36 @@ func (uq *UserQuery) loadGroups(ctx context.Context, query *GroupQuery, nodes []
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (uq *UserQuery) loadContestResults(ctx context.Context, query *ContestResultQuery, nodes []*User, init func(*User), assign func(*User, *ContestResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestresult.FieldUserID)
+	}
+	query.Where(predicate.ContestResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.ContestResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

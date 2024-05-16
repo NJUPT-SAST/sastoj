@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
@@ -243,6 +244,21 @@ func (su *SubmissionUpdate) SetUsers(u *User) *SubmissionUpdate {
 	return su.SetUsersID(u.ID)
 }
 
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (su *SubmissionUpdate) AddContestResultIDs(ids ...int) *SubmissionUpdate {
+	su.mutation.AddContestResultIDs(ids...)
+	return su
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (su *SubmissionUpdate) AddContestResults(c ...*ContestResult) *SubmissionUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return su.AddContestResultIDs(ids...)
+}
+
 // Mutation returns the SubmissionMutation object of the builder.
 func (su *SubmissionUpdate) Mutation() *SubmissionMutation {
 	return su.mutation
@@ -279,6 +295,27 @@ func (su *SubmissionUpdate) ClearProblems() *SubmissionUpdate {
 func (su *SubmissionUpdate) ClearUsers() *SubmissionUpdate {
 	su.mutation.ClearUsers()
 	return su
+}
+
+// ClearContestResults clears all "contest_results" edges to the ContestResult entity.
+func (su *SubmissionUpdate) ClearContestResults() *SubmissionUpdate {
+	su.mutation.ClearContestResults()
+	return su
+}
+
+// RemoveContestResultIDs removes the "contest_results" edge to ContestResult entities by IDs.
+func (su *SubmissionUpdate) RemoveContestResultIDs(ids ...int) *SubmissionUpdate {
+	su.mutation.RemoveContestResultIDs(ids...)
+	return su
+}
+
+// RemoveContestResults removes "contest_results" edges to ContestResult entities.
+func (su *SubmissionUpdate) RemoveContestResults(c ...*ContestResult) *SubmissionUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return su.RemoveContestResultIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -491,6 +528,51 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedContestResultsIDs(); len(nodes) > 0 && !su.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -730,6 +812,21 @@ func (suo *SubmissionUpdateOne) SetUsers(u *User) *SubmissionUpdateOne {
 	return suo.SetUsersID(u.ID)
 }
 
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (suo *SubmissionUpdateOne) AddContestResultIDs(ids ...int) *SubmissionUpdateOne {
+	suo.mutation.AddContestResultIDs(ids...)
+	return suo
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (suo *SubmissionUpdateOne) AddContestResults(c ...*ContestResult) *SubmissionUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return suo.AddContestResultIDs(ids...)
+}
+
 // Mutation returns the SubmissionMutation object of the builder.
 func (suo *SubmissionUpdateOne) Mutation() *SubmissionMutation {
 	return suo.mutation
@@ -766,6 +863,27 @@ func (suo *SubmissionUpdateOne) ClearProblems() *SubmissionUpdateOne {
 func (suo *SubmissionUpdateOne) ClearUsers() *SubmissionUpdateOne {
 	suo.mutation.ClearUsers()
 	return suo
+}
+
+// ClearContestResults clears all "contest_results" edges to the ContestResult entity.
+func (suo *SubmissionUpdateOne) ClearContestResults() *SubmissionUpdateOne {
+	suo.mutation.ClearContestResults()
+	return suo
+}
+
+// RemoveContestResultIDs removes the "contest_results" edge to ContestResult entities by IDs.
+func (suo *SubmissionUpdateOne) RemoveContestResultIDs(ids ...int) *SubmissionUpdateOne {
+	suo.mutation.RemoveContestResultIDs(ids...)
+	return suo
+}
+
+// RemoveContestResults removes "contest_results" edges to ContestResult entities.
+func (suo *SubmissionUpdateOne) RemoveContestResults(c ...*ContestResult) *SubmissionUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return suo.RemoveContestResultIDs(ids...)
 }
 
 // Where appends a list predicates to the SubmissionUpdate builder.
@@ -1008,6 +1126,51 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedContestResultsIDs(); len(nodes) > 0 && !suo.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

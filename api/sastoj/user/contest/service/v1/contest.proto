@@ -164,6 +164,16 @@ message ListRankingReply {
     string username = 2;
     int32 score = 3;
     int32 rank = 4;
+    int32 penalty = 5;
+    message Problem {
+      int64 problem_id = 1;
+      int32 index = 2;
+      int32 status = 3;
+      int32 point = 4;
+      int32 tried_count = 5;
+      int32 accept_time = 6;
+    }
+    repeated Problem problems = 6;
   }
   repeated User users = 1;
 }

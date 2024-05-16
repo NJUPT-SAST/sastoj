@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
@@ -148,6 +149,21 @@ func (uu *UserUpdate) SetGroups(g *Group) *UserUpdate {
 	return uu.SetGroupsID(g.ID)
 }
 
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (uu *UserUpdate) AddContestResultIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddContestResultIDs(ids...)
+	return uu
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (uu *UserUpdate) AddContestResults(c ...*ContestResult) *UserUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.AddContestResultIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -199,6 +215,27 @@ func (uu *UserUpdate) RemoveLoginSessions(l ...*LoginSession) *UserUpdate {
 func (uu *UserUpdate) ClearGroups() *UserUpdate {
 	uu.mutation.ClearGroups()
 	return uu
+}
+
+// ClearContestResults clears all "contest_results" edges to the ContestResult entity.
+func (uu *UserUpdate) ClearContestResults() *UserUpdate {
+	uu.mutation.ClearContestResults()
+	return uu
+}
+
+// RemoveContestResultIDs removes the "contest_results" edge to ContestResult entities by IDs.
+func (uu *UserUpdate) RemoveContestResultIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveContestResultIDs(ids...)
+	return uu
+}
+
+// RemoveContestResults removes "contest_results" edges to ContestResult entities.
+func (uu *UserUpdate) RemoveContestResults(c ...*ContestResult) *UserUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.RemoveContestResultIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -387,6 +424,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedContestResultsIDs(); len(nodes) > 0 && !uu.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -525,6 +607,21 @@ func (uuo *UserUpdateOne) SetGroups(g *Group) *UserUpdateOne {
 	return uuo.SetGroupsID(g.ID)
 }
 
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (uuo *UserUpdateOne) AddContestResultIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddContestResultIDs(ids...)
+	return uuo
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (uuo *UserUpdateOne) AddContestResults(c ...*ContestResult) *UserUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.AddContestResultIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -576,6 +673,27 @@ func (uuo *UserUpdateOne) RemoveLoginSessions(l ...*LoginSession) *UserUpdateOne
 func (uuo *UserUpdateOne) ClearGroups() *UserUpdateOne {
 	uuo.mutation.ClearGroups()
 	return uuo
+}
+
+// ClearContestResults clears all "contest_results" edges to the ContestResult entity.
+func (uuo *UserUpdateOne) ClearContestResults() *UserUpdateOne {
+	uuo.mutation.ClearContestResults()
+	return uuo
+}
+
+// RemoveContestResultIDs removes the "contest_results" edge to ContestResult entities by IDs.
+func (uuo *UserUpdateOne) RemoveContestResultIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveContestResultIDs(ids...)
+	return uuo
+}
+
+// RemoveContestResults removes "contest_results" edges to ContestResult entities.
+func (uuo *UserUpdateOne) RemoveContestResults(c ...*ContestResult) *UserUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.RemoveContestResultIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -787,6 +905,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedContestResultsIDs(); len(nodes) > 0 && !uuo.mutation.ContestResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ContestResultsTable,
+			Columns: []string{user.ContestResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

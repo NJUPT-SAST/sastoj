@@ -29,5 +29,6 @@ func (User) Edges() []ent.Edge {
 		edge.To("submission", Submission.Type),
 		edge.To("login_sessions", LoginSession.Type),
 		edge.From("groups", Group.Type).Ref("users").Field("group_id").Unique().Required(),
+		edge.To("contest_results", ContestResult.Type),
 	}
 }
