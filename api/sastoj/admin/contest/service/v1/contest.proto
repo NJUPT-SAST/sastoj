@@ -4,7 +4,7 @@ package api.sastoj.admin.contest;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-
+import "errors/errors.proto";
 option go_package = "sastoj/api/sastoj/admin/contest;contest";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.contest";
@@ -45,7 +45,26 @@ service Contest {
 		};
 	}
 }
+enum ErrorReason {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
 
+	// 为某个枚举单独设置错误码
+	SERVER_ERROR = 0 [(errors.code) = 500];
+	INVALID_ARGUMENT = 5 [(errors.code) = 400];
+	CONTENT_MISSING = 4 [(errors.code) = 400];
+
+
+	CONTEST_NOT_FOUND = 1 [(errors.code) = 404];
+	CONTEST_INVALID = 2 [(errors.code) = 400];
+	CONTEST_EXISTED = 3 [(errors.code) = 400];
+
+	GROUP_NOT_FOUND = 6 [(errors.code) = 404];
+
+
+
+
+}
 message CreateContestRequest {
 	string title = 1;
 	string description = 2;
