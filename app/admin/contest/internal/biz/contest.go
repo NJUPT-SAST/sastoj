@@ -53,5 +53,10 @@ func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size i
 	return uc.repo.ListPages(ctx, current, size)
 }
 func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+	_, err := uc.repo.FindByID(ctx, contestId)
+	if err != nil {
+		return err
+	}
+
 	return uc.repo.AddContestants(ctx, contestId, groupId, role)
 }

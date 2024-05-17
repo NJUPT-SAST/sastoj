@@ -62,6 +62,7 @@ func (r *ContestRepo) Update(ctx context.Context, g *biz.Contest) error {
 func (r *ContestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, error) {
 	po, err := r.data.db.Contest.Get(ctx, id)
 	if err != nil {
+		log.Debug("err : ", err)
 		return nil, err
 	}
 	return &biz.Contest{
@@ -86,7 +87,8 @@ func (r *ContestRepo) Delete(ctx context.Context, id int64) error {
 
 func (r *ContestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, error) {
 	res, err := r.data.db.Contest.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
-	if err != nil {
+	if err == nil {
+		log.Debug(" error :", err)
 		return nil, err
 	}
 	rv := make([]*biz.Contest, 0)
@@ -110,12 +112,14 @@ func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, group
 	case 0:
 		_, err := r.data.db.Contest.UpdateOneID(contestId).AddContestantIDs(groupId).Save(ctx)
 		if err != nil {
+			log.Debug(" error :", err)
 			return err
 		}
 		return nil
 	case 1:
 		_, err := r.data.db.Contest.UpdateOneID(contestId).AddManagerIDs(groupId).Save(ctx)
 		if err != nil {
+			log.Debug(" error :", err)
 			return err
 		}
 		return nil
