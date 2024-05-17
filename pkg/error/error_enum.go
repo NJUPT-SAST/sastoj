@@ -1,15 +1,14 @@
 package error
 
 import (
-	"errors"
 	"fmt"
 )
 
 type LocalError struct {
-	Code     int
-	GRPCCode int
-	Message  string
-	Err      error
+	Code    int
+	Reason  string
+	Message string
+	Err     error
 }
 
 func (e LocalError) Error() string {
@@ -17,33 +16,24 @@ func (e LocalError) Error() string {
 }
 
 var (
-	UnknownError = LocalError{Code: 100, Message: "未知错误"}
-	ServerError  = LocalError{Code: 101, Message: "服务器内部错误"}
+	// define common and universal errors
+
+	UnknownError      = LocalError{Code: 1000, Reason: "UNKNOWN_ERROR", Message: "未知错误"}
+	ServerError       = LocalError{Code: 1001, Reason: "SERVER_ERROR", Message: "服务器内部错误"}
+	InvalidParamError = LocalError{Code: 1002, Reason: "INVALID_ARGUMENT", Message: "参数错误"}
+
+	// define contest modulo errors
+
+	ContestNotFoundError = LocalError{Code: 2001, Reason: "CONTEST_NOT_FOUND", Message: "比赛不存在"}
+	ContestInvalidError  = LocalError{Code: 2002, Reason: "CONTEST_INVALID", Message: "比赛无效"}
+	ContestExistError    = LocalError{Code: 2003, Reason: "CONTEST_EXIST", Message: "比赛已存在"}
 )
 
-func (e *LocalError) Wrap(err error) LocalError {
-	e.Err = err
-	return *e
-}
-
-// Is : determine whether the error is equal
-func (e *LocalError) Is(err error) bool {
-	var lerr LocalError
-	if errors.As(err, &lerr) {
-		return lerr.Code == e.Code
-	}
-	return false
-}
-
-// HandleError :this func is used to handle error
-// When a function has multiple errors,
-// instead of using if-else to determine them one by one,
-// use this function to get the errors.
-func HandleError(err error) LocalError {
-	var lerr LocalError
-	if errors.As(err, &lerr) {
-		return err.(LocalError)
-	}
-	// if not exist, return default error
-	return ServerError.Wrap(err)
+var errorMap = map[string]int{
+	"UNKNOWN_ERROR":     1000,
+	"SERVER_ERROR":      1001,
+	"INVALID_ARGUMENT":  1002,
+	"CONTEST_NOT_FOUND": 2001,
+	"CONTEST_INVALID":   2002,
+	"CONTEST_EXIST":     2003,
 }
