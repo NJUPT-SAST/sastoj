@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.3
 // - protoc             v5.26.1
-// source: sastoj/admin/judger/service/v1/judge.proto
+// source: sastoj/admin/judger/service/v1/judger.proto
 
 package v1
 

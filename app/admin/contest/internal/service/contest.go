@@ -95,9 +95,6 @@ func (s *ContestService) GetContest(ctx context.Context, req *v1.GetContestReque
 	}, nil
 }
 func (s *ContestService) ListContest(ctx context.Context, req *v1.ListContestRequest) (*v1.ListContestReply, error) {
-	if req.Current < 0 || req.Size < 0 {
-		return nil, v1.ErrorInvalidArgument("current and size must be greater or equal to 0")
-	}
 	rv, err := s.cs.ListContest(ctx, req.Current, req.Size)
 	if err != nil {
 		return nil, err

@@ -87,7 +87,7 @@ func (r *ContestRepo) Delete(ctx context.Context, id int64) error {
 
 func (r *ContestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, error) {
 	res, err := r.data.db.Contest.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
-	if err == nil {
+	if err != nil {
 		log.Debug(" error :", err)
 		return nil, err
 	}

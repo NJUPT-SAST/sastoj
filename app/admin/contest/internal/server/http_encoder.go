@@ -27,7 +27,7 @@ func ErrorEncoder(w http.ResponseWriter, r *http.Request, err error) {
 	var kerror *kerr.Error
 	var loerr *myError.LocalError
 	if !errors.As(err, &kerror) {
-		err = myError.ServerError
+		loerr = &myError.ServerError
 	} else {
 		loerr = myError.FromError(err)
 	}

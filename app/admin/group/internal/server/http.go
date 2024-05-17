@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	v1 "sastoj/api/sastoj/admin/group/service/v1"
 	"sastoj/app/admin/group/internal/conf"
 	"sastoj/app/admin/group/internal/service"
@@ -14,6 +15,7 @@ import (
 func NewHTTPServer(c *conf.Server, group *service.GroupService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
+			validate.Validator(),
 			recovery.Recovery(),
 		),
 	}

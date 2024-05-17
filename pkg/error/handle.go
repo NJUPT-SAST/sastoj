@@ -10,6 +10,14 @@ import (
 func FromError(err error) *LocalError {
 	var kerror *kerr.Error
 	kerror = kerr.FromError(err)
+	if kerror.Status.Reason == "VALIDATOR" {
+		return &LocalError{
+			Code:    InvalidParamError.Code,
+			Message: kerror.Message,
+			Reason:  InvalidParamError.Reason,
+			Err:     kerror,
+		}
+	}
 	if _, ok := errorMap[kerror.Reason]; ok {
 		return &LocalError{
 			Code:    errorMap[kerror.Reason],
