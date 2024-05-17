@@ -66,6 +66,7 @@ func (r *ContestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, err
 		return nil, err
 	}
 	return &biz.Contest{
+		Id:          po.ID,
 		Title:       po.Title,
 		Description: po.Description,
 		Status:      int32(po.Status),

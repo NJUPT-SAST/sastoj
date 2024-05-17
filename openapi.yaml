@@ -1541,6 +1541,12 @@ components:
                 rank:
                     type: integer
                     format: int32
+                penalty:
+                    type: string
+                problems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.sastoj.user.contest.service.v1.User_Problem'
         api.sastoj.user.contest.service.v1.SelfTestReply:
             type: object
             properties:
@@ -1574,6 +1580,22 @@ components:
                 code:
                     type: string
                 language:
+                    type: string
+        api.sastoj.user.contest.service.v1.User_Problem:
+            type: object
+            properties:
+                index:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                point:
+                    type: integer
+                    format: int32
+                triedCount:
+                    type: integer
+                    format: int32
+                totalMinutes:
                     type: string
         api.sastoj.user.gateway.service.v1.GetContestsReply:
             type: object

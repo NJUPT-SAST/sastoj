@@ -20,6 +20,18 @@ func (f ContestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContestMutation", m)
 }
 
+// The ContestResultFunc type is an adapter to allow the use of ordinary
+// function as ContestResult mutator.
+type ContestResultFunc func(context.Context, *ent.ContestResultMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContestResultFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ContestResultMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContestResultMutation", m)
+}
+
 // The GroupFunc type is an adapter to allow the use of ordinary
 // function as Group mutator.
 type GroupFunc func(context.Context, *ent.GroupMutation) (ent.Value, error)

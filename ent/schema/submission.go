@@ -35,5 +35,6 @@ func (Submission) Edges() []ent.Edge {
 		edge.To("submission_cases", SubmissionCase.Type),
 		edge.From("problems", Problem.Type).Ref("submission").Field("problem_id").Unique().Required(),
 		edge.From("users", User.Type).Ref("submission").Field("user_id").Unique().Required(),
+		edge.To("contest_results", ContestResult.Type),
 	}
 }
