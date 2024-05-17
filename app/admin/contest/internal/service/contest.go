@@ -72,6 +72,7 @@ func (s *ContestService) GetContest(ctx context.Context, req *v1.GetContestReque
 		return nil, err
 	}
 	return &v1.GetContestReply{
+		Id:          rv.Id,
 		Title:       rv.Title,
 		Description: rv.Description,
 		Status:      rv.Status,
