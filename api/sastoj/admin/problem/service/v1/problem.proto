@@ -46,7 +46,16 @@ message CreateProblemRequest {
   int32 caseVersion = 6;
   int32 index = 7;
   string config = 8;
+  int64 ownerId = 9;
+  Visibility visibility = 10;
 }
+
+enum Visibility{
+  Private = 0;
+  Public = 1;
+  Contest = 2;
+}
+
 message CreateProblemReply {
   int64 id = 1;
 }
@@ -60,6 +69,8 @@ message UpdateProblemRequest {
   int32 caseVersion = 6;
   int32 index = 7;
   string config = 8;
+  int64 ownerId = 9;
+  Visibility visibility = 10;
 }
 message UpdateProblemReply {
   bool success = 1;
@@ -84,6 +95,8 @@ message GetProblemReply {
   int32 caseVersion = 6;
   int32 index = 7;
   string config = 8;
+  int64 ownerId = 9;
+  Visibility visibility = 10;
 }
 
 message ListProblemRequest {
@@ -101,6 +114,8 @@ message ListProblemReply {
     int32 caseVersion = 6;
     int32 index = 7;
     string config = 8;
+    int64 ownerId = 9;
+    Visibility visibility = 10;
   }
   int32 currency = 2;
   int32 total = 1;

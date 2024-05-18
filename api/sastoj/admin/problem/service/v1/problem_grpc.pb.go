@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: sastoj/admin/problem/service/v1/problem.proto
+// source: api/sastoj/admin/problem/service/v1/problem.proto
 
 package problem
 
@@ -253,5 +253,5 @@ var Problem_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/admin/problem/service/v1/problem.proto",
+	Metadata: "api/sastoj/admin/problem/service/v1/problem.proto",
 }

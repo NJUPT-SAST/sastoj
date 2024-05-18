@@ -50,9 +50,7 @@ func (s *ProblemService) GetProblem(ctx context.Context, request *pb.GetProblemR
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetProblemReply{
-		Id: rv.Id,
-	}, nil
+	return rv, nil
 }
 
 func (s *ProblemService) ListProblem(ctx context.Context, request *pb.ListProblemRequest) (*pb.ListProblemReply, error) {

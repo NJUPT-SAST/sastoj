@@ -23,6 +23,8 @@ func (Problem) Fields() []ent.Field {
 		field.Bool("is_deleted").Default(false),
 		field.String("config"),
 		field.Int64("contest_id"),
+		field.Int64("user_id"),
+		field.Int8("visibility").Default(0).Comment("private:0 pub:1 contest:2"),
 	}
 }
 
@@ -32,6 +34,7 @@ func (Problem) Edges() []ent.Edge {
 		edge.To("problem_cases", ProblemCase.Type),
 		edge.To("submission", Submission.Type),
 		edge.From("contests", Contest.Type).Ref("problems").Field("contest_id").Unique().Required(),
+		edge.From("owner", User.Type).Ref("owned_problems").Field("user_id").Unique().Required(),
 		edge.To("judgers", Group.Type),
 	}
 }
