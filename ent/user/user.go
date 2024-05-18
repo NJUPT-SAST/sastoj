@@ -26,6 +26,8 @@ const (
 	EdgeSubmission = "submission"
 	// EdgeLoginSessions holds the string denoting the login_sessions edge name in mutations.
 	EdgeLoginSessions = "login_sessions"
+	// EdgeOwnedProblems holds the string denoting the owned_problems edge name in mutations.
+	EdgeOwnedProblems = "owned_problems"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
 	EdgeGroups = "groups"
 	// EdgeContestResults holds the string denoting the contest_results edge name in mutations.
@@ -46,6 +48,13 @@ const (
 	LoginSessionsInverseTable = "login_session"
 	// LoginSessionsColumn is the table column denoting the login_sessions relation/edge.
 	LoginSessionsColumn = "user_id"
+	// OwnedProblemsTable is the table that holds the owned_problems relation/edge.
+	OwnedProblemsTable = "problems"
+	// OwnedProblemsInverseTable is the table name for the Problem entity.
+	// It exists in this package in order to avoid circular dependency with the "problem" package.
+	OwnedProblemsInverseTable = "problems"
+	// OwnedProblemsColumn is the table column denoting the owned_problems relation/edge.
+	OwnedProblemsColumn = "user_id"
 	// GroupsTable is the table that holds the groups relation/edge.
 	GroupsTable = "users"
 	// GroupsInverseTable is the table name for the Group entity.
@@ -150,6 +159,20 @@ func ByLoginSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByOwnedProblemsCount orders the results by owned_problems count.
+func ByOwnedProblemsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOwnedProblemsStep(), opts...)
+	}
+}
+
+// ByOwnedProblems orders the results by owned_problems terms.
+func ByOwnedProblems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOwnedProblemsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByGroupsField orders the results by groups field.
 func ByGroupsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -182,6 +205,13 @@ func newLoginSessionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LoginSessionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, LoginSessionsTable, LoginSessionsColumn),
+	)
+}
+func newOwnedProblemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OwnedProblemsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OwnedProblemsTable, OwnedProblemsColumn),
 	)
 }
 func newGroupsStep() *sqlgraph.Step {

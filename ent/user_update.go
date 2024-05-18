@@ -10,6 +10,7 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/predicate"
+	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
@@ -138,6 +139,21 @@ func (uu *UserUpdate) AddLoginSessions(l ...*LoginSession) *UserUpdate {
 	return uu.AddLoginSessionIDs(ids...)
 }
 
+// AddOwnedProblemIDs adds the "owned_problems" edge to the Problem entity by IDs.
+func (uu *UserUpdate) AddOwnedProblemIDs(ids ...int64) *UserUpdate {
+	uu.mutation.AddOwnedProblemIDs(ids...)
+	return uu
+}
+
+// AddOwnedProblems adds the "owned_problems" edges to the Problem entity.
+func (uu *UserUpdate) AddOwnedProblems(p ...*Problem) *UserUpdate {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.AddOwnedProblemIDs(ids...)
+}
+
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
 func (uu *UserUpdate) SetGroupsID(id int64) *UserUpdate {
 	uu.mutation.SetGroupsID(id)
@@ -209,6 +225,27 @@ func (uu *UserUpdate) RemoveLoginSessions(l ...*LoginSession) *UserUpdate {
 		ids[i] = l[i].ID
 	}
 	return uu.RemoveLoginSessionIDs(ids...)
+}
+
+// ClearOwnedProblems clears all "owned_problems" edges to the Problem entity.
+func (uu *UserUpdate) ClearOwnedProblems() *UserUpdate {
+	uu.mutation.ClearOwnedProblems()
+	return uu
+}
+
+// RemoveOwnedProblemIDs removes the "owned_problems" edge to Problem entities by IDs.
+func (uu *UserUpdate) RemoveOwnedProblemIDs(ids ...int64) *UserUpdate {
+	uu.mutation.RemoveOwnedProblemIDs(ids...)
+	return uu
+}
+
+// RemoveOwnedProblems removes "owned_problems" edges to Problem entities.
+func (uu *UserUpdate) RemoveOwnedProblems(p ...*Problem) *UserUpdate {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.RemoveOwnedProblemIDs(ids...)
 }
 
 // ClearGroups clears the "groups" edge to the Group entity.
@@ -388,6 +425,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.OwnedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedOwnedProblemsIDs(); len(nodes) > 0 && !uu.mutation.OwnedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.OwnedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -596,6 +678,21 @@ func (uuo *UserUpdateOne) AddLoginSessions(l ...*LoginSession) *UserUpdateOne {
 	return uuo.AddLoginSessionIDs(ids...)
 }
 
+// AddOwnedProblemIDs adds the "owned_problems" edge to the Problem entity by IDs.
+func (uuo *UserUpdateOne) AddOwnedProblemIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.AddOwnedProblemIDs(ids...)
+	return uuo
+}
+
+// AddOwnedProblems adds the "owned_problems" edges to the Problem entity.
+func (uuo *UserUpdateOne) AddOwnedProblems(p ...*Problem) *UserUpdateOne {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.AddOwnedProblemIDs(ids...)
+}
+
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
 func (uuo *UserUpdateOne) SetGroupsID(id int64) *UserUpdateOne {
 	uuo.mutation.SetGroupsID(id)
@@ -667,6 +764,27 @@ func (uuo *UserUpdateOne) RemoveLoginSessions(l ...*LoginSession) *UserUpdateOne
 		ids[i] = l[i].ID
 	}
 	return uuo.RemoveLoginSessionIDs(ids...)
+}
+
+// ClearOwnedProblems clears all "owned_problems" edges to the Problem entity.
+func (uuo *UserUpdateOne) ClearOwnedProblems() *UserUpdateOne {
+	uuo.mutation.ClearOwnedProblems()
+	return uuo
+}
+
+// RemoveOwnedProblemIDs removes the "owned_problems" edge to Problem entities by IDs.
+func (uuo *UserUpdateOne) RemoveOwnedProblemIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.RemoveOwnedProblemIDs(ids...)
+	return uuo
+}
+
+// RemoveOwnedProblems removes "owned_problems" edges to Problem entities.
+func (uuo *UserUpdateOne) RemoveOwnedProblems(p ...*Problem) *UserUpdateOne {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.RemoveOwnedProblemIDs(ids...)
 }
 
 // ClearGroups clears the "groups" edge to the Group entity.
@@ -876,6 +994,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.OwnedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedOwnedProblemsIDs(); len(nodes) > 0 && !uuo.mutation.OwnedProblemsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.OwnedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

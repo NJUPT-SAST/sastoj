@@ -11,6 +11,7 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
 	"sastoj/ent/submission"
+	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -89,6 +90,26 @@ func (pc *ProblemCreate) SetContestID(i int64) *ProblemCreate {
 	return pc
 }
 
+// SetUserID sets the "user_id" field.
+func (pc *ProblemCreate) SetUserID(i int64) *ProblemCreate {
+	pc.mutation.SetUserID(i)
+	return pc
+}
+
+// SetVisibility sets the "visibility" field.
+func (pc *ProblemCreate) SetVisibility(i int8) *ProblemCreate {
+	pc.mutation.SetVisibility(i)
+	return pc
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableVisibility(i *int8) *ProblemCreate {
+	if i != nil {
+		pc.SetVisibility(*i)
+	}
+	return pc
+}
+
 // SetID sets the "id" field.
 func (pc *ProblemCreate) SetID(i int64) *ProblemCreate {
 	pc.mutation.SetID(i)
@@ -134,6 +155,17 @@ func (pc *ProblemCreate) SetContestsID(id int64) *ProblemCreate {
 // SetContests sets the "contests" edge to the Contest entity.
 func (pc *ProblemCreate) SetContests(c *Contest) *ProblemCreate {
 	return pc.SetContestsID(c.ID)
+}
+
+// SetOwnerID sets the "owner" edge to the User entity by ID.
+func (pc *ProblemCreate) SetOwnerID(id int64) *ProblemCreate {
+	pc.mutation.SetOwnerID(id)
+	return pc
+}
+
+// SetOwner sets the "owner" edge to the User entity.
+func (pc *ProblemCreate) SetOwner(u *User) *ProblemCreate {
+	return pc.SetOwnerID(u.ID)
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
@@ -194,6 +226,10 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultIsDeleted
 		pc.mutation.SetIsDeleted(v)
 	}
+	if _, ok := pc.mutation.Visibility(); !ok {
+		v := problem.DefaultVisibility
+		pc.mutation.SetVisibility(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -232,8 +268,17 @@ func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`ent: missing required field "Problem.contest_id"`)}
 	}
+	if _, ok := pc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Problem.user_id"`)}
+	}
+	if _, ok := pc.mutation.Visibility(); !ok {
+		return &ValidationError{Name: "visibility", err: errors.New(`ent: missing required field "Problem.visibility"`)}
+	}
 	if _, ok := pc.mutation.ContestsID(); !ok {
 		return &ValidationError{Name: "contests", err: errors.New(`ent: missing required edge "Problem.contests"`)}
+	}
+	if _, ok := pc.mutation.OwnerID(); !ok {
+		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "Problem.owner"`)}
 	}
 	return nil
 }
@@ -296,6 +341,10 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldConfig, field.TypeString, value)
 		_node.Config = value
 	}
+	if value, ok := pc.mutation.Visibility(); ok {
+		_spec.SetField(problem.FieldVisibility, field.TypeInt8, value)
+		_node.Visibility = value
+	}
 	if nodes := pc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -343,6 +392,23 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ContestID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.OwnerTable,
+			Columns: []string{problem.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pc.mutation.JudgersIDs(); len(nodes) > 0 {
@@ -527,6 +593,36 @@ func (u *ProblemUpsert) UpdateContestID() *ProblemUpsert {
 	return u
 }
 
+// SetUserID sets the "user_id" field.
+func (u *ProblemUpsert) SetUserID(v int64) *ProblemUpsert {
+	u.Set(problem.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateUserID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldUserID)
+	return u
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *ProblemUpsert) SetVisibility(v int8) *ProblemUpsert {
+	u.Set(problem.FieldVisibility, v)
+	return u
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateVisibility() *ProblemUpsert {
+	u.SetExcluded(problem.FieldVisibility)
+	return u
+}
+
+// AddVisibility adds v to the "visibility" field.
+func (u *ProblemUpsert) AddVisibility(v int8) *ProblemUpsert {
+	u.Add(problem.FieldVisibility, v)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -705,6 +801,41 @@ func (u *ProblemUpsertOne) SetContestID(v int64) *ProblemUpsertOne {
 func (u *ProblemUpsertOne) UpdateContestID() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateContestID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *ProblemUpsertOne) SetUserID(v int64) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateUserID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *ProblemUpsertOne) SetVisibility(v int8) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetVisibility(v)
+	})
+}
+
+// AddVisibility adds v to the "visibility" field.
+func (u *ProblemUpsertOne) AddVisibility(v int8) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddVisibility(v)
+	})
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateVisibility() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateVisibility()
 	})
 }
 
@@ -1052,6 +1183,41 @@ func (u *ProblemUpsertBulk) SetContestID(v int64) *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) UpdateContestID() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateContestID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *ProblemUpsertBulk) SetUserID(v int64) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateUserID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetVisibility sets the "visibility" field.
+func (u *ProblemUpsertBulk) SetVisibility(v int8) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetVisibility(v)
+	})
+}
+
+// AddVisibility adds v to the "visibility" field.
+func (u *ProblemUpsertBulk) AddVisibility(v int8) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.AddVisibility(v)
+	})
+}
+
+// UpdateVisibility sets the "visibility" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateVisibility() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateVisibility()
 	})
 }
 

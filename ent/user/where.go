@@ -380,6 +380,29 @@ func HasLoginSessionsWith(preds ...predicate.LoginSession) predicate.User {
 	})
 }
 
+// HasOwnedProblems applies the HasEdge predicate on the "owned_problems" edge.
+func HasOwnedProblems() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, OwnedProblemsTable, OwnedProblemsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOwnedProblemsWith applies the HasEdge predicate on the "owned_problems" edge with a given conditions (other predicates).
+func HasOwnedProblemsWith(preds ...predicate.Problem) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newOwnedProblemsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasGroups applies the HasEdge predicate on the "groups" edge.
 func HasGroups() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

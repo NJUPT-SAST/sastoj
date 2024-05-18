@@ -12,6 +12,7 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
 	"sastoj/ent/submission"
+	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -164,6 +165,41 @@ func (pu *ProblemUpdate) SetNillableContestID(i *int64) *ProblemUpdate {
 	return pu
 }
 
+// SetUserID sets the "user_id" field.
+func (pu *ProblemUpdate) SetUserID(i int64) *ProblemUpdate {
+	pu.mutation.SetUserID(i)
+	return pu
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableUserID(i *int64) *ProblemUpdate {
+	if i != nil {
+		pu.SetUserID(*i)
+	}
+	return pu
+}
+
+// SetVisibility sets the "visibility" field.
+func (pu *ProblemUpdate) SetVisibility(i int8) *ProblemUpdate {
+	pu.mutation.ResetVisibility()
+	pu.mutation.SetVisibility(i)
+	return pu
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableVisibility(i *int8) *ProblemUpdate {
+	if i != nil {
+		pu.SetVisibility(*i)
+	}
+	return pu
+}
+
+// AddVisibility adds i to the "visibility" field.
+func (pu *ProblemUpdate) AddVisibility(i int8) *ProblemUpdate {
+	pu.mutation.AddVisibility(i)
+	return pu
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
 func (pu *ProblemUpdate) AddProblemCaseIDs(ids ...int64) *ProblemUpdate {
 	pu.mutation.AddProblemCaseIDs(ids...)
@@ -203,6 +239,17 @@ func (pu *ProblemUpdate) SetContestsID(id int64) *ProblemUpdate {
 // SetContests sets the "contests" edge to the Contest entity.
 func (pu *ProblemUpdate) SetContests(c *Contest) *ProblemUpdate {
 	return pu.SetContestsID(c.ID)
+}
+
+// SetOwnerID sets the "owner" edge to the User entity by ID.
+func (pu *ProblemUpdate) SetOwnerID(id int64) *ProblemUpdate {
+	pu.mutation.SetOwnerID(id)
+	return pu
+}
+
+// SetOwner sets the "owner" edge to the User entity.
+func (pu *ProblemUpdate) SetOwner(u *User) *ProblemUpdate {
+	return pu.SetOwnerID(u.ID)
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
@@ -273,6 +320,12 @@ func (pu *ProblemUpdate) ClearContests() *ProblemUpdate {
 	return pu
 }
 
+// ClearOwner clears the "owner" edge to the User entity.
+func (pu *ProblemUpdate) ClearOwner() *ProblemUpdate {
+	pu.mutation.ClearOwner()
+	return pu
+}
+
 // ClearJudgers clears all "judgers" edges to the Group entity.
 func (pu *ProblemUpdate) ClearJudgers() *ProblemUpdate {
 	pu.mutation.ClearJudgers()
@@ -336,6 +389,9 @@ func (pu *ProblemUpdate) check() error {
 	if _, ok := pu.mutation.ContestsID(); pu.mutation.ContestsCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Problem.contests"`)
 	}
+	if _, ok := pu.mutation.OwnerID(); pu.mutation.OwnerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Problem.owner"`)
+	}
 	return nil
 }
 
@@ -380,6 +436,12 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Config(); ok {
 		_spec.SetField(problem.FieldConfig, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Visibility(); ok {
+		_spec.SetField(problem.FieldVisibility, field.TypeInt8, value)
+	}
+	if value, ok := pu.mutation.AddedVisibility(); ok {
+		_spec.AddField(problem.FieldVisibility, field.TypeInt8, value)
 	}
 	if pu.mutation.ProblemCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -493,6 +555,35 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.OwnerTable,
+			Columns: []string{problem.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.OwnerTable,
+			Columns: []string{problem.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -698,6 +789,41 @@ func (puo *ProblemUpdateOne) SetNillableContestID(i *int64) *ProblemUpdateOne {
 	return puo
 }
 
+// SetUserID sets the "user_id" field.
+func (puo *ProblemUpdateOne) SetUserID(i int64) *ProblemUpdateOne {
+	puo.mutation.SetUserID(i)
+	return puo
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableUserID(i *int64) *ProblemUpdateOne {
+	if i != nil {
+		puo.SetUserID(*i)
+	}
+	return puo
+}
+
+// SetVisibility sets the "visibility" field.
+func (puo *ProblemUpdateOne) SetVisibility(i int8) *ProblemUpdateOne {
+	puo.mutation.ResetVisibility()
+	puo.mutation.SetVisibility(i)
+	return puo
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableVisibility(i *int8) *ProblemUpdateOne {
+	if i != nil {
+		puo.SetVisibility(*i)
+	}
+	return puo
+}
+
+// AddVisibility adds i to the "visibility" field.
+func (puo *ProblemUpdateOne) AddVisibility(i int8) *ProblemUpdateOne {
+	puo.mutation.AddVisibility(i)
+	return puo
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
 func (puo *ProblemUpdateOne) AddProblemCaseIDs(ids ...int64) *ProblemUpdateOne {
 	puo.mutation.AddProblemCaseIDs(ids...)
@@ -737,6 +863,17 @@ func (puo *ProblemUpdateOne) SetContestsID(id int64) *ProblemUpdateOne {
 // SetContests sets the "contests" edge to the Contest entity.
 func (puo *ProblemUpdateOne) SetContests(c *Contest) *ProblemUpdateOne {
 	return puo.SetContestsID(c.ID)
+}
+
+// SetOwnerID sets the "owner" edge to the User entity by ID.
+func (puo *ProblemUpdateOne) SetOwnerID(id int64) *ProblemUpdateOne {
+	puo.mutation.SetOwnerID(id)
+	return puo
+}
+
+// SetOwner sets the "owner" edge to the User entity.
+func (puo *ProblemUpdateOne) SetOwner(u *User) *ProblemUpdateOne {
+	return puo.SetOwnerID(u.ID)
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
@@ -804,6 +941,12 @@ func (puo *ProblemUpdateOne) RemoveSubmission(s ...*Submission) *ProblemUpdateOn
 // ClearContests clears the "contests" edge to the Contest entity.
 func (puo *ProblemUpdateOne) ClearContests() *ProblemUpdateOne {
 	puo.mutation.ClearContests()
+	return puo
+}
+
+// ClearOwner clears the "owner" edge to the User entity.
+func (puo *ProblemUpdateOne) ClearOwner() *ProblemUpdateOne {
+	puo.mutation.ClearOwner()
 	return puo
 }
 
@@ -883,6 +1026,9 @@ func (puo *ProblemUpdateOne) check() error {
 	if _, ok := puo.mutation.ContestsID(); puo.mutation.ContestsCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Problem.contests"`)
 	}
+	if _, ok := puo.mutation.OwnerID(); puo.mutation.OwnerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Problem.owner"`)
+	}
 	return nil
 }
 
@@ -944,6 +1090,12 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if value, ok := puo.mutation.Config(); ok {
 		_spec.SetField(problem.FieldConfig, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Visibility(); ok {
+		_spec.SetField(problem.FieldVisibility, field.TypeInt8, value)
+	}
+	if value, ok := puo.mutation.AddedVisibility(); ok {
+		_spec.AddField(problem.FieldVisibility, field.TypeInt8, value)
 	}
 	if puo.mutation.ProblemCasesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1057,6 +1209,35 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.OwnerTable,
+			Columns: []string{problem.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.OwnerTable,
+			Columns: []string{problem.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

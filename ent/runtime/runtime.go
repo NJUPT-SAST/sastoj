@@ -73,6 +73,10 @@ func init() {
 	problemDescIsDeleted := problemFields[6].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.
 	problem.DefaultIsDeleted = problemDescIsDeleted.Default.(bool)
+	// problemDescVisibility is the schema descriptor for visibility field.
+	problemDescVisibility := problemFields[10].Descriptor()
+	// problem.DefaultVisibility holds the default value on creation for the visibility field.
+	problem.DefaultVisibility = problemDescVisibility.Default.(int8)
 	problemcaseHooks := schema.ProblemCase{}.Hooks()
 	problemcase.Hooks[0] = problemcaseHooks[0]
 	problemcaseFields := schema.ProblemCase{}.Fields()

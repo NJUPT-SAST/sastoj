@@ -13,6 +13,7 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/problemcase"
 	"sastoj/ent/submission"
+	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -29,6 +30,7 @@ type ProblemQuery struct {
 	withProblemCases *ProblemCaseQuery
 	withSubmission   *SubmissionQuery
 	withContests     *ContestQuery
+	withOwner        *UserQuery
 	withJudgers      *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -125,6 +127,28 @@ func (pq *ProblemQuery) QueryContests() *ContestQuery {
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(contest.Table, contest.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOwner chains the current query on the "owner" edge.
+func (pq *ProblemQuery) QueryOwner() *UserQuery {
+	query := (&UserClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.OwnerTable, problem.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,6 +373,7 @@ func (pq *ProblemQuery) Clone() *ProblemQuery {
 		withProblemCases: pq.withProblemCases.Clone(),
 		withSubmission:   pq.withSubmission.Clone(),
 		withContests:     pq.withContests.Clone(),
+		withOwner:        pq.withOwner.Clone(),
 		withJudgers:      pq.withJudgers.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
@@ -386,6 +411,17 @@ func (pq *ProblemQuery) WithContests(opts ...func(*ContestQuery)) *ProblemQuery 
 		opt(query)
 	}
 	pq.withContests = query
+	return pq
+}
+
+// WithOwner tells the query-builder to eager-load the nodes that are connected to
+// the "owner" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithOwner(opts ...func(*UserQuery)) *ProblemQuery {
+	query := (&UserClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withOwner = query
 	return pq
 }
 
@@ -478,10 +514,11 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	var (
 		nodes       = []*Problem{}
 		_spec       = pq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			pq.withProblemCases != nil,
 			pq.withSubmission != nil,
 			pq.withContests != nil,
+			pq.withOwner != nil,
 			pq.withJudgers != nil,
 		}
 	)
@@ -520,6 +557,12 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 	if query := pq.withContests; query != nil {
 		if err := pq.loadContests(ctx, query, nodes, nil,
 			func(n *Problem, e *Contest) { n.Edges.Contests = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withOwner; query != nil {
+		if err := pq.loadOwner(ctx, query, nodes, nil,
+			func(n *Problem, e *User) { n.Edges.Owner = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -622,6 +665,35 @@ func (pq *ProblemQuery) loadContests(ctx context.Context, query *ContestQuery, n
 	}
 	return nil
 }
+func (pq *ProblemQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *User)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Problem)
+	for i := range nodes {
+		fk := nodes[i].UserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (pq *ProblemQuery) loadJudgers(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int64]*Problem)
@@ -711,6 +783,9 @@ func (pq *ProblemQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if pq.withContests != nil {
 			_spec.Node.AddColumnOnce(problem.FieldContestID)
+		}
+		if pq.withOwner != nil {
+			_spec.Node.AddColumnOnce(problem.FieldUserID)
 		}
 	}
 	if ps := pq.predicates; len(ps) > 0 {

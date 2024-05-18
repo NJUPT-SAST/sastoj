@@ -23,7 +23,7 @@ func NewProblemUsecase(repo *data.ProblemRepo, contestRepo *data.ContestRepo, lo
 func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *problem.CreateProblemRequest) (*problem.CreateProblemReply, error) {
 	uc.log.WithContext(ctx).Infof("CreateProblem: %v", g)
 	if g.CaseVersion != 1 {
-		return nil, fmt.Errorf("caseVersion should be 1, not %d", g.CaseVersion)
+		return nil, fmt.Errorf("CaseVersion should be 1, not %d (before the contest start)", g.CaseVersion)
 	}
 	rv, err := uc.repo.Save(ctx, g)
 	if err != nil {

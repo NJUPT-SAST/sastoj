@@ -1184,6 +1184,22 @@ func (c *ProblemClient) QueryContests(pr *Problem) *ContestQuery {
 	return query
 }
 
+// QueryOwner queries the owner edge of a Problem.
+func (c *ProblemClient) QueryOwner(pr *Problem) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.OwnerTable, problem.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryJudgers queries the judgers edge of a Problem.
 func (c *ProblemClient) QueryJudgers(pr *Problem) *GroupQuery {
 	query := (&GroupClient{config: c.config}).Query()
@@ -1886,6 +1902,22 @@ func (c *UserClient) QueryLoginSessions(u *User) *LoginSessionQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(loginsession.Table, loginsession.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginSessionsTable, user.LoginSessionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOwnedProblems queries the owned_problems edge of a User.
+func (c *UserClient) QueryOwnedProblems(u *User) *ProblemQuery {
+	query := (&ProblemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(problem.Table, problem.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.OwnedProblemsTable, user.OwnedProblemsColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
