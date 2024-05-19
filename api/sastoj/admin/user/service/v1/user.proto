@@ -11,35 +11,35 @@ option java_package = "api.sastoj.admin.user.service.v1";
 service User {
 	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
 		option (google.api.http) = {
-			post: "/user"
+			post: "/users"
 			body: "*"
 		};
 	};
 	rpc BatchCreateUser ( BatchCreateUserRequest) returns (BatchCreateUserReply) {
 		option (google.api.http) = {
-			post: "/users"
+			post: "/users/batch"
 			body: "*"
 		};
 	};
 	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply){
 		option (google.api.http) = {
-			put: "/user"
+			put: "/users"
 			body: "*"
 		};
 	}
 	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply){
 		option (google.api.http) = {
-			delete: "/user/{id}"
+			delete: "/users/{id}"
 		};
 	}
 	rpc GetUser (GetUserRequest) returns (GetUserReply){
 		option (google.api.http) = {
-			get: "/user/{id}"
+			get: "/users/{id}"
 		};
 	}
 	rpc ListUser (ListUserRequest) returns (ListUserReply){
 		option (google.api.http) = {
-			get: "/user"
+			get: "/users"
 		};
 	}
 }
