@@ -37,12 +37,12 @@ type UserHTTPServer interface {
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
-	r.POST("/user", _User_CreateUser0_HTTP_Handler(srv))
-	r.POST("/users", _User_BatchCreateUser0_HTTP_Handler(srv))
-	r.PUT("/user", _User_UpdateUser0_HTTP_Handler(srv))
-	r.DELETE("/user/{id}", _User_DeleteUser0_HTTP_Handler(srv))
-	r.GET("/user/{id}", _User_GetUser0_HTTP_Handler(srv))
-	r.GET("/user", _User_ListUser0_HTTP_Handler(srv))
+	r.POST("/users", _User_CreateUser0_HTTP_Handler(srv))
+	r.POST("/users/batch", _User_BatchCreateUser0_HTTP_Handler(srv))
+	r.PUT("/users", _User_UpdateUser0_HTTP_Handler(srv))
+	r.DELETE("/users/{id}", _User_DeleteUser0_HTTP_Handler(srv))
+	r.GET("/users/{id}", _User_GetUser0_HTTP_Handler(srv))
+	r.GET("/users", _User_ListUser0_HTTP_Handler(srv))
 }
 
 func _User_CreateUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -193,7 +193,7 @@ func NewUserHTTPClient(client *http.Client) UserHTTPClient {
 
 func (c *UserHTTPClientImpl) BatchCreateUser(ctx context.Context, in *BatchCreateUserRequest, opts ...http.CallOption) (*BatchCreateUserReply, error) {
 	var out BatchCreateUserReply
-	pattern := "/users"
+	pattern := "/users/batch"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserBatchCreateUser))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -206,7 +206,7 @@ func (c *UserHTTPClientImpl) BatchCreateUser(ctx context.Context, in *BatchCreat
 
 func (c *UserHTTPClientImpl) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...http.CallOption) (*CreateUserReply, error) {
 	var out CreateUserReply
-	pattern := "/user"
+	pattern := "/users"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserCreateUser))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -219,7 +219,7 @@ func (c *UserHTTPClientImpl) CreateUser(ctx context.Context, in *CreateUserReque
 
 func (c *UserHTTPClientImpl) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...http.CallOption) (*DeleteUserReply, error) {
 	var out DeleteUserReply
-	pattern := "/user/{id}"
+	pattern := "/users/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserDeleteUser))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -232,7 +232,7 @@ func (c *UserHTTPClientImpl) DeleteUser(ctx context.Context, in *DeleteUserReque
 
 func (c *UserHTTPClientImpl) GetUser(ctx context.Context, in *GetUserRequest, opts ...http.CallOption) (*GetUserReply, error) {
 	var out GetUserReply
-	pattern := "/user/{id}"
+	pattern := "/users/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserGetUser))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -245,7 +245,7 @@ func (c *UserHTTPClientImpl) GetUser(ctx context.Context, in *GetUserRequest, op
 
 func (c *UserHTTPClientImpl) ListUser(ctx context.Context, in *ListUserRequest, opts ...http.CallOption) (*ListUserReply, error) {
 	var out ListUserReply
-	pattern := "/user"
+	pattern := "/users"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserListUser))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -258,7 +258,7 @@ func (c *UserHTTPClientImpl) ListUser(ctx context.Context, in *ListUserRequest, 
 
 func (c *UserHTTPClientImpl) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...http.CallOption) (*UpdateUserReply, error) {
 	var out UpdateUserReply
-	pattern := "/user"
+	pattern := "/users"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserUpdateUser))
 	opts = append(opts, http.PathTemplate(pattern))
