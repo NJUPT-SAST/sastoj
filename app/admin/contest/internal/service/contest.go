@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	v1 "sastoj/api/sastoj/admin/contest/service/v1"
 	"sastoj/app/admin/contest/internal/biz"
+	"sastoj/ent"
 	"time"
 )
 
@@ -59,16 +61,24 @@ func (s *ContestService) UpdateContest(ctx context.Context, req *v1.UpdateContes
 func (s *ContestService) DeleteContest(ctx context.Context, req *v1.DeleteContestRequest) (*v1.DeleteContestReply, error) {
 	err := s.cs.DeleteContest(ctx, req.Id)
 	if err != nil {
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+		}
 		return nil, err
 	}
 	return &v1.DeleteContestReply{
 		Success: true,
 	}, nil
-
 }
 func (s *ContestService) GetContest(ctx context.Context, req *v1.GetContestRequest) (*v1.GetContestReply, error) {
 	rv, err := s.cs.FindContest(ctx, req.Id)
 	if err != nil {
+
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+		}
 		return nil, err
 	}
 	return &v1.GetContestReply{
@@ -109,9 +119,16 @@ func (s *ContestService) ListContest(ctx context.Context, req *v1.ListContestReq
 	}, nil
 }
 func (s *ContestService) AddContestants(ctx context.Context, req *v1.AddContestantsRequest) (*v1.AddContestantsReply, error) {
+	if req.Role != 0 && req.Role != 1 {
+		return nil, v1.ErrorInvalidArgument("role must be 0 or 1")
+	}
 	err := s.cs.AddContestants(ctx, req.ContestId, req.GroupId, req.Role)
 	if err != nil {
-		return nil, err
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+		}
+		return nil, v1.ErrorGroupNotFound("group with specified Id not found")
 	}
 	return &v1.AddContestantsReply{
 		Success: true,

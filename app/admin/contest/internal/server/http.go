@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	v1 "sastoj/api/sastoj/admin/contest/service/v1"
 	"sastoj/app/admin/contest/internal/conf"
 	"sastoj/app/admin/contest/internal/service"
@@ -14,6 +15,7 @@ import (
 func NewHTTPServer(c *conf.Server, greeter *service.ContestService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
+			validate.Validator(),
 			recovery.Recovery(),
 		),
 	}
@@ -26,6 +28,10 @@ func NewHTTPServer(c *conf.Server, greeter *service.ContestService, logger log.L
 	if c.Http.Timeout != nil {
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
+	// 错误解码器
+	opts = append(opts, http.ErrorEncoder(ErrorEncoder))
+	// 返回参数解码器
+	opts = append(opts, http.ResponseEncoder(ResponseEncoder))
 	srv := http.NewServer(opts...)
 	v1.RegisterContestHTTPServer(srv, greeter)
 	return srv

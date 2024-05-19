@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: sastoj/admin/judger/service/v1/judge.proto
+// source: sastoj/admin/judger/service/v1/judger.proto
 
 package v1
 
@@ -142,5 +142,5 @@ var Judger_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/admin/judger/service/v1/judge.proto",
+	Metadata: "sastoj/admin/judger/service/v1/judger.proto",
 }
