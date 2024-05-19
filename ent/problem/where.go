@@ -94,6 +94,16 @@ func ContestID(v int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldContestID, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldUserID, v))
+}
+
+// Visibility applies equality check predicate on the "visibility" field. It's identical to VisibilityEQ.
+func Visibility(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldVisibility, v))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldTitle, v))
@@ -439,6 +449,66 @@ func ContestIDNotIn(vs ...int64) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldContestID, vs...))
 }
 
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// VisibilityEQ applies the EQ predicate on the "visibility" field.
+func VisibilityEQ(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldVisibility, v))
+}
+
+// VisibilityNEQ applies the NEQ predicate on the "visibility" field.
+func VisibilityNEQ(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldVisibility, v))
+}
+
+// VisibilityIn applies the In predicate on the "visibility" field.
+func VisibilityIn(vs ...int8) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldVisibility, vs...))
+}
+
+// VisibilityNotIn applies the NotIn predicate on the "visibility" field.
+func VisibilityNotIn(vs ...int8) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldVisibility, vs...))
+}
+
+// VisibilityGT applies the GT predicate on the "visibility" field.
+func VisibilityGT(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldVisibility, v))
+}
+
+// VisibilityGTE applies the GTE predicate on the "visibility" field.
+func VisibilityGTE(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldVisibility, v))
+}
+
+// VisibilityLT applies the LT predicate on the "visibility" field.
+func VisibilityLT(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldVisibility, v))
+}
+
+// VisibilityLTE applies the LTE predicate on the "visibility" field.
+func VisibilityLTE(v int8) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldVisibility, v))
+}
+
 // HasProblemCases applies the HasEdge predicate on the "problem_cases" edge.
 func HasProblemCases() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
@@ -500,6 +570,29 @@ func HasContests() predicate.Problem {
 func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := newContestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasOwner applies the HasEdge predicate on the "owner" edge.
+func HasOwner() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOwnerWith applies the HasEdge predicate on the "owner" edge with a given conditions (other predicates).
+func HasOwnerWith(preds ...predicate.User) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newOwnerStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -39,13 +39,15 @@ type UserEdges struct {
 	Submission []*Submission `json:"submission,omitempty"`
 	// LoginSessions holds the value of the login_sessions edge.
 	LoginSessions []*LoginSession `json:"login_sessions,omitempty"`
+	// OwnedProblems holds the value of the owned_problems edge.
+	OwnedProblems []*Problem `json:"owned_problems,omitempty"`
 	// Groups holds the value of the groups edge.
 	Groups *Group `json:"groups,omitempty"`
 	// ContestResults holds the value of the contest_results edge.
 	ContestResults []*ContestResult `json:"contest_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // SubmissionOrErr returns the Submission value or an error if the edge
@@ -66,12 +68,21 @@ func (e UserEdges) LoginSessionsOrErr() ([]*LoginSession, error) {
 	return nil, &NotLoadedError{edge: "login_sessions"}
 }
 
+// OwnedProblemsOrErr returns the OwnedProblems value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) OwnedProblemsOrErr() ([]*Problem, error) {
+	if e.loadedTypes[2] {
+		return e.OwnedProblems, nil
+	}
+	return nil, &NotLoadedError{edge: "owned_problems"}
+}
+
 // GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) GroupsOrErr() (*Group, error) {
 	if e.Groups != nil {
 		return e.Groups, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: group.Label}
 	}
 	return nil, &NotLoadedError{edge: "groups"}
@@ -80,7 +91,7 @@ func (e UserEdges) GroupsOrErr() (*Group, error) {
 // ContestResultsOrErr returns the ContestResults value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ContestResultsOrErr() ([]*ContestResult, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.ContestResults, nil
 	}
 	return nil, &NotLoadedError{edge: "contest_results"}
@@ -167,6 +178,11 @@ func (u *User) QuerySubmission() *SubmissionQuery {
 // QueryLoginSessions queries the "login_sessions" edge of the User entity.
 func (u *User) QueryLoginSessions() *LoginSessionQuery {
 	return NewUserClient(u.config).QueryLoginSessions(u)
+}
+
+// QueryOwnedProblems queries the "owned_problems" edge of the User entity.
+func (u *User) QueryOwnedProblems() *ProblemQuery {
+	return NewUserClient(u.config).QueryOwnedProblems(u)
 }
 
 // QueryGroups queries the "groups" edge of the User entity.

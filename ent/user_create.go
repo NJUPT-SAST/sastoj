@@ -9,6 +9,7 @@ import (
 	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
+	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
@@ -97,6 +98,21 @@ func (uc *UserCreate) AddLoginSessions(l ...*LoginSession) *UserCreate {
 		ids[i] = l[i].ID
 	}
 	return uc.AddLoginSessionIDs(ids...)
+}
+
+// AddOwnedProblemIDs adds the "owned_problems" edge to the Problem entity by IDs.
+func (uc *UserCreate) AddOwnedProblemIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddOwnedProblemIDs(ids...)
+	return uc
+}
+
+// AddOwnedProblems adds the "owned_problems" edges to the Problem entity.
+func (uc *UserCreate) AddOwnedProblems(p ...*Problem) *UserCreate {
+	ids := make([]int64, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddOwnedProblemIDs(ids...)
 }
 
 // SetGroupsID sets the "groups" edge to the Group entity by ID.
@@ -265,6 +281,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(loginsession.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.OwnedProblemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.OwnedProblemsTable,
+			Columns: []string{user.OwnedProblemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problem.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

@@ -3499,6 +3499,8 @@ type ProblemMutation struct {
 	addindex             *int16
 	is_deleted           *bool
 	_config              *string
+	visibility           *int8
+	addvisibility        *int8
 	clearedFields        map[string]struct{}
 	problem_cases        map[int64]struct{}
 	removedproblem_cases map[int64]struct{}
@@ -3508,6 +3510,8 @@ type ProblemMutation struct {
 	clearedsubmission    bool
 	contests             *int64
 	clearedcontests      bool
+	owner                *int64
+	clearedowner         bool
 	judgers              map[int64]struct{}
 	removedjudgers       map[int64]struct{}
 	clearedjudgers       bool
@@ -3968,6 +3972,98 @@ func (m *ProblemMutation) ResetContestID() {
 	m.contests = nil
 }
 
+// SetUserID sets the "user_id" field.
+func (m *ProblemMutation) SetUserID(i int64) {
+	m.owner = &i
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ProblemMutation) UserID() (r int64, exists bool) {
+	v := m.owner
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldUserID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ProblemMutation) ResetUserID() {
+	m.owner = nil
+}
+
+// SetVisibility sets the "visibility" field.
+func (m *ProblemMutation) SetVisibility(i int8) {
+	m.visibility = &i
+	m.addvisibility = nil
+}
+
+// Visibility returns the value of the "visibility" field in the mutation.
+func (m *ProblemMutation) Visibility() (r int8, exists bool) {
+	v := m.visibility
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVisibility returns the old "visibility" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldVisibility(ctx context.Context) (v int8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVisibility is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVisibility requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVisibility: %w", err)
+	}
+	return oldValue.Visibility, nil
+}
+
+// AddVisibility adds i to the "visibility" field.
+func (m *ProblemMutation) AddVisibility(i int8) {
+	if m.addvisibility != nil {
+		*m.addvisibility += i
+	} else {
+		m.addvisibility = &i
+	}
+}
+
+// AddedVisibility returns the value that was added to the "visibility" field in this mutation.
+func (m *ProblemMutation) AddedVisibility() (r int8, exists bool) {
+	v := m.addvisibility
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetVisibility resets all changes to the "visibility" field.
+func (m *ProblemMutation) ResetVisibility() {
+	m.visibility = nil
+	m.addvisibility = nil
+}
+
 // AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by ids.
 func (m *ProblemMutation) AddProblemCaseIDs(ids ...int64) {
 	if m.problem_cases == nil {
@@ -4116,6 +4212,46 @@ func (m *ProblemMutation) ResetContests() {
 	m.clearedcontests = false
 }
 
+// SetOwnerID sets the "owner" edge to the User entity by id.
+func (m *ProblemMutation) SetOwnerID(id int64) {
+	m.owner = &id
+}
+
+// ClearOwner clears the "owner" edge to the User entity.
+func (m *ProblemMutation) ClearOwner() {
+	m.clearedowner = true
+	m.clearedFields[problem.FieldUserID] = struct{}{}
+}
+
+// OwnerCleared reports if the "owner" edge to the User entity was cleared.
+func (m *ProblemMutation) OwnerCleared() bool {
+	return m.clearedowner
+}
+
+// OwnerID returns the "owner" edge ID in the mutation.
+func (m *ProblemMutation) OwnerID() (id int64, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
+	}
+	return
+}
+
+// OwnerIDs returns the "owner" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) OwnerIDs() (ids []int64) {
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOwner resets all changes to the "owner" edge.
+func (m *ProblemMutation) ResetOwner() {
+	m.owner = nil
+	m.clearedowner = false
+}
+
 // AddJudgerIDs adds the "judgers" edge to the Group entity by ids.
 func (m *ProblemMutation) AddJudgerIDs(ids ...int64) {
 	if m.judgers == nil {
@@ -4204,7 +4340,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.title != nil {
 		fields = append(fields, problem.FieldTitle)
 	}
@@ -4228,6 +4364,12 @@ func (m *ProblemMutation) Fields() []string {
 	}
 	if m.contests != nil {
 		fields = append(fields, problem.FieldContestID)
+	}
+	if m.owner != nil {
+		fields = append(fields, problem.FieldUserID)
+	}
+	if m.visibility != nil {
+		fields = append(fields, problem.FieldVisibility)
 	}
 	return fields
 }
@@ -4253,6 +4395,10 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.Config()
 	case problem.FieldContestID:
 		return m.ContestID()
+	case problem.FieldUserID:
+		return m.UserID()
+	case problem.FieldVisibility:
+		return m.Visibility()
 	}
 	return nil, false
 }
@@ -4278,6 +4424,10 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldConfig(ctx)
 	case problem.FieldContestID:
 		return m.OldContestID(ctx)
+	case problem.FieldUserID:
+		return m.OldUserID(ctx)
+	case problem.FieldVisibility:
+		return m.OldVisibility(ctx)
 	}
 	return nil, fmt.Errorf("unknown Problem field %s", name)
 }
@@ -4343,6 +4493,20 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContestID(v)
 		return nil
+	case problem.FieldUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case problem.FieldVisibility:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVisibility(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
 }
@@ -4360,6 +4524,9 @@ func (m *ProblemMutation) AddedFields() []string {
 	if m.addindex != nil {
 		fields = append(fields, problem.FieldIndex)
 	}
+	if m.addvisibility != nil {
+		fields = append(fields, problem.FieldVisibility)
+	}
 	return fields
 }
 
@@ -4374,6 +4541,8 @@ func (m *ProblemMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedCaseVersion()
 	case problem.FieldIndex:
 		return m.AddedIndex()
+	case problem.FieldVisibility:
+		return m.AddedVisibility()
 	}
 	return nil, false
 }
@@ -4403,6 +4572,13 @@ func (m *ProblemMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddIndex(v)
+		return nil
+	case problem.FieldVisibility:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddVisibility(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Problem numeric field %s", name)
@@ -4455,13 +4631,19 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldContestID:
 		m.ResetContestID()
 		return nil
+	case problem.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case problem.FieldVisibility:
+		m.ResetVisibility()
+		return nil
 	}
 	return fmt.Errorf("unknown Problem field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProblemMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.problem_cases != nil {
 		edges = append(edges, problem.EdgeProblemCases)
 	}
@@ -4470,6 +4652,9 @@ func (m *ProblemMutation) AddedEdges() []string {
 	}
 	if m.contests != nil {
 		edges = append(edges, problem.EdgeContests)
+	}
+	if m.owner != nil {
+		edges = append(edges, problem.EdgeOwner)
 	}
 	if m.judgers != nil {
 		edges = append(edges, problem.EdgeJudgers)
@@ -4497,6 +4682,10 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 		if id := m.contests; id != nil {
 			return []ent.Value{*id}
 		}
+	case problem.EdgeOwner:
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
+		}
 	case problem.EdgeJudgers:
 		ids := make([]ent.Value, 0, len(m.judgers))
 		for id := range m.judgers {
@@ -4509,7 +4698,7 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProblemMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removedproblem_cases != nil {
 		edges = append(edges, problem.EdgeProblemCases)
 	}
@@ -4550,7 +4739,7 @@ func (m *ProblemMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProblemMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.clearedproblem_cases {
 		edges = append(edges, problem.EdgeProblemCases)
 	}
@@ -4559,6 +4748,9 @@ func (m *ProblemMutation) ClearedEdges() []string {
 	}
 	if m.clearedcontests {
 		edges = append(edges, problem.EdgeContests)
+	}
+	if m.clearedowner {
+		edges = append(edges, problem.EdgeOwner)
 	}
 	if m.clearedjudgers {
 		edges = append(edges, problem.EdgeJudgers)
@@ -4576,6 +4768,8 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 		return m.clearedsubmission
 	case problem.EdgeContests:
 		return m.clearedcontests
+	case problem.EdgeOwner:
+		return m.clearedowner
 	case problem.EdgeJudgers:
 		return m.clearedjudgers
 	}
@@ -4588,6 +4782,9 @@ func (m *ProblemMutation) ClearEdge(name string) error {
 	switch name {
 	case problem.EdgeContests:
 		m.ClearContests()
+		return nil
+	case problem.EdgeOwner:
+		m.ClearOwner()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem unique edge %s", name)
@@ -4605,6 +4802,9 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 		return nil
 	case problem.EdgeContests:
 		m.ResetContests()
+		return nil
+	case problem.EdgeOwner:
+		m.ResetOwner()
 		return nil
 	case problem.EdgeJudgers:
 		m.ResetJudgers()
@@ -7571,6 +7771,9 @@ type UserMutation struct {
 	login_sessions         map[int64]struct{}
 	removedlogin_sessions  map[int64]struct{}
 	clearedlogin_sessions  bool
+	owned_problems         map[int64]struct{}
+	removedowned_problems  map[int64]struct{}
+	clearedowned_problems  bool
 	groups                 *int64
 	clearedgroups          bool
 	contest_results        map[int]struct{}
@@ -7993,6 +8196,60 @@ func (m *UserMutation) ResetLoginSessions() {
 	m.removedlogin_sessions = nil
 }
 
+// AddOwnedProblemIDs adds the "owned_problems" edge to the Problem entity by ids.
+func (m *UserMutation) AddOwnedProblemIDs(ids ...int64) {
+	if m.owned_problems == nil {
+		m.owned_problems = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.owned_problems[ids[i]] = struct{}{}
+	}
+}
+
+// ClearOwnedProblems clears the "owned_problems" edge to the Problem entity.
+func (m *UserMutation) ClearOwnedProblems() {
+	m.clearedowned_problems = true
+}
+
+// OwnedProblemsCleared reports if the "owned_problems" edge to the Problem entity was cleared.
+func (m *UserMutation) OwnedProblemsCleared() bool {
+	return m.clearedowned_problems
+}
+
+// RemoveOwnedProblemIDs removes the "owned_problems" edge to the Problem entity by IDs.
+func (m *UserMutation) RemoveOwnedProblemIDs(ids ...int64) {
+	if m.removedowned_problems == nil {
+		m.removedowned_problems = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.owned_problems, ids[i])
+		m.removedowned_problems[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedOwnedProblems returns the removed IDs of the "owned_problems" edge to the Problem entity.
+func (m *UserMutation) RemovedOwnedProblemsIDs() (ids []int64) {
+	for id := range m.removedowned_problems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// OwnedProblemsIDs returns the "owned_problems" edge IDs in the mutation.
+func (m *UserMutation) OwnedProblemsIDs() (ids []int64) {
+	for id := range m.owned_problems {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetOwnedProblems resets all changes to the "owned_problems" edge.
+func (m *UserMutation) ResetOwnedProblems() {
+	m.owned_problems = nil
+	m.clearedowned_problems = false
+	m.removedowned_problems = nil
+}
+
 // SetGroupsID sets the "groups" edge to the Group entity by id.
 func (m *UserMutation) SetGroupsID(id int64) {
 	m.groups = &id
@@ -8303,12 +8560,15 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.submission != nil {
 		edges = append(edges, user.EdgeSubmission)
 	}
 	if m.login_sessions != nil {
 		edges = append(edges, user.EdgeLoginSessions)
+	}
+	if m.owned_problems != nil {
+		edges = append(edges, user.EdgeOwnedProblems)
 	}
 	if m.groups != nil {
 		edges = append(edges, user.EdgeGroups)
@@ -8335,6 +8595,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeOwnedProblems:
+		ids := make([]ent.Value, 0, len(m.owned_problems))
+		for id := range m.owned_problems {
+			ids = append(ids, id)
+		}
+		return ids
 	case user.EdgeGroups:
 		if id := m.groups; id != nil {
 			return []ent.Value{*id}
@@ -8351,12 +8617,15 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removedsubmission != nil {
 		edges = append(edges, user.EdgeSubmission)
 	}
 	if m.removedlogin_sessions != nil {
 		edges = append(edges, user.EdgeLoginSessions)
+	}
+	if m.removedowned_problems != nil {
+		edges = append(edges, user.EdgeOwnedProblems)
 	}
 	if m.removedcontest_results != nil {
 		edges = append(edges, user.EdgeContestResults)
@@ -8380,6 +8649,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeOwnedProblems:
+		ids := make([]ent.Value, 0, len(m.removedowned_problems))
+		for id := range m.removedowned_problems {
+			ids = append(ids, id)
+		}
+		return ids
 	case user.EdgeContestResults:
 		ids := make([]ent.Value, 0, len(m.removedcontest_results))
 		for id := range m.removedcontest_results {
@@ -8392,12 +8667,15 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.clearedsubmission {
 		edges = append(edges, user.EdgeSubmission)
 	}
 	if m.clearedlogin_sessions {
 		edges = append(edges, user.EdgeLoginSessions)
+	}
+	if m.clearedowned_problems {
+		edges = append(edges, user.EdgeOwnedProblems)
 	}
 	if m.clearedgroups {
 		edges = append(edges, user.EdgeGroups)
@@ -8416,6 +8694,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedsubmission
 	case user.EdgeLoginSessions:
 		return m.clearedlogin_sessions
+	case user.EdgeOwnedProblems:
+		return m.clearedowned_problems
 	case user.EdgeGroups:
 		return m.clearedgroups
 	case user.EdgeContestResults:
@@ -8444,6 +8724,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeLoginSessions:
 		m.ResetLoginSessions()
+		return nil
+	case user.EdgeOwnedProblems:
+		m.ResetOwnedProblems()
 		return nil
 	case user.EdgeGroups:
 		m.ResetGroups()

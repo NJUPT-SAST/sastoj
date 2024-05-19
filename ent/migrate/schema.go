@@ -108,7 +108,9 @@ var (
 		{Name: "index", Type: field.TypeInt16},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "config", Type: field.TypeString},
+		{Name: "visibility", Type: field.TypeInt8, Default: 0},
 		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -118,8 +120,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "problems_contests_problems",
-				Columns:    []*schema.Column{ProblemsColumns[8]},
+				Columns:    []*schema.Column{ProblemsColumns[9]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "problems_users_owned_problems",
+				Columns:    []*schema.Column{ProblemsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -362,6 +370,7 @@ func init() {
 		Table: "login_session",
 	}
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
