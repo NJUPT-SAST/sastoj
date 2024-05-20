@@ -62,9 +62,6 @@ enum ErrorReason {
 
 	GROUP_NOT_FOUND = 6 [(errors.code) = 404];
 
-
-
-
 }
 message CreateContestRequest {
 	string title = 1;
@@ -106,7 +103,7 @@ message DeleteContestReply {
 }
 
 message GetContestRequest {
-	int64 id = 1 [(validate.rules).int64 = {gt:0, lte: 120}];
+	int64 id = 1 ;
 }
 message GetContestReply {
 	int64 id = 1;
@@ -144,7 +141,7 @@ message ListContestReply {
 message AddContestantsRequest {
 	int64 group_id = 1;
   int64 contest_id = 2;
-	int32 role = 3 [(validate.rules).int64 =  {in: [0,1]}];
+	int32 role = 3 [(validate.rules).int32 =  {in: [0,1]}];
 }
 message AddContestantsReply {
 	bool success = 1;
