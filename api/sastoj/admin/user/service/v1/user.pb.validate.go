@@ -61,7 +61,16 @@ func (m *CreateUserRequest) validate(all bool) error {
 
 	// no validation rules for Password
 
-	// no validation rules for GroupId
+	if m.GetGroupId() <= -1 {
+		err := CreateUserRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than -1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CreateUserRequestMultiError(errors)
@@ -269,7 +278,16 @@ func (m *BatchCreateUserRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for Number
+	if m.GetNumber() <= 0 {
+		err := BatchCreateUserRequestValidationError{
+			field:  "Number",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return BatchCreateUserRequestMultiError(errors)

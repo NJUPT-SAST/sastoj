@@ -61,7 +61,6 @@ enum ErrorReason {
 	CONTEST_EXISTED = 5 [(errors.code) = 400];
 
 	GROUP_NOT_FOUND = 6 [(errors.code) = 404];
-
 }
 message CreateContestRequest {
 	string title = 1;

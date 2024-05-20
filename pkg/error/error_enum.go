@@ -31,6 +31,9 @@ var (
 	GroupNotFoundError = LocalError{Code: 3001, Reason: "GROUP_NOT_FOUND", Message: "群组不存在"}
 	GroupInvalidError  = LocalError{Code: 3002, Reason: "GROUP_INVALID", Message: "群组无效"}
 	GroupExistError    = LocalError{Code: 3003, Reason: "GROUP_EXIST", Message: "群组已存在"}
+
+	UserNotFoundError = LocalError{Code: 4001, Reason: "USER_NOT_FOUND", Message: "用户不存在"}
+	UserExistError    = LocalError{Code: 4002, Reason: "USER_EXIST", Message: "用户已存在"}
 )
 
 var errorMap = map[string]int{
@@ -43,4 +46,6 @@ var errorMap = map[string]int{
 	"GROUP_NOT_FOUND":   3001,
 	"GROUP_INVALID":     3002,
 	"GROUP_EXIST":       3003,
+	"USER_NOT_FOUND":    4001,
+	"USER_EXIST":        4002,
 }
