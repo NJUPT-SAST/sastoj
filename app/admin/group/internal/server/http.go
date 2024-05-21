@@ -28,6 +28,10 @@ func NewHTTPServer(c *conf.Server, group *service.GroupService, logger log.Logge
 	if c.Http.Timeout != nil {
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
+	// 错误解码器
+	opts = append(opts, http.ErrorEncoder(ErrorEncoder))
+	// 返回参数解码器
+	opts = append(opts, http.ResponseEncoder(ResponseEncoder))
 	srv := http.NewServer(opts...)
 	v1.RegisterGroupHTTPServer(srv, group)
 	return srv
