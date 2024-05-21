@@ -28,9 +28,8 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	caseManage := biz.NewCaseManage(dataData)
-	manageUseCase := biz.NewManageUseCase(logger, dataData, caseManage)
-	judgeService := service.NewJudgeService(manageUseCase)
+	judge := biz.NewJudge(dataData)
+	judgeService := service.NewJudgeService(judge)
 	grpcServer := server.NewGRPCServer(bootstrap, judgeService, logger)
 	app := newApp(logger, grpcServer)
 	return app, func() {

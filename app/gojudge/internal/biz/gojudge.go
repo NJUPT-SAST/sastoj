@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"google.golang.org/grpc"
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/ent"
@@ -18,43 +17,29 @@ const (
 	submit = "submission"
 	// selfTest topic name
 	selfTest = "self-test"
-	// StatusStart loop status
-	StatusStart = "START"
-	// StatusEnd loop status
-	StatusEnd = "END"
 )
 
-// GoJudge is a Client for a single go-judge
-type GoJudge struct {
-	Uuid   string
-	Status string
-	Config Config
-	judge  Judge
-	db     *data.Data
-	cm     *CaseManage
-	exec   *pb.ExecutorClient
-	conn   *grpc.ClientConn
-	close  func()
-}
-
-type Config struct {
-	Topic    string
+// Gojudge is a Client for a single go-judge
+type Gojudge struct {
 	Endpoint string
+	Db       *data.Data
+	close    []func()
 }
 
 // handleSubmit process the submission
-func (g *GoJudge) handleSubmit(v *Submit) error {
-	config, err := g.cm.GetConfig(v.ProblemID)
+func (g *Gojudge) handleSubmit(v *Submit) error {
+	client := g.Db.Clients[g.Endpoint]
+	config, err := g.Db.CaseManage.GetConfig(v.ProblemID)
 	if err != nil {
 		return err
 	}
-	pro, err := g.db.Ent.Problem.Query().
+	pro, err := g.Db.Ent.Problem.Query().
 		Where(problem.ID(v.ProblemID)).
 		First(context.Background())
 	if err != nil {
 		return err
 	}
-	fileID, err := compile(g.exec, v, config, "a", "")
+	fileID, err := compile(client, v, config, "a", "")
 	if err != nil {
 		return err
 	}
@@ -63,14 +48,14 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 	score := 0
 	var builder []*ent.SubmissionCaseCreate
 	for index, c := range config.Task.Cases {
-		in, ans, err := g.cm.FetchCase(v.ProblemID, c.Input, c.Answer)
+		in, ans, err := g.Db.CaseManage.FetchCase(v.ProblemID, c.Input, c.Answer)
 		if err != nil {
-			_ = deleteFile(g.exec, fileID)
+			_ = deleteFile(client, fileID)
 			return err
 		}
-		result, err := judge(g.exec, string(in), config, "a", fileID, "")
+		result, err := judge(client, string(in), config, "a", fileID, "")
 		if err != nil {
-			_ = deleteFile(g.exec, fileID)
+			_ = deleteFile(client, fileID)
 			return err
 		}
 		//non-Accept
@@ -82,7 +67,7 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 					problemCasesID = problemCase.ID
 				}
 			}
-			create := g.db.Ent.SubmissionCase.Create().
+			create := g.Db.Ent.SubmissionCase.Create().
 				SetProblemCasesID(problemCasesID).
 				SetMemory(int32(result.Memory)).
 				SetTime(int32(result.RunTime)).
@@ -106,7 +91,7 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 			}
 		}
 		//gen builder
-		create := g.db.Ent.SubmissionCase.Create().
+		create := g.Db.Ent.SubmissionCase.Create().
 			SetProblemCasesID(problemCasesID).
 			SetMemory(int32(result.Memory)).
 			SetTime(int32(result.RunTime)).
@@ -115,12 +100,12 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 			SetPoint(v.Point)
 		builder = append(builder, create)
 	}
-	err = deleteFile(g.exec, fileID)
+	err = deleteFile(client, fileID)
 	if err != nil {
 		return err
 	}
 	//Save into database
-	cases, err := g.db.Ent.SubmissionCase.CreateBulk(builder...).Save(context.Background())
+	cases, err := g.Db.Ent.SubmissionCase.CreateBulk(builder...).Save(context.Background())
 	if err != nil {
 		return err
 	}
@@ -128,7 +113,7 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 	for _, ca := range cases {
 		ids = append(ids, ca.ID)
 	}
-	err = g.db.Ent.Submission.Create().
+	err = g.Db.Ent.Submission.Create().
 		SetCaseVersion(int8(pro.CaseVersion)).
 		SetUsersID(v.UserID).
 		SetCode(v.Code).
@@ -148,7 +133,7 @@ func (g *GoJudge) handleSubmit(v *Submit) error {
 }
 
 // handleSubmit process the self-test
-func (g *GoJudge) handleSelfTest(v *SelfTest) error {
+func (g *Gojudge) handleSelfTest(v *SelfTest) error {
 	//TODO self-test
 	return nil
 }
@@ -274,47 +259,31 @@ func handleSingleResultResponseError(response *pb.Response, err error) (*pb.Resp
 	if result.FileError != nil {
 		message := ""
 		for _, fileError := range result.FileError {
-			message += "File Error: " + fileError.Message + ", "
+			message += "file error: " + fileError.Message + ", "
 		}
 		return nil, errors.New(message)
 	}
 	if result.ExitStatus != 0 {
-		return nil, errors.New("Error Exit Status " + strconv.Itoa(int(result.ExitStatus)))
+		return nil, errors.New("error exit status " + strconv.Itoa(int(result.ExitStatus)))
 	}
 	return result, nil
 }
 
 // Start add a loop to consume msg
-func (g *GoJudge) Start(ctx context.Context, config Config) error {
-	switch config.Topic {
-	case selfTest:
-		{
-			if g.close == nil || g.Status == StatusStart {
-				c2 := g.judge.StartLoopOnSelfTest(g.db.Ch, selfTest, g.handleSelfTest)
-				g.close = c2
-				g.Status = StatusStart
-			} else {
-				return errors.New("has been started")
-			}
-		}
-	case submit:
-		{
-			if g.close == nil || g.Status == StatusStart {
-				c1 := g.judge.StartLoopOnSubmit(g.db.Ch, submit, g.handleSubmit)
-				g.close = c1
-				g.Status = StatusStart
-			} else {
-				return errors.New("has been started")
-			}
-		}
-	default:
-		return errors.New("invalid topic")
+func (g *Gojudge) Start() error {
+	if g.close == nil {
+		c1 := StartLoopOnSubmit(g.Db.Logger, g.Db.Ch, submit, g.handleSubmit)
+		c2 := StartLoopOnSelfTest(g.Db.Logger, g.Db.Ch, selfTest, g.handleSelfTest)
+		g.close = []func(){c1, c2}
+	} else {
+		return errors.New("loops on-submit, on-self-test has been started")
 	}
 	return nil
 }
 
-func (g *GoJudge) Close() {
-	g.close()
+func (g *Gojudge) Close() {
+	for _, c := range g.close {
+		c()
+	}
 	g.close = nil
-	g.Status = StatusEnd
 }

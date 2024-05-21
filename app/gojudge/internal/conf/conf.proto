@@ -7,50 +7,40 @@ import "google/protobuf/duration.proto";
 
 message Bootstrap {
   Server server = 1;
-  Client client = 2;
   Data data = 3;
+  repeated JudgeMiddleware judge_middleware = 4;
 }
 
 message Server {
-  message HTTP {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
-  }
   message GRPC {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
-  HTTP http = 1;
-  GRPC grpc = 2;
-}
-
-message Client {
-  message HTTP {
-    string addr = 1;
-    google.protobuf.Duration timeout = 2;
-  }
-  message GRPC {
-    string addr = 1;
-    google.protobuf.Duration timeout = 2;
-    string endpoint = 3;
-  }
-  HTTP http = 1;
   GRPC grpc = 2;
 }
 
 message Data {
+  string mq = 1;
+  Database database = 4;
   message Database {
     string driver = 1;
     string source = 2;
   }
+  Load load = 5;
   message Load {
     string problem_cases_location = 1;
   }
-  string mq = 1;
-  int64 port = 2;
-  string secret = 3;
-  Database database = 4;
-  Load load = 5;
 }
+
+message JudgeMiddleware{
+  JudgeType type = 1;
+  string endpoint = 2;
+  string config = 3;
+}
+
+enum JudgeType{
+  rsjudge = 0;
+  gojudge = 1;
+}
+
