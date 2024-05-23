@@ -35,31 +35,20 @@ config:
 	       $(INTERNAL_PROTO_FILES)
 
 .PHONY: api
-# generate api proto
+# generate protobuf api go code
 api:
-	protoc --proto_path=./api \
-	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./api \
- 	       --go-http_out=paths=source_relative:./api \
- 	       --go-grpc_out=paths=source_relative:./api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:. \
-	       $(API_PROTO_FILES)
+	@cd api && \
+	buf generate
 .PHONY: errors
 # generate error proto
 errors:
-	protoc --proto_path=./api \
-             --proto_path=./third_party \
-             --go_out=paths=source_relative:./api \
-             --go-errors_out=paths=source_relative:./api \
-             $(API_PROTO_FILES)
+	@cd api && \
+	buf generate --template buf.gen.errors.yaml
 .PHONY: validate
 # generate validate proto
 validate:
-	protoc --proto_path=./api \
-             --proto_path=./third_party \
-             --go_out=paths=source_relative:./api \
-             --validate_out=paths=source_relative,lang=go:./api \
-             $(API_PROTO_FILES)
+	@cd api && \
+	buf generate --template buf.gen.validate.yaml
 .PHONY: build
 # build
 build:
