@@ -69,3 +69,21 @@ func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmi
 		MaxMemory: submission.MaxMemory,
 	}, nil
 }
+
+func (s *UserContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
+	var userID int64 = 1 // TODO: Get the userID from context
+	cases, err := s.submitUc.GetCases(req.GetSubmissionId(), userID)
+	if err != nil {
+		return nil, err
+	}
+	var pbCases []*pb.GetCasesReply_Case
+	for _, c := range cases {
+		pbCases = append(pbCases, &pb.GetCasesReply_Case{
+			Index:  int32(c.Index),
+			Status: int32(c.State),
+		})
+	}
+	return &pb.GetCasesReply{
+		Cases: pbCases,
+	}, nil
+}

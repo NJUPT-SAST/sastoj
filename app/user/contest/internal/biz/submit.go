@@ -29,12 +29,19 @@ type Pretest struct {
 	Output   string `json:"output,omitempty"`
 }
 
+type Case struct {
+	ID    int64 `json:"id,omitempty"`
+	Index int16 `json:"index,omitempty"`
+	State int16 `json:"state,omitempty"`
+	Point int16 `json:"point,omitempty"`
+}
 type SubmitRepo interface {
 	CreateSubmit(ctx context.Context, submit *Submit) (int64, error)
 	UpdateStatus(ctx context.Context, submitID int64, status int16) error
 	UpdateSubmit(ctx context.Context, submit *Submit) error
 	GetSubmission(ctx context.Context, submitID int64, userID int64) (*Submit, error)
 	CreatePretest(ctx context.Context, pretest *Pretest) error
+	GetCases(submissionID int64, userID int64) ([]*Case, error)
 }
 
 type SubmitUsecase struct {
@@ -68,4 +75,8 @@ func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int64, user
 
 func (uc *SubmitUsecase) PretestProblem(ctx context.Context, pretest *Pretest) error {
 	return uc.repo.CreatePretest(ctx, pretest)
+}
+
+func (uc *SubmitUsecase) GetCases(submissionID int64, userID int64) ([]*Case, error) {
+	return uc.repo.GetCases(submissionID, userID)
 }
