@@ -48,8 +48,8 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		submissions:      make(map[string]*biz.Submission),
 		selfTests:        make(map[string]*biz.SelfTest),
 	}
-	// get registerGateway
-	ip, err := getIP()
+	// get registerGateway IPv4
+	ip, err := getIPv4(byte(c.Ipv4Prefix))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -152,20 +152,19 @@ func NewContestServiceClient(conf *conf.Client) v1.ContestServiceClient {
 	return c
 }
 
-func getIP() (string, error) {
-	// Get the current user's IPs
+func getIPv4(ipv4Prefix byte) (string, error) {
+	// Get the current client's IPs
 	adds, err := net.InterfaceAddrs()
 	if err != nil {
 		fmt.Println(err)
-		return "", errors.New("system IP not found")
+		return "", errors.New("system IPv4 not found")
 	}
 	for _, address := range adds {
 		if aspnet, ok := address.(*net.IPNet); !(!ok || aspnet.IP.IsLoopback()) {
-			// Get the first IPv4 starting with 10
-			if aspnet.IP.To4() != nil && aspnet.IP.To4()[0] == 192 {
+			if aspnet.IP.To4() != nil && aspnet.IP.To4()[0] == ipv4Prefix {
 				return aspnet.IP.String(), nil
 			}
 		}
 	}
-	return "", errors.New("school network IP not found")
+	return "", errors.New("IPv4 start with " + strconv.Itoa(int(ipv4Prefix)) + " not found")
 }
