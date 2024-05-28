@@ -1,9 +1,13 @@
 package schema
 
 import (
+	"context"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"fmt"
+	gen "sastoj/ent"
+	"sastoj/ent/hook"
 )
 
 // ProblemCase holds the schema definition for the ProblemCase entity.
@@ -28,5 +32,22 @@ func (ProblemCase) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("submission_cases", SubmissionCase.Type),
 		edge.From("problem", Problem.Type).Ref("problem_cases").Field("problem_id").Unique().Required(),
+	}
+}
+func (ProblemCase) Hooks() []ent.Hook {
+	return []ent.Hook{
+		hook.On(
+			func(next ent.Mutator) ent.Mutator {
+				return hook.ProblemCaseFunc(func(ctx context.Context, m *gen.ProblemCaseMutation) (ent.Value, error) {
+					isAuto, isAutoOk := m.IsAuto()
+					point, pointOk := m.Point()
+					if isAutoOk && pointOk && !isAuto && point == 0 {
+						return nil, fmt.Errorf("refuse to set point to 0 and isAuto to false at the same time")
+					}
+					return next.Mutate(ctx, m)
+				})
+			},
+			ent.OpCreate|ent.OpUpdate|ent.OpUpdateOne,
+		),
 	}
 }

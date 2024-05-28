@@ -162,7 +162,7 @@ func getIP() (string, error) {
 	for _, address := range adds {
 		if aspnet, ok := address.(*net.IPNet); !(!ok || aspnet.IP.IsLoopback()) {
 			// Get the first IPv4 starting with 10
-			if aspnet.IP.To4() != nil && aspnet.IP.To4()[0] == 10 {
+			if aspnet.IP.To4() != nil && aspnet.IP.To4()[0] == 192 {
 				return aspnet.IP.String(), nil
 			}
 		}

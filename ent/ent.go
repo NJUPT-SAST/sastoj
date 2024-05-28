@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
@@ -81,6 +82,7 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			contest.Table:        contest.ValidColumn,
+			contestresult.Table:  contestresult.ValidColumn,
 			group.Table:          group.ValidColumn,
 			loginsession.Table:   loginsession.ValidColumn,
 			problem.Table:        problem.ValidColumn,

@@ -114,12 +114,69 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 		return util.JudgeConfig{}, err
 	}
 
+	// handle files
+	dir, err := os.ReadDir(location + "config")
+	if err != nil {
+		return util.JudgeConfig{}, err
+	}
+	for _, file := range dir {
+		if file.IsDir() {
+			//os.Mkdir(location + "testdata", os.ModePerm)
+			err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
+			if err != nil {
+				return util.JudgeConfig{}, err
+			}
+			err = os.RemoveAll(location + "config")
+			if err != nil {
+				return util.JudgeConfig{}, err
+			}
+		}
+	}
+
 	// unmarshal toml
 	tomlText, err := os.ReadFile(location + "testdata" + "/" + "config.toml")
 	if err != nil {
 		return util.JudgeConfig{}, err
 	}
 	config, err := util.UnmarshalToml(tomlText)
+	if err != nil {
+		return util.JudgeConfig{}, err
+	}
+
+	// crlf to lf
+	caseNum := len(config.Task.Cases)
+	type Empty interface{}
+	var empty Empty
+	sem := make(chan Empty, caseNum)
+	for i := 0; i < len(config.Task.Cases); i++ {
+		go func(i int) {
+			in, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".in")
+			if err != nil {
+				return
+			}
+			out, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".out")
+			if err != nil {
+				return
+			}
+			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".in", []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
+			if err != nil {
+				sem <- empty
+				return
+			}
+			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".out", []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
+			if err != nil {
+				sem <- empty
+				return
+			}
+			sem <- empty
+		}(i)
+	}
+	for i := 0; i < len(config.Task.Cases); i++ {
+		<-sem
+	}
+
+	// compressed
+	err = archiver.Archive([]string{location + "testdata"}, location+"/"+"testdata.tar.zst")
 	if err != nil {
 		return util.JudgeConfig{}, err
 	}

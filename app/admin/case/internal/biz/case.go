@@ -89,8 +89,8 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 	switch config.Judge.JudgeType {
 	case "classic":
 		{
-			if config.Judge.TaskType == "simple" {
-				for _, c := range config.Judge.Cases {
+			if config.Task.TaskType == "simple" {
+				for _, c := range config.Task.Cases {
 					index, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
 					if err != nil {
 						return nil, err
@@ -98,7 +98,7 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 					if c.Score == 0 {
 						cases = append(cases, &Case{
 							ProblemId: problemId,
-							Point:     int32(config.Score / int16(len(config.Judge.Cases))),
+							Point:     int32(config.Score / int16(len(config.Task.Cases))),
 							Index:     int32(index),
 							IsAuto:    true,
 						})

@@ -3,7 +3,8 @@ syntax = "proto3";
 package api.sastoj.admin.user.service.v1;
 
 import "google/api/annotations.proto";
-
+import "errors/errors.proto";
+import "validate/validate.proto";
 option go_package = "sastoj/api/sastoj/admin/user/service/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.user.service.v1";
@@ -11,50 +12,62 @@ option java_package = "api.sastoj.admin.user.service.v1";
 service User {
 	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
 		option (google.api.http) = {
-			post: "/user"
+			post: "/users"
 			body: "*"
 		};
 	};
 	rpc BatchCreateUser ( BatchCreateUserRequest) returns (BatchCreateUserReply) {
 		option (google.api.http) = {
-			post: "/users"
+			post: "/users/batch"
 			body: "*"
 		};
 	};
 	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply){
 		option (google.api.http) = {
-			put: "/user"
+			put: "/users"
 			body: "*"
 		};
 	}
 	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply){
 		option (google.api.http) = {
-			delete: "/user/{id}"
+			delete: "/users/{id}"
 		};
 	}
 	rpc GetUser (GetUserRequest) returns (GetUserReply){
 		option (google.api.http) = {
-			get: "/user/{id}"
+			get: "/users/{id}"
 		};
 	}
 	rpc ListUser (ListUserRequest) returns (ListUserReply){
 		option (google.api.http) = {
-			get: "/user"
+			get: "/users"
 		};
 	}
 }
+enum ErrorReason {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
 
+	// 为某个枚举单独设置错误码
+	SERVER_ERROR = 0 [(errors.code) = 500];
+	INVALID_ARGUMENT = 1 [(errors.code) = 400];
+	CONTENT_MISSING = 2 [(errors.code) = 400];
+
+	USER_NOT_FOUND = 3 [(errors.code) = 404];
+	USER_EXISTED = 5 [(errors.code) = 400];
+
+}
 message CreateUserRequest {
 	string username = 1;
 	string password = 2;
-	int64 group_id = 3;
+	int64 group_id = 3[(validate.rules).int64 = {gt: -1}];
 }
 message CreateUserReply {
 	int64 id = 1;
 }
 message BatchCreateUserRequest {
 	int64 group_id = 1;
-	int64 number = 2;
+	int64 number = 2 [(validate.rules).int64 = {gt: 0}];
 }
 message BatchCreateUserReply {
 	message User {

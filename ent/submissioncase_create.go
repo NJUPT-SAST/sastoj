@@ -10,6 +10,7 @@ import (
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -19,6 +20,7 @@ type SubmissionCaseCreate struct {
 	config
 	mutation *SubmissionCaseMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetState sets the "state" field.
@@ -194,6 +196,7 @@ func (scc *SubmissionCaseCreate) createSpec() (*SubmissionCase, *sqlgraph.Create
 		_node = &SubmissionCase{config: scc.config}
 		_spec = sqlgraph.NewCreateSpec(submissioncase.Table, sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64))
 	)
+	_spec.OnConflict = scc.conflict
 	if id, ok := scc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -255,11 +258,376 @@ func (scc *SubmissionCaseCreate) createSpec() (*SubmissionCase, *sqlgraph.Create
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SubmissionCase.Create().
+//		SetState(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SubmissionCaseUpsert) {
+//			SetState(v+v).
+//		}).
+//		Exec(ctx)
+func (scc *SubmissionCaseCreate) OnConflict(opts ...sql.ConflictOption) *SubmissionCaseUpsertOne {
+	scc.conflict = opts
+	return &SubmissionCaseUpsertOne{
+		create: scc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (scc *SubmissionCaseCreate) OnConflictColumns(columns ...string) *SubmissionCaseUpsertOne {
+	scc.conflict = append(scc.conflict, sql.ConflictColumns(columns...))
+	return &SubmissionCaseUpsertOne{
+		create: scc,
+	}
+}
+
+type (
+	// SubmissionCaseUpsertOne is the builder for "upsert"-ing
+	//  one SubmissionCase node.
+	SubmissionCaseUpsertOne struct {
+		create *SubmissionCaseCreate
+	}
+
+	// SubmissionCaseUpsert is the "OnConflict" setter.
+	SubmissionCaseUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetState sets the "state" field.
+func (u *SubmissionCaseUpsert) SetState(v int16) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldState, v)
+	return u
+}
+
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateState() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldState)
+	return u
+}
+
+// AddState adds v to the "state" field.
+func (u *SubmissionCaseUpsert) AddState(v int16) *SubmissionCaseUpsert {
+	u.Add(submissioncase.FieldState, v)
+	return u
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionCaseUpsert) SetPoint(v int16) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldPoint, v)
+	return u
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdatePoint() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldPoint)
+	return u
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionCaseUpsert) AddPoint(v int16) *SubmissionCaseUpsert {
+	u.Add(submissioncase.FieldPoint, v)
+	return u
+}
+
+// SetMessage sets the "message" field.
+func (u *SubmissionCaseUpsert) SetMessage(v string) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldMessage, v)
+	return u
+}
+
+// UpdateMessage sets the "message" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateMessage() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldMessage)
+	return u
+}
+
+// SetTime sets the "time" field.
+func (u *SubmissionCaseUpsert) SetTime(v int32) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldTime, v)
+	return u
+}
+
+// UpdateTime sets the "time" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateTime() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldTime)
+	return u
+}
+
+// AddTime adds v to the "time" field.
+func (u *SubmissionCaseUpsert) AddTime(v int32) *SubmissionCaseUpsert {
+	u.Add(submissioncase.FieldTime, v)
+	return u
+}
+
+// SetMemory sets the "memory" field.
+func (u *SubmissionCaseUpsert) SetMemory(v int32) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldMemory, v)
+	return u
+}
+
+// UpdateMemory sets the "memory" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateMemory() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldMemory)
+	return u
+}
+
+// AddMemory adds v to the "memory" field.
+func (u *SubmissionCaseUpsert) AddMemory(v int32) *SubmissionCaseUpsert {
+	u.Add(submissioncase.FieldMemory, v)
+	return u
+}
+
+// SetSubmissionID sets the "submission_id" field.
+func (u *SubmissionCaseUpsert) SetSubmissionID(v int64) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldSubmissionID, v)
+	return u
+}
+
+// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateSubmissionID() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldSubmissionID)
+	return u
+}
+
+// SetProblemCaseID sets the "problem_case_id" field.
+func (u *SubmissionCaseUpsert) SetProblemCaseID(v int64) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldProblemCaseID, v)
+	return u
+}
+
+// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateProblemCaseID() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldProblemCaseID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submissioncase.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SubmissionCaseUpsertOne) UpdateNewValues() *SubmissionCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(submissioncase.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *SubmissionCaseUpsertOne) Ignore() *SubmissionCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SubmissionCaseUpsertOne) DoNothing() *SubmissionCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SubmissionCaseCreate.OnConflict
+// documentation for more info.
+func (u *SubmissionCaseUpsertOne) Update(set func(*SubmissionCaseUpsert)) *SubmissionCaseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SubmissionCaseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetState sets the "state" field.
+func (u *SubmissionCaseUpsertOne) SetState(v int16) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetState(v)
+	})
+}
+
+// AddState adds v to the "state" field.
+func (u *SubmissionCaseUpsertOne) AddState(v int16) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddState(v)
+	})
+}
+
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateState() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateState()
+	})
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionCaseUpsertOne) SetPoint(v int16) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionCaseUpsertOne) AddPoint(v int16) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdatePoint() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetMessage sets the "message" field.
+func (u *SubmissionCaseUpsertOne) SetMessage(v string) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetMessage(v)
+	})
+}
+
+// UpdateMessage sets the "message" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateMessage() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateMessage()
+	})
+}
+
+// SetTime sets the "time" field.
+func (u *SubmissionCaseUpsertOne) SetTime(v int32) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetTime(v)
+	})
+}
+
+// AddTime adds v to the "time" field.
+func (u *SubmissionCaseUpsertOne) AddTime(v int32) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddTime(v)
+	})
+}
+
+// UpdateTime sets the "time" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateTime() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateTime()
+	})
+}
+
+// SetMemory sets the "memory" field.
+func (u *SubmissionCaseUpsertOne) SetMemory(v int32) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetMemory(v)
+	})
+}
+
+// AddMemory adds v to the "memory" field.
+func (u *SubmissionCaseUpsertOne) AddMemory(v int32) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddMemory(v)
+	})
+}
+
+// UpdateMemory sets the "memory" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateMemory() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateMemory()
+	})
+}
+
+// SetSubmissionID sets the "submission_id" field.
+func (u *SubmissionCaseUpsertOne) SetSubmissionID(v int64) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetSubmissionID(v)
+	})
+}
+
+// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateSubmissionID() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateSubmissionID()
+	})
+}
+
+// SetProblemCaseID sets the "problem_case_id" field.
+func (u *SubmissionCaseUpsertOne) SetProblemCaseID(v int64) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetProblemCaseID(v)
+	})
+}
+
+// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateProblemCaseID() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateProblemCaseID()
+	})
+}
+
+// Exec executes the query.
+func (u *SubmissionCaseUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SubmissionCaseCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SubmissionCaseUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *SubmissionCaseUpsertOne) ID(ctx context.Context) (id int64, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *SubmissionCaseUpsertOne) IDX(ctx context.Context) int64 {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // SubmissionCaseCreateBulk is the builder for creating many SubmissionCase entities in bulk.
 type SubmissionCaseCreateBulk struct {
 	config
 	err      error
 	builders []*SubmissionCaseCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the SubmissionCase entities in the database.
@@ -288,6 +656,7 @@ func (sccb *SubmissionCaseCreateBulk) Save(ctx context.Context) ([]*SubmissionCa
 					_, err = mutators[i+1].Mutate(root, sccb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = sccb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, sccb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -338,6 +707,246 @@ func (sccb *SubmissionCaseCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (sccb *SubmissionCaseCreateBulk) ExecX(ctx context.Context) {
 	if err := sccb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SubmissionCase.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SubmissionCaseUpsert) {
+//			SetState(v+v).
+//		}).
+//		Exec(ctx)
+func (sccb *SubmissionCaseCreateBulk) OnConflict(opts ...sql.ConflictOption) *SubmissionCaseUpsertBulk {
+	sccb.conflict = opts
+	return &SubmissionCaseUpsertBulk{
+		create: sccb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (sccb *SubmissionCaseCreateBulk) OnConflictColumns(columns ...string) *SubmissionCaseUpsertBulk {
+	sccb.conflict = append(sccb.conflict, sql.ConflictColumns(columns...))
+	return &SubmissionCaseUpsertBulk{
+		create: sccb,
+	}
+}
+
+// SubmissionCaseUpsertBulk is the builder for "upsert"-ing
+// a bulk of SubmissionCase nodes.
+type SubmissionCaseUpsertBulk struct {
+	create *SubmissionCaseCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submissioncase.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SubmissionCaseUpsertBulk) UpdateNewValues() *SubmissionCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(submissioncase.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SubmissionCase.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *SubmissionCaseUpsertBulk) Ignore() *SubmissionCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SubmissionCaseUpsertBulk) DoNothing() *SubmissionCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SubmissionCaseCreateBulk.OnConflict
+// documentation for more info.
+func (u *SubmissionCaseUpsertBulk) Update(set func(*SubmissionCaseUpsert)) *SubmissionCaseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SubmissionCaseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetState sets the "state" field.
+func (u *SubmissionCaseUpsertBulk) SetState(v int16) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetState(v)
+	})
+}
+
+// AddState adds v to the "state" field.
+func (u *SubmissionCaseUpsertBulk) AddState(v int16) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddState(v)
+	})
+}
+
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateState() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateState()
+	})
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionCaseUpsertBulk) SetPoint(v int16) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionCaseUpsertBulk) AddPoint(v int16) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdatePoint() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetMessage sets the "message" field.
+func (u *SubmissionCaseUpsertBulk) SetMessage(v string) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetMessage(v)
+	})
+}
+
+// UpdateMessage sets the "message" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateMessage() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateMessage()
+	})
+}
+
+// SetTime sets the "time" field.
+func (u *SubmissionCaseUpsertBulk) SetTime(v int32) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetTime(v)
+	})
+}
+
+// AddTime adds v to the "time" field.
+func (u *SubmissionCaseUpsertBulk) AddTime(v int32) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddTime(v)
+	})
+}
+
+// UpdateTime sets the "time" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateTime() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateTime()
+	})
+}
+
+// SetMemory sets the "memory" field.
+func (u *SubmissionCaseUpsertBulk) SetMemory(v int32) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetMemory(v)
+	})
+}
+
+// AddMemory adds v to the "memory" field.
+func (u *SubmissionCaseUpsertBulk) AddMemory(v int32) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.AddMemory(v)
+	})
+}
+
+// UpdateMemory sets the "memory" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateMemory() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateMemory()
+	})
+}
+
+// SetSubmissionID sets the "submission_id" field.
+func (u *SubmissionCaseUpsertBulk) SetSubmissionID(v int64) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetSubmissionID(v)
+	})
+}
+
+// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateSubmissionID() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateSubmissionID()
+	})
+}
+
+// SetProblemCaseID sets the "problem_case_id" field.
+func (u *SubmissionCaseUpsertBulk) SetProblemCaseID(v int64) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetProblemCaseID(v)
+	})
+}
+
+// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateProblemCaseID() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateProblemCaseID()
+	})
+}
+
+// Exec executes the query.
+func (u *SubmissionCaseUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the SubmissionCaseCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SubmissionCaseCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SubmissionCaseUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

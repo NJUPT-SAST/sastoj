@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Contest is the client for interacting with the Contest builders.
 	Contest *ContestClient
+	// ContestResult is the client for interacting with the ContestResult builders.
+	ContestResult *ContestResultClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// LoginSession is the client for interacting with the LoginSession builders.
@@ -160,6 +162,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Contest = NewContestClient(tx.config)
+	tx.ContestResult = NewContestResultClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
 	tx.LoginSession = NewLoginSessionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)

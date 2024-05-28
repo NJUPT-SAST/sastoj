@@ -4,7 +4,8 @@ package api.sastoj.admin.contest;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-
+import "errors/errors.proto";
+import "validate/validate.proto";
 option go_package = "sastoj/api/sastoj/admin/contest;contest";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.contest";
@@ -45,11 +46,26 @@ service Contest {
 		};
 	}
 }
+enum ErrorReason {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
 
+	// 为某个枚举单独设置错误码
+	SERVER_ERROR = 0 [(errors.code) = 500];
+	INVALID_ARGUMENT = 1 [(errors.code) = 400];
+	CONTENT_MISSING = 2 [(errors.code) = 400];
+
+
+	CONTEST_NOT_FOUND = 3 [(errors.code) = 404];
+	CONTEST_INVALID = 4 [(errors.code) = 400];
+	CONTEST_EXISTED = 5 [(errors.code) = 400];
+
+	GROUP_NOT_FOUND = 6 [(errors.code) = 404];
+}
 message CreateContestRequest {
 	string title = 1;
 	string description = 2;
-	int32 status = 3;
+	int32 status = 3 ;
 	int32 type = 4;
 	google.protobuf.Timestamp start_time = 5;
 	google.protobuf.Timestamp end_time = 6;
@@ -86,7 +102,7 @@ message DeleteContestReply {
 }
 
 message GetContestRequest {
-	int64 id = 1;
+	int64 id = 1 ;
 }
 message GetContestReply {
 	int64 id = 1;
@@ -102,8 +118,8 @@ message GetContestReply {
 }
 
 message ListContestRequest {
-	int64 size = 1;
-	int64 current = 2;
+	int64 size = 1 [(validate.rules).int64 = {gt: -1}];
+	int64 current = 2[(validate.rules).int64 = {gt: -1}];
 }
 message ListContestReply {
 	message Contest{
@@ -124,7 +140,7 @@ message ListContestReply {
 message AddContestantsRequest {
 	int64 group_id = 1;
   int64 contest_id = 2;
-	int32 role = 3;
+	int32 role = 3 [(validate.rules).int32 =  {in: [0,1]}];
 }
 message AddContestantsReply {
 	bool success = 1;

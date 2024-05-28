@@ -28,6 +28,36 @@ var (
 		Columns:    ContestsColumns,
 		PrimaryKey: []*schema.Column{ContestsColumns[0]},
 	}
+	// ContestResultsColumns holds the columns for the "contest_results" table.
+	ContestResultsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "score", Type: field.TypeInt32},
+		{Name: "rank", Type: field.TypeInt32},
+		{Name: "score_time", Type: field.TypeInt32},
+		{Name: "penalty", Type: field.TypeInt32},
+		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
+	}
+	// ContestResultsTable holds the schema information for the "contest_results" table.
+	ContestResultsTable = &schema.Table{
+		Name:       "contest_results",
+		Columns:    ContestResultsColumns,
+		PrimaryKey: []*schema.Column{ContestResultsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "contest_results_contests_contest_results",
+				Columns:    []*schema.Column{ContestResultsColumns[5]},
+				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "contest_results_users_contest_results",
+				Columns:    []*schema.Column{ContestResultsColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
@@ -78,7 +108,9 @@ var (
 		{Name: "index", Type: field.TypeInt16},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "config", Type: field.TypeString},
+		{Name: "visibility", Type: field.TypeInt8, Default: 0},
 		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
 	ProblemsTable = &schema.Table{
@@ -88,8 +120,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "problems_contests_problems",
-				Columns:    []*schema.Column{ProblemsColumns[8]},
+				Columns:    []*schema.Column{ProblemsColumns[9]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "problems_users_owned_problems",
+				Columns:    []*schema.Column{ProblemsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -280,9 +318,35 @@ var (
 			},
 		},
 	}
+	// SubmissionContestResultsColumns holds the columns for the "submission_contest_results" table.
+	SubmissionContestResultsColumns = []*schema.Column{
+		{Name: "submission_id", Type: field.TypeInt64},
+		{Name: "contest_result_id", Type: field.TypeInt},
+	}
+	// SubmissionContestResultsTable holds the schema information for the "submission_contest_results" table.
+	SubmissionContestResultsTable = &schema.Table{
+		Name:       "submission_contest_results",
+		Columns:    SubmissionContestResultsColumns,
+		PrimaryKey: []*schema.Column{SubmissionContestResultsColumns[0], SubmissionContestResultsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "submission_contest_results_submission_id",
+				Columns:    []*schema.Column{SubmissionContestResultsColumns[0]},
+				RefColumns: []*schema.Column{SubmissionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "submission_contest_results_contest_result_id",
+				Columns:    []*schema.Column{SubmissionContestResultsColumns[1]},
+				RefColumns: []*schema.Column{ContestResultsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ContestsTable,
+		ContestResultsTable,
 		GroupsTable,
 		LoginSessionTable,
 		ProblemsTable,
@@ -293,16 +357,20 @@ var (
 		ContestContestantsTable,
 		ContestManagersTable,
 		ProblemJudgersTable,
+		SubmissionContestResultsTable,
 	}
 )
 
 func init() {
+	ContestResultsTable.ForeignKeys[0].RefTable = ContestsTable
+	ContestResultsTable.ForeignKeys[1].RefTable = UsersTable
 	GroupsTable.ForeignKeys[0].RefTable = GroupsTable
 	LoginSessionTable.ForeignKeys[0].RefTable = UsersTable
 	LoginSessionTable.Annotation = &entsql.Annotation{
 		Table: "login_session",
 	}
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
+	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
@@ -315,4 +383,6 @@ func init() {
 	ContestManagersTable.ForeignKeys[1].RefTable = GroupsTable
 	ProblemJudgersTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemJudgersTable.ForeignKeys[1].RefTable = GroupsTable
+	SubmissionContestResultsTable.ForeignKeys[0].RefTable = SubmissionsTable
+	SubmissionContestResultsTable.ForeignKeys[1].RefTable = ContestResultsTable
 }

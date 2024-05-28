@@ -84,12 +84,10 @@ func (e GroupEdges) UsersOrErr() ([]*User, error) {
 // RootGroupOrErr returns the RootGroup value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e GroupEdges) RootGroupOrErr() (*Group, error) {
-	if e.loadedTypes[4] {
-		if e.RootGroup == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: group.Label}
-		}
+	if e.RootGroup != nil {
 		return e.RootGroup, nil
+	} else if e.loadedTypes[4] {
+		return nil, &NotFoundError{label: group.Label}
 	}
 	return nil, &NotLoadedError{edge: "root_group"}
 }
