@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/go-kratos/kratos/v2/log"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"sastoj/app/user/gateway/internal/biz"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type submissionDTO struct {

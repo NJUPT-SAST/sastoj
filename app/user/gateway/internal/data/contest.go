@@ -2,8 +2,9 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/gateway/internal/biz"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type contestRepo struct {

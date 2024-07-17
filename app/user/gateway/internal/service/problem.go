@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-
 	pb "sastoj/api/sastoj/user/gateway/service/v1"
 )
 
