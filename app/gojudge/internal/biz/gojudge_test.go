@@ -11,7 +11,7 @@ import (
 )
 
 // TestHandleSubmit require start with the env: go-judge(diff languages)
-func TestGoJudge(t *testing.T) {
+func TestCGoJudge(t *testing.T) {
 	language := "C++"
 	code := "#include <iostream>\n#include <vector>\n#include <algorithm>\n int main(){int n;std::cin >> n" +
 		";std::vector<int> numbers(n);for(int i = 0; i < n; ++i) {std::cin >> numbers[i];}std::sort(numbers." +
@@ -42,6 +42,86 @@ func TestGoJudge(t *testing.T) {
 		},
 		map[string]string{
 			"default": "foo",
+		},
+		map[string]*conf.LanguageConfig{
+			"default": {
+				Compile: &conf.ExecConfig{
+					ProcLimit:      50,
+					CpuTimeLimit:   10000000000,
+					CpuRateLimit:   10000000000,
+					ClockTimeLimit: 100000000000,
+					MemoryLimit:    104857600,
+					StdoutMaxSize:  100000000,
+					StderrMaxSize:  100000000,
+				},
+				Run: &conf.ExecConfig{
+					ProcLimit:      50,
+					CpuTimeLimit:   10000000000,
+					CpuRateLimit:   10000000000,
+					ClockTimeLimit: 100000000000,
+					MemoryLimit:    104857600,
+					StdoutMaxSize:  100000000,
+					StderrMaxSize:  100000000,
+				}},
+		})
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	//compile
+	fileID, res, err := goJudge.Compile(code, language, "1")
+	if err != nil {
+		log.Errorf("failed compile file: %v  \nres :%v", err, res)
+		panic(err)
+	}
+	log.Infof("compiled fileID: %v", fileID)
+
+	//judge
+	for _, input := range inputs {
+		judge, err := goJudge.Judge(input, language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
+		if err != nil {
+			log.Errorf("failed running judge: %v", err)
+			panic(err)
+		}
+		log.Infof("judge: %v", judge)
+	}
+
+	//delete compiled file
+	err = goJudge.DeleteFile(fileID)
+	if err != nil {
+		log.Errorf("failed deleting file: %v", err)
+		panic(err)
+	}
+}
+
+// TestHandleSubmit require start with the env: go-judge(diff languages)
+func TestBashGoJudge(t *testing.T) {
+	language := "Bash"
+	code := "#!/bin/bash\n\n# Function to perform sorting\nsort_numbers() {\necho \"Enter numbers separated by spaces:\"\nread -a numbers\n\nsorted_numbers=($(for num in \"${numbers[@]}\"; do echo $num; done | sort -n))\n\necho \"Sorted numbers:\"\necho \"${sorted_numbers[@]}\"\n}\n\n# Main script execution\nsort_numbers"
+	inputs := []string{"4 1 3 2 5"}
+	endpoint := "127.0.0.1:5051"
+
+	//connect to go-judge
+	ClientConn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(endpoint),
+		grpc.WithHealthCheck(false))
+	exec := pb.NewExecutorClient(ClientConn)
+
+	commands := data.NewCommands(
+		[]string{"Bash"},
+		map[string]string{},
+		map[string]string{
+			"Bash": "/bin/bash foo.sh",
+		},
+		map[string]string{},
+		map[string]string{
+			"Bash": "foo.sh",
 		},
 		map[string]*conf.LanguageConfig{
 			"default": {

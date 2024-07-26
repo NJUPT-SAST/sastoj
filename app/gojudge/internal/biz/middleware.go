@@ -89,7 +89,7 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 		return err
 	}
 	//TODO 处理编译错误
-	fmt.Print(result)
+	fmt.Printf("TODO: handle compile result %v", result)
 
 	totalTime := uint64(0)
 	maxMemory := uint64(0)

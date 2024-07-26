@@ -36,9 +36,9 @@ type Data struct {
 
 // NewData .
 func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
-
 	logHelper := log.NewHelper(log.With(logger, "module", "data"))
 
+	logHelper.Infof("Read Go-Judge Conf Success: Endpoint=%s", c.JudgeMiddleware.Endpoint)
 	//commands to judge
 	command := NewCommands(
 		c.JudgeMiddleware.Language.Enable,
@@ -48,10 +48,19 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		c.JudgeMiddleware.Language.Target,
 		c.JudgeMiddleware.Language.ExecConfig,
 	)
-	fmt.Println("Read Command Conf Success")
+	logHelper.Infof("Read Command Conf Success")
 	for ck, cv := range command {
-		fmt.Printf("Language %v:  %v\n", ck, cv)
+		logHelper.Infof("Language=%v Config=%v", ck, cv)
 	}
+	//conn go-judge
+	ClientConn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(c.JudgeMiddleware.Endpoint),
+		grpc.WithHealthCheck(false))
+	if err != nil {
+		logHelper.Errorf("failed creating go-judge clients: %v", err)
+	}
+	exec := pbc.NewExecutorClient(ClientConn)
 
 	// conn ch by amqp
 	MqConn, err := amqp.Dial(c.Data.Mq)
@@ -62,6 +71,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		logHelper.Errorf("failed opening a channel")
 	}
+	logHelper.Infof("MQ Channel run Success: %v", ch)
 
 	// ent client
 	drv, err := sql.Open(
@@ -91,20 +101,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		logHelper.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
-
-	middle := c.JudgeMiddleware
-	logHelper.Infof("scanned judge config: judge.endpoint=%s judge.compile=%v judge.run=%v", middle.Endpoint, middle.Language.Compile, middle.Language.Run)
-
-	//conn
-	ClientConn, err := grpc.DialInsecure(
-		context.Background(),
-		grpc.WithEndpoint(middle.Endpoint),
-		grpc.WithHealthCheck(false))
-
-	if err != nil {
-		logHelper.Errorf("failed creating clients: %v", err)
-	}
-	exec := pbc.NewExecutorClient(ClientConn)
+	logHelper.Infof("Ent run Success: %v", ch)
 
 	// func tp cleanup resources
 	cleanup := func() {

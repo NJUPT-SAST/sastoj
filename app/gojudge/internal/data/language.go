@@ -32,7 +32,9 @@ func NewCommands(
 		}
 		c, ok := compile[language]
 		if !ok {
-			c = compile["default"]
+			c = ""
+			//不编译就添加文件，直接尝试运行
+			//c = compile["default"]
 		}
 		s, ok := source[language]
 		if !ok {

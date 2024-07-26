@@ -25,8 +25,12 @@ func (g *GoJudge) Compile(code string, language string, requestID string) (strin
 	if !ok {
 		return "", nil, errors.New("language not support ")
 	}
-	if command.Compile == nil && len(command.Compile) == 0 {
-		return "", nil, errors.New("language " + language + " not support compile")
+	if len(command.Compile) == 0 {
+		fileID, err := g.AddFile(command.Target, code)
+		if err != nil {
+			return "", nil, err
+		}
+		return fileID, nil, nil
 	}
 	res, err := (*g.client).Exec(context.Background(), &pb.Request{
 		RequestID: requestID,
