@@ -6,11 +6,11 @@ import (
 	"strconv"
 )
 
-type CaseManage struct {
+type FileManage struct {
 	FileLocation string
 }
 
-func (m *CaseManage) GetConfig(problemId int64) (*u.JudgeConfig, error) {
+func (m *FileManage) GetConfig(problemId int64) (*u.JudgeConfig, error) {
 	location := m.FileLocation + "/" + strconv.FormatInt(problemId, 10)
 	toml, err := os.ReadFile(location + "/testdata/config.toml")
 	if err != nil {
@@ -23,7 +23,7 @@ func (m *CaseManage) GetConfig(problemId int64) (*u.JudgeConfig, error) {
 	return &config, nil
 }
 
-func (m *CaseManage) FetchCase(problemId int64, fileIn string, fileAns string) (in []byte, ans []byte, err error) {
+func (m *FileManage) FetchCase(problemId int64, fileIn string, fileAns string) (in []byte, ans []byte, err error) {
 	location := m.FileLocation + "/" + strconv.FormatInt(problemId, 10) + "/"
 	in, err = os.ReadFile(location + "/" + fileIn)
 	ans, err = os.ReadFile(location + "/" + fileAns)

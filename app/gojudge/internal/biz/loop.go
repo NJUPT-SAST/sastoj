@@ -44,7 +44,7 @@ func StartLoopOnSubmit(log *log.Helper, ch *amqp.Channel, topic string, handle f
 		nil,
 	)
 	if err != nil {
-		log.Errorf("Go-Judge Consumer(OnSubmit) Start Failed: Failed to declare a queue: %s", err)
+		log.Errorf("Go-Middleware Consumer(OnSubmit) Start Failed: Failed to declare a queue: %s", err)
 	}
 	go func() {
 		for {
@@ -62,18 +62,18 @@ func StartLoopOnSubmit(log *log.Helper, ch *amqp.Channel, topic string, handle f
 					nil,
 				)
 				if err != nil {
-					log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed consume message: %s", err)
+					log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed consume message: %s", err)
 				}
 				for d := range messages {
 					body := d.Body
-					log.Infof("Go-Judge Consumer(OnSubmit) Received a message: %s", body)
+					log.Infof("Go-Middleware Consumer(OnSubmit) Received a message: %s", body)
 					v := &Submit{}
 					err := json.Unmarshal(body, v)
 					if err != nil {
-						log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed to de-serialise a submit: %s", err)
+						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to de-serialise a submit: %s", err)
 					}
 					if handle(v) != nil {
-						log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed to handle a submit: %s", err)
+						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to handle a submit: %s", err)
 					}
 				}
 			}
@@ -97,7 +97,7 @@ func StartLoopOnSelfTest(log *log.Helper, ch *amqp.Channel, topic string, handle
 		nil,
 	)
 	if err != nil {
-		log.Errorf("Go-Judge Consumer(OnSelfTest) Start Failed: Failed to declare a queue: %s", err)
+		log.Errorf("Go-Middleware Consumer(OnSelfTest) Start Failed: Failed to declare a queue: %s", err)
 	}
 	go func() {
 		for {
@@ -115,18 +115,18 @@ func StartLoopOnSelfTest(log *log.Helper, ch *amqp.Channel, topic string, handle
 					nil,
 				)
 				if err != nil {
-					log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed consume message: %s", err)
+					log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed consume message: %s", err)
 				}
 				for d := range messages {
 					body := d.Body
-					log.Infof("Go-Judge Consumer(OnSelfTest) Received a message: %s", body)
+					log.Infof("Go-Middleware Consumer(OnSelfTest) Received a message: %s", body)
 					v := &SelfTest{}
 					err := json.Unmarshal(body, v)
 					if err != nil {
-						log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed to de-serialise a self test: %s", err)
+						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to de-serialise a self test: %s", err)
 					}
 					if handle(v) != nil {
-						log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed to handle a self test: %s", err)
+						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to handle a self test: %s", err)
 					}
 				}
 			}

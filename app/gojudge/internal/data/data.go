@@ -27,16 +27,31 @@ var ProviderSet = wire.NewSet(NewData)
 type Data struct {
 	Ch              *amqp.Channel
 	Ent             *ent.Client
-	CaseManage      *CaseManage
-	Clients         map[string]*pbc.ExecutorClient
+	FileManage      *FileManage
+	Client          *pbc.ExecutorClient
 	Logger          *log.Helper
-	JudgeMiddleware []*conf.JudgeMiddleware
+	Commands        *Commands
+	JudgeMiddleware *conf.JudgeMiddleware
 }
 
 // NewData .
 func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 
 	logHelper := log.NewHelper(log.With(logger, "module", "data"))
+
+	//commands to judge
+	command := NewCommands(
+		c.JudgeMiddleware.Language.Enable,
+		c.JudgeMiddleware.Language.Compile,
+		c.JudgeMiddleware.Language.Run,
+		c.JudgeMiddleware.Language.Source,
+		c.JudgeMiddleware.Language.Target,
+		c.JudgeMiddleware.Language.ExecConfig,
+	)
+	fmt.Println("Read Command Conf Success")
+	for ck, cv := range command {
+		fmt.Printf("Language %v:  %v\n", ck, cv)
+	}
 
 	// conn ch by amqp
 	MqConn, err := amqp.Dial(c.Data.Mq)
@@ -77,25 +92,19 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	for _, middle := range c.JudgeMiddleware {
-		logHelper.Infof("scanned judge config: judge.type=%s judge.endpoint=%s judge.config=%v", middle.Type, middle.Endpoint, middle.Config)
-	}
+	middle := c.JudgeMiddleware
+	logHelper.Infof("scanned judge config: judge.endpoint=%s judge.compile=%v judge.run=%v", middle.Endpoint, middle.Language.Compile, middle.Language.Run)
 
 	//conn
-	clients := make(map[string]*pbc.ExecutorClient, len(c.JudgeMiddleware))
-	for _, middle := range c.JudgeMiddleware {
-		endpoint := middle.Endpoint
-		ClientConn, err := grpc.DialInsecure(
-			context.Background(),
-			grpc.WithEndpoint(endpoint),
-			grpc.WithHealthCheck(false),
-		)
-		if err != nil {
-			logHelper.Errorf("failed creating clients: %v", err)
-		}
-		exec := pbc.NewExecutorClient(ClientConn)
-		clients[endpoint] = &exec
+	ClientConn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(middle.Endpoint),
+		grpc.WithHealthCheck(false))
+
+	if err != nil {
+		logHelper.Errorf("failed creating clients: %v", err)
 	}
+	exec := pbc.NewExecutorClient(ClientConn)
 
 	// func tp cleanup resources
 	cleanup := func() {
@@ -106,8 +115,9 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	return &Data{
 		Ch:              ch,
 		Ent:             client,
-		CaseManage:      &CaseManage{FileLocation: c.Data.Load.ProblemCasesLocation},
-		Clients:         clients,
+		FileManage:      &FileManage{FileLocation: c.Data.Load.ProblemCasesLocation},
+		Client:          &exec,
+		Commands:        &command,
 		Logger:          log.NewHelper(logger),
 		JudgeMiddleware: c.JudgeMiddleware,
 	}, cleanup, nil
