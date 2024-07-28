@@ -98,6 +98,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 					SetMemory(int32(result.Memory)).
 					SetTime(int32(result.RunTime)).
 					SetMessage(string(msg)).
+					SetPoint(c.Score).
 					SetState(state)
 				taskBuilder = append(taskBuilder, create)
 				states = append(states, state)
@@ -121,6 +122,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 				SetMemory(int32(result.Memory)).
 				SetTime(int32(result.RunTime)).
 				SetMessage(result.Status.String()).
+				SetPoint(c.Score).
 				SetState(int16(result.Status.Number()))
 			taskBuilder = append(taskBuilder, create)
 			states = append(states, state)
@@ -133,15 +135,12 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 		}
 		if res == u.Accepted {
 			score += task.Score
-			for _, builder := range taskBuilder {
-				builder.SetPoint(score) //TODO check
-				builders = append(builders, builder)
-			}
+			builders = append(builders, taskBuilder...)
 		} else {
 			for _, builder := range taskBuilder {
-				builder.SetPoint(0) //TODO check
-				builders = append(builders, builder)
+				builder.SetPoint(0)
 			}
+			builders = append(builders, taskBuilder...)
 		}
 	}
 

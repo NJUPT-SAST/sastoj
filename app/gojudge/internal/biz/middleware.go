@@ -1,8 +1,8 @@
 package biz
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -109,8 +109,9 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	fileID, result, err := m.goJudge.Compile(v.Code, v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
-			//TODO
-			fmt.Printf("TODO: Save into redis ID:%v, handle compile result %v", v.ID, result)
+			//TODO result struct
+			m.redis.Set(context.Background(), v.ID, result, 10000)
+
 		}
 		return err
 	}
@@ -123,7 +124,7 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		return err
 	}
-	//TODO
-	fmt.Printf("TODO Save into redis ID:%v,result:%v", v.ID, result)
+	//TODO result struct
+	m.redis.Set(context.Background(), v.ID, result, 10000)
 	return nil
 }
