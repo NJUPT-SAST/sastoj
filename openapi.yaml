@@ -527,61 +527,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.problem.DeleteProblemReply'
-    /user:
-        get:
-            tags:
-                - User
-            operationId: User_ListUser
-            parameters:
-                - name: size
-                  in: query
-                  schema:
-                    type: string
-                - name: current
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply'
-        put:
-            tags:
-                - User
-            operationId: User_UpdateUser
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserReply'
-        post:
-            tags:
-                - User
-            operationId: User_CreateUser
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserReply'
     /user/contests:
         get:
             tags:
@@ -791,7 +736,80 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.user.gateway.service.v1.ListRankingReply'
-    /user/{id}:
+    /users:
+        get:
+            tags:
+                - User
+            operationId: User_ListUser
+            parameters:
+                - name: size
+                  in: query
+                  schema:
+                    type: string
+                - name: current
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.ListUserReply'
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.UpdateUserReply'
+        post:
+            tags:
+                - User
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.CreateUserReply'
+    /users/batch:
+        post:
+            tags:
+                - User
+            operationId: User_BatchCreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply'
+    /users/{id}:
         get:
             tags:
                 - User
@@ -826,24 +844,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.DeleteUserReply'
-    /users:
-        post:
-            tags:
-                - User
-            operationId: User_BatchCreateUser
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.sastoj.admin.user.service.v1.BatchCreateUserReply'
 components:
     schemas:
         api.sastoj.admin.case.service.v1.Case:
@@ -1228,6 +1228,11 @@ components:
                     format: int32
                 config:
                     type: string
+                ownerId:
+                    type: string
+                visibility:
+                    type: integer
+                    format: enum
         api.sastoj.admin.problem.DeleteProblemReply:
             type: object
             properties:
@@ -1255,6 +1260,11 @@ components:
                     format: int32
                 config:
                     type: string
+                ownerId:
+                    type: string
+                visibility:
+                    type: integer
+                    format: enum
         api.sastoj.admin.problem.ListProblemReply:
             type: object
             properties:
@@ -1290,6 +1300,11 @@ components:
                     format: int32
                 config:
                     type: string
+                ownerId:
+                    type: string
+                visibility:
+                    type: integer
+                    format: enum
         api.sastoj.admin.problem.UpdateProblemReply:
             type: object
             properties:
@@ -1317,6 +1332,11 @@ components:
                     format: int32
                 config:
                     type: string
+                ownerId:
+                    type: string
+                visibility:
+                    type: integer
+                    format: enum
         api.sastoj.admin.user.service.v1.BatchCreateUserReply:
             type: object
             properties:
@@ -1542,7 +1562,8 @@ components:
                     type: integer
                     format: int32
                 penalty:
-                    type: string
+                    type: integer
+                    format: int32
                 problems:
                     type: array
                     items:
@@ -1584,8 +1605,11 @@ components:
         api.sastoj.user.contest.service.v1.User_Problem:
             type: object
             properties:
-                index:
+                problemId:
                     type: string
+                index:
+                    type: integer
+                    format: int32
                 status:
                     type: integer
                     format: int32
@@ -1595,8 +1619,9 @@ components:
                 triedCount:
                     type: integer
                     format: int32
-                totalMinutes:
-                    type: string
+                acceptTime:
+                    type: integer
+                    format: int32
         api.sastoj.user.gateway.service.v1.GetContestsReply:
             type: object
             properties:

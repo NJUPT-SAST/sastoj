@@ -3,7 +3,8 @@ syntax = "proto3";
 package api.sastoj.admin.group.service.v1;
 
 import "google/api/annotations.proto";
-
+import "errors/errors.proto";
+import "validate/validate.proto";
 option go_package = "sastoj/api/sastoj/admin/group/service/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.sastoj.admin.group.service.v1";
@@ -37,7 +38,21 @@ service Group {
     };
   };
 }
+enum ErrorReason {
+  // 设置缺省错误码
+  option (errors.default_code) = 500;
 
+  // 为某个枚举单独设置错误码
+  SERVER_ERROR = 0 [(errors.code) = 500];
+  INVALID_ARGUMENT = 1 [(errors.code) = 400];
+  CONTENT_MISSING = 2 [(errors.code) = 400];
+
+
+  GROUP_NOT_FOUND = 3 [(errors.code) = 404];
+  GROUP_INVALID = 4 [(errors.code) = 400];
+  GROUP_EXISTED = 5 [(errors.code) = 400];
+
+}
 message CreateGroupRequest {
   string name = 1;
 }
@@ -69,8 +84,8 @@ message GetGroupReply {
 }
 
 message ListGroupRequest {
-  int64 size = 1;
-  int64 current = 2;
+  int64 size = 1 [(validate.rules).int64 = {gt: -1}];
+  int64 current = 2 [(validate.rules).int64 = {gt: -1}];
 }
 message ListGroupReply {
   message Group {

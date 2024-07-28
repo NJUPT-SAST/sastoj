@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	entgo.io/ent v0.12.5
-	github.com/go-kratos/examples v0.0.0-20240421074749-ecf7a974bd79
+	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-kratos/kratos/v2 v2.7.3
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/google/uuid v1.3.0

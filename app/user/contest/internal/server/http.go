@@ -1,13 +1,12 @@
 package server
 
 import (
-	v1 "sastoj/api/sastoj/user/contest/service/v1"
-	"sastoj/app/user/contest/internal/conf"
-	"sastoj/app/user/contest/internal/service"
-
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	v1 "sastoj/api/sastoj/user/contest/service/v1"
+	"sastoj/app/user/contest/internal/conf"
+	"sastoj/app/user/contest/internal/service"
 )
 
 // NewHTTPServer new an HTTP server.

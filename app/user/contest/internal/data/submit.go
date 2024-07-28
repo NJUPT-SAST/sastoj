@@ -7,11 +7,25 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sastoj/app/user/contest/internal/biz"
+	"strconv"
 )
 
 type submitRepo struct {
 	data *Data
 	log  *log.Helper
+}
+
+func (s submitRepo) GetCases(submissionID int64, userID int64) ([]*biz.Case, error) {
+	po, err := s.data.redis.Get(context.Background(), "case:"+strconv.FormatInt(userID, 10)+":"+strconv.FormatInt(submissionID, 10)).Result()
+	if err != nil {
+		return nil, err
+	}
+	var cases []*biz.Case
+	err = json.Unmarshal([]byte(po), &cases)
+	if err != nil {
+		return nil, err
+	}
+	return cases, nil
 }
 
 func (s submitRepo) CreatePretest(ctx context.Context, p *biz.Pretest) error {
