@@ -13,12 +13,18 @@ message Bootstrap {
 message Data {
   string mq = 1;
   Database database = 2;
-  Load load = 3;
+  Redis redis = 3;
+  Load load = 4;
 }
 
 message Database {
   string driver = 1;
   string source = 2;
+}
+
+message Redis {
+  string addr = 1;
+  int32 db = 2;
 }
 
 message Load {

@@ -18,6 +18,7 @@ func (Submission) Fields() []ent.Field {
 		field.Int64("id").Unique(),
 		field.Text("code"),
 		field.Int16("status").NonNegative(),
+		field.String("compile_message"),
 		field.Int16("point").NonNegative(),
 		field.Time("create_time").Default(time.Now()),
 		field.Int32("total_time").NonNegative(),

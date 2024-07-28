@@ -20,6 +20,7 @@ func (Problem) Fields() []ent.Field {
 		field.Int16("point").NonNegative(),
 		field.Int16("case_version").Default(1),
 		field.Int16("index").Positive(),
+		field.Bool("restrict_presentation").Default(true),
 		field.Bool("is_deleted").Default(false),
 		field.String("config"),
 		field.Int64("contest_id"),

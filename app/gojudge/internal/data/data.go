@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -27,6 +28,7 @@ var ProviderSet = wire.NewSet(NewData)
 type Data struct {
 	Ch              *amqp.Channel
 	Ent             *ent.Client
+	Redis           *redis.Client
 	FileManage      *FileManage
 	Client          *pbc.ExecutorClient
 	Logger          *log.Helper
@@ -73,6 +75,16 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	}
 	logHelper.Infof("MQ Channel run Success: %v", ch)
 
+	// connect to redis
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: c.Data.Redis.Addr,
+		DB:   int(c.Data.Redis.Db),
+	})
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Errorf("failed connecting to redis: %v", err)
+		return nil, nil, err
+	}
+
 	// ent client
 	drv, err := sql.Open(
 		c.Data.Database.Driver,
@@ -101,7 +113,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		logHelper.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
-	logHelper.Infof("Ent run Success: %v", ch)
+	logHelper.Infof("ent run Success: %v", ch)
 
 	// func tp cleanup resources
 	cleanup := func() {
@@ -112,6 +124,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	return &Data{
 		Ch:              ch,
 		Ent:             client,
+		Redis:           redisClient,
 		FileManage:      &FileManage{FileLocation: c.Data.Load.ProblemCasesLocation},
 		Client:          &exec,
 		Commands:        &command,

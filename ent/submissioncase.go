@@ -52,10 +52,12 @@ type SubmissionCaseEdges struct {
 // SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionCaseEdges) SubmissionOrErr() (*Submission, error) {
-	if e.Submission != nil {
+	if e.loadedTypes[0] {
+		if e.Submission == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: submission.Label}
+		}
 		return e.Submission, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: submission.Label}
 	}
 	return nil, &NotLoadedError{edge: "submission"}
 }
@@ -63,10 +65,12 @@ func (e SubmissionCaseEdges) SubmissionOrErr() (*Submission, error) {
 // ProblemCasesOrErr returns the ProblemCases value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionCaseEdges) ProblemCasesOrErr() (*ProblemCase, error) {
-	if e.ProblemCases != nil {
+	if e.loadedTypes[1] {
+		if e.ProblemCases == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: problemcase.Label}
+		}
 		return e.ProblemCases, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: problemcase.Label}
 	}
 	return nil, &NotLoadedError{edge: "problem_cases"}
 }

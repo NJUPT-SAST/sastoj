@@ -38,6 +38,12 @@ func (sc *SubmissionCreate) SetStatus(i int16) *SubmissionCreate {
 	return sc
 }
 
+// SetCompileMessage sets the "compile_message" field.
+func (sc *SubmissionCreate) SetCompileMessage(s string) *SubmissionCreate {
+	sc.mutation.SetCompileMessage(s)
+	return sc
+}
+
 // SetPoint sets the "point" field.
 func (sc *SubmissionCreate) SetPoint(i int16) *SubmissionCreate {
 	sc.mutation.SetPoint(i)
@@ -206,6 +212,9 @@ func (sc *SubmissionCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submission.status": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.CompileMessage(); !ok {
+		return &ValidationError{Name: "compile_message", err: errors.New(`ent: missing required field "Submission.compile_message"`)}
+	}
 	if _, ok := sc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Submission.point"`)}
 	}
@@ -296,6 +305,10 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Status(); ok {
 		_spec.SetField(submission.FieldStatus, field.TypeInt16, value)
 		_node.Status = value
+	}
+	if value, ok := sc.mutation.CompileMessage(); ok {
+		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+		_node.CompileMessage = value
 	}
 	if value, ok := sc.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
@@ -466,6 +479,18 @@ func (u *SubmissionUpsert) UpdateStatus() *SubmissionUpsert {
 // AddStatus adds v to the "status" field.
 func (u *SubmissionUpsert) AddStatus(v int16) *SubmissionUpsert {
 	u.Add(submission.FieldStatus, v)
+	return u
+}
+
+// SetCompileMessage sets the "compile_message" field.
+func (u *SubmissionUpsert) SetCompileMessage(v string) *SubmissionUpsert {
+	u.Set(submission.FieldCompileMessage, v)
+	return u
+}
+
+// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCompileMessage() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCompileMessage)
 	return u
 }
 
@@ -669,6 +694,20 @@ func (u *SubmissionUpsertOne) AddStatus(v int16) *SubmissionUpsertOne {
 func (u *SubmissionUpsertOne) UpdateStatus() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetCompileMessage sets the "compile_message" field.
+func (u *SubmissionUpsertOne) SetCompileMessage(v string) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCompileMessage(v)
+	})
+}
+
+// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCompileMessage() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCompileMessage()
 	})
 }
 
@@ -1058,6 +1097,20 @@ func (u *SubmissionUpsertBulk) AddStatus(v int16) *SubmissionUpsertBulk {
 func (u *SubmissionUpsertBulk) UpdateStatus() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetCompileMessage sets the "compile_message" field.
+func (u *SubmissionUpsertBulk) SetCompileMessage(v string) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCompileMessage(v)
+	})
+}
+
+// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCompileMessage() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCompileMessage()
 	})
 }
 

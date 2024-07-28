@@ -22,6 +22,8 @@ const (
 	FieldCaseVersion = "case_version"
 	// FieldIndex holds the string denoting the index field in the database.
 	FieldIndex = "index"
+	// FieldRestrictPresentation holds the string denoting the restrict_presentation field in the database.
+	FieldRestrictPresentation = "restrict_presentation"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
 	// FieldConfig holds the string denoting the config field in the database.
@@ -87,6 +89,7 @@ var Columns = []string{
 	FieldPoint,
 	FieldCaseVersion,
 	FieldIndex,
+	FieldRestrictPresentation,
 	FieldIsDeleted,
 	FieldConfig,
 	FieldContestID,
@@ -117,6 +120,8 @@ var (
 	DefaultCaseVersion int16
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	IndexValidator func(int16) error
+	// DefaultRestrictPresentation holds the default value on creation for the "restrict_presentation" field.
+	DefaultRestrictPresentation bool
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
 	// DefaultVisibility holds the default value on creation for the "visibility" field.
@@ -154,6 +159,11 @@ func ByCaseVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByIndex orders the results by the index field.
 func ByIndex(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIndex, opts...).ToFunc()
+}
+
+// ByRestrictPresentation orders the results by the restrict_presentation field.
+func ByRestrictPresentation(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRestrictPresentation, opts...).ToFunc()
 }
 
 // ByIsDeleted orders the results by the is_deleted field.

@@ -23,6 +23,8 @@ type Submission struct {
 	Code string `json:"code,omitempty"`
 	// Status holds the value of the "status" field.
 	Status int16 `json:"status,omitempty"`
+	// CompileMessage holds the value of the "compile_message" field.
+	CompileMessage string `json:"compile_message,omitempty"`
 	// Point holds the value of the "point" field.
 	Point int16 `json:"point,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
@@ -72,10 +74,12 @@ func (e SubmissionEdges) SubmissionCasesOrErr() ([]*SubmissionCase, error) {
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionEdges) ProblemsOrErr() (*Problem, error) {
-	if e.Problems != nil {
+	if e.loadedTypes[1] {
+		if e.Problems == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: problem.Label}
+		}
 		return e.Problems, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: problem.Label}
 	}
 	return nil, &NotLoadedError{edge: "problems"}
 }
@@ -83,10 +87,12 @@ func (e SubmissionEdges) ProblemsOrErr() (*Problem, error) {
 // UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionEdges) UsersOrErr() (*User, error) {
-	if e.Users != nil {
+	if e.loadedTypes[2] {
+		if e.Users == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
 		return e.Users, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "users"}
 }
@@ -107,7 +113,7 @@ func (*Submission) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldTotalTime, submission.FieldMaxMemory, submission.FieldCaseVersion, submission.FieldProblemID, submission.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case submission.FieldCode, submission.FieldLanguage:
+		case submission.FieldCode, submission.FieldCompileMessage, submission.FieldLanguage:
 			values[i] = new(sql.NullString)
 		case submission.FieldCreateTime:
 			values[i] = new(sql.NullTime)
@@ -143,6 +149,12 @@ func (s *Submission) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				s.Status = int16(value.Int64)
+			}
+		case submission.FieldCompileMessage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field compile_message", values[i])
+			} else if value.Valid {
+				s.CompileMessage = value.String
 			}
 		case submission.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -253,6 +265,9 @@ func (s *Submission) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", s.Status))
+	builder.WriteString(", ")
+	builder.WriteString("compile_message=")
+	builder.WriteString(s.CompileMessage)
 	builder.WriteString(", ")
 	builder.WriteString("point=")
 	builder.WriteString(fmt.Sprintf("%v", s.Point))

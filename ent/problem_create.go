@@ -64,6 +64,20 @@ func (pc *ProblemCreate) SetIndex(i int16) *ProblemCreate {
 	return pc
 }
 
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (pc *ProblemCreate) SetRestrictPresentation(b bool) *ProblemCreate {
+	pc.mutation.SetRestrictPresentation(b)
+	return pc
+}
+
+// SetNillableRestrictPresentation sets the "restrict_presentation" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableRestrictPresentation(b *bool) *ProblemCreate {
+	if b != nil {
+		pc.SetRestrictPresentation(*b)
+	}
+	return pc
+}
+
 // SetIsDeleted sets the "is_deleted" field.
 func (pc *ProblemCreate) SetIsDeleted(b bool) *ProblemCreate {
 	pc.mutation.SetIsDeleted(b)
@@ -222,6 +236,10 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultCaseVersion
 		pc.mutation.SetCaseVersion(v)
 	}
+	if _, ok := pc.mutation.RestrictPresentation(); !ok {
+		v := problem.DefaultRestrictPresentation
+		pc.mutation.SetRestrictPresentation(v)
+	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		v := problem.DefaultIsDeleted
 		pc.mutation.SetIsDeleted(v)
@@ -258,6 +276,9 @@ func (pc *ProblemCreate) check() error {
 		if err := problem.IndexValidator(v); err != nil {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.RestrictPresentation(); !ok {
+		return &ValidationError{Name: "restrict_presentation", err: errors.New(`ent: missing required field "Problem.restrict_presentation"`)}
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "Problem.is_deleted"`)}
@@ -332,6 +353,10 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Index(); ok {
 		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
+	}
+	if value, ok := pc.mutation.RestrictPresentation(); ok {
+		_spec.SetField(problem.FieldRestrictPresentation, field.TypeBool, value)
+		_node.RestrictPresentation = value
 	}
 	if value, ok := pc.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)
@@ -557,6 +582,18 @@ func (u *ProblemUpsert) AddIndex(v int16) *ProblemUpsert {
 	return u
 }
 
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (u *ProblemUpsert) SetRestrictPresentation(v bool) *ProblemUpsert {
+	u.Set(problem.FieldRestrictPresentation, v)
+	return u
+}
+
+// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateRestrictPresentation() *ProblemUpsert {
+	u.SetExcluded(problem.FieldRestrictPresentation)
+	return u
+}
+
 // SetIsDeleted sets the "is_deleted" field.
 func (u *ProblemUpsert) SetIsDeleted(v bool) *ProblemUpsert {
 	u.Set(problem.FieldIsDeleted, v)
@@ -759,6 +796,20 @@ func (u *ProblemUpsertOne) AddIndex(v int16) *ProblemUpsertOne {
 func (u *ProblemUpsertOne) UpdateIndex() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIndex()
+	})
+}
+
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (u *ProblemUpsertOne) SetRestrictPresentation(v bool) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetRestrictPresentation(v)
+	})
+}
+
+// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateRestrictPresentation() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateRestrictPresentation()
 	})
 }
 
@@ -1141,6 +1192,20 @@ func (u *ProblemUpsertBulk) AddIndex(v int16) *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) UpdateIndex() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIndex()
+	})
+}
+
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (u *ProblemUpsertBulk) SetRestrictPresentation(v bool) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetRestrictPresentation(v)
+	})
+}
+
+// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateRestrictPresentation() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateRestrictPresentation()
 	})
 }
 

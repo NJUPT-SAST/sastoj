@@ -123,6 +123,20 @@ func (pu *ProblemUpdate) AddIndex(i int16) *ProblemUpdate {
 	return pu
 }
 
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (pu *ProblemUpdate) SetRestrictPresentation(b bool) *ProblemUpdate {
+	pu.mutation.SetRestrictPresentation(b)
+	return pu
+}
+
+// SetNillableRestrictPresentation sets the "restrict_presentation" field if the given value is not nil.
+func (pu *ProblemUpdate) SetNillableRestrictPresentation(b *bool) *ProblemUpdate {
+	if b != nil {
+		pu.SetRestrictPresentation(*b)
+	}
+	return pu
+}
+
 // SetIsDeleted sets the "is_deleted" field.
 func (pu *ProblemUpdate) SetIsDeleted(b bool) *ProblemUpdate {
 	pu.mutation.SetIsDeleted(b)
@@ -430,6 +444,9 @@ func (pu *ProblemUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.AddedIndex(); ok {
 		_spec.AddField(problem.FieldIndex, field.TypeInt16, value)
+	}
+	if value, ok := pu.mutation.RestrictPresentation(); ok {
+		_spec.SetField(problem.FieldRestrictPresentation, field.TypeBool, value)
 	}
 	if value, ok := pu.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)
@@ -744,6 +761,20 @@ func (puo *ProblemUpdateOne) SetNillableIndex(i *int16) *ProblemUpdateOne {
 // AddIndex adds i to the "index" field.
 func (puo *ProblemUpdateOne) AddIndex(i int16) *ProblemUpdateOne {
 	puo.mutation.AddIndex(i)
+	return puo
+}
+
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (puo *ProblemUpdateOne) SetRestrictPresentation(b bool) *ProblemUpdateOne {
+	puo.mutation.SetRestrictPresentation(b)
+	return puo
+}
+
+// SetNillableRestrictPresentation sets the "restrict_presentation" field if the given value is not nil.
+func (puo *ProblemUpdateOne) SetNillableRestrictPresentation(b *bool) *ProblemUpdateOne {
+	if b != nil {
+		puo.SetRestrictPresentation(*b)
+	}
 	return puo
 }
 
@@ -1084,6 +1115,9 @@ func (puo *ProblemUpdateOne) sqlSave(ctx context.Context) (_node *Problem, err e
 	}
 	if value, ok := puo.mutation.AddedIndex(); ok {
 		_spec.AddField(problem.FieldIndex, field.TypeInt16, value)
+	}
+	if value, ok := puo.mutation.RestrictPresentation(); ok {
+		_spec.SetField(problem.FieldRestrictPresentation, field.TypeBool, value)
 	}
 	if value, ok := puo.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)

@@ -106,6 +106,7 @@ var (
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "case_version", Type: field.TypeInt16, Default: 1},
 		{Name: "index", Type: field.TypeInt16},
+		{Name: "restrict_presentation", Type: field.TypeBool, Default: true},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "config", Type: field.TypeString},
 		{Name: "visibility", Type: field.TypeInt8, Default: 0},
@@ -120,13 +121,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "problems_contests_problems",
-				Columns:    []*schema.Column{ProblemsColumns[9]},
+				Columns:    []*schema.Column{ProblemsColumns[10]},
 				RefColumns: []*schema.Column{ContestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "problems_users_owned_problems",
-				Columns:    []*schema.Column{ProblemsColumns[10]},
+				Columns:    []*schema.Column{ProblemsColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -160,6 +161,7 @@ var (
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "status", Type: field.TypeInt16},
+		{Name: "compile_message", Type: field.TypeString},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "total_time", Type: field.TypeInt32},
@@ -177,13 +179,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "submissions_problems_submission",
-				Columns:    []*schema.Column{SubmissionsColumns[9]},
+				Columns:    []*schema.Column{SubmissionsColumns[10]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "submissions_users_submission",
-				Columns:    []*schema.Column{SubmissionsColumns[10]},
+				Columns:    []*schema.Column{SubmissionsColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

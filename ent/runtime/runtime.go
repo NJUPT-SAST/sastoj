@@ -69,12 +69,16 @@ func init() {
 	problemDescIndex := problemFields[5].Descriptor()
 	// problem.IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	problem.IndexValidator = problemDescIndex.Validators[0].(func(int16) error)
+	// problemDescRestrictPresentation is the schema descriptor for restrict_presentation field.
+	problemDescRestrictPresentation := problemFields[6].Descriptor()
+	// problem.DefaultRestrictPresentation holds the default value on creation for the restrict_presentation field.
+	problem.DefaultRestrictPresentation = problemDescRestrictPresentation.Default.(bool)
 	// problemDescIsDeleted is the schema descriptor for is_deleted field.
-	problemDescIsDeleted := problemFields[6].Descriptor()
+	problemDescIsDeleted := problemFields[7].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.
 	problem.DefaultIsDeleted = problemDescIsDeleted.Default.(bool)
 	// problemDescVisibility is the schema descriptor for visibility field.
-	problemDescVisibility := problemFields[10].Descriptor()
+	problemDescVisibility := problemFields[11].Descriptor()
 	// problem.DefaultVisibility holds the default value on creation for the visibility field.
 	problem.DefaultVisibility = problemDescVisibility.Default.(int8)
 	problemcaseHooks := schema.ProblemCase{}.Hooks()
@@ -104,23 +108,23 @@ func init() {
 	// submission.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	submission.StatusValidator = submissionDescStatus.Validators[0].(func(int16) error)
 	// submissionDescPoint is the schema descriptor for point field.
-	submissionDescPoint := submissionFields[3].Descriptor()
+	submissionDescPoint := submissionFields[4].Descriptor()
 	// submission.PointValidator is a validator for the "point" field. It is called by the builders before save.
 	submission.PointValidator = submissionDescPoint.Validators[0].(func(int16) error)
 	// submissionDescCreateTime is the schema descriptor for create_time field.
-	submissionDescCreateTime := submissionFields[4].Descriptor()
+	submissionDescCreateTime := submissionFields[5].Descriptor()
 	// submission.DefaultCreateTime holds the default value on creation for the create_time field.
 	submission.DefaultCreateTime = submissionDescCreateTime.Default.(time.Time)
 	// submissionDescTotalTime is the schema descriptor for total_time field.
-	submissionDescTotalTime := submissionFields[5].Descriptor()
+	submissionDescTotalTime := submissionFields[6].Descriptor()
 	// submission.TotalTimeValidator is a validator for the "total_time" field. It is called by the builders before save.
 	submission.TotalTimeValidator = submissionDescTotalTime.Validators[0].(func(int32) error)
 	// submissionDescMaxMemory is the schema descriptor for max_memory field.
-	submissionDescMaxMemory := submissionFields[6].Descriptor()
+	submissionDescMaxMemory := submissionFields[7].Descriptor()
 	// submission.MaxMemoryValidator is a validator for the "max_memory" field. It is called by the builders before save.
 	submission.MaxMemoryValidator = submissionDescMaxMemory.Validators[0].(func(int32) error)
 	// submissionDescCaseVersion is the schema descriptor for case_version field.
-	submissionDescCaseVersion := submissionFields[8].Descriptor()
+	submissionDescCaseVersion := submissionFields[9].Descriptor()
 	// submission.CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
 	submission.CaseVersionValidator = submissionDescCaseVersion.Validators[0].(func(int8) error)
 	submissioncaseFields := schema.SubmissionCase{}.Fields()
@@ -154,6 +158,6 @@ func init() {
 }
 
 const (
-	Version = "v0.13.1"                                         // Version of ent codegen.
-	Sum     = "h1:uD8QwN1h6SNphdCCzmkMN3feSUzNnVvV/WIkHKMbzOE=" // Sum of ent codegen.
+	Version = "v0.12.5"                                         // Version of ent codegen.
+	Sum     = "h1:KREM5E4CSoej4zeGa88Ou/gfturAnpUv0mzAjch1sj4=" // Sum of ent codegen.
 )

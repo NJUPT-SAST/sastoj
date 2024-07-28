@@ -18,6 +18,8 @@ const (
 	FieldCode = "code"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldCompileMessage holds the string denoting the compile_message field in the database.
+	FieldCompileMessage = "compile_message"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
@@ -77,6 +79,7 @@ var Columns = []string{
 	FieldID,
 	FieldCode,
 	FieldStatus,
+	FieldCompileMessage,
 	FieldPoint,
 	FieldCreateTime,
 	FieldTotalTime,
@@ -134,6 +137,11 @@ func ByCode(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByCompileMessage orders the results by the compile_message field.
+func ByCompileMessage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompileMessage, opts...).ToFunc()
 }
 
 // ByPoint orders the results by the point field.

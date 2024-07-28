@@ -61,7 +61,7 @@ func (g *GoJudge) Compile(code string, language string, requestID string) (strin
 			},
 		},
 	})
-	result, err := handleExecError(res, err)
+	result, err := handleExecError(requestID, res, err)
 	if err != nil {
 		return "", result, err
 	}
@@ -96,7 +96,7 @@ func (g *GoJudge) Judge(input string, language string, targetID string, requestI
 			},
 		},
 	})
-	result, err := handleExecError(res, err)
+	result, err := handleExecError(requestID, res, err)
 	if err != nil {
 		return nil, err
 	}
@@ -121,23 +121,23 @@ func (g *GoJudge) DeleteFile(fileID string) error {
 	return err
 }
 
-func handleExecError(response *pb.Response, err error) (*pb.Response_Result, error) {
+func handleExecError(requestID string, response *pb.Response, err error) (*pb.Response_Result, error) {
 	if err != nil {
 		return nil, err
 	}
 	result := response.Results[0]
 	if result.Error != "" {
-		return result, errors.New(result.Error)
+		return result, errors.New("request=" + requestID + ": " + result.Error)
 	}
 	if result.FileError != nil {
-		message := ""
+		message := "request=" + requestID + ":\n"
 		for _, fileError := range result.FileError {
-			message += "file error: " + fileError.Message + ", "
+			message += "file error: " + fileError.Message + ",\n"
 		}
 		return result, errors.New(message)
 	}
 	if result.ExitStatus != 0 {
-		return result, errors.New("error exit status " + strconv.Itoa(int(result.ExitStatus)))
+		return result, errors.New("request=" + requestID + ": error exit status " + strconv.Itoa(int(result.ExitStatus)))
 	}
 	return result, nil
 }

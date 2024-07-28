@@ -67,6 +67,20 @@ func (su *SubmissionUpdate) AddStatus(i int16) *SubmissionUpdate {
 	return su
 }
 
+// SetCompileMessage sets the "compile_message" field.
+func (su *SubmissionUpdate) SetCompileMessage(s string) *SubmissionUpdate {
+	su.mutation.SetCompileMessage(s)
+	return su
+}
+
+// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
+func (su *SubmissionUpdate) SetNillableCompileMessage(s *string) *SubmissionUpdate {
+	if s != nil {
+		su.SetCompileMessage(*s)
+	}
+	return su
+}
+
 // SetPoint sets the "point" field.
 func (su *SubmissionUpdate) SetPoint(i int16) *SubmissionUpdate {
 	su.mutation.ResetPoint()
@@ -402,6 +416,9 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.AddedStatus(); ok {
 		_spec.AddField(submission.FieldStatus, field.TypeInt16, value)
 	}
+	if value, ok := su.mutation.CompileMessage(); ok {
+		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+	}
 	if value, ok := su.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
 	}
@@ -632,6 +649,20 @@ func (suo *SubmissionUpdateOne) SetNillableStatus(i *int16) *SubmissionUpdateOne
 // AddStatus adds i to the "status" field.
 func (suo *SubmissionUpdateOne) AddStatus(i int16) *SubmissionUpdateOne {
 	suo.mutation.AddStatus(i)
+	return suo
+}
+
+// SetCompileMessage sets the "compile_message" field.
+func (suo *SubmissionUpdateOne) SetCompileMessage(s string) *SubmissionUpdateOne {
+	suo.mutation.SetCompileMessage(s)
+	return suo
+}
+
+// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
+func (suo *SubmissionUpdateOne) SetNillableCompileMessage(s *string) *SubmissionUpdateOne {
+	if s != nil {
+		suo.SetCompileMessage(*s)
+	}
 	return suo
 }
 
@@ -999,6 +1030,9 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 	}
 	if value, ok := suo.mutation.AddedStatus(); ok {
 		_spec.AddField(submission.FieldStatus, field.TypeInt16, value)
+	}
+	if value, ok := suo.mutation.CompileMessage(); ok {
+		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)

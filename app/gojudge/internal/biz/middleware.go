@@ -1,14 +1,14 @@
 package biz
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/ent"
-	"sastoj/ent/problem"
-	"slices"
 )
 
 const (
@@ -18,26 +18,33 @@ const (
 	selfTest = "self-test"
 )
 
+type Judge interface {
+	handleSubmit(v *Submit) error
+	handleSelfTest(v *SelfTest) error
+}
+
 // Middleware is a Client for a single go-judge
 type Middleware struct {
-	Ch         *amqp.Channel
-	Ent        *ent.Client
-	FileManage *data.FileManage
+	ch         *amqp.Channel
+	ent        *ent.Client
+	redis      *redis.Client
+	fileManage *data.FileManage
 	goJudge    *GoJudge
-	Logger     *log.Helper
+	logger     *log.Helper
 	close      []func()
 }
 
 func NewMiddleware(data *data.Data) *Middleware {
 	return &Middleware{
-		Ch:         data.Ch,
-		Ent:        data.Ent,
-		FileManage: data.FileManage,
+		ch:         data.Ch,
+		ent:        data.Ent,
+		fileManage: data.FileManage,
+		redis:      data.Redis,
 		goJudge: &GoJudge{
 			client:   data.Client,
 			commands: data.Commands,
 		},
-		Logger: data.Logger,
+		logger: data.Logger,
 		close:  []func(){},
 	}
 }
@@ -48,12 +55,12 @@ func (m *Middleware) Start() {
 }
 
 func (m *Middleware) StartLoopOnSubmit() {
-	c := StartLoopOnSubmit(m.Logger, m.Ch, submit, m.handleSubmit)
+	c := StartLoopOnSubmit(m.logger, m.ch, submit, m.handleSubmit)
 	m.close = append(m.close, c)
 }
 
 func (m *Middleware) StartLoopOnSelfTest() {
-	c := StartLoopOnSelfTest(m.Logger, m.Ch, selfTest, m.handleSelfTest)
+	c := StartLoopOnSelfTest(m.logger, m.ch, selfTest, m.handleSelfTest)
 	m.close = append(m.close, c)
 }
 
@@ -69,129 +76,54 @@ func (m *Middleware) Close() {
 // 2. get in-out by problem-id and case-id
 // 3. judge each case-submission and save, then create submission and save
 func (m *Middleware) handleSubmit(v *Submit) error {
-
-	//cache and refresh config by problem-id
-	config, err := m.FileManage.GetConfig(v.ProblemID)
+	config, err := m.fileManage.GetConfig(v.ProblemID)
 	if err != nil {
 		return err
 	}
-	//get problem from ent
-	pro, err := m.Ent.Problem.Query().
-		Where(problem.ID(v.ProblemID)).
-		First(context.Background())
-	if err != nil {
-		return err
-	}
-	//compile submit
-	fileID, result, err := m.goJudge.Compile(v.Code, v.Language, "")
-	if err != nil {
-		//compile err
-		return err
-	}
-	//TODO 处理编译错误
-	fmt.Printf("TODO: handle compile result %v", result)
-
-	totalTime := uint64(0)
-	maxMemory := uint64(0)
-	score := 0
-	var builder []*ent.SubmissionCaseCreate
-
-	//test each case
-	for index, c := range config.Task.Cases {
-		in, ans, err := m.FileManage.FetchCase(v.ProblemID, c.Input, c.Answer)
-		if err != nil {
-			_ = m.goJudge.DeleteFile(fileID)
-			return err
-		}
-		result, err := m.goJudge.Judge(string(in), v.Language, fileID, "", uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
-		if err != nil {
-			_ = m.goJudge.DeleteFile(fileID)
-			return err
-		}
-		//non-Accept
-		if result.Status.Number() != 1 || !slices.Equal(result.Files["stdout"], ans) {
-			//get problem cases ID
-			var problemCasesID int64
-			for _, problemCase := range pro.Edges.ProblemCases {
-				if problemCase.Index == int16(index) {
-					problemCasesID = problemCase.ID
-				}
+	switch config.Judge.JudgeType {
+	case "classic":
+		switch config.Task.TaskType {
+		case "simple":
+			simple := Simple{
+				middleware: m,
+				config:     config,
 			}
-			create := m.Ent.SubmissionCase.Create().
-				SetProblemCasesID(problemCasesID).
-				SetMemory(int32(result.Memory)).
-				SetTime(int32(result.RunTime)).
-				SetMessage(result.Status.String()).
-				SetState(int16(result.Status.Number())).
-				SetPoint(0)
-			builder = append(builder, create)
-			break
-		}
-
-		//Accept
-		totalTime += result.RunTime
-		if maxMemory < result.Memory {
-			maxMemory = result.Memory
-		}
-		score += int(v.Point)
-
-		//get problem cases ID
-		var problemCasesID int64
-		for _, problemCase := range pro.Edges.ProblemCases {
-			if problemCase.Index == int16(index) {
-				problemCasesID = problemCase.ID
+			return simple.handleSubmit(v)
+		case "subtasks":
+			subtasks := Subtasks{
+				middleware: m,
+				config:     config,
 			}
+			return subtasks.handleSubmit(v)
 		}
-
-		//gen builder
-		create := m.Ent.SubmissionCase.Create().
-			SetProblemCasesID(problemCasesID).
-			SetMemory(int32(result.Memory)).
-			SetTime(int32(result.RunTime)).
-			SetMessage(result.Status.String()).
-			SetState(int16(result.Status.Number())).
-			SetPoint(v.Point)
-		builder = append(builder, create)
 	}
-	err = m.goJudge.DeleteFile(fileID)
-	if err != nil {
-		return err
-	}
-	//Save into database
-
-	cases, err := m.Ent.SubmissionCase.CreateBulk(builder...).Save(context.Background())
-	if err != nil {
-		return err
-	}
-	var ids []int64
-	for _, ca := range cases {
-		ids = append(ids, ca.ID)
-	}
-
-	err = m.Ent.Submission.Create().
-		SetCaseVersion(int8(pro.CaseVersion)).
-		SetUsersID(v.UserID).
-		SetCode(v.Code).
-		SetLanguage(v.Language).
-		SetPoint(int16(score)).
-		SetStatus(1).
-		SetCreateTime(v.CreateTime).
-		SetTotalTime(int32(totalTime)).
-		SetMaxMemory(int32(maxMemory)).
-		SetProblemsID(v.ProblemID).
-		AddSubmissionCaseIDs(ids...).
-		Exec(context.Background())
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.New("invalid judge type")
 }
 
 // handleSubmit process the self-test
 // 1. compile submission
 // 2. judge each case-submission and save as self-test
 func (m *Middleware) handleSelfTest(v *SelfTest) error {
-	//TODO self-test
+	commands := *m.goJudge.commands
+	testConfig := commands["test"]
+	fileID, result, err := m.goJudge.Compile(v.Code, v.Language, uuid.NewString())
+	if err != nil {
+		if result != nil {
+			//TODO
+			fmt.Printf("TODO: Save into redis ID:%v, handle compile result %v", v.ID, result)
+		}
+		return err
+	}
+	result, err = m.goJudge.Judge(v.Input, v.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
+	if err != nil {
+		_ = m.goJudge.DeleteFile(fileID)
+		return err
+	}
+	err = m.goJudge.DeleteFile(fileID)
+	if err != nil {
+		return err
+	}
+	//TODO
+	fmt.Printf("TODO Save into redis ID:%v,result:%v", v.ID, result)
 	return nil
 }
