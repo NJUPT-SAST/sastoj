@@ -52,9 +52,9 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		c.JudgeMiddleware.Language.ExecConfig,
 	)
 	logHelper.Infof("Read Command Conf Success")
-	for ck, cv := range command {
-		logHelper.Infof("Language=%v Config=%v", ck, cv)
-	}
+	//for ck, cv := range command {
+	//	logHelper.Infof("Language=%v Config=%v", ck, cv)
+	//}
 	//conn go-judge
 	ClientConn, err := grpc.DialInsecure(
 		context.Background(),
