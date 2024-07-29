@@ -5,7 +5,6 @@ import (
 	"errors"
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/data"
-	"strconv"
 )
 
 type GoJudge struct {
@@ -135,9 +134,6 @@ func handleExecError(requestID string, response *pb.Response, err error) (*pb.Re
 			message += "file error: " + fileError.Message + ",\n"
 		}
 		return result, errors.New(message)
-	}
-	if result.ExitStatus != 0 {
-		return result, errors.New("request=" + requestID + ": error exit status " + strconv.Itoa(int(result.ExitStatus)))
 	}
 	return result, nil
 }

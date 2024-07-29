@@ -26,6 +26,7 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	//get problem from ent
 	pro, err := s.middleware.ent.Problem.Query().
 		Where(problem.ID(v.ProblemID)).
+		WithProblemCases().
 		First(context.Background())
 	if err != nil {
 		return err
@@ -35,26 +36,33 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	fileID, result, err := s.middleware.goJudge.Compile(v.Code, v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
-			err = s.middleware.ent.Submission.Create().
+			create := s.middleware.ent.Submission.Create().
 				SetCaseVersion(int8(pro.CaseVersion)).
 				SetUsersID(v.UserID).
 				SetCode(v.Code).
 				SetLanguage(v.Language).
 				SetPoint(0).
-				SetCompileMessage(string(result.Files["stderr"])).
+				SetStatus(u.CompileError).
 				SetCreateTime(v.CreateTime).
-				SetProblemsID(v.ProblemID).
-				Exec(context.Background())
+				SetTotalTime(0).
+				SetMaxMemory(0).
+				SetProblemsID(v.ProblemID)
+			compileError, ok := result.Files["stderr"]
+			if !ok {
+				create.SetCompileMessage("Compile error")
+			} else {
+				create.SetCompileMessage(string(compileError))
+			}
+			err = create.Exec(context.Background())
 		}
 		return err
 	}
 
-	//TODO gen case task and score
-
 	var totalTime uint64 = 0
 	var maxMemory uint64 = 0
 	var score int16 = 0
-	var builder []*ent.SubmissionCaseCreate
+	var status int16 = u.Accepted
+	var builders = make([]*ent.SubmissionCaseCreate, 0)
 
 	//test each case
 	for index, c := range s.config.Task.Cases {
@@ -84,6 +92,9 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		}
 
 		if state != u.Accepted {
+			if status == u.Accepted {
+				status = state
+			}
 			//get problem cases ID
 			var problemCasesID int64
 			for _, problemCase := range pro.Edges.ProblemCases {
@@ -91,17 +102,21 @@ func (s *Simple) handleSubmit(v *Submit) error {
 					problemCasesID = problemCase.ID
 				}
 			}
-			msg := result.Files["stderr"]
 			create := s.middleware.ent.SubmissionCase.Create().
 				SetProblemCasesID(problemCasesID).
 				SetMemory(int32(result.Memory)).
 				SetTime(int32(result.RunTime)).
-				SetMessage(string(msg)).
 				SetState(state).
 				SetPoint(0)
-			builder = append(builder, create)
-			//TODO if oi continue
-			break
+			msg, ok := result.Files["stderr"]
+			if ok {
+				create.SetMessage(string(msg))
+			} else {
+				create.SetMessage(result.Error)
+			}
+			builders = append(builders, create)
+			//TODO if oi break
+			continue
 		}
 
 		//Accept
@@ -125,9 +140,9 @@ func (s *Simple) handleSubmit(v *Submit) error {
 			SetMemory(int32(result.Memory)).
 			SetTime(int32(result.RunTime)).
 			SetMessage(result.Status.String()).
-			SetState(int16(result.Status.Number())).
+			SetState(state).
 			SetPoint(score)
-		builder = append(builder, create)
+		builders = append(builders, create)
 	}
 	err = s.middleware.goJudge.DeleteFile(fileID)
 	if err != nil {
@@ -135,29 +150,28 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	}
 	//Save into database
 
-	cases, err := s.middleware.ent.SubmissionCase.CreateBulk(builder...).Save(context.Background())
-	if err != nil {
-		return err
-	}
-	var ids []int64
-	for _, ca := range cases {
-		ids = append(ids, ca.ID)
-	}
-
-	err = s.middleware.ent.Submission.Create().
+	submission, err := s.middleware.ent.Submission.Create().
 		SetCaseVersion(int8(pro.CaseVersion)).
 		SetUsersID(v.UserID).
 		SetCode(v.Code).
 		SetLanguage(v.Language).
-		SetPoint(int16(score)).
-		SetStatus(1).
+		SetPoint(score).
+		SetStatus(status).
 		SetCreateTime(v.CreateTime).
 		SetTotalTime(int32(totalTime)).
 		SetMaxMemory(int32(maxMemory)).
+		SetCompileMessage("").
 		SetProblemsID(v.ProblemID).
-		AddSubmissionCaseIDs(ids...).
-		Exec(context.Background())
+		Save(context.Background())
 
+	if err != nil {
+		return err
+	}
+
+	for _, build := range builders {
+		build.SetSubmissionID(submission.ID)
+	}
+	_, err = s.middleware.ent.SubmissionCase.CreateBulk(builders...).Save(context.Background())
 	if err != nil {
 		return err
 	}

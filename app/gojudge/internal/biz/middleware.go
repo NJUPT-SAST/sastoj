@@ -44,7 +44,7 @@ func NewMiddleware(data *data.Data) *Middleware {
 			client:   data.Client,
 			commands: data.Commands,
 		},
-		logger: data.Logger,
+		logger: log.NewHelper(log.With(log.GetLogger(), "module", "judge-middleware")),
 		close:  []func(){},
 	}
 }
@@ -84,12 +84,55 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 	case "classic":
 		switch config.Task.TaskType {
 		case "simple":
+			sum := config.Score
+			var num int16 = 0
+			for _, c := range config.Task.Cases {
+				if c.Score == 0 {
+					num += 1
+				} else {
+					sum -= c.Score
+				}
+			}
+			if sum > 0 {
+				avg := sum / num
+				for i := range config.Task.Cases {
+					c := &config.Task.Cases[i]
+					if c.Score == 0 {
+						c.Score = avg
+					}
+				}
+			}
 			simple := Simple{
 				middleware: m,
 				config:     config,
 			}
 			return simple.handleSubmit(v)
 		case "subtasks":
+			sum := config.Score
+			var num int16 = 0
+			for _, sub := range config.Task.Subtasks {
+				if sub.Score == 0 {
+					num += 1
+				} else {
+					sum -= sub.Score
+				}
+			}
+			if sum > 0 {
+				avg := sum / num
+				for i := range config.Task.Subtasks {
+					sub := &config.Task.Subtasks[i]
+					if sub.Score == 0 {
+						sub.Score = avg
+					}
+					subAvg := sub.Score / int16(len(sub.Cases))
+					for j := range sub.Cases {
+						c := &sub.Cases[j]
+						if c.Score == 0 {
+							c.Score = subAvg
+						}
+					}
+				}
+			}
 			subtasks := Subtasks{
 				middleware: m,
 				config:     config,

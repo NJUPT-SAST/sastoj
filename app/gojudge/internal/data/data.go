@@ -4,6 +4,7 @@ import (
 	"context"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -76,44 +77,15 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	logHelper.Infof("MQ Channel run Success: %v", ch)
 
 	// connect to redis
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: c.Data.Redis.Addr,
-		DB:   int(c.Data.Redis.Db),
-	})
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
-		log.Errorf("failed connecting to redis: %v", err)
-		return nil, nil, err
-	}
-
-	// ent client
-	drv, err := sql.Open(
-		c.Data.Database.Driver,
-		c.Data.Database.Source,
-	)
-	sqlDrv := dialect.DebugWithContext(drv, func(ctx context.Context, i ...interface{}) {
-		log.WithContext(ctx, logger)
-		tracer := otel.Tracer("ent.")
-		kind := trace.SpanKindServer
-		_, span := tracer.Start(ctx,
-			"Query",
-			trace.WithAttributes(
-				attribute.String("sql", fmt.Sprint(i...)),
-			),
-			trace.WithSpanKind(kind),
-		)
-		span.End()
-	})
-	client := ent.NewClient(ent.Driver(sqlDrv))
+	redisClient, err := GenRedis(c.Data.Redis.Addr, int(c.Data.Redis.Db))
 	if err != nil {
-		logHelper.Errorf("failed opening connection to database: %v", err)
-		return nil, nil, err
+		logHelper.Errorf("failed connecting to redis: %v", err)
 	}
-	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background()); err != nil {
-		logHelper.Errorf("failed creating schema resources: %v", err)
-		return nil, nil, err
+	// ent client
+	client, err := GenEnt(c.Data.Database.Driver, c.Data.Database.Source, logger)
+	if err != nil {
+		logHelper.Errorf("failed creating ent client: %v", err)
 	}
-	logHelper.Infof("ent run Success: %v", ch)
 
 	// func tp cleanup resources
 	cleanup := func() {
@@ -131,4 +103,44 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		Logger:          log.NewHelper(logger),
 		JudgeMiddleware: c.JudgeMiddleware,
 	}, cleanup, nil
+}
+
+func GenRedis(address string, db int) (*redis.Client, error) {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: address,
+		DB:   db,
+	})
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		return nil, err
+	}
+	return redisClient, nil
+}
+
+func GenEnt(driver string, source string, logger log.Logger) (*ent.Client, error) {
+	drv, err := sql.Open(
+		driver,
+		source,
+	)
+	sqlDrv := dialect.DebugWithContext(drv, func(ctx context.Context, i ...interface{}) {
+		log.WithContext(ctx, logger)
+		tracer := otel.Tracer("ent.")
+		kind := trace.SpanKindServer
+		_, span := tracer.Start(ctx,
+			"Query",
+			trace.WithAttributes(
+				attribute.String("sql", fmt.Sprint(i...)),
+			),
+			trace.WithSpanKind(kind),
+		)
+		span.End()
+	})
+	client := ent.NewClient(ent.Driver(sqlDrv))
+	if err != nil {
+		return nil, err
+	}
+	//auto migration
+	if err := client.Schema.Create(context.Background()); err != nil {
+		return nil, errors.Join(errors.New("failed creating schema resources"), err)
+	}
+	return client, nil
 }
