@@ -107,18 +107,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int16) error
-	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int16) error
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime time.Time
-	// TotalTimeValidator is a validator for the "total_time" field. It is called by the builders before save.
-	TotalTimeValidator func(int32) error
-	// MaxMemoryValidator is a validator for the "max_memory" field. It is called by the builders before save.
-	MaxMemoryValidator func(int32) error
-	// CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	CaseVersionValidator func(int8) error
 )
 
 // OrderOption defines the ordering options for the Submission queries.

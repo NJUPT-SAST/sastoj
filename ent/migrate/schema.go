@@ -161,7 +161,7 @@ var (
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
 		{Name: "status", Type: field.TypeInt16},
-		{Name: "compile_message", Type: field.TypeString},
+		{Name: "compile_message", Type: field.TypeString, Nullable: true},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "total_time", Type: field.TypeInt32},

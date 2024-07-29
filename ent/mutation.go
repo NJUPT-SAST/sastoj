@@ -5886,9 +5886,22 @@ func (m *SubmissionMutation) OldCompileMessage(ctx context.Context) (v string, e
 	return oldValue.CompileMessage, nil
 }
 
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (m *SubmissionMutation) ClearCompileMessage() {
+	m.compile_message = nil
+	m.clearedFields[submission.FieldCompileMessage] = struct{}{}
+}
+
+// CompileMessageCleared returns if the "compile_message" field was cleared in this mutation.
+func (m *SubmissionMutation) CompileMessageCleared() bool {
+	_, ok := m.clearedFields[submission.FieldCompileMessage]
+	return ok
+}
+
 // ResetCompileMessage resets all changes to the "compile_message" field.
 func (m *SubmissionMutation) ResetCompileMessage() {
 	m.compile_message = nil
+	delete(m.clearedFields, submission.FieldCompileMessage)
 }
 
 // SetPoint sets the "point" field.
@@ -6754,7 +6767,11 @@ func (m *SubmissionMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SubmissionMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(submission.FieldCompileMessage) {
+		fields = append(fields, submission.FieldCompileMessage)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -6767,6 +6784,11 @@ func (m *SubmissionMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SubmissionMutation) ClearField(name string) error {
+	switch name {
+	case submission.FieldCompileMessage:
+		m.ClearCompileMessage()
+		return nil
+	}
 	return fmt.Errorf("unknown Submission nullable field %s", name)
 }
 

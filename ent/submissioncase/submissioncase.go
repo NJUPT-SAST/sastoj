@@ -70,17 +70,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// StateValidator is a validator for the "state" field. It is called by the builders before save.
-	StateValidator func(int16) error
-	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int16) error
-	// TimeValidator is a validator for the "time" field. It is called by the builders before save.
-	TimeValidator func(int32) error
-	// MemoryValidator is a validator for the "memory" field. It is called by the builders before save.
-	MemoryValidator func(int32) error
-)
-
 // OrderOption defines the ordering options for the SubmissionCase queries.
 type OrderOption func(*sql.Selector)
 

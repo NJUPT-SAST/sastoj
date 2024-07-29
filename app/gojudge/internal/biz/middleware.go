@@ -154,7 +154,6 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 		if result != nil {
 			//TODO result struct
 			m.redis.Set(context.Background(), v.ID, result, 10000)
-
 		}
 		return err
 	}

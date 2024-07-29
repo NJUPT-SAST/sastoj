@@ -16,6 +16,10 @@ func TestHandleSubmit(t *testing.T) {
 
 	client, err := data.GenEnt("postgres", "host=localhost port=5432 user=postgres dbname=sastoj password=123456789 sslmode=disable", log.GetLogger())
 
+	if err != nil {
+		panic(err)
+	}
+
 	language := "Bash"
 	code := "#!/bin/bash\n\n# Function to perform sorting\nsort_numbers() {\necho \"Enter numbers separated by spaces:\"\nread -a numbers\n\nsorted_numbers=($(for num in \"${numbers[@]}\"; do echo $num; done | sort -n))\n\necho \"Sorted numbers:\"\necho \"${sorted_numbers[@]}\"\n}\n\n# Main script execution\nsort_numbers"
 

@@ -44,6 +44,14 @@ func (sc *SubmissionCreate) SetCompileMessage(s string) *SubmissionCreate {
 	return sc
 }
 
+// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
+func (sc *SubmissionCreate) SetNillableCompileMessage(s *string) *SubmissionCreate {
+	if s != nil {
+		sc.SetCompileMessage(*s)
+	}
+	return sc
+}
+
 // SetPoint sets the "point" field.
 func (sc *SubmissionCreate) SetPoint(i int16) *SubmissionCreate {
 	sc.mutation.SetPoint(i)
@@ -207,21 +215,8 @@ func (sc *SubmissionCreate) check() error {
 	if _, ok := sc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Submission.status"`)}
 	}
-	if v, ok := sc.mutation.Status(); ok {
-		if err := submission.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submission.status": %w`, err)}
-		}
-	}
-	if _, ok := sc.mutation.CompileMessage(); !ok {
-		return &ValidationError{Name: "compile_message", err: errors.New(`ent: missing required field "Submission.compile_message"`)}
-	}
 	if _, ok := sc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Submission.point"`)}
-	}
-	if v, ok := sc.mutation.Point(); ok {
-		if err := submission.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Submission.point": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.CreateTime(); !ok {
 		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Submission.create_time"`)}
@@ -229,29 +224,14 @@ func (sc *SubmissionCreate) check() error {
 	if _, ok := sc.mutation.TotalTime(); !ok {
 		return &ValidationError{Name: "total_time", err: errors.New(`ent: missing required field "Submission.total_time"`)}
 	}
-	if v, ok := sc.mutation.TotalTime(); ok {
-		if err := submission.TotalTimeValidator(v); err != nil {
-			return &ValidationError{Name: "total_time", err: fmt.Errorf(`ent: validator failed for field "Submission.total_time": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.MaxMemory(); !ok {
 		return &ValidationError{Name: "max_memory", err: errors.New(`ent: missing required field "Submission.max_memory"`)}
-	}
-	if v, ok := sc.mutation.MaxMemory(); ok {
-		if err := submission.MaxMemoryValidator(v); err != nil {
-			return &ValidationError{Name: "max_memory", err: fmt.Errorf(`ent: validator failed for field "Submission.max_memory": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.Language(); !ok {
 		return &ValidationError{Name: "language", err: errors.New(`ent: missing required field "Submission.language"`)}
 	}
 	if _, ok := sc.mutation.CaseVersion(); !ok {
 		return &ValidationError{Name: "case_version", err: errors.New(`ent: missing required field "Submission.case_version"`)}
-	}
-	if v, ok := sc.mutation.CaseVersion(); ok {
-		if err := submission.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submission.case_version": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.ProblemID(); !ok {
 		return &ValidationError{Name: "problem_id", err: errors.New(`ent: missing required field "Submission.problem_id"`)}
@@ -494,6 +474,12 @@ func (u *SubmissionUpsert) UpdateCompileMessage() *SubmissionUpsert {
 	return u
 }
 
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (u *SubmissionUpsert) ClearCompileMessage() *SubmissionUpsert {
+	u.SetNull(submission.FieldCompileMessage)
+	return u
+}
+
 // SetPoint sets the "point" field.
 func (u *SubmissionUpsert) SetPoint(v int16) *SubmissionUpsert {
 	u.Set(submission.FieldPoint, v)
@@ -708,6 +694,13 @@ func (u *SubmissionUpsertOne) SetCompileMessage(v string) *SubmissionUpsertOne {
 func (u *SubmissionUpsertOne) UpdateCompileMessage() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateCompileMessage()
+	})
+}
+
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (u *SubmissionUpsertOne) ClearCompileMessage() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearCompileMessage()
 	})
 }
 
@@ -1111,6 +1104,13 @@ func (u *SubmissionUpsertBulk) SetCompileMessage(v string) *SubmissionUpsertBulk
 func (u *SubmissionUpsertBulk) UpdateCompileMessage() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.UpdateCompileMessage()
+	})
+}
+
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (u *SubmissionUpsertBulk) ClearCompileMessage() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.ClearCompileMessage()
 	})
 }
 

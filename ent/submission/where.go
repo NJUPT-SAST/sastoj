@@ -270,6 +270,16 @@ func CompileMessageHasSuffix(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldHasSuffix(FieldCompileMessage, v))
 }
 
+// CompileMessageIsNil applies the IsNil predicate on the "compile_message" field.
+func CompileMessageIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldCompileMessage))
+}
+
+// CompileMessageNotNil applies the NotNil predicate on the "compile_message" field.
+func CompileMessageNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldCompileMessage))
+}
+
 // CompileMessageEqualFold applies the EqualFold predicate on the "compile_message" field.
 func CompileMessageEqualFold(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldEqualFold(FieldCompileMessage, v))

@@ -81,6 +81,12 @@ func (su *SubmissionUpdate) SetNillableCompileMessage(s *string) *SubmissionUpda
 	return su
 }
 
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (su *SubmissionUpdate) ClearCompileMessage() *SubmissionUpdate {
+	su.mutation.ClearCompileMessage()
+	return su
+}
+
 // SetPoint sets the "point" field.
 func (su *SubmissionUpdate) SetPoint(i int16) *SubmissionUpdate {
 	su.mutation.ResetPoint()
@@ -361,31 +367,6 @@ func (su *SubmissionUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (su *SubmissionUpdate) check() error {
-	if v, ok := su.mutation.Status(); ok {
-		if err := submission.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submission.status": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.Point(); ok {
-		if err := submission.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Submission.point": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.TotalTime(); ok {
-		if err := submission.TotalTimeValidator(v); err != nil {
-			return &ValidationError{Name: "total_time", err: fmt.Errorf(`ent: validator failed for field "Submission.total_time": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.MaxMemory(); ok {
-		if err := submission.MaxMemoryValidator(v); err != nil {
-			return &ValidationError{Name: "max_memory", err: fmt.Errorf(`ent: validator failed for field "Submission.max_memory": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.CaseVersion(); ok {
-		if err := submission.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submission.case_version": %w`, err)}
-		}
-	}
 	if _, ok := su.mutation.ProblemsID(); su.mutation.ProblemsCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Submission.problems"`)
 	}
@@ -418,6 +399,9 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.CompileMessage(); ok {
 		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+	}
+	if su.mutation.CompileMessageCleared() {
+		_spec.ClearField(submission.FieldCompileMessage, field.TypeString)
 	}
 	if value, ok := su.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
@@ -663,6 +647,12 @@ func (suo *SubmissionUpdateOne) SetNillableCompileMessage(s *string) *Submission
 	if s != nil {
 		suo.SetCompileMessage(*s)
 	}
+	return suo
+}
+
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (suo *SubmissionUpdateOne) ClearCompileMessage() *SubmissionUpdateOne {
+	suo.mutation.ClearCompileMessage()
 	return suo
 }
 
@@ -959,31 +949,6 @@ func (suo *SubmissionUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (suo *SubmissionUpdateOne) check() error {
-	if v, ok := suo.mutation.Status(); ok {
-		if err := submission.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Submission.status": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.Point(); ok {
-		if err := submission.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Submission.point": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.TotalTime(); ok {
-		if err := submission.TotalTimeValidator(v); err != nil {
-			return &ValidationError{Name: "total_time", err: fmt.Errorf(`ent: validator failed for field "Submission.total_time": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.MaxMemory(); ok {
-		if err := submission.MaxMemoryValidator(v); err != nil {
-			return &ValidationError{Name: "max_memory", err: fmt.Errorf(`ent: validator failed for field "Submission.max_memory": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.CaseVersion(); ok {
-		if err := submission.CaseVersionValidator(v); err != nil {
-			return &ValidationError{Name: "case_version", err: fmt.Errorf(`ent: validator failed for field "Submission.case_version": %w`, err)}
-		}
-	}
 	if _, ok := suo.mutation.ProblemsID(); suo.mutation.ProblemsCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Submission.problems"`)
 	}
@@ -1033,6 +998,9 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 	}
 	if value, ok := suo.mutation.CompileMessage(); ok {
 		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+	}
+	if suo.mutation.CompileMessageCleared() {
+		_spec.ClearField(submission.FieldCompileMessage, field.TypeString)
 	}
 	if value, ok := suo.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
