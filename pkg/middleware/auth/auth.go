@@ -73,7 +73,7 @@ func Auth(keyFunc jwt.Keyfunc, operMap map[string]string) middleware.Middleware 
 				return nil, err
 			}
 			//put claims into context so that other service could retrieve it
-			ctx = context.WithValue(ctx, "claims", claimsInfo)
+			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
 			switch role {
 			case "user":
 				if !strings.HasPrefix(claimsInfo.groupName, "user") {
