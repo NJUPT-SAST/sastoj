@@ -12,7 +12,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer( d *conf.,c *conf.Server, greeter *service.ContestService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.ContestService, logger log.Logger) *http.Server {
 
 	apiMap := map[string]string{
 		"UpdateContest": "admin",

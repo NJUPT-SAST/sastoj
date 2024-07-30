@@ -72,10 +72,15 @@ func Auth(keyFunc jwt.Keyfunc, operMap map[string]string) middleware.Middleware 
 			if err != nil {
 				return nil, err
 			}
-
+			//put claims into context so that other service could retrieve it
+			ctx = context.WithValue(ctx, "claims", claimsInfo)
 			switch role {
 			case "user":
 				if !strings.HasPrefix(claimsInfo.groupName, "user") {
+					return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+				}
+			case "manager":
+				if !strings.HasPrefix(claimsInfo.groupName, "manager") {
 					return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
 				}
 			case "admin":
@@ -121,15 +126,15 @@ func praseToken(token string, keyfunc jwt.Keyfunc, signingMethod jwt.SigningMeth
 
 func praseClaims(claims jwt.Claims) (*Claims, error) {
 
-	userId, ok := claims.(jwt.MapClaims)["userId"].(float64)
+	userId, ok := claims.(jwt.MapClaims)["user_id"].(float64)
 	if !ok {
 		return nil, ErrMissingClaims
 	}
-	groupId, ok := claims.(jwt.MapClaims)["groupId"].(float64)
+	groupId, ok := claims.(jwt.MapClaims)["group_id"].(float64)
 	if !ok {
 		return nil, ErrMissingClaims
 	}
-	groupName, ok := claims.(jwt.MapClaims)["groupName"].(string)
+	groupName, ok := claims.(jwt.MapClaims)["group_name"].(string)
 	if !ok {
 		return nil, ErrMissingClaims
 	}
