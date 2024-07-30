@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/gateway/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/pkg/util"
 	"strconv"
 	"time"
+
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *GatewayService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {

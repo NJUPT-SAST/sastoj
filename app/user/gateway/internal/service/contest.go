@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	pb "sastoj/api/sastoj/user/gateway/service/v1"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *GatewayService) GetContests(ctx context.Context, req *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
