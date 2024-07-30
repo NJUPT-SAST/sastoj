@@ -7,6 +7,8 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	u "sastoj/pkg/util"
+	"strconv"
+	"strings"
 )
 
 // Simple Adapter
@@ -65,7 +67,14 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	var builders = make([]*ent.SubmissionCaseCreate, 0)
 
 	//test each case
-	for index, c := range s.config.Task.Cases {
+	//TODO index
+	for _, c := range s.config.Task.Cases {
+
+		fileIndex, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
+		if err != nil {
+			return err
+		}
+
 		in, ans, err := s.middleware.fileManage.FetchCase(v.ProblemID, c.Input, c.Answer)
 		if err != nil {
 			_ = s.middleware.goJudge.DeleteFile(fileID)
@@ -98,7 +107,7 @@ func (s *Simple) handleSubmit(v *Submit) error {
 			//get problem cases ID
 			var problemCasesID int64
 			for _, problemCase := range pro.Edges.ProblemCases {
-				if problemCase.Index == int16(index) {
+				if problemCase.Index == int16(fileIndex) {
 					problemCasesID = problemCase.ID
 				}
 			}
@@ -129,7 +138,7 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		//get problem cases ID
 		var problemCasesID int64
 		for _, problemCase := range pro.Edges.ProblemCases {
-			if problemCase.Index == int16(index) {
+			if problemCase.Index == int16(fileIndex) {
 				problemCasesID = problemCase.ID
 			}
 		}
