@@ -148,31 +148,38 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	type Empty interface{}
 	var empty Empty
 	sem := make(chan Empty, caseNum)
-	for i := 0; i < len(config.Task.Cases); i++ {
+	for i := 1; i < len(config.Task.Cases)+1; i++ {
 		go func(i int) {
 			in, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".in")
 			if err != nil {
+				sem <- err
 				return
 			}
-			out, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".out")
+			out, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".ans")
 			if err != nil {
+				sem <- err
 				return
 			}
 			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".in", []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
 			if err != nil {
-				sem <- empty
+				sem <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".out", []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".ans", []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
 			if err != nil {
-				sem <- empty
+				sem <- err
 				return
 			}
 			sem <- empty
 		}(i)
 	}
 	for i := 0; i < len(config.Task.Cases); i++ {
-		<-sem
+		select {
+		case r := <-sem:
+			if err, ok := r.(error); ok {
+				return util.JudgeConfig{}, err
+			}
+		}
 	}
 
 	// compressed
