@@ -584,6 +584,29 @@ func HasUsersWith(preds ...predicate.User) predicate.Submission {
 	})
 }
 
+// HasContestResults applies the HasEdge predicate on the "contest_results" edge.
+func HasContestResults() predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ContestResultsTable, ContestResultsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasContestResultsWith applies the HasEdge predicate on the "contest_results" edge with a given conditions (other predicates).
+func HasContestResultsWith(preds ...predicate.ContestResult) predicate.Submission {
+	return predicate.Submission(func(s *sql.Selector) {
+		step := newContestResultsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Submission) predicate.Submission {
 	return predicate.Submission(sql.AndPredicates(predicates...))

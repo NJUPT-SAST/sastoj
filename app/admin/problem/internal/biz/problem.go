@@ -2,61 +2,48 @@ package biz
 
 import (
 	"context"
-	//"github.com/go-kratos/kratos/v2/errors"
-
-	//v1 "sastoj/api/sastoj/admin/problem/service/v1"
-	//
-	//"github.com/go-kratos/kratos/v2/errors"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	problem "sastoj/api/sastoj/admin/problem/service/v1"
+	"sastoj/app/admin/problem/internal/data"
+	"time"
 )
-
-var (
-// ErrUserNotFound is user not found.
-// ErrUserNotFound = errors.NotFound(v1., "user not found")
-)
-
-type Problem struct {
-	Id          int64
-	Title       string
-	Content     string
-	Point       int32
-	ContestId   int64
-	CaseVersion int32
-	Index       int32
-	Config      string
-}
-
-type ProblemRepo interface {
-	Save(context.Context, *Problem) (*Problem, error)
-	Update(context.Context, *Problem) (*int, error)
-	Delete(context.Context, int64) (*int, error)
-	FindByID(context.Context, int64) (*Problem, error)
-	ListPages(ctx context.Context, currency int32, size int32) ([]*Problem, error)
-}
 
 type ProblemUsecase struct {
-	repo ProblemRepo
-	log  *log.Helper
+	contestRepo *data.ContestRepo
+	repo        *data.ProblemRepo
+	log         *log.Helper
 }
 
-func NewProblemUsecase(repo ProblemRepo, logger log.Logger) *ProblemUsecase {
-	return &ProblemUsecase{repo: repo, log: log.NewHelper(logger)}
+func NewProblemUsecase(repo *data.ProblemRepo, contestRepo *data.ContestRepo, logger log.Logger) *ProblemUsecase {
+	return &ProblemUsecase{repo: repo, contestRepo: contestRepo, log: log.NewHelper(logger)}
 }
 
 // CreateProblem creates a Problem, and returns the new Problem.
-func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *Problem) (*Problem, error) {
-	//TODO: check validation of problem: (code?) and check case version by the start time of the contest.
+func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *problem.CreateProblemRequest) (*problem.CreateProblemReply, error) {
 	uc.log.WithContext(ctx).Infof("CreateProblem: %v", g)
+	if g.CaseVersion != 1 {
+		return nil, fmt.Errorf("CaseVersion should be 1, not %d (before the contest start)", g.CaseVersion)
+	}
 	rv, err := uc.repo.Save(ctx, g)
 	if err != nil {
 		return nil, err
 	}
 	return rv, nil
-
 }
 
-func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, g *Problem) (bool, error) {
-	//TODO: check validation of problem: (code?) and check case version by the start time of the contest.
+func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, g *problem.UpdateProblemRequest) (bool, error) {
+	contest, err := uc.contestRepo.FindByID(ctx, g.ContestId)
+	if err != nil {
+		return false, err
+	}
+	old, err := uc.repo.FindByID(ctx, g.Id)
+	if err != nil {
+		return false, err
+	}
+	if contest.StartTime.Before(time.Now()) {
+		g.CaseVersion = old.CaseVersion + 1
+	}
 	uc.log.WithContext(ctx).Infof("UpdateProblem: %v", g)
 	rv, err := uc.repo.Update(ctx, g)
 	if err != nil || *rv == 0 {
@@ -74,7 +61,7 @@ func (uc *ProblemUsecase) DeleteProblem(ctx context.Context, id int64) (bool, er
 	return true, nil
 }
 
-func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*Problem, error) {
+func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*problem.GetProblemReply, error) {
 	uc.log.WithContext(ctx).Infof("FindProblem: %v", id)
 	rv, err := uc.repo.FindByID(ctx, id)
 	if err != nil {
@@ -83,7 +70,7 @@ func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*Problem, 
 	return rv, nil
 }
 
-func (uc *ProblemUsecase) ListProblem(ctx context.Context, currency int32, size int32) ([]*Problem, error) {
+func (uc *ProblemUsecase) ListProblem(ctx context.Context, currency int32, size int32) ([]*problem.ListProblemReply_Problem, error) {
 	uc.log.WithContext(ctx).Infof("ListProblem: %v %v", currency, size)
 	rv, err := uc.repo.ListPages(ctx, currency, size)
 	if err != nil {

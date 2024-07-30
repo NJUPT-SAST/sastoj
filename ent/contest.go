@@ -49,9 +49,11 @@ type ContestEdges struct {
 	Contestants []*Group `json:"contestants,omitempty"`
 	// Managers holds the value of the managers edge.
 	Managers []*Group `json:"managers,omitempty"`
+	// ContestResults holds the value of the contest_results edge.
+	ContestResults []*ContestResult `json:"contest_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -79,6 +81,15 @@ func (e ContestEdges) ManagersOrErr() ([]*Group, error) {
 		return e.Managers, nil
 	}
 	return nil, &NotLoadedError{edge: "managers"}
+}
+
+// ContestResultsOrErr returns the ContestResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContestEdges) ContestResultsOrErr() ([]*ContestResult, error) {
+	if e.loadedTypes[3] {
+		return e.ContestResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_results"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -193,6 +204,11 @@ func (c *Contest) QueryContestants() *GroupQuery {
 // QueryManagers queries the "managers" edge of the Contest entity.
 func (c *Contest) QueryManagers() *GroupQuery {
 	return NewContestClient(c.config).QueryManagers(c)
+}
+
+// QueryContestResults queries the "contest_results" edge of the Contest entity.
+func (c *Contest) QueryContestResults() *ContestResultQuery {
+	return NewContestClient(c.config).QueryContestResults(c)
 }
 
 // Update returns a builder for updating this Contest.

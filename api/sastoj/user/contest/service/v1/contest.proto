@@ -48,6 +48,11 @@ service ContestService {
       get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}"
     };
   };
+  rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
+    option (google.api.http) = {
+      get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases"
+    };
+  };
   rpc ListRanking (ListRankingRequest) returns (ListRankingReply) {
     option (google.api.http) = {
       get: "/user/contests/{contest_id}/ranking"
@@ -154,6 +159,20 @@ message GetSubmissionReply {
   int32 max_memory = 9;
 }
 
+message GetCasesRequest {
+  int64 contest_id = 1;
+  int64 problem_id = 2;
+  int64 submission_id = 3;
+}
+
+message GetCasesReply {
+  message Case {
+    int32 index = 1;
+    int32 status = 2;
+  }
+  repeated Case cases = 1;
+}
+
 message ListRankingRequest {
   int64 contest_id = 1;
 }
@@ -164,6 +183,16 @@ message ListRankingReply {
     string username = 2;
     int32 score = 3;
     int32 rank = 4;
+    int32 penalty = 5;
+    message Problem {
+      int64 problem_id = 1;
+      int32 index = 2;
+      int32 status = 3;
+      int32 point = 4;
+      int32 tried_count = 5;
+      int32 accept_time = 6;
+    }
+    repeated Problem problems = 6;
   }
   repeated User users = 1;
 }

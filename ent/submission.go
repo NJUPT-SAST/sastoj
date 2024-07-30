@@ -53,9 +53,11 @@ type SubmissionEdges struct {
 	Problems *Problem `json:"problems,omitempty"`
 	// Users holds the value of the users edge.
 	Users *User `json:"users,omitempty"`
+	// ContestResults holds the value of the contest_results edge.
+	ContestResults []*ContestResult `json:"contest_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // SubmissionCasesOrErr returns the SubmissionCases value or an error if the edge
@@ -70,12 +72,10 @@ func (e SubmissionEdges) SubmissionCasesOrErr() ([]*SubmissionCase, error) {
 // ProblemsOrErr returns the Problems value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionEdges) ProblemsOrErr() (*Problem, error) {
-	if e.loadedTypes[1] {
-		if e.Problems == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: problem.Label}
-		}
+	if e.Problems != nil {
 		return e.Problems, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: problem.Label}
 	}
 	return nil, &NotLoadedError{edge: "problems"}
 }
@@ -83,14 +83,21 @@ func (e SubmissionEdges) ProblemsOrErr() (*Problem, error) {
 // UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e SubmissionEdges) UsersOrErr() (*User, error) {
-	if e.loadedTypes[2] {
-		if e.Users == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
+	if e.Users != nil {
 		return e.Users, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "users"}
+}
+
+// ContestResultsOrErr returns the ContestResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e SubmissionEdges) ContestResultsOrErr() ([]*ContestResult, error) {
+	if e.loadedTypes[3] {
+		return e.ContestResults, nil
+	}
+	return nil, &NotLoadedError{edge: "contest_results"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -211,6 +218,11 @@ func (s *Submission) QueryProblems() *ProblemQuery {
 // QueryUsers queries the "users" edge of the Submission entity.
 func (s *Submission) QueryUsers() *UserQuery {
 	return NewSubmissionClient(s.config).QueryUsers(s)
+}
+
+// QueryContestResults queries the "contest_results" edge of the Submission entity.
+func (s *Submission) QueryContestResults() *ContestResultQuery {
+	return NewSubmissionClient(s.config).QueryContestResults(s)
 }
 
 // Update returns a builder for updating this Submission.

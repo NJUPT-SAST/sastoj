@@ -38,6 +38,8 @@ const (
 	EdgeContestants = "contestants"
 	// EdgeManagers holds the string denoting the managers edge name in mutations.
 	EdgeManagers = "managers"
+	// EdgeContestResults holds the string denoting the contest_results edge name in mutations.
+	EdgeContestResults = "contest_results"
 	// Table holds the table name of the contest in the database.
 	Table = "contests"
 	// ProblemsTable is the table that holds the problems relation/edge.
@@ -57,6 +59,13 @@ const (
 	// ManagersInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
 	ManagersInverseTable = "groups"
+	// ContestResultsTable is the table that holds the contest_results relation/edge.
+	ContestResultsTable = "contest_results"
+	// ContestResultsInverseTable is the table name for the ContestResult entity.
+	// It exists in this package in order to avoid circular dependency with the "contestresult" package.
+	ContestResultsInverseTable = "contest_results"
+	// ContestResultsColumn is the table column denoting the contest_results relation/edge.
+	ContestResultsColumn = "contest_id"
 )
 
 // Columns holds all SQL columns for contest fields.
@@ -199,6 +208,20 @@ func ByManagers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newManagersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByContestResultsCount orders the results by contest_results count.
+func ByContestResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newContestResultsStep(), opts...)
+	}
+}
+
+// ByContestResults orders the results by contest_results terms.
+func ByContestResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newContestResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newProblemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -218,5 +241,12 @@ func newManagersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ManagersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, ManagersTable, ManagersPrimaryKey...),
+	)
+}
+func newContestResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ContestResultsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ContestResultsTable, ContestResultsColumn),
 	)
 }

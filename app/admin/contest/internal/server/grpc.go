@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	v1 "sastoj/api/sastoj/admin/contest/service/v1"
 	"sastoj/app/admin/contest/internal/conf"
 	"sastoj/app/admin/contest/internal/service"
@@ -14,6 +15,7 @@ import (
 func NewGRPCServer(c *conf.Server, greeter *service.ContestService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
+			validate.Validator(),
 			recovery.Recovery(),
 		),
 	}

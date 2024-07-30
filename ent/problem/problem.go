@@ -28,12 +28,18 @@ const (
 	FieldConfig = "config"
 	// FieldContestID holds the string denoting the contest_id field in the database.
 	FieldContestID = "contest_id"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
+	// FieldVisibility holds the string denoting the visibility field in the database.
+	FieldVisibility = "visibility"
 	// EdgeProblemCases holds the string denoting the problem_cases edge name in mutations.
 	EdgeProblemCases = "problem_cases"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
 	// EdgeContests holds the string denoting the contests edge name in mutations.
 	EdgeContests = "contests"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// EdgeJudgers holds the string denoting the judgers edge name in mutations.
 	EdgeJudgers = "judgers"
 	// Table holds the table name of the problem in the database.
@@ -59,6 +65,13 @@ const (
 	ContestsInverseTable = "contests"
 	// ContestsColumn is the table column denoting the contests relation/edge.
 	ContestsColumn = "contest_id"
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "problems"
+	// OwnerInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	OwnerInverseTable = "users"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "user_id"
 	// JudgersTable is the table that holds the judgers relation/edge. The primary key declared below.
 	JudgersTable = "problem_judgers"
 	// JudgersInverseTable is the table name for the Group entity.
@@ -77,6 +90,8 @@ var Columns = []string{
 	FieldIsDeleted,
 	FieldConfig,
 	FieldContestID,
+	FieldUserID,
+	FieldVisibility,
 }
 
 var (
@@ -104,6 +119,8 @@ var (
 	IndexValidator func(int16) error
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
+	// DefaultVisibility holds the default value on creation for the "visibility" field.
+	DefaultVisibility int8
 )
 
 // OrderOption defines the ordering options for the Problem queries.
@@ -154,6 +171,16 @@ func ByContestID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContestID, opts...).ToFunc()
 }
 
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByVisibility orders the results by the visibility field.
+func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
+}
+
 // ByProblemCasesCount orders the results by problem_cases count.
 func ByProblemCasesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -189,6 +216,13 @@ func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByOwnerField orders the results by owner field.
+func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByJudgersCount orders the results by judgers count.
 func ByJudgersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -221,6 +255,13 @@ func newContestsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContestsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+	)
+}
+func newOwnerStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OwnerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
 	)
 }
 func newJudgersStep() *sqlgraph.Step {

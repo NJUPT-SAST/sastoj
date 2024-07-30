@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/group"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
@@ -20,13 +21,14 @@ import (
 // ContestQuery is the builder for querying Contest entities.
 type ContestQuery struct {
 	config
-	ctx             *QueryContext
-	order           []contest.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Contest
-	withProblems    *ProblemQuery
-	withContestants *GroupQuery
-	withManagers    *GroupQuery
+	ctx                *QueryContext
+	order              []contest.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.Contest
+	withProblems       *ProblemQuery
+	withContestants    *GroupQuery
+	withManagers       *GroupQuery
+	withContestResults *ContestResultQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -122,6 +124,28 @@ func (cq *ContestQuery) QueryManagers() *GroupQuery {
 			sqlgraph.From(contest.Table, contest.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, contest.ManagersTable, contest.ManagersPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestResults chains the current query on the "contest_results" edge.
+func (cq *ContestQuery) QueryContestResults() *ContestResultQuery {
+	query := (&ContestResultClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(contest.Table, contest.FieldID, selector),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, contest.ContestResultsTable, contest.ContestResultsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -316,14 +340,15 @@ func (cq *ContestQuery) Clone() *ContestQuery {
 		return nil
 	}
 	return &ContestQuery{
-		config:          cq.config,
-		ctx:             cq.ctx.Clone(),
-		order:           append([]contest.OrderOption{}, cq.order...),
-		inters:          append([]Interceptor{}, cq.inters...),
-		predicates:      append([]predicate.Contest{}, cq.predicates...),
-		withProblems:    cq.withProblems.Clone(),
-		withContestants: cq.withContestants.Clone(),
-		withManagers:    cq.withManagers.Clone(),
+		config:             cq.config,
+		ctx:                cq.ctx.Clone(),
+		order:              append([]contest.OrderOption{}, cq.order...),
+		inters:             append([]Interceptor{}, cq.inters...),
+		predicates:         append([]predicate.Contest{}, cq.predicates...),
+		withProblems:       cq.withProblems.Clone(),
+		withContestants:    cq.withContestants.Clone(),
+		withManagers:       cq.withManagers.Clone(),
+		withContestResults: cq.withContestResults.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
@@ -360,6 +385,17 @@ func (cq *ContestQuery) WithManagers(opts ...func(*GroupQuery)) *ContestQuery {
 		opt(query)
 	}
 	cq.withManagers = query
+	return cq
+}
+
+// WithContestResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *ContestQuery) WithContestResults(opts ...func(*ContestResultQuery)) *ContestQuery {
+	query := (&ContestResultClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withContestResults = query
 	return cq
 }
 
@@ -441,10 +477,11 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 	var (
 		nodes       = []*Contest{}
 		_spec       = cq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			cq.withProblems != nil,
 			cq.withContestants != nil,
 			cq.withManagers != nil,
+			cq.withContestResults != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -483,6 +520,13 @@ func (cq *ContestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cont
 		if err := cq.loadManagers(ctx, query, nodes,
 			func(n *Contest) { n.Edges.Managers = []*Group{} },
 			func(n *Contest, e *Group) { n.Edges.Managers = append(n.Edges.Managers, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withContestResults; query != nil {
+		if err := cq.loadContestResults(ctx, query, nodes,
+			func(n *Contest) { n.Edges.ContestResults = []*ContestResult{} },
+			func(n *Contest, e *ContestResult) { n.Edges.ContestResults = append(n.Edges.ContestResults, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -638,6 +682,36 @@ func (cq *ContestQuery) loadManagers(ctx context.Context, query *GroupQuery, nod
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (cq *ContestQuery) loadContestResults(ctx context.Context, query *ContestResultQuery, nodes []*Contest, init func(*Contest), assign func(*Contest, *ContestResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*Contest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(contestresult.FieldContestID)
+	}
+	query.Where(predicate.ContestResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(contest.ContestResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ContestID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "contest_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

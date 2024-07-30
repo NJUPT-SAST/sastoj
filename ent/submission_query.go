@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
@@ -28,6 +29,7 @@ type SubmissionQuery struct {
 	withSubmissionCases *SubmissionCaseQuery
 	withProblems        *ProblemQuery
 	withUsers           *UserQuery
+	withContestResults  *ContestResultQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -123,6 +125,28 @@ func (sq *SubmissionQuery) QueryUsers() *UserQuery {
 			sqlgraph.From(submission.Table, submission.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, submission.UsersTable, submission.UsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryContestResults chains the current query on the "contest_results" edge.
+func (sq *SubmissionQuery) QueryContestResults() *ContestResultQuery {
+	query := (&ContestResultClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submission.Table, submission.FieldID, selector),
+			sqlgraph.To(contestresult.Table, contestresult.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, submission.ContestResultsTable, submission.ContestResultsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -325,6 +349,7 @@ func (sq *SubmissionQuery) Clone() *SubmissionQuery {
 		withSubmissionCases: sq.withSubmissionCases.Clone(),
 		withProblems:        sq.withProblems.Clone(),
 		withUsers:           sq.withUsers.Clone(),
+		withContestResults:  sq.withContestResults.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -361,6 +386,17 @@ func (sq *SubmissionQuery) WithUsers(opts ...func(*UserQuery)) *SubmissionQuery 
 		opt(query)
 	}
 	sq.withUsers = query
+	return sq
+}
+
+// WithContestResults tells the query-builder to eager-load the nodes that are connected to
+// the "contest_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SubmissionQuery) WithContestResults(opts ...func(*ContestResultQuery)) *SubmissionQuery {
+	query := (&ContestResultClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withContestResults = query
 	return sq
 }
 
@@ -442,10 +478,11 @@ func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	var (
 		nodes       = []*Submission{}
 		_spec       = sq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			sq.withSubmissionCases != nil,
 			sq.withProblems != nil,
 			sq.withUsers != nil,
+			sq.withContestResults != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -482,6 +519,13 @@ func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	if query := sq.withUsers; query != nil {
 		if err := sq.loadUsers(ctx, query, nodes, nil,
 			func(n *Submission, e *User) { n.Edges.Users = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withContestResults; query != nil {
+		if err := sq.loadContestResults(ctx, query, nodes,
+			func(n *Submission) { n.Edges.ContestResults = []*ContestResult{} },
+			func(n *Submission, e *ContestResult) { n.Edges.ContestResults = append(n.Edges.ContestResults, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -572,6 +616,67 @@ func (sq *SubmissionQuery) loadUsers(ctx context.Context, query *UserQuery, node
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *SubmissionQuery) loadContestResults(ctx context.Context, query *ContestResultQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *ContestResult)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int64]*Submission)
+	nids := make(map[int]map[*Submission]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(submission.ContestResultsTable)
+		s.Join(joinT).On(s.C(contestresult.FieldID), joinT.C(submission.ContestResultsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(submission.ContestResultsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(submission.ContestResultsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullInt64).Int64
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Submission]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*ContestResult](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "contest_results" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil

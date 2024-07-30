@@ -16,15 +16,7 @@ func NewProblemService(problem *biz.ProblemUsecase) *ProblemService {
 }
 
 func (s *ProblemService) CreateProblem(ctx context.Context, request *pb.CreateProblemRequest) (*pb.CreateProblemReply, error) {
-	rv, err := s.pu.CreateProblem(ctx, &biz.Problem{
-		Title:       request.Title,
-		Content:     request.Content,
-		Point:       request.Point,
-		ContestId:   request.ContestId,
-		CaseVersion: request.CaseVersion,
-		Index:       request.Index,
-		Config:      request.Config,
-	})
+	rv, err := s.pu.CreateProblem(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -34,16 +26,7 @@ func (s *ProblemService) CreateProblem(ctx context.Context, request *pb.CreatePr
 }
 
 func (s *ProblemService) UpdateProblem(ctx context.Context, request *pb.UpdateProblemRequest) (*pb.UpdateProblemReply, error) {
-	rv, err := s.pu.UpdateProblem(ctx, &biz.Problem{
-		Id:          request.Id,
-		Title:       request.Title,
-		Content:     request.Content,
-		Point:       request.Point,
-		ContestId:   request.ContestId,
-		CaseVersion: request.CaseVersion,
-		Index:       request.Index,
-		Config:      request.Config,
-	})
+	rv, err := s.pu.UpdateProblem(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +50,7 @@ func (s *ProblemService) GetProblem(ctx context.Context, request *pb.GetProblemR
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetProblemReply{
-		Id: rv.Id,
-	}, nil
+	return rv, nil
 }
 
 func (s *ProblemService) ListProblem(ctx context.Context, request *pb.ListProblemRequest) (*pb.ListProblemReply, error) {
@@ -79,16 +60,7 @@ func (s *ProblemService) ListProblem(ctx context.Context, request *pb.ListProble
 	}
 	var list []*pb.ListProblemReply_Problem
 	for _, each := range rv {
-		list = append(list, &pb.ListProblemReply_Problem{
-			Id:          each.Id,
-			Title:       each.Title,
-			Content:     each.Content,
-			Point:       each.Point,
-			ContestId:   each.ContestId,
-			CaseVersion: each.CaseVersion,
-			Index:       each.Index,
-			Config:      each.Config,
-		})
+		list = append(list, each)
 	}
 	return &pb.ListProblemReply{
 		Problems: list,

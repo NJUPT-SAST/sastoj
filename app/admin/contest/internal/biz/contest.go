@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+const ContestTypeIOI = 1
+const ContestTypeACM = 2
+
 type Contest struct {
 	Id          int64
 	Title       string
@@ -25,6 +28,7 @@ type ContestRepo interface {
 	Delete(context.Context, int64) error
 	FindByID(context.Context, int64) (*Contest, error)
 	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
+	AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error
 }
 
 type ContestUsecase struct {
@@ -50,4 +54,12 @@ func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, 
 }
 func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, error) {
 	return uc.repo.ListPages(ctx, current, size)
+}
+func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+	_, err := uc.repo.FindByID(ctx, contestId)
+	if err != nil {
+		return err
+	}
+
+	return uc.repo.AddContestants(ctx, contestId, groupId, role)
 }

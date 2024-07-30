@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/user"
 	"strings"
 
 	"entgo.io/ent"
@@ -33,6 +34,10 @@ type Problem struct {
 	Config string `json:"config,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
 	ContestID int64 `json:"contest_id,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int64 `json:"user_id,omitempty"`
+	// private:0 pub:1 contest:2
+	Visibility int8 `json:"visibility,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
 	Edges        ProblemEdges `json:"edges"`
@@ -47,11 +52,13 @@ type ProblemEdges struct {
 	Submission []*Submission `json:"submission,omitempty"`
 	// Contests holds the value of the contests edge.
 	Contests *Contest `json:"contests,omitempty"`
+	// Owner holds the value of the owner edge.
+	Owner *User `json:"owner,omitempty"`
 	// Judgers holds the value of the judgers edge.
 	Judgers []*Group `json:"judgers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // ProblemCasesOrErr returns the ProblemCases value or an error if the edge
@@ -75,20 +82,29 @@ func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
 // ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
-	if e.loadedTypes[2] {
-		if e.Contests == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: contest.Label}
-		}
+	if e.Contests != nil {
 		return e.Contests, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: contest.Label}
 	}
 	return nil, &NotLoadedError{edge: "contests"}
+}
+
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProblemEdges) OwnerOrErr() (*User, error) {
+	if e.Owner != nil {
+		return e.Owner, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // JudgersOrErr returns the Judgers value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) JudgersOrErr() ([]*Group, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.Judgers, nil
 	}
 	return nil, &NotLoadedError{edge: "judgers"}
@@ -101,7 +117,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problem.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID:
+		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID, problem.FieldUserID, problem.FieldVisibility:
 			values[i] = new(sql.NullInt64)
 		case problem.FieldTitle, problem.FieldContent, problem.FieldConfig:
 			values[i] = new(sql.NullString)
@@ -174,6 +190,18 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.ContestID = value.Int64
 			}
+		case problem.FieldUserID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value.Valid {
+				pr.UserID = value.Int64
+			}
+		case problem.FieldVisibility:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field visibility", values[i])
+			} else if value.Valid {
+				pr.Visibility = int8(value.Int64)
+			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
 		}
@@ -200,6 +228,11 @@ func (pr *Problem) QuerySubmission() *SubmissionQuery {
 // QueryContests queries the "contests" edge of the Problem entity.
 func (pr *Problem) QueryContests() *ContestQuery {
 	return NewProblemClient(pr.config).QueryContests(pr)
+}
+
+// QueryOwner queries the "owner" edge of the Problem entity.
+func (pr *Problem) QueryOwner() *UserQuery {
+	return NewProblemClient(pr.config).QueryOwner(pr)
 }
 
 // QueryJudgers queries the "judgers" edge of the Problem entity.
@@ -253,6 +286,12 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", pr.ContestID))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", pr.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("visibility=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Visibility))
 	builder.WriteByte(')')
 	return builder.String()
 }

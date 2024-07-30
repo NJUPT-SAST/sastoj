@@ -57,5 +57,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client, problemCasesLocation: c.Load.ProblemCasesLocation, chunkSize: c.Load.ChunkSize}, cleanup, nil
+	return &Data{db: client, problemCasesLocation: c.Load.ProblemCasesLocation, chunkSize: c.Load.ChunkSize * 1024}, cleanup, nil
 }

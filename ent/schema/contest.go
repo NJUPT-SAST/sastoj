@@ -34,5 +34,6 @@ func (Contest) Edges() []ent.Edge {
 		edge.To("problems", Problem.Type),
 		edge.To("contestants", Group.Type),
 		edge.To("managers", Group.Type),
+		edge.To("contest_results", ContestResult.Type),
 	}
 }

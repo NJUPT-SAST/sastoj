@@ -6,12 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
 	"sastoj/ent/user"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 )
@@ -21,6 +23,7 @@ type SubmissionCreate struct {
 	config
 	mutation *SubmissionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCode sets the "code" field.
@@ -132,6 +135,21 @@ func (sc *SubmissionCreate) SetUsersID(id int64) *SubmissionCreate {
 // SetUsers sets the "users" edge to the User entity.
 func (sc *SubmissionCreate) SetUsers(u *User) *SubmissionCreate {
 	return sc.SetUsersID(u.ID)
+}
+
+// AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
+func (sc *SubmissionCreate) AddContestResultIDs(ids ...int) *SubmissionCreate {
+	sc.mutation.AddContestResultIDs(ids...)
+	return sc
+}
+
+// AddContestResults adds the "contest_results" edges to the ContestResult entity.
+func (sc *SubmissionCreate) AddContestResults(c ...*ContestResult) *SubmissionCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return sc.AddContestResultIDs(ids...)
 }
 
 // Mutation returns the SubmissionMutation object of the builder.
@@ -266,6 +284,7 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_node = &Submission{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(submission.Table, sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64))
 	)
+	_spec.OnConflict = sc.conflict
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -352,7 +371,478 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := sc.mutation.ContestResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   submission.ContestResultsTable,
+			Columns: submission.ContestResultsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(contestresult.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Submission.Create().
+//		SetCode(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SubmissionUpsert) {
+//			SetCode(v+v).
+//		}).
+//		Exec(ctx)
+func (sc *SubmissionCreate) OnConflict(opts ...sql.ConflictOption) *SubmissionUpsertOne {
+	sc.conflict = opts
+	return &SubmissionUpsertOne{
+		create: sc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (sc *SubmissionCreate) OnConflictColumns(columns ...string) *SubmissionUpsertOne {
+	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
+	return &SubmissionUpsertOne{
+		create: sc,
+	}
+}
+
+type (
+	// SubmissionUpsertOne is the builder for "upsert"-ing
+	//  one Submission node.
+	SubmissionUpsertOne struct {
+		create *SubmissionCreate
+	}
+
+	// SubmissionUpsert is the "OnConflict" setter.
+	SubmissionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetCode sets the "code" field.
+func (u *SubmissionUpsert) SetCode(v string) *SubmissionUpsert {
+	u.Set(submission.FieldCode, v)
+	return u
+}
+
+// UpdateCode sets the "code" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCode() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCode)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *SubmissionUpsert) SetStatus(v int16) *SubmissionUpsert {
+	u.Set(submission.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateStatus() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldStatus)
+	return u
+}
+
+// AddStatus adds v to the "status" field.
+func (u *SubmissionUpsert) AddStatus(v int16) *SubmissionUpsert {
+	u.Add(submission.FieldStatus, v)
+	return u
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionUpsert) SetPoint(v int16) *SubmissionUpsert {
+	u.Set(submission.FieldPoint, v)
+	return u
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdatePoint() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldPoint)
+	return u
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionUpsert) AddPoint(v int16) *SubmissionUpsert {
+	u.Add(submission.FieldPoint, v)
+	return u
+}
+
+// SetCreateTime sets the "create_time" field.
+func (u *SubmissionUpsert) SetCreateTime(v time.Time) *SubmissionUpsert {
+	u.Set(submission.FieldCreateTime, v)
+	return u
+}
+
+// UpdateCreateTime sets the "create_time" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCreateTime() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCreateTime)
+	return u
+}
+
+// SetTotalTime sets the "total_time" field.
+func (u *SubmissionUpsert) SetTotalTime(v int32) *SubmissionUpsert {
+	u.Set(submission.FieldTotalTime, v)
+	return u
+}
+
+// UpdateTotalTime sets the "total_time" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateTotalTime() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldTotalTime)
+	return u
+}
+
+// AddTotalTime adds v to the "total_time" field.
+func (u *SubmissionUpsert) AddTotalTime(v int32) *SubmissionUpsert {
+	u.Add(submission.FieldTotalTime, v)
+	return u
+}
+
+// SetMaxMemory sets the "max_memory" field.
+func (u *SubmissionUpsert) SetMaxMemory(v int32) *SubmissionUpsert {
+	u.Set(submission.FieldMaxMemory, v)
+	return u
+}
+
+// UpdateMaxMemory sets the "max_memory" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateMaxMemory() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldMaxMemory)
+	return u
+}
+
+// AddMaxMemory adds v to the "max_memory" field.
+func (u *SubmissionUpsert) AddMaxMemory(v int32) *SubmissionUpsert {
+	u.Add(submission.FieldMaxMemory, v)
+	return u
+}
+
+// SetLanguage sets the "language" field.
+func (u *SubmissionUpsert) SetLanguage(v string) *SubmissionUpsert {
+	u.Set(submission.FieldLanguage, v)
+	return u
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateLanguage() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldLanguage)
+	return u
+}
+
+// SetCaseVersion sets the "case_version" field.
+func (u *SubmissionUpsert) SetCaseVersion(v int8) *SubmissionUpsert {
+	u.Set(submission.FieldCaseVersion, v)
+	return u
+}
+
+// UpdateCaseVersion sets the "case_version" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCaseVersion() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCaseVersion)
+	return u
+}
+
+// AddCaseVersion adds v to the "case_version" field.
+func (u *SubmissionUpsert) AddCaseVersion(v int8) *SubmissionUpsert {
+	u.Add(submission.FieldCaseVersion, v)
+	return u
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *SubmissionUpsert) SetProblemID(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldProblemID, v)
+	return u
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateProblemID() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldProblemID)
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *SubmissionUpsert) SetUserID(v int64) *SubmissionUpsert {
+	u.Set(submission.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateUserID() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldUserID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submission.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SubmissionUpsertOne) UpdateNewValues() *SubmissionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(submission.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *SubmissionUpsertOne) Ignore() *SubmissionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SubmissionUpsertOne) DoNothing() *SubmissionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SubmissionCreate.OnConflict
+// documentation for more info.
+func (u *SubmissionUpsertOne) Update(set func(*SubmissionUpsert)) *SubmissionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SubmissionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetCode sets the "code" field.
+func (u *SubmissionUpsertOne) SetCode(v string) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCode(v)
+	})
+}
+
+// UpdateCode sets the "code" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCode() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCode()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SubmissionUpsertOne) SetStatus(v int16) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// AddStatus adds v to the "status" field.
+func (u *SubmissionUpsertOne) AddStatus(v int16) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateStatus() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionUpsertOne) SetPoint(v int16) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionUpsertOne) AddPoint(v int16) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdatePoint() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetCreateTime sets the "create_time" field.
+func (u *SubmissionUpsertOne) SetCreateTime(v time.Time) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCreateTime(v)
+	})
+}
+
+// UpdateCreateTime sets the "create_time" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCreateTime() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCreateTime()
+	})
+}
+
+// SetTotalTime sets the "total_time" field.
+func (u *SubmissionUpsertOne) SetTotalTime(v int32) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetTotalTime(v)
+	})
+}
+
+// AddTotalTime adds v to the "total_time" field.
+func (u *SubmissionUpsertOne) AddTotalTime(v int32) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddTotalTime(v)
+	})
+}
+
+// UpdateTotalTime sets the "total_time" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateTotalTime() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateTotalTime()
+	})
+}
+
+// SetMaxMemory sets the "max_memory" field.
+func (u *SubmissionUpsertOne) SetMaxMemory(v int32) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetMaxMemory(v)
+	})
+}
+
+// AddMaxMemory adds v to the "max_memory" field.
+func (u *SubmissionUpsertOne) AddMaxMemory(v int32) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddMaxMemory(v)
+	})
+}
+
+// UpdateMaxMemory sets the "max_memory" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateMaxMemory() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateMaxMemory()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *SubmissionUpsertOne) SetLanguage(v string) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateLanguage() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// SetCaseVersion sets the "case_version" field.
+func (u *SubmissionUpsertOne) SetCaseVersion(v int8) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCaseVersion(v)
+	})
+}
+
+// AddCaseVersion adds v to the "case_version" field.
+func (u *SubmissionUpsertOne) AddCaseVersion(v int8) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddCaseVersion(v)
+	})
+}
+
+// UpdateCaseVersion sets the "case_version" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCaseVersion() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCaseVersion()
+	})
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *SubmissionUpsertOne) SetProblemID(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetProblemID(v)
+	})
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateProblemID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateProblemID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *SubmissionUpsertOne) SetUserID(v int64) *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateUserID() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// Exec executes the query.
+func (u *SubmissionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SubmissionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SubmissionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *SubmissionUpsertOne) ID(ctx context.Context) (id int64, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *SubmissionUpsertOne) IDX(ctx context.Context) int64 {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
 
 // SubmissionCreateBulk is the builder for creating many Submission entities in bulk.
@@ -360,6 +850,7 @@ type SubmissionCreateBulk struct {
 	config
 	err      error
 	builders []*SubmissionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Submission entities in the database.
@@ -389,6 +880,7 @@ func (scb *SubmissionCreateBulk) Save(ctx context.Context) ([]*Submission, error
 					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = scb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -439,6 +931,295 @@ func (scb *SubmissionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (scb *SubmissionCreateBulk) ExecX(ctx context.Context) {
 	if err := scb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Submission.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SubmissionUpsert) {
+//			SetCode(v+v).
+//		}).
+//		Exec(ctx)
+func (scb *SubmissionCreateBulk) OnConflict(opts ...sql.ConflictOption) *SubmissionUpsertBulk {
+	scb.conflict = opts
+	return &SubmissionUpsertBulk{
+		create: scb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (scb *SubmissionCreateBulk) OnConflictColumns(columns ...string) *SubmissionUpsertBulk {
+	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
+	return &SubmissionUpsertBulk{
+		create: scb,
+	}
+}
+
+// SubmissionUpsertBulk is the builder for "upsert"-ing
+// a bulk of Submission nodes.
+type SubmissionUpsertBulk struct {
+	create *SubmissionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(submission.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SubmissionUpsertBulk) UpdateNewValues() *SubmissionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(submission.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Submission.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *SubmissionUpsertBulk) Ignore() *SubmissionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SubmissionUpsertBulk) DoNothing() *SubmissionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SubmissionCreateBulk.OnConflict
+// documentation for more info.
+func (u *SubmissionUpsertBulk) Update(set func(*SubmissionUpsert)) *SubmissionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SubmissionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetCode sets the "code" field.
+func (u *SubmissionUpsertBulk) SetCode(v string) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCode(v)
+	})
+}
+
+// UpdateCode sets the "code" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCode() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCode()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SubmissionUpsertBulk) SetStatus(v int16) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// AddStatus adds v to the "status" field.
+func (u *SubmissionUpsertBulk) AddStatus(v int16) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateStatus() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetPoint sets the "point" field.
+func (u *SubmissionUpsertBulk) SetPoint(v int16) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetPoint(v)
+	})
+}
+
+// AddPoint adds v to the "point" field.
+func (u *SubmissionUpsertBulk) AddPoint(v int16) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddPoint(v)
+	})
+}
+
+// UpdatePoint sets the "point" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdatePoint() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdatePoint()
+	})
+}
+
+// SetCreateTime sets the "create_time" field.
+func (u *SubmissionUpsertBulk) SetCreateTime(v time.Time) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCreateTime(v)
+	})
+}
+
+// UpdateCreateTime sets the "create_time" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCreateTime() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCreateTime()
+	})
+}
+
+// SetTotalTime sets the "total_time" field.
+func (u *SubmissionUpsertBulk) SetTotalTime(v int32) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetTotalTime(v)
+	})
+}
+
+// AddTotalTime adds v to the "total_time" field.
+func (u *SubmissionUpsertBulk) AddTotalTime(v int32) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddTotalTime(v)
+	})
+}
+
+// UpdateTotalTime sets the "total_time" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateTotalTime() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateTotalTime()
+	})
+}
+
+// SetMaxMemory sets the "max_memory" field.
+func (u *SubmissionUpsertBulk) SetMaxMemory(v int32) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetMaxMemory(v)
+	})
+}
+
+// AddMaxMemory adds v to the "max_memory" field.
+func (u *SubmissionUpsertBulk) AddMaxMemory(v int32) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddMaxMemory(v)
+	})
+}
+
+// UpdateMaxMemory sets the "max_memory" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateMaxMemory() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateMaxMemory()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *SubmissionUpsertBulk) SetLanguage(v string) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateLanguage() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// SetCaseVersion sets the "case_version" field.
+func (u *SubmissionUpsertBulk) SetCaseVersion(v int8) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetCaseVersion(v)
+	})
+}
+
+// AddCaseVersion adds v to the "case_version" field.
+func (u *SubmissionUpsertBulk) AddCaseVersion(v int8) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.AddCaseVersion(v)
+	})
+}
+
+// UpdateCaseVersion sets the "case_version" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCaseVersion() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCaseVersion()
+	})
+}
+
+// SetProblemID sets the "problem_id" field.
+func (u *SubmissionUpsertBulk) SetProblemID(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetProblemID(v)
+	})
+}
+
+// UpdateProblemID sets the "problem_id" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateProblemID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateProblemID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *SubmissionUpsertBulk) SetUserID(v int64) *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateUserID() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// Exec executes the query.
+func (u *SubmissionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the SubmissionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SubmissionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SubmissionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
