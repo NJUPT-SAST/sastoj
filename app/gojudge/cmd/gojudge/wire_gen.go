@@ -12,8 +12,6 @@ import (
 	"sastoj/app/gojudge/internal/biz"
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
-	"sastoj/app/gojudge/internal/server"
-	"sastoj/app/gojudge/internal/service"
 )
 
 import (
@@ -28,11 +26,8 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	caseManage := biz.NewCaseManage(dataData)
-	manageUseCase := biz.NewManageUseCase(logger, dataData, caseManage)
-	judgeService := service.NewJudgeService(manageUseCase)
-	grpcServer := server.NewGRPCServer(bootstrap, judgeService, logger)
-	app := newApp(logger, grpcServer)
+	middleware := biz.NewMiddleware(dataData)
+	app := newApp(middleware, logger)
 	return app, func() {
 		cleanup()
 	}, nil

@@ -65,6 +65,11 @@ func Status(v int16) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldStatus, v))
 }
 
+// CompileMessage applies equality check predicate on the "compile_message" field. It's identical to CompileMessageEQ.
+func CompileMessage(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileMessage, v))
+}
+
 // Point applies equality check predicate on the "point" field. It's identical to PointEQ.
 func Point(v int16) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldPoint, v))
@@ -208,6 +213,81 @@ func StatusLT(v int16) predicate.Submission {
 // StatusLTE applies the LTE predicate on the "status" field.
 func StatusLTE(v int16) predicate.Submission {
 	return predicate.Submission(sql.FieldLTE(FieldStatus, v))
+}
+
+// CompileMessageEQ applies the EQ predicate on the "compile_message" field.
+func CompileMessageEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileMessage, v))
+}
+
+// CompileMessageNEQ applies the NEQ predicate on the "compile_message" field.
+func CompileMessageNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldCompileMessage, v))
+}
+
+// CompileMessageIn applies the In predicate on the "compile_message" field.
+func CompileMessageIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldCompileMessage, vs...))
+}
+
+// CompileMessageNotIn applies the NotIn predicate on the "compile_message" field.
+func CompileMessageNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldCompileMessage, vs...))
+}
+
+// CompileMessageGT applies the GT predicate on the "compile_message" field.
+func CompileMessageGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldCompileMessage, v))
+}
+
+// CompileMessageGTE applies the GTE predicate on the "compile_message" field.
+func CompileMessageGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldCompileMessage, v))
+}
+
+// CompileMessageLT applies the LT predicate on the "compile_message" field.
+func CompileMessageLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldCompileMessage, v))
+}
+
+// CompileMessageLTE applies the LTE predicate on the "compile_message" field.
+func CompileMessageLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldCompileMessage, v))
+}
+
+// CompileMessageContains applies the Contains predicate on the "compile_message" field.
+func CompileMessageContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldCompileMessage, v))
+}
+
+// CompileMessageHasPrefix applies the HasPrefix predicate on the "compile_message" field.
+func CompileMessageHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldCompileMessage, v))
+}
+
+// CompileMessageHasSuffix applies the HasSuffix predicate on the "compile_message" field.
+func CompileMessageHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldCompileMessage, v))
+}
+
+// CompileMessageIsNil applies the IsNil predicate on the "compile_message" field.
+func CompileMessageIsNil() predicate.Submission {
+	return predicate.Submission(sql.FieldIsNull(FieldCompileMessage))
+}
+
+// CompileMessageNotNil applies the NotNil predicate on the "compile_message" field.
+func CompileMessageNotNil() predicate.Submission {
+	return predicate.Submission(sql.FieldNotNull(FieldCompileMessage))
+}
+
+// CompileMessageEqualFold applies the EqualFold predicate on the "compile_message" field.
+func CompileMessageEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldCompileMessage, v))
+}
+
+// CompileMessageContainsFold applies the ContainsFold predicate on the "compile_message" field.
+func CompileMessageContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldCompileMessage, v))
 }
 
 // PointEQ applies the EQ predicate on the "point" field.

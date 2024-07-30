@@ -124,18 +124,8 @@ func (scc *SubmissionCaseCreate) check() error {
 	if _, ok := scc.mutation.State(); !ok {
 		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "SubmissionCase.state"`)}
 	}
-	if v, ok := scc.mutation.State(); ok {
-		if err := submissioncase.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.state": %w`, err)}
-		}
-	}
 	if _, ok := scc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "SubmissionCase.point"`)}
-	}
-	if v, ok := scc.mutation.Point(); ok {
-		if err := submissioncase.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.point": %w`, err)}
-		}
 	}
 	if _, ok := scc.mutation.Message(); !ok {
 		return &ValidationError{Name: "message", err: errors.New(`ent: missing required field "SubmissionCase.message"`)}
@@ -143,18 +133,8 @@ func (scc *SubmissionCaseCreate) check() error {
 	if _, ok := scc.mutation.Time(); !ok {
 		return &ValidationError{Name: "time", err: errors.New(`ent: missing required field "SubmissionCase.time"`)}
 	}
-	if v, ok := scc.mutation.Time(); ok {
-		if err := submissioncase.TimeValidator(v); err != nil {
-			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.time": %w`, err)}
-		}
-	}
 	if _, ok := scc.mutation.Memory(); !ok {
 		return &ValidationError{Name: "memory", err: errors.New(`ent: missing required field "SubmissionCase.memory"`)}
-	}
-	if v, ok := scc.mutation.Memory(); ok {
-		if err := submissioncase.MemoryValidator(v); err != nil {
-			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.memory": %w`, err)}
-		}
 	}
 	if _, ok := scc.mutation.SubmissionID(); !ok {
 		return &ValidationError{Name: "submission_id", err: errors.New(`ent: missing required field "SubmissionCase.submission_id"`)}
