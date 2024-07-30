@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/google/wire"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"net"
 	v1 "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/app/user/gateway/internal/conf"
 	"strconv"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/google/wire"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // ProviderSet is data providers.

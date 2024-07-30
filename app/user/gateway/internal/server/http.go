@@ -3,15 +3,16 @@ package server
 import (
 	"context"
 	"fmt"
+	"net"
+	v1 "sastoj/api/sastoj/user/gateway/service/v1"
+	"sastoj/app/user/gateway/internal/conf"
+	"sastoj/app/user/gateway/internal/service"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"net"
-	v1 "sastoj/api/sastoj/user/gateway/service/v1"
-	"sastoj/app/user/gateway/internal/conf"
-	"sastoj/app/user/gateway/internal/service"
 )
 
 // NewHTTPServer new an HTTP server.

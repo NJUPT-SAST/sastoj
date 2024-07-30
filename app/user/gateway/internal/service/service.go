@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/google/wire"
 	pb "sastoj/api/sastoj/user/gateway/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
+
+	"github.com/google/wire"
 )
 
 // ProviderSet is service providers.
