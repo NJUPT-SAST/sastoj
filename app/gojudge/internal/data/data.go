@@ -14,6 +14,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/ent"
+	"time"
 
 	"sastoj/app/gojudge/internal/conf"
 
@@ -52,9 +53,9 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		c.JudgeMiddleware.Language.ExecConfig,
 	)
 	logHelper.Infof("Read Command Conf Success")
-	//for ck, cv := range command {
-	//	logHelper.Infof("Language=%v Config=%v", ck, cv)
-	//}
+	for ck, cv := range command {
+		logHelper.Infof("Read %v Config.Complie=%v Config.Run=%v ", ck, cv.Compile, cv.Run)
+	}
 	//conn go-judge
 	ClientConn, err := grpc.DialInsecure(
 		context.Background(),
@@ -74,7 +75,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		logHelper.Errorf("failed opening a channel")
 	}
-	logHelper.Infof("MQ Channel run Success: %v", ch)
+	logHelper.Infof("MQ Channel run Success, Config=%v", c.Data.Mq)
 
 	// connect to redis
 	redisClient, err := GenRedis(c.Data.Redis.Addr, int(c.Data.Redis.Db))
@@ -107,8 +108,10 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 
 func GenRedis(address string, db int) (*redis.Client, error) {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: address,
-		DB:   db,
+		Addr:         address,
+		DB:           db,
+		ReadTimeout:  200 * time.Millisecond,
+		WriteTimeout: 200 * time.Millisecond,
 	})
 	if err := redisClient.Ping(context.Background()).Err(); err != nil {
 		return nil, err
