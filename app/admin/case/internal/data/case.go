@@ -148,24 +148,24 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	type Empty interface{}
 	var empty Empty
 	sem := make(chan Empty, caseNum)
-	for i := 1; i < len(config.Task.Cases)+1; i++ {
+	for i := 0; i < len(config.Task.Cases); i++ {
 		go func(i int) {
-			in, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".in")
+			in, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Input)
 			if err != nil {
 				sem <- err
 				return
 			}
-			out, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".ans")
+			out, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Answer)
 			if err != nil {
 				sem <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".in", []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Input, []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
 			if err != nil {
 				sem <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".ans", []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Answer, []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
 			if err != nil {
 				sem <- err
 				return
