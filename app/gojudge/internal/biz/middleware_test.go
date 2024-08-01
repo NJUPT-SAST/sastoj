@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/google/uuid"
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
@@ -82,7 +81,7 @@ func TestHandleSubmit(t *testing.T) {
 	}
 
 	err = middleware.handleSubmit(&Submit{
-		ID:         uuid.NewString(),
+		ID:         1,
 		UserID:     1,
 		ProblemID:  100,
 		Code:       code,
@@ -92,7 +91,6 @@ func TestHandleSubmit(t *testing.T) {
 		TotalTime:  0,
 		MaxMemory:  0,
 		Language:   language,
-		Token:      "",
 	})
 
 	if err != nil {
