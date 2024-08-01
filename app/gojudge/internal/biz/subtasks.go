@@ -7,6 +7,8 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	u "sastoj/pkg/util"
+	"strconv"
+	"strings"
 )
 
 // Subtasks Adapter
@@ -68,7 +70,13 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 		//test each case
 		var taskBuilder []*ent.SubmissionCaseCreate
 		var states []int16
-		for index, c := range task.Cases {
+		for _, c := range task.Cases {
+
+			fileIndex, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
+			if err != nil {
+				return err
+			}
+
 			in, ans, err := s.middleware.fileManage.FetchCase(v.ProblemID, c.Input, c.Answer)
 			if err != nil {
 				_ = s.middleware.goJudge.DeleteFile(fileID)
@@ -101,7 +109,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 				//get problem cases ID
 				var problemCasesID int64
 				for _, problemCase := range pro.Edges.ProblemCases {
-					if problemCase.Index == int16(index) {
+					if problemCase.Index == int16(fileIndex) {
 						problemCasesID = problemCase.ID
 					}
 				}
@@ -129,7 +137,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 			//get problem cases ID
 			var problemCasesID int64
 			for _, problemCase := range pro.Edges.ProblemCases {
-				if problemCase.Index == int16(index) {
+				if problemCase.Index == int16(fileIndex) {
 					problemCasesID = problemCase.ID
 				}
 			}

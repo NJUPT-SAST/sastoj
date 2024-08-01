@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/ent"
+	"strings"
 )
 
 const (
@@ -152,7 +153,12 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	fileID, result, err := m.goJudge.Compile(v.Code, v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
-			//TODO result struct
+			res, ok := result.Files["stderr"]
+			if ok {
+				v.Output = string(res)
+			} else {
+				v.Output = "compile error"
+			}
 			m.redis.Set(context.Background(), v.ID, result, 10000)
 		}
 		return err
@@ -166,7 +172,8 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		return err
 	}
-	//TODO result struct
-	m.redis.Set(context.Background(), v.ID, result, 10000)
+	std := strings.Join([]string{string(result.Files["stdout"]), string(result.Files["stderr"])}, "")
+	v.Output = std
+	m.redis.Set(context.Background(), v.ID, v, 10000)
 	return nil
 }
