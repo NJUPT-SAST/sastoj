@@ -88,7 +88,7 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 	return rv, nil
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string) (util.JudgeConfig, error) {
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (util.JudgeConfig, error) {
 	base := r.data.problemCasesLocation
 	location := base + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
@@ -115,20 +115,22 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	}
 
 	// handle files
-	dir, err := os.ReadDir(location + "config")
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	for _, file := range dir {
-		if file.IsDir() {
-			//os.Mkdir(location + "testdata", os.ModePerm)
-			err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
-			if err != nil {
-				return util.JudgeConfig{}, err
-			}
-			err = os.RemoveAll(location + "config")
-			if err != nil {
-				return util.JudgeConfig{}, err
+	if casesType == "hydro" {
+		dir, err := os.ReadDir(location + "config")
+		if err != nil {
+			return util.JudgeConfig{}, err
+		}
+		for _, file := range dir {
+			if file.IsDir() {
+				//os.Mkdir(location + "testdata", os.ModePerm)
+				err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
+				if err != nil {
+					return util.JudgeConfig{}, err
+				}
+				err = os.RemoveAll(location + "config")
+				if err != nil {
+					return util.JudgeConfig{}, err
+				}
 			}
 		}
 	}

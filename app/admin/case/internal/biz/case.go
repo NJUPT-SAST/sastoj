@@ -24,7 +24,7 @@ type CaseRepo interface {
 	DeleteByCaseIds(context.Context, []int64) error
 	DeleteByProblemId(context.Context, int64) error
 	FindByProblemId(context.Context, int64) ([]*Case, error)
-	UploadCasesFile(int64, multipart.File, string) (util.JudgeConfig, error)
+	UploadCasesFile(int64, multipart.File, string, string) (util.JudgeConfig, error)
 }
 
 type CaseUsecase struct {
@@ -77,9 +77,9 @@ func (uc *CaseUsecase) UpdateCase(ctx context.Context, c *Case) error {
 	return nil
 }
 
-func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFile multipart.File, filename string) ([]int64, error) {
-	uc.log.WithContext(ctx).Infof("start uploading %v", filename)
-	config, err := uc.repo.UploadCasesFile(problemId, casesFile, filename)
+func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFile multipart.File, filename string, casesType string) ([]int64, error) {
+	uc.log.WithContext(ctx).Infof("start uploading %v from %v", filename, casesType)
+	config, err := uc.repo.UploadCasesFile(problemId, casesFile, filename, casesType)
 	if err != nil {
 		return nil, err
 	}
