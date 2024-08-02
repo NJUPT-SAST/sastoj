@@ -72,7 +72,7 @@ func StartLoopOnSubmit(log *log.Helper, ch *amqp.Channel, topic string, handle f
 					if err != nil {
 						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to de-serialise a submit: %s", err)
 					}
-					if handle(v) != nil {
+					if err = handle(v); err != nil {
 						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to handle a submit: %s", err)
 					}
 				}
@@ -125,7 +125,7 @@ func StartLoopOnSelfTest(log *log.Helper, ch *amqp.Channel, topic string, handle
 					if err != nil {
 						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to de-serialise a self test: %s", err)
 					}
-					if handle(v) != nil {
+					if err = handle(v); err != nil {
 						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to handle a self test: %s", err)
 					}
 				}
