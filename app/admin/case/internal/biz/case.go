@@ -84,6 +84,7 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 		return nil, err
 	}
 	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
+	uc.repo.DeleteByProblemId(ctx, problemId)
 	var cases []*Case
 	// TODO: cases problem as special-cases, interactive or subtask type
 	switch config.Judge.JudgeType {
