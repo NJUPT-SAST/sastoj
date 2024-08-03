@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/google/uuid"
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
@@ -20,7 +21,13 @@ func TestHandleSubmit(t *testing.T) {
 	}
 
 	language := "Bash"
-	code := "#!/bin/bash\n\n# Function to perform sorting\nsort_numbers() {\necho \"Enter numbers separated by spaces:\"\nread -a numbers\n\nsorted_numbers=($(for num in \"${numbers[@]}\"; do echo $num; done | sort -n))\n\necho \"Sorted numbers:\"\necho \"${sorted_numbers[@]}\"\n}\n\n# Main script execution\nsort_numbers"
+	code := `
+#!/bin/bash
+
+read a b
+sum=$((a + b))
+
+echo "$sum"`
 
 	endpoint := "127.0.0.1:5051"
 
@@ -81,7 +88,7 @@ func TestHandleSubmit(t *testing.T) {
 	}
 
 	err = middleware.handleSubmit(&Submit{
-		ID:         1,
+		ID:         uuid.NewString(),
 		UserID:     1,
 		ProblemID:  100,
 		Code:       code,

@@ -35,7 +35,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 	}
 
 	//compile submit
-	fileID, result, err := s.middleware.goJudge.Compile(v.Code, v.Language, uuid.NewString())
+	fileID, result, err := s.middleware.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
 			create := s.middleware.ent.Submission.Create().
@@ -78,11 +78,14 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 			}
 
 			in, ans, err := s.middleware.fileManage.FetchCase(v.ProblemID, c.Input, c.Answer)
+			//TODO remove
+			in = u.RemoveCr(in)
+			ans = u.RemoveCr(ans)
 			if err != nil {
 				_ = s.middleware.goJudge.DeleteFile(fileID)
 				return err
 			}
-			result, err := s.middleware.goJudge.Judge(string(in), v.Language, fileID, uuid.NewString(), uint64(s.config.ResourceLimits.Time), uint64(s.config.ResourceLimits.Time*2), uint64(s.config.ResourceLimits.Memory), int64(len(ans)))
+			result, err := s.middleware.goJudge.Judge(in, v.Language, fileID, uuid.NewString(), uint64(s.config.ResourceLimits.Time), uint64(s.config.ResourceLimits.Time*2), uint64(s.config.ResourceLimits.Memory), int64(len(ans)))
 			if err != nil {
 				_ = s.middleware.goJudge.DeleteFile(fileID)
 				return err

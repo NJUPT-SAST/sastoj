@@ -9,17 +9,17 @@ import (
 )
 
 type Submit struct {
-	ID          int64     `json:"id,omitempty"`
-	UserID      int64     `json:"user_id,omitempty"`
-	ProblemID   int64     `json:"problem_id,omitempty"`
-	Code        string    `json:"code,omitempty"`
-	Status      int16     `json:"state,omitempty"`
-	Point       int16     `json:"point,omitempty"`
-	CreateTime  time.Time `json:"create_time"`
-	TotalTime   int32     `json:"total_time,omitempty"`
-	MaxMemory   int32     `json:"max_memory,omitempty"`
-	Language    string    `json:"language,omitempty"`
-	CaseVersion int8      `json:"case_version,omitempty"`
+	ID         string    `json:"id,omitempty"`
+	UserID     int64     `json:"user_id,omitempty"`
+	ProblemID  int64     `json:"problem_id,omitempty"`
+	Code       string    `json:"code,omitempty"`
+	Status     int16     `json:"state,omitempty"`
+	Point      int16     `json:"point,omitempty"`
+	CreateTime time.Time `json:"create_time"`
+	TotalTime  int32     `json:"total_time,omitempty"`
+	MaxMemory  int32     `json:"max_memory,omitempty"`
+	Language   string    `json:"language,omitempty"`
+	Token      string    `json:"secret,omitempty"`
 }
 
 type SelfTest struct {
@@ -29,6 +29,7 @@ type SelfTest struct {
 	Language string `json:"language,omitempty"`
 	Input    string `json:"input,omitempty"`
 	Output   string `json:"output,omitempty"`
+	Token    string `json:"secret,omitempty"`
 }
 
 // StartLoopOnSubmit start a loop for handling messages from an amqp.Channel and return a function to stop the loop.
