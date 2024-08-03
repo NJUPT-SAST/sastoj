@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/pkg/util"
 	"time"
+
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *UserContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
@@ -64,9 +65,29 @@ func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmi
 		Point:     int32(submission.Point),
 		Status:    int32(submission.Status),
 		CreatedAt: timestamppb.New(submission.CreateTime),
-		UpdatedAt: timestamppb.New(submission.CreateTime),
 		TotalTime: submission.TotalTime,
 		MaxMemory: submission.MaxMemory,
+	}, nil
+}
+
+func (s *UserContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionsRequest) (*pb.GetSubmissionsReply, error) {
+	// TODO: Get the userID from context
+	submissions, err := s.submitUc.GetSubmissions(ctx, 1, req.GetProblemId())
+	if err != nil {
+		return nil, err
+	}
+	var pbSubmissions []*pb.GetSubmissionsReply_Submission
+	for _, s := range submissions {
+		pbSubmissions = append(pbSubmissions, &pb.GetSubmissionsReply_Submission{
+			Id:        s.ID,
+			Language:  s.Language,
+			Point:     int32(s.Point),
+			Status:    int32(s.Status),
+			CreatedAt: timestamppb.New(s.CreateTime),
+		})
+	}
+	return &pb.GetSubmissionsReply{
+		Submissions: pbSubmissions,
 	}, nil
 }
 
