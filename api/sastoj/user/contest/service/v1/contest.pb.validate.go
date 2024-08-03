@@ -1820,35 +1820,6 @@ func (m *GetSubmissionReply) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetUpdatedAt()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, GetSubmissionReplyValidationError{
-					field:  "UpdatedAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, GetSubmissionReplyValidationError{
-					field:  "UpdatedAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return GetSubmissionReplyValidationError{
-				field:  "UpdatedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for TotalTime
 
 	// no validation rules for MaxMemory
@@ -1932,6 +1903,248 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetSubmissionReplyValidationError{}
+
+// Validate checks the field values on GetSubmissionsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSubmissionsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSubmissionsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSubmissionsRequestMultiError, or nil if none found.
+func (m *GetSubmissionsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSubmissionsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ContestId
+
+	// no validation rules for ProblemId
+
+	if len(errors) > 0 {
+		return GetSubmissionsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSubmissionsRequestMultiError is an error wrapping multiple validation
+// errors returned by GetSubmissionsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetSubmissionsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSubmissionsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSubmissionsRequestMultiError) AllErrors() []error { return m }
+
+// GetSubmissionsRequestValidationError is the validation error returned by
+// GetSubmissionsRequest.Validate if the designated constraints aren't met.
+type GetSubmissionsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSubmissionsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSubmissionsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSubmissionsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSubmissionsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSubmissionsRequestValidationError) ErrorName() string {
+	return "GetSubmissionsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSubmissionsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSubmissionsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSubmissionsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSubmissionsRequestValidationError{}
+
+// Validate checks the field values on GetSubmissionsReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSubmissionsReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSubmissionsReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSubmissionsReplyMultiError, or nil if none found.
+func (m *GetSubmissionsReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSubmissionsReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetSubmissions() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetSubmissionsReplyValidationError{
+						field:  fmt.Sprintf("Submissions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetSubmissionsReplyValidationError{
+						field:  fmt.Sprintf("Submissions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetSubmissionsReplyValidationError{
+					field:  fmt.Sprintf("Submissions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetSubmissionsReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSubmissionsReplyMultiError is an error wrapping multiple validation
+// errors returned by GetSubmissionsReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetSubmissionsReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSubmissionsReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSubmissionsReplyMultiError) AllErrors() []error { return m }
+
+// GetSubmissionsReplyValidationError is the validation error returned by
+// GetSubmissionsReply.Validate if the designated constraints aren't met.
+type GetSubmissionsReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSubmissionsReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSubmissionsReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSubmissionsReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSubmissionsReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSubmissionsReplyValidationError) ErrorName() string {
+	return "GetSubmissionsReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSubmissionsReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSubmissionsReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSubmissionsReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSubmissionsReplyValidationError{}
 
 // Validate checks the field values on GetCasesRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -2730,6 +2943,146 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetProblemsReply_ProblemValidationError{}
+
+// Validate checks the field values on GetSubmissionsReply_Submission with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSubmissionsReply_Submission) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSubmissionsReply_Submission with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetSubmissionsReply_SubmissionMultiError, or nil if none found.
+func (m *GetSubmissionsReply_Submission) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSubmissionsReply_Submission) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Language
+
+	// no validation rules for Point
+
+	// no validation rules for Status
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetSubmissionsReply_SubmissionValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetSubmissionsReply_SubmissionValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetSubmissionsReply_SubmissionValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetSubmissionsReply_SubmissionMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSubmissionsReply_SubmissionMultiError is an error wrapping multiple
+// validation errors returned by GetSubmissionsReply_Submission.ValidateAll()
+// if the designated constraints aren't met.
+type GetSubmissionsReply_SubmissionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSubmissionsReply_SubmissionMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSubmissionsReply_SubmissionMultiError) AllErrors() []error { return m }
+
+// GetSubmissionsReply_SubmissionValidationError is the validation error
+// returned by GetSubmissionsReply_Submission.Validate if the designated
+// constraints aren't met.
+type GetSubmissionsReply_SubmissionValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSubmissionsReply_SubmissionValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSubmissionsReply_SubmissionValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSubmissionsReply_SubmissionValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSubmissionsReply_SubmissionValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSubmissionsReply_SubmissionValidationError) ErrorName() string {
+	return "GetSubmissionsReply_SubmissionValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSubmissionsReply_SubmissionValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSubmissionsReply_Submission.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSubmissionsReply_SubmissionValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSubmissionsReply_SubmissionValidationError{}
 
 // Validate checks the field values on GetCasesReply_Case with the rules
 // defined in the proto definition for this message. If any rules are

@@ -24,6 +24,7 @@ const OperationContestServiceGetContests = "/api.sastoj.user.contest.service.v1.
 const OperationContestServiceGetProblem = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
 const OperationContestServiceGetProblems = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
 const OperationContestServiceGetSubmission = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmission"
+const OperationContestServiceGetSubmissions = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmissions"
 const OperationContestServiceJoinContest = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
 const OperationContestServiceListRanking = "/api.sastoj.user.contest.service.v1.ContestService/ListRanking"
 const OperationContestServiceSelfTest = "/api.sastoj.user.contest.service.v1.ContestService/SelfTest"
@@ -35,6 +36,7 @@ type ContestServiceHTTPServer interface {
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
+	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
 	JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
@@ -50,6 +52,7 @@ func RegisterContestServiceHTTPServer(s *http.Server, srv ContestServiceHTTPServ
 	r.POST("/user/contests/{contest_id}/problems/{problem_id}/submission", _ContestService_Submit0_HTTP_Handler(srv))
 	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _ContestService_SelfTest0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}", _ContestService_GetSubmission0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions", _ContestService_GetSubmissions0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases", _ContestService_GetCases0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/ranking", _ContestService_ListRanking0_HTTP_Handler(srv))
 }
@@ -214,6 +217,28 @@ func _ContestService_GetSubmission0_HTTP_Handler(srv ContestServiceHTTPServer) f
 	}
 }
 
+func _ContestService_GetSubmissions0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetSubmissionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationContestServiceGetSubmissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetSubmissions(ctx, req.(*GetSubmissionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetSubmissionsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _ContestService_GetCases0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCasesRequest
@@ -264,6 +289,7 @@ type ContestServiceHTTPClient interface {
 	GetProblem(ctx context.Context, req *GetProblemRequest, opts ...http.CallOption) (rsp *GetProblemReply, err error)
 	GetProblems(ctx context.Context, req *GetProblemsRequest, opts ...http.CallOption) (rsp *GetProblemsReply, err error)
 	GetSubmission(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
+	GetSubmissions(ctx context.Context, req *GetSubmissionsRequest, opts ...http.CallOption) (rsp *GetSubmissionsReply, err error)
 	JoinContest(ctx context.Context, req *JoinContestRequest, opts ...http.CallOption) (rsp *JoinContestReply, err error)
 	ListRanking(ctx context.Context, req *ListRankingRequest, opts ...http.CallOption) (rsp *ListRankingReply, err error)
 	SelfTest(ctx context.Context, req *SelfTestRequest, opts ...http.CallOption) (rsp *SelfTestReply, err error)
@@ -335,6 +361,19 @@ func (c *ContestServiceHTTPClientImpl) GetSubmission(ctx context.Context, in *Ge
 	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationContestServiceGetSubmission))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ContestServiceHTTPClientImpl) GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...http.CallOption) (*GetSubmissionsReply, error) {
+	var out GetSubmissionsReply
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submissions"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationContestServiceGetSubmissions))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

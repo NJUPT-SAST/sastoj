@@ -48,6 +48,11 @@ service ContestService {
       get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}"
     };
   };
+  rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply) {
+    option (google.api.http) = {
+      get: "/user/contests/{contest_id}/problems/{problem_id}/submissions"
+    };
+  };
   rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
     option (google.api.http) = {
       get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases"
@@ -154,9 +159,24 @@ message GetSubmissionReply {
   int32 point = 4;
   int32 status = 5;
   google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
   int32 total_time = 8;
   int32 max_memory = 9;
+}
+
+message GetSubmissionsRequest {
+  int64 contest_id = 1;
+  int64 problem_id = 2;
+}
+
+message GetSubmissionsReply {
+  message Submission {
+    int64 id = 1;
+    string language = 2;
+    int32 point = 3;
+    int32 status = 4;
+    google.protobuf.Timestamp created_at = 5;
+  }
+  repeated Submission submissions = 1;
 }
 
 message GetCasesRequest {
