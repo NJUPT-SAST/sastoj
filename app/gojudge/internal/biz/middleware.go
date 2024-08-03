@@ -96,10 +96,15 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 			}
 			if sum > 0 {
 				avg := sum / num
+				remainder := sum % num
 				for i := range config.Task.Cases {
 					c := &config.Task.Cases[i]
 					if c.Score == 0 {
+						num--
 						c.Score = avg
+						if num < remainder {
+							c.Score++
+						}
 					}
 				}
 			}
@@ -120,16 +125,27 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 			}
 			if sum > 0 {
 				avg := sum / num
+				remainder := sum % num
 				for i := range config.Task.Subtasks {
 					sub := &config.Task.Subtasks[i]
 					if sub.Score == 0 {
+						num--
 						sub.Score = avg
+						if num < remainder {
+							sub.Score++
+						}
 					}
-					subAvg := sub.Score / int16(len(sub.Cases))
+					caseLen := int16(len(sub.Cases))
+					subAvg := sub.Score / caseLen
+					subRemainder := sub.Score % caseLen
 					for j := range sub.Cases {
 						c := &sub.Cases[j]
 						if c.Score == 0 {
+							caseLen--
 							c.Score = subAvg
+							if caseLen < subRemainder {
+								c.Score++
+							}
 						}
 					}
 				}
