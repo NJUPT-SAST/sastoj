@@ -88,7 +88,7 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 	return rv, nil
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string) (util.JudgeConfig, error) {
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (util.JudgeConfig, error) {
 	base := r.data.problemCasesLocation
 	location := base + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
@@ -115,20 +115,22 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	}
 
 	// handle files
-	dir, err := os.ReadDir(location + "config")
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	for _, file := range dir {
-		if file.IsDir() {
-			//os.Mkdir(location + "testdata", os.ModePerm)
-			err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
-			if err != nil {
-				return util.JudgeConfig{}, err
-			}
-			err = os.RemoveAll(location + "config")
-			if err != nil {
-				return util.JudgeConfig{}, err
+	if casesType == "hydro" {
+		dir, err := os.ReadDir(location + "config")
+		if err != nil {
+			return util.JudgeConfig{}, err
+		}
+		for _, file := range dir {
+			if file.IsDir() {
+				//os.Mkdir(location + "testdata", os.ModePerm)
+				err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
+				if err != nil {
+					return util.JudgeConfig{}, err
+				}
+				err = os.RemoveAll(location + "config")
+				if err != nil {
+					return util.JudgeConfig{}, err
+				}
 			}
 		}
 	}
@@ -150,29 +152,36 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	sem := make(chan Empty, caseNum)
 	for i := 0; i < len(config.Task.Cases); i++ {
 		go func(i int) {
-			in, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".in")
+			in, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Input)
 			if err != nil {
+				sem <- err
 				return
 			}
-			out, err := os.ReadFile(location + "testdata" + "/" + strconv.Itoa(i) + ".out")
+			out, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Answer)
 			if err != nil {
+				sem <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".in", []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Input, []byte(util.Crlf2lf(string(in[:]))), os.ModePerm)
 			if err != nil {
-				sem <- empty
+				sem <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+strconv.Itoa(i)+".out", []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Answer, []byte(util.Crlf2lf(string(out[:]))), os.ModePerm)
 			if err != nil {
-				sem <- empty
+				sem <- err
 				return
 			}
 			sem <- empty
 		}(i)
 	}
 	for i := 0; i < len(config.Task.Cases); i++ {
-		<-sem
+		select {
+		case r := <-sem:
+			if err, ok := r.(error); ok {
+				return util.JudgeConfig{}, err
+			}
+		}
 	}
 
 	// compressed

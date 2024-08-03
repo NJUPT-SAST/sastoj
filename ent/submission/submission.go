@@ -18,6 +18,8 @@ const (
 	FieldCode = "code"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldCompileMessage holds the string denoting the compile_message field in the database.
+	FieldCompileMessage = "compile_message"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
@@ -77,6 +79,7 @@ var Columns = []string{
 	FieldID,
 	FieldCode,
 	FieldStatus,
+	FieldCompileMessage,
 	FieldPoint,
 	FieldCreateTime,
 	FieldTotalTime,
@@ -104,18 +107,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int16) error
-	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int16) error
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime time.Time
-	// TotalTimeValidator is a validator for the "total_time" field. It is called by the builders before save.
-	TotalTimeValidator func(int32) error
-	// MaxMemoryValidator is a validator for the "max_memory" field. It is called by the builders before save.
-	MaxMemoryValidator func(int32) error
-	// CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	CaseVersionValidator func(int8) error
 )
 
 // OrderOption defines the ordering options for the Submission queries.
@@ -134,6 +127,11 @@ func ByCode(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByCompileMessage orders the results by the compile_message field.
+func ByCompileMessage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompileMessage, opts...).ToFunc()
 }
 
 // ByPoint orders the results by the point field.

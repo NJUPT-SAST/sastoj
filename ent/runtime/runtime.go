@@ -10,7 +10,6 @@ import (
 	"sastoj/ent/problemcase"
 	"sastoj/ent/schema"
 	"sastoj/ent/submission"
-	"sastoj/ent/submissioncase"
 	"sastoj/ent/user"
 	"time"
 )
@@ -69,12 +68,16 @@ func init() {
 	problemDescIndex := problemFields[5].Descriptor()
 	// problem.IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	problem.IndexValidator = problemDescIndex.Validators[0].(func(int16) error)
+	// problemDescRestrictPresentation is the schema descriptor for restrict_presentation field.
+	problemDescRestrictPresentation := problemFields[6].Descriptor()
+	// problem.DefaultRestrictPresentation holds the default value on creation for the restrict_presentation field.
+	problem.DefaultRestrictPresentation = problemDescRestrictPresentation.Default.(bool)
 	// problemDescIsDeleted is the schema descriptor for is_deleted field.
-	problemDescIsDeleted := problemFields[6].Descriptor()
+	problemDescIsDeleted := problemFields[7].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.
 	problem.DefaultIsDeleted = problemDescIsDeleted.Default.(bool)
 	// problemDescVisibility is the schema descriptor for visibility field.
-	problemDescVisibility := problemFields[10].Descriptor()
+	problemDescVisibility := problemFields[11].Descriptor()
 	// problem.DefaultVisibility holds the default value on creation for the visibility field.
 	problem.DefaultVisibility = problemDescVisibility.Default.(int8)
 	problemcaseHooks := schema.ProblemCase{}.Hooks()
@@ -99,48 +102,10 @@ func init() {
 	problemcase.DefaultIsDeleted = problemcaseDescIsDeleted.Default.(bool)
 	submissionFields := schema.Submission{}.Fields()
 	_ = submissionFields
-	// submissionDescStatus is the schema descriptor for status field.
-	submissionDescStatus := submissionFields[2].Descriptor()
-	// submission.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	submission.StatusValidator = submissionDescStatus.Validators[0].(func(int16) error)
-	// submissionDescPoint is the schema descriptor for point field.
-	submissionDescPoint := submissionFields[3].Descriptor()
-	// submission.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	submission.PointValidator = submissionDescPoint.Validators[0].(func(int16) error)
 	// submissionDescCreateTime is the schema descriptor for create_time field.
-	submissionDescCreateTime := submissionFields[4].Descriptor()
+	submissionDescCreateTime := submissionFields[5].Descriptor()
 	// submission.DefaultCreateTime holds the default value on creation for the create_time field.
 	submission.DefaultCreateTime = submissionDescCreateTime.Default.(time.Time)
-	// submissionDescTotalTime is the schema descriptor for total_time field.
-	submissionDescTotalTime := submissionFields[5].Descriptor()
-	// submission.TotalTimeValidator is a validator for the "total_time" field. It is called by the builders before save.
-	submission.TotalTimeValidator = submissionDescTotalTime.Validators[0].(func(int32) error)
-	// submissionDescMaxMemory is the schema descriptor for max_memory field.
-	submissionDescMaxMemory := submissionFields[6].Descriptor()
-	// submission.MaxMemoryValidator is a validator for the "max_memory" field. It is called by the builders before save.
-	submission.MaxMemoryValidator = submissionDescMaxMemory.Validators[0].(func(int32) error)
-	// submissionDescCaseVersion is the schema descriptor for case_version field.
-	submissionDescCaseVersion := submissionFields[8].Descriptor()
-	// submission.CaseVersionValidator is a validator for the "case_version" field. It is called by the builders before save.
-	submission.CaseVersionValidator = submissionDescCaseVersion.Validators[0].(func(int8) error)
-	submissioncaseFields := schema.SubmissionCase{}.Fields()
-	_ = submissioncaseFields
-	// submissioncaseDescState is the schema descriptor for state field.
-	submissioncaseDescState := submissioncaseFields[1].Descriptor()
-	// submissioncase.StateValidator is a validator for the "state" field. It is called by the builders before save.
-	submissioncase.StateValidator = submissioncaseDescState.Validators[0].(func(int16) error)
-	// submissioncaseDescPoint is the schema descriptor for point field.
-	submissioncaseDescPoint := submissioncaseFields[2].Descriptor()
-	// submissioncase.PointValidator is a validator for the "point" field. It is called by the builders before save.
-	submissioncase.PointValidator = submissioncaseDescPoint.Validators[0].(func(int16) error)
-	// submissioncaseDescTime is the schema descriptor for time field.
-	submissioncaseDescTime := submissioncaseFields[4].Descriptor()
-	// submissioncase.TimeValidator is a validator for the "time" field. It is called by the builders before save.
-	submissioncase.TimeValidator = submissioncaseDescTime.Validators[0].(func(int32) error)
-	// submissioncaseDescMemory is the schema descriptor for memory field.
-	submissioncaseDescMemory := submissioncaseFields[5].Descriptor()
-	// submissioncase.MemoryValidator is a validator for the "memory" field. It is called by the builders before save.
-	submissioncase.MemoryValidator = submissioncaseDescMemory.Validators[0].(func(int32) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescUsername is the schema descriptor for username field.
@@ -154,6 +119,6 @@ func init() {
 }
 
 const (
-	Version = "v0.13.1"                                         // Version of ent codegen.
-	Sum     = "h1:uD8QwN1h6SNphdCCzmkMN3feSUzNnVvV/WIkHKMbzOE=" // Sum of ent codegen.
+	Version = "v0.12.5"                                         // Version of ent codegen.
+	Sum     = "h1:KREM5E4CSoej4zeGa88Ou/gfturAnpUv0mzAjch1sj4=" // Sum of ent codegen.
 )

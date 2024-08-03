@@ -68,7 +68,7 @@ func (s *CaseService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*p
 }
 func (s *CaseService) UploadCases(ctx http.Context) error {
 	req := ctx.Request()
-
+	casesType := req.FormValue("type")
 	problemId := req.FormValue("problemId")
 	int64CaseId, err := strconv.ParseInt(problemId, 10, 64)
 	if err != nil {
@@ -80,7 +80,7 @@ func (s *CaseService) UploadCases(ctx http.Context) error {
 	}
 	filename := handler.Filename
 	defer file.Close()
-	out, err := s.uc.UploadCases(ctx, int64CaseId, file, filename)
+	out, err := s.uc.UploadCases(ctx, int64CaseId, file, filename, casesType)
 	if err != nil {
 		return err
 	}

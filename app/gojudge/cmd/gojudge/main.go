@@ -7,8 +7,8 @@ import (
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"os"
+	"sastoj/app/gojudge/internal/biz"
 	"sastoj/app/gojudge/internal/conf"
 
 	_ "go.uber.org/automaxprocs"
@@ -30,16 +30,14 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server) *kratos.App {
+func newApp(middleware *biz.Middleware, logger log.Logger) *kratos.App {
+	middleware.Start()
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(
-			gs,
-		),
 	)
 }
 

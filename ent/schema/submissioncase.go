@@ -23,11 +23,11 @@ func (SubmissionCase) Annitations() []schema.Annotation {
 func (SubmissionCase) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique(),
-		field.Int16("state").Positive(),
-		field.Int16("point").NonNegative(),
+		field.Int16("state"),
+		field.Int16("point"),
 		field.Text("message"),
-		field.Int32("time").NonNegative(),
-		field.Int32("memory").NonNegative(),
+		field.Int32("time"),
+		field.Int32("memory"),
 		field.Int64("submission_id"),
 		field.Int64("problem_case_id"),
 	}

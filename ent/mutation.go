@@ -3486,38 +3486,39 @@ func (m *LoginSessionMutation) ResetEdge(name string) error {
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *int64
-	title                *string
-	content              *string
-	point                *int16
-	addpoint             *int16
-	case_version         *int16
-	addcase_version      *int16
-	index                *int16
-	addindex             *int16
-	is_deleted           *bool
-	_config              *string
-	visibility           *int8
-	addvisibility        *int8
-	clearedFields        map[string]struct{}
-	problem_cases        map[int64]struct{}
-	removedproblem_cases map[int64]struct{}
-	clearedproblem_cases bool
-	submission           map[int64]struct{}
-	removedsubmission    map[int64]struct{}
-	clearedsubmission    bool
-	contests             *int64
-	clearedcontests      bool
-	owner                *int64
-	clearedowner         bool
-	judgers              map[int64]struct{}
-	removedjudgers       map[int64]struct{}
-	clearedjudgers       bool
-	done                 bool
-	oldValue             func(context.Context) (*Problem, error)
-	predicates           []predicate.Problem
+	op                    Op
+	typ                   string
+	id                    *int64
+	title                 *string
+	content               *string
+	point                 *int16
+	addpoint              *int16
+	case_version          *int16
+	addcase_version       *int16
+	index                 *int16
+	addindex              *int16
+	restrict_presentation *bool
+	is_deleted            *bool
+	_config               *string
+	visibility            *int8
+	addvisibility         *int8
+	clearedFields         map[string]struct{}
+	problem_cases         map[int64]struct{}
+	removedproblem_cases  map[int64]struct{}
+	clearedproblem_cases  bool
+	submission            map[int64]struct{}
+	removedsubmission     map[int64]struct{}
+	clearedsubmission     bool
+	contests              *int64
+	clearedcontests       bool
+	owner                 *int64
+	clearedowner          bool
+	judgers               map[int64]struct{}
+	removedjudgers        map[int64]struct{}
+	clearedjudgers        bool
+	done                  bool
+	oldValue              func(context.Context) (*Problem, error)
+	predicates            []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -3862,6 +3863,42 @@ func (m *ProblemMutation) AddedIndex() (r int16, exists bool) {
 func (m *ProblemMutation) ResetIndex() {
 	m.index = nil
 	m.addindex = nil
+}
+
+// SetRestrictPresentation sets the "restrict_presentation" field.
+func (m *ProblemMutation) SetRestrictPresentation(b bool) {
+	m.restrict_presentation = &b
+}
+
+// RestrictPresentation returns the value of the "restrict_presentation" field in the mutation.
+func (m *ProblemMutation) RestrictPresentation() (r bool, exists bool) {
+	v := m.restrict_presentation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRestrictPresentation returns the old "restrict_presentation" field's value of the Problem entity.
+// If the Problem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemMutation) OldRestrictPresentation(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRestrictPresentation is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRestrictPresentation requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRestrictPresentation: %w", err)
+	}
+	return oldValue.RestrictPresentation, nil
+}
+
+// ResetRestrictPresentation resets all changes to the "restrict_presentation" field.
+func (m *ProblemMutation) ResetRestrictPresentation() {
+	m.restrict_presentation = nil
 }
 
 // SetIsDeleted sets the "is_deleted" field.
@@ -4340,7 +4377,7 @@ func (m *ProblemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.title != nil {
 		fields = append(fields, problem.FieldTitle)
 	}
@@ -4355,6 +4392,9 @@ func (m *ProblemMutation) Fields() []string {
 	}
 	if m.index != nil {
 		fields = append(fields, problem.FieldIndex)
+	}
+	if m.restrict_presentation != nil {
+		fields = append(fields, problem.FieldRestrictPresentation)
 	}
 	if m.is_deleted != nil {
 		fields = append(fields, problem.FieldIsDeleted)
@@ -4389,6 +4429,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.CaseVersion()
 	case problem.FieldIndex:
 		return m.Index()
+	case problem.FieldRestrictPresentation:
+		return m.RestrictPresentation()
 	case problem.FieldIsDeleted:
 		return m.IsDeleted()
 	case problem.FieldConfig:
@@ -4418,6 +4460,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCaseVersion(ctx)
 	case problem.FieldIndex:
 		return m.OldIndex(ctx)
+	case problem.FieldRestrictPresentation:
+		return m.OldRestrictPresentation(ctx)
 	case problem.FieldIsDeleted:
 		return m.OldIsDeleted(ctx)
 	case problem.FieldConfig:
@@ -4471,6 +4515,13 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIndex(v)
+		return nil
+	case problem.FieldRestrictPresentation:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRestrictPresentation(v)
 		return nil
 	case problem.FieldIsDeleted:
 		v, ok := value.(bool)
@@ -4621,6 +4672,9 @@ func (m *ProblemMutation) ResetField(name string) error {
 		return nil
 	case problem.FieldIndex:
 		m.ResetIndex()
+		return nil
+	case problem.FieldRestrictPresentation:
+		m.ResetRestrictPresentation()
 		return nil
 	case problem.FieldIsDeleted:
 		m.ResetIsDeleted()
@@ -5578,6 +5632,7 @@ type SubmissionMutation struct {
 	code                    *string
 	status                  *int16
 	addstatus               *int16
+	compile_message         *string
 	point                   *int16
 	addpoint                *int16
 	create_time             *time.Time
@@ -5798,6 +5853,55 @@ func (m *SubmissionMutation) AddedStatus() (r int16, exists bool) {
 func (m *SubmissionMutation) ResetStatus() {
 	m.status = nil
 	m.addstatus = nil
+}
+
+// SetCompileMessage sets the "compile_message" field.
+func (m *SubmissionMutation) SetCompileMessage(s string) {
+	m.compile_message = &s
+}
+
+// CompileMessage returns the value of the "compile_message" field in the mutation.
+func (m *SubmissionMutation) CompileMessage() (r string, exists bool) {
+	v := m.compile_message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompileMessage returns the old "compile_message" field's value of the Submission entity.
+// If the Submission object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubmissionMutation) OldCompileMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompileMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompileMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompileMessage: %w", err)
+	}
+	return oldValue.CompileMessage, nil
+}
+
+// ClearCompileMessage clears the value of the "compile_message" field.
+func (m *SubmissionMutation) ClearCompileMessage() {
+	m.compile_message = nil
+	m.clearedFields[submission.FieldCompileMessage] = struct{}{}
+}
+
+// CompileMessageCleared returns if the "compile_message" field was cleared in this mutation.
+func (m *SubmissionMutation) CompileMessageCleared() bool {
+	_, ok := m.clearedFields[submission.FieldCompileMessage]
+	return ok
+}
+
+// ResetCompileMessage resets all changes to the "compile_message" field.
+func (m *SubmissionMutation) ResetCompileMessage() {
+	m.compile_message = nil
+	delete(m.clearedFields, submission.FieldCompileMessage)
 }
 
 // SetPoint sets the "point" field.
@@ -6390,12 +6494,15 @@ func (m *SubmissionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubmissionMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.code != nil {
 		fields = append(fields, submission.FieldCode)
 	}
 	if m.status != nil {
 		fields = append(fields, submission.FieldStatus)
+	}
+	if m.compile_message != nil {
+		fields = append(fields, submission.FieldCompileMessage)
 	}
 	if m.point != nil {
 		fields = append(fields, submission.FieldPoint)
@@ -6433,6 +6540,8 @@ func (m *SubmissionMutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case submission.FieldStatus:
 		return m.Status()
+	case submission.FieldCompileMessage:
+		return m.CompileMessage()
 	case submission.FieldPoint:
 		return m.Point()
 	case submission.FieldCreateTime:
@@ -6462,6 +6571,8 @@ func (m *SubmissionMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldCode(ctx)
 	case submission.FieldStatus:
 		return m.OldStatus(ctx)
+	case submission.FieldCompileMessage:
+		return m.OldCompileMessage(ctx)
 	case submission.FieldPoint:
 		return m.OldPoint(ctx)
 	case submission.FieldCreateTime:
@@ -6500,6 +6611,13 @@ func (m *SubmissionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case submission.FieldCompileMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompileMessage(v)
 		return nil
 	case submission.FieldPoint:
 		v, ok := value.(int16)
@@ -6649,7 +6767,11 @@ func (m *SubmissionMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SubmissionMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(submission.FieldCompileMessage) {
+		fields = append(fields, submission.FieldCompileMessage)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -6662,6 +6784,11 @@ func (m *SubmissionMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SubmissionMutation) ClearField(name string) error {
+	switch name {
+	case submission.FieldCompileMessage:
+		m.ClearCompileMessage()
+		return nil
+	}
 	return fmt.Errorf("unknown Submission nullable field %s", name)
 }
 
@@ -6674,6 +6801,9 @@ func (m *SubmissionMutation) ResetField(name string) error {
 		return nil
 	case submission.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case submission.FieldCompileMessage:
+		m.ResetCompileMessage()
 		return nil
 	case submission.FieldPoint:
 		m.ResetPoint()

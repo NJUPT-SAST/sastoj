@@ -28,6 +28,8 @@ type Problem struct {
 	CaseVersion int16 `json:"case_version,omitempty"`
 	// Index holds the value of the "index" field.
 	Index int16 `json:"index,omitempty"`
+	// RestrictPresentation holds the value of the "restrict_presentation" field.
+	RestrictPresentation bool `json:"restrict_presentation,omitempty"`
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// Config holds the value of the "config" field.
@@ -82,10 +84,12 @@ func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
 // ContestsOrErr returns the Contests value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
-	if e.Contests != nil {
+	if e.loadedTypes[2] {
+		if e.Contests == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: contest.Label}
+		}
 		return e.Contests, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: contest.Label}
 	}
 	return nil, &NotLoadedError{edge: "contests"}
 }
@@ -93,10 +97,12 @@ func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemEdges) OwnerOrErr() (*User, error) {
-	if e.Owner != nil {
+	if e.loadedTypes[3] {
+		if e.Owner == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
 		return e.Owner, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "owner"}
 }
@@ -115,7 +121,7 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldIsDeleted:
+		case problem.FieldRestrictPresentation, problem.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
 		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID, problem.FieldUserID, problem.FieldVisibility:
 			values[i] = new(sql.NullInt64)
@@ -171,6 +177,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field index", values[i])
 			} else if value.Valid {
 				pr.Index = int16(value.Int64)
+			}
+		case problem.FieldRestrictPresentation:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field restrict_presentation", values[i])
+			} else if value.Valid {
+				pr.RestrictPresentation = value.Bool
 			}
 		case problem.FieldIsDeleted:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -277,6 +289,9 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("index=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Index))
+	builder.WriteString(", ")
+	builder.WriteString("restrict_presentation=")
+	builder.WriteString(fmt.Sprintf("%v", pr.RestrictPresentation))
 	builder.WriteString(", ")
 	builder.WriteString("is_deleted=")
 	builder.WriteString(fmt.Sprintf("%v", pr.IsDeleted))
