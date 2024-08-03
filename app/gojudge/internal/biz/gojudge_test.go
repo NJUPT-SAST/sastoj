@@ -7,6 +7,7 @@ import (
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
+	"sastoj/pkg/util"
 	"testing"
 )
 
@@ -74,7 +75,7 @@ func TestCGoJudge(t *testing.T) {
 	}
 
 	//compile
-	fileID, res, err := goJudge.Compile(code, language, "1")
+	fileID, res, err := goJudge.Compile([]byte(code), language, "1")
 	if err != nil {
 		log.Errorf("failed compile file: %v  \nres :%v", err, res)
 		panic(err)
@@ -83,7 +84,7 @@ func TestCGoJudge(t *testing.T) {
 
 	//judge
 	for _, input := range inputs {
-		judge, err := goJudge.Judge(input, language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
+		judge, err := goJudge.Judge([]byte(input), language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
 		if err != nil {
 			log.Errorf("failed running judge: %v", err)
 			panic(err)
@@ -102,8 +103,14 @@ func TestCGoJudge(t *testing.T) {
 // TestHandleSubmit require start with the env: go-judge(diff languages)
 func TestBashGoJudge(t *testing.T) {
 	language := "Bash"
-	code := "#!/bin/bash\n\n# Function to perform sorting\nsort_numbers() {\necho \"Enter numbers separated by spaces:\"\nread -a numbers\n\nsorted_numbers=($(for num in \"${numbers[@]}\"; do echo $num; done | sort -n))\n\necho \"Sorted numbers:\"\necho \"${sorted_numbers[@]}\"\n}\n\n# Main script execution\nsort_numbers"
-	inputs := []string{"4 1 3 2 5"}
+	code := `#!/bin/bash
+
+	read a b
+	sum=$((a + b))
+
+	echo "$sum"`
+	input := util.RemoveCr([]byte{51, 49, 48, 55, 53, 32, 50, 50, 52, 51, 48, 13, 10})
+	inputs := []string{string(input), "121312 512312\n"}
 	endpoint := "127.0.0.1:5051"
 
 	//connect to go-judge
@@ -154,7 +161,7 @@ func TestBashGoJudge(t *testing.T) {
 	}
 
 	//compile
-	fileID, res, err := goJudge.Compile(code, language, "1")
+	fileID, res, err := goJudge.Compile([]byte(code), language, "1")
 	if err != nil {
 		log.Errorf("failed compile file: %v  \nres :%v", err, res)
 		panic(err)
@@ -163,7 +170,7 @@ func TestBashGoJudge(t *testing.T) {
 
 	//judge
 	for _, input := range inputs {
-		judge, err := goJudge.Judge(input, language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
+		judge, err := goJudge.Judge([]byte(input), language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
 		if err != nil {
 			log.Errorf("failed running judge: %v", err)
 			panic(err)

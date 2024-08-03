@@ -19,7 +19,7 @@ func (g *GoJudge) CheckLanguage(language string) error {
 	return nil
 }
 
-func (g *GoJudge) Compile(code string, language string, requestID string) (string, *pb.Response_Result, error) {
+func (g *GoJudge) Compile(code []byte, language string, requestID string) (string, *pb.Response_Result, error) {
 	command, ok := (*g.commands)[language]
 	if !ok {
 		return "", nil, errors.New("language not support ")
@@ -38,7 +38,7 @@ func (g *GoJudge) Compile(code string, language string, requestID string) (strin
 				Args: command.Compile,
 				Env:  []string{"PATH=/usr/bin:/bin"},
 				Files: []*pb.Request_File{
-					requestMemory(""),
+					requestMemory([]byte{}),
 					requestPipe("stdout", command.CompileConfig.StdoutMaxSize),
 					requestPipe("stderr", command.CompileConfig.StderrMaxSize),
 				},
@@ -67,7 +67,7 @@ func (g *GoJudge) Compile(code string, language string, requestID string) (strin
 	return result.FileIDs[command.Target], result, nil
 }
 
-func (g *GoJudge) Judge(input string, language string, targetID string, requestID string, cpuTimeLimit uint64, clockTimeLimit uint64, memoryLimit uint64, outputSize int64) (*pb.Response_Result, error) {
+func (g *GoJudge) Judge(input []byte, language string, targetID string, requestID string, cpuTimeLimit uint64, clockTimeLimit uint64, memoryLimit uint64, outputSize int64) (*pb.Response_Result, error) {
 	//Tips: File should not be larger than Config
 	command, ok := (*g.commands)[language]
 	if !ok {
@@ -81,7 +81,7 @@ func (g *GoJudge) Judge(input string, language string, targetID string, requestI
 				Env:  []string{"PATH=/usr/bin:/bin"},
 				Files: []*pb.Request_File{
 					requestMemory(input),
-					requestPipe("stdout", min(command.RunConfig.StdoutMaxSize, outputSize)),
+					requestPipe("stdout", command.RunConfig.StdoutMaxSize),
 					requestPipe("stderr", command.RunConfig.StderrMaxSize),
 				},
 				CpuTimeLimit:   min(command.RunConfig.CpuTimeLimit, cpuTimeLimit) * 1000 * 1000,
@@ -102,10 +102,10 @@ func (g *GoJudge) Judge(input string, language string, targetID string, requestI
 	return result, nil
 }
 
-func (g *GoJudge) AddFile(file string, content string) (fileID string, err error) {
+func (g *GoJudge) AddFile(file string, content []byte) (fileID string, err error) {
 	id, err := (*g.client).FileAdd(context.Background(), &pb.FileContent{
 		Name:    file,
-		Content: []byte(content),
+		Content: content,
 	})
 	if err != nil {
 		return "", err
@@ -138,11 +138,11 @@ func handleExecError(requestID string, response *pb.Response, err error) (*pb.Re
 	return result, nil
 }
 
-func requestMemory(content string) *pb.Request_File {
+func requestMemory(content []byte) *pb.Request_File {
 	return &pb.Request_File{
 		File: &pb.Request_File_Memory{
 			Memory: &pb.Request_MemoryFile{
-				Content: []byte(content),
+				Content: content,
 			},
 		},
 	}

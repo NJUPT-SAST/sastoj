@@ -150,7 +150,7 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	commands := *m.goJudge.commands
 	testConfig := commands["test"]
-	fileID, result, err := m.goJudge.Compile(v.Code, v.Language, uuid.NewString())
+	fileID, result, err := m.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
 			res, ok := result.Files["stderr"]
@@ -163,7 +163,7 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 		}
 		return err
 	}
-	result, err = m.goJudge.Judge(v.Input, v.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
+	result, err = m.goJudge.Judge([]byte(v.Input), v.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
 	if err != nil {
 		_ = m.goJudge.DeleteFile(fileID)
 		return err
