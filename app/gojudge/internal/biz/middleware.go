@@ -85,71 +85,12 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 	case "classic":
 		switch config.Task.TaskType {
 		case "simple":
-			sum := config.Score
-			var num int16 = 0
-			for _, c := range config.Task.Cases {
-				if c.Score == 0 {
-					num += 1
-				} else {
-					sum -= c.Score
-				}
-			}
-			if sum > 0 {
-				avg := sum / num
-				remainder := sum % num
-				for i := range config.Task.Cases {
-					c := &config.Task.Cases[i]
-					if c.Score == 0 {
-						num--
-						c.Score = avg
-						if num < remainder {
-							c.Score++
-						}
-					}
-				}
-			}
 			simple := Simple{
 				middleware: m,
 				config:     config,
 			}
 			return simple.handleSubmit(v)
 		case "subtasks":
-			sum := config.Score
-			var num int16 = 0
-			for _, sub := range config.Task.Subtasks {
-				if sub.Score == 0 {
-					num += 1
-				} else {
-					sum -= sub.Score
-				}
-			}
-			if sum > 0 {
-				avg := sum / num
-				remainder := sum % num
-				for i := range config.Task.Subtasks {
-					sub := &config.Task.Subtasks[i]
-					if sub.Score == 0 {
-						num--
-						sub.Score = avg
-						if num < remainder {
-							sub.Score++
-						}
-					}
-					caseLen := int16(len(sub.Cases))
-					subAvg := sub.Score / caseLen
-					subRemainder := sub.Score % caseLen
-					for j := range sub.Cases {
-						c := &sub.Cases[j]
-						if c.Score == 0 {
-							caseLen--
-							c.Score = subAvg
-							if caseLen < subRemainder {
-								c.Score++
-							}
-						}
-					}
-				}
-			}
 			subtasks := Subtasks{
 				middleware: m,
 				config:     config,

@@ -11,16 +11,7 @@ type FileManage struct {
 }
 
 func (m *FileManage) GetConfig(problemId int64) (*u.JudgeConfig, error) {
-	location := m.FileLocation + "/" + strconv.FormatInt(problemId, 10)
-	toml, err := os.ReadFile(location + "/testdata/config.toml")
-	if err != nil {
-		return nil, err
-	}
-	config, err := u.UnmarshalToml(toml)
-	if err != nil {
-		return nil, err
-	}
-	return &config, nil
+	return u.GetConfig(problemId, m.FileLocation)
 }
 
 func (m *FileManage) FetchCase(problemId int64, fileIn string, fileAns string) (in []byte, ans []byte, err error) {

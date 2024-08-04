@@ -2,6 +2,8 @@ package util
 
 import (
 	"github.com/pelletier/go-toml/v2"
+	"os"
+	"strconv"
 )
 
 type Cases struct {
@@ -38,12 +40,39 @@ type JudgeConfig struct {
 	Task           Task
 }
 
-func UnmarshalToml(doc []byte) (JudgeConfig, error) {
-
-	var cfg JudgeConfig
-	err := toml.Unmarshal(doc, &cfg)
+func ReadTomlFile(problemId int64, baseLocation string) ([]byte, error) {
+	tomlFile, err := os.ReadFile(baseLocation + "/" + strconv.FormatInt(problemId, 10) + "/testdata/config.toml")
 	if err != nil {
-		return JudgeConfig{}, err
+		return nil, err
 	}
-	return cfg, nil
+	return tomlFile, nil
+}
+
+func WriteTomlFile(problemId int64, baseLocation string, tomlFile []byte) error {
+	err := os.WriteFile(baseLocation+"/"+strconv.FormatInt(problemId, 10)+"/testdata/config.toml", tomlFile, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetConfig(problemId int64, baseLocation string) (*JudgeConfig, error) {
+	tomlFile, err := ReadTomlFile(problemId, baseLocation)
+	if err != nil {
+		return nil, err
+	}
+	var config JudgeConfig
+	err = toml.Unmarshal(tomlFile, &config)
+	if err != nil {
+		return nil, err
+	}
+	return &config, nil
+}
+
+func SetConfig(problemId int64, baseLocation string, config JudgeConfig) error {
+	tomlFile, err := toml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	return WriteTomlFile(problemId, baseLocation, tomlFile)
 }

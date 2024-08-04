@@ -89,8 +89,8 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 }
 
 func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (util.JudgeConfig, error) {
-	base := r.data.problemCasesLocation
-	location := base + "/" + strconv.FormatInt(problemId, 10) + "/"
+	baseLocation := r.data.problemCasesLocation
+	location := baseLocation + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
 		err := os.RemoveAll(location)
 		if err != nil {
@@ -136,11 +136,7 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	}
 
 	// unmarshal toml
-	tomlText, err := os.ReadFile(location + "testdata" + "/" + "config.toml")
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	config, err := util.UnmarshalToml(tomlText)
+	config, err := util.GetConfig(problemId, baseLocation)
 	if err != nil {
 		return util.JudgeConfig{}, err
 	}
@@ -184,10 +180,22 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 		}
 	}
 
+	// count scores
+	err = util.CalculateScores(config)
+	if err != nil {
+		return util.JudgeConfig{}, err
+	}
+
+	// save toml config to file
+	err = util.SetConfig(problemId, baseLocation, *config)
+	if err != nil {
+		return util.JudgeConfig{}, err
+	}
+
 	// compressed
 	err = archiver.Archive([]string{location + "testdata"}, location+"/"+"testdata.tar.zst")
 	if err != nil {
 		return util.JudgeConfig{}, err
 	}
-	return config, nil
+	return *config, nil
 }
