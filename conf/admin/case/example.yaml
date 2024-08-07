@@ -1,0 +1,18 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: postgres
+    source: host=pg port=5432 user=sastoj dbname=sastoj password=123456 sslmode=disable
+  redis:
+    addr: rd:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  load:
+    problem_cases_location: /data/cases
+

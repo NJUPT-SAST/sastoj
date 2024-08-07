@@ -1,3 +1,5 @@
+# Build all services
+
 FROM golang:1.22 AS builder
 
 COPY . /src
@@ -6,7 +8,10 @@ WORKDIR /src
 RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && cd app/admin \
         && for p in case group judge problem user contest; do cd $p && make build && cd ..; done \
-        && cd app/user/contest && make build && cd ../..
+        && cd .. \
+        && cd user/contest && make build && cd ../.. \
+        && cd public/auth && make build && cd ../.. \
+        && cd gojudge && make build && cd ..
 
 
 FROM debian:stable-slim AS case
@@ -69,5 +74,20 @@ COPY --from=builder /src/app/user/contest/bin/contest /
 EXPOSE 8000
 EXPOSE 9000
 VOLUME /data/conf
-CMD ["/user_contest", "-conf", "/data/conf"]
+CMD ["/contest", "-conf", "/data/conf"]
 
+
+FROM debian:stable-slim AS public-auth
+
+COPY --from=builder /src/app/public/auth/bin/auth /
+EXPOSE 8000
+EXPOSE 9000
+VOLUME /data/conf
+CMD ["/auth", "-conf", "/data/conf"]
+
+
+FROM debian:stable-slim AS gojudge-server
+
+COPY --from=builder /src/app/gojudge/bin/gojudge /
+VOLUME /data/conf
+CMD ["/gojudge", "-conf", "/data/conf"]
