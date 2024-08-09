@@ -5,7 +5,7 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 )
 
-func (s *UserContestService) GetProblems(ctx context.Context, req *pb.GetProblemsRequest) (*pb.GetProblemsReply, error) {
+func (s *ContestService) GetProblems(ctx context.Context, req *pb.GetProblemsRequest) (*pb.GetProblemsReply, error) {
 	rv, err := s.problemUc.ListProblem(ctx, req.ContestId)
 	if err != nil {
 		return &pb.GetProblemsReply{}, err
@@ -22,7 +22,7 @@ func (s *UserContestService) GetProblems(ctx context.Context, req *pb.GetProblem
 	return reply, nil
 }
 
-func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemRequest) (*pb.GetProblemReply, error) {
+func (s *ContestService) GetProblem(ctx context.Context, req *pb.GetProblemRequest) (*pb.GetProblemReply, error) {
 	rv, err := s.problemUc.GetProblem(ctx, req.ProblemId, req.ContestId)
 	if err != nil {
 		return &pb.GetProblemReply{}, err
@@ -35,6 +35,6 @@ func (s *UserContestService) GetProblem(ctx context.Context, req *pb.GetProblemR
 	}, nil
 }
 
-func (s *UserContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
+func (s *ContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	return s.problemUc.GetProblemCaseVer(ctx, problemId)
 }

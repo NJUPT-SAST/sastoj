@@ -19,51 +19,48 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationContestServiceGetCases = "/api.sastoj.user.contest.service.v1.ContestService/GetCases"
-const OperationContestServiceGetContests = "/api.sastoj.user.contest.service.v1.ContestService/GetContests"
-const OperationContestServiceGetProblem = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
-const OperationContestServiceGetProblems = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
-const OperationContestServiceGetSubmission = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmission"
-const OperationContestServiceGetSubmissions = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmissions"
-const OperationContestServiceJoinContest = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
-const OperationContestServiceListRanking = "/api.sastoj.user.contest.service.v1.ContestService/ListRanking"
-const OperationContestServiceSelfTest = "/api.sastoj.user.contest.service.v1.ContestService/SelfTest"
-const OperationContestServiceSubmit = "/api.sastoj.user.contest.service.v1.ContestService/Submit"
+const OperationContestGetCases = "/api.sastoj.user.contest.service.v1.Contest/GetCases"
+const OperationContestGetContests = "/api.sastoj.user.contest.service.v1.Contest/GetContests"
+const OperationContestGetProblem = "/api.sastoj.user.contest.service.v1.Contest/GetProblem"
+const OperationContestGetProblems = "/api.sastoj.user.contest.service.v1.Contest/GetProblems"
+const OperationContestGetSubmission = "/api.sastoj.user.contest.service.v1.Contest/GetSubmission"
+const OperationContestJoinContest = "/api.sastoj.user.contest.service.v1.Contest/JoinContest"
+const OperationContestListRanking = "/api.sastoj.user.contest.service.v1.Contest/ListRanking"
+const OperationContestSelfTest = "/api.sastoj.user.contest.service.v1.Contest/SelfTest"
+const OperationContestSubmit = "/api.sastoj.user.contest.service.v1.Contest/Submit"
 
-type ContestServiceHTTPServer interface {
+type ContestHTTPServer interface {
 	GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error)
 	GetContests(context.Context, *GetContestsRequest) (*GetContestsReply, error)
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
-	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
 	JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
 	Submit(context.Context, *SubmitRequest) (*SubmitReply, error)
 }
 
-func RegisterContestServiceHTTPServer(s *http.Server, srv ContestServiceHTTPServer) {
+func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r := s.Route("/")
-	r.GET("/user/contests", _ContestService_GetContests0_HTTP_Handler(srv))
-	r.POST("/user/contests/{contest_id}", _ContestService_JoinContest0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems", _ContestService_GetProblems0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}", _ContestService_GetProblem0_HTTP_Handler(srv))
-	r.POST("/user/contests/{contest_id}/problems/{problem_id}/submission", _ContestService_Submit0_HTTP_Handler(srv))
-	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _ContestService_SelfTest0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}", _ContestService_GetSubmission0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions", _ContestService_GetSubmissions0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases", _ContestService_GetCases0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/ranking", _ContestService_ListRanking0_HTTP_Handler(srv))
+	r.GET("/user/contests", _Contest_GetContests0_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}", _Contest_JoinContest0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems", _Contest_GetProblems0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}", _Contest_GetProblem0_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}/problems/{problem_id}/submission", _Contest_Submit0_HTTP_Handler(srv))
+	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _Contest_SelfTest0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Contest_GetSubmission0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases", _Contest_GetCases0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/ranking", _Contest_ListRanking0_HTTP_Handler(srv))
 }
 
-func _ContestService_GetContests0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_GetContests0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetContestsRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceGetContests)
+		http.SetOperation(ctx, OperationContestGetContests)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetContests(ctx, req.(*GetContestsRequest))
 		})
@@ -76,10 +73,10 @@ func _ContestService_GetContests0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 	}
 }
 
-func _ContestService_JoinContest0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_JoinContest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in JoinContestRequest
-		if err := ctx.Bind(&in.JoinContestBody); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
@@ -88,7 +85,7 @@ func _ContestService_JoinContest0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceJoinContest)
+		http.SetOperation(ctx, OperationContestJoinContest)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.JoinContest(ctx, req.(*JoinContestRequest))
 		})
@@ -101,7 +98,7 @@ func _ContestService_JoinContest0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 	}
 }
 
-func _ContestService_GetProblems0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_GetProblems0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetProblemsRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -110,7 +107,7 @@ func _ContestService_GetProblems0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceGetProblems)
+		http.SetOperation(ctx, OperationContestGetProblems)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetProblems(ctx, req.(*GetProblemsRequest))
 		})
@@ -123,7 +120,7 @@ func _ContestService_GetProblems0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 	}
 }
 
-func _ContestService_GetProblem0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_GetProblem0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetProblemRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -132,7 +129,7 @@ func _ContestService_GetProblem0_HTTP_Handler(srv ContestServiceHTTPServer) func
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceGetProblem)
+		http.SetOperation(ctx, OperationContestGetProblem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetProblem(ctx, req.(*GetProblemRequest))
 		})
@@ -145,7 +142,7 @@ func _ContestService_GetProblem0_HTTP_Handler(srv ContestServiceHTTPServer) func
 	}
 }
 
-func _ContestService_Submit0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_Submit0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SubmitRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -157,7 +154,7 @@ func _ContestService_Submit0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceSubmit)
+		http.SetOperation(ctx, OperationContestSubmit)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.Submit(ctx, req.(*SubmitRequest))
 		})
@@ -170,7 +167,7 @@ func _ContestService_Submit0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx
 	}
 }
 
-func _ContestService_SelfTest0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_SelfTest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SelfTestRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -182,7 +179,7 @@ func _ContestService_SelfTest0_HTTP_Handler(srv ContestServiceHTTPServer) func(c
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceSelfTest)
+		http.SetOperation(ctx, OperationContestSelfTest)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SelfTest(ctx, req.(*SelfTestRequest))
 		})
@@ -195,7 +192,7 @@ func _ContestService_SelfTest0_HTTP_Handler(srv ContestServiceHTTPServer) func(c
 	}
 }
 
-func _ContestService_GetSubmission0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_GetSubmission0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetSubmissionRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -204,7 +201,7 @@ func _ContestService_GetSubmission0_HTTP_Handler(srv ContestServiceHTTPServer) f
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceGetSubmission)
+		http.SetOperation(ctx, OperationContestGetSubmission)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetSubmission(ctx, req.(*GetSubmissionRequest))
 		})
@@ -217,29 +214,7 @@ func _ContestService_GetSubmission0_HTTP_Handler(srv ContestServiceHTTPServer) f
 	}
 }
 
-func _ContestService_GetSubmissions0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetSubmissionsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationContestServiceGetSubmissions)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetSubmissions(ctx, req.(*GetSubmissionsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*GetSubmissionsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ContestService_GetCases0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_GetCases0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCasesRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -248,7 +223,7 @@ func _ContestService_GetCases0_HTTP_Handler(srv ContestServiceHTTPServer) func(c
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceGetCases)
+		http.SetOperation(ctx, OperationContestGetCases)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetCases(ctx, req.(*GetCasesRequest))
 		})
@@ -261,7 +236,7 @@ func _ContestService_GetCases0_HTTP_Handler(srv ContestServiceHTTPServer) func(c
 	}
 }
 
-func _ContestService_ListRanking0_HTTP_Handler(srv ContestServiceHTTPServer) func(ctx http.Context) error {
+func _Contest_ListRanking0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ListRankingRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -270,7 +245,7 @@ func _ContestService_ListRanking0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationContestServiceListRanking)
+		http.SetOperation(ctx, OperationContestListRanking)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.ListRanking(ctx, req.(*ListRankingRequest))
 		})
@@ -283,32 +258,31 @@ func _ContestService_ListRanking0_HTTP_Handler(srv ContestServiceHTTPServer) fun
 	}
 }
 
-type ContestServiceHTTPClient interface {
+type ContestHTTPClient interface {
 	GetCases(ctx context.Context, req *GetCasesRequest, opts ...http.CallOption) (rsp *GetCasesReply, err error)
 	GetContests(ctx context.Context, req *GetContestsRequest, opts ...http.CallOption) (rsp *GetContestsReply, err error)
 	GetProblem(ctx context.Context, req *GetProblemRequest, opts ...http.CallOption) (rsp *GetProblemReply, err error)
 	GetProblems(ctx context.Context, req *GetProblemsRequest, opts ...http.CallOption) (rsp *GetProblemsReply, err error)
 	GetSubmission(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
-	GetSubmissions(ctx context.Context, req *GetSubmissionsRequest, opts ...http.CallOption) (rsp *GetSubmissionsReply, err error)
 	JoinContest(ctx context.Context, req *JoinContestRequest, opts ...http.CallOption) (rsp *JoinContestReply, err error)
 	ListRanking(ctx context.Context, req *ListRankingRequest, opts ...http.CallOption) (rsp *ListRankingReply, err error)
 	SelfTest(ctx context.Context, req *SelfTestRequest, opts ...http.CallOption) (rsp *SelfTestReply, err error)
 	Submit(ctx context.Context, req *SubmitRequest, opts ...http.CallOption) (rsp *SubmitReply, err error)
 }
 
-type ContestServiceHTTPClientImpl struct {
+type ContestHTTPClientImpl struct {
 	cc *http.Client
 }
 
-func NewContestServiceHTTPClient(client *http.Client) ContestServiceHTTPClient {
-	return &ContestServiceHTTPClientImpl{client}
+func NewContestHTTPClient(client *http.Client) ContestHTTPClient {
+	return &ContestHTTPClientImpl{client}
 }
 
-func (c *ContestServiceHTTPClientImpl) GetCases(ctx context.Context, in *GetCasesRequest, opts ...http.CallOption) (*GetCasesReply, error) {
+func (c *ContestHTTPClientImpl) GetCases(ctx context.Context, in *GetCasesRequest, opts ...http.CallOption) (*GetCasesReply, error) {
 	var out GetCasesReply
 	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetCases))
+	opts = append(opts, http.Operation(OperationContestGetCases))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -317,11 +291,11 @@ func (c *ContestServiceHTTPClientImpl) GetCases(ctx context.Context, in *GetCase
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) GetContests(ctx context.Context, in *GetContestsRequest, opts ...http.CallOption) (*GetContestsReply, error) {
+func (c *ContestHTTPClientImpl) GetContests(ctx context.Context, in *GetContestsRequest, opts ...http.CallOption) (*GetContestsReply, error) {
 	var out GetContestsReply
 	pattern := "/user/contests"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetContests))
+	opts = append(opts, http.Operation(OperationContestGetContests))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -330,11 +304,11 @@ func (c *ContestServiceHTTPClientImpl) GetContests(ctx context.Context, in *GetC
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) GetProblem(ctx context.Context, in *GetProblemRequest, opts ...http.CallOption) (*GetProblemReply, error) {
+func (c *ContestHTTPClientImpl) GetProblem(ctx context.Context, in *GetProblemRequest, opts ...http.CallOption) (*GetProblemReply, error) {
 	var out GetProblemReply
 	pattern := "/user/contests/{contest_id}/problems/{problem_id}"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetProblem))
+	opts = append(opts, http.Operation(OperationContestGetProblem))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -343,11 +317,11 @@ func (c *ContestServiceHTTPClientImpl) GetProblem(ctx context.Context, in *GetPr
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...http.CallOption) (*GetProblemsReply, error) {
+func (c *ContestHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...http.CallOption) (*GetProblemsReply, error) {
 	var out GetProblemsReply
 	pattern := "/user/contests/{contest_id}/problems"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetProblems))
+	opts = append(opts, http.Operation(OperationContestGetProblems))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -356,11 +330,11 @@ func (c *ContestServiceHTTPClientImpl) GetProblems(ctx context.Context, in *GetP
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
+func (c *ContestHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
 	var out GetSubmissionReply
-	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}"
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetSubmission))
+	opts = append(opts, http.Operation(OperationContestGetSubmission))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -369,50 +343,11 @@ func (c *ContestServiceHTTPClientImpl) GetSubmission(ctx context.Context, in *Ge
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...http.CallOption) (*GetSubmissionsReply, error) {
-	var out GetSubmissionsReply
-	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submissions"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceGetSubmissions))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ContestServiceHTTPClientImpl) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...http.CallOption) (*JoinContestReply, error) {
+func (c *ContestHTTPClientImpl) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...http.CallOption) (*JoinContestReply, error) {
 	var out JoinContestReply
 	pattern := "/user/contests/{contest_id}"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationContestServiceJoinContest))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in.JoinContestBody, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ContestServiceHTTPClientImpl) ListRanking(ctx context.Context, in *ListRankingRequest, opts ...http.CallOption) (*ListRankingReply, error) {
-	var out ListRankingReply
-	pattern := "/user/contests/{contest_id}/ranking"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationContestServiceListRanking))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ContestServiceHTTPClientImpl) SelfTest(ctx context.Context, in *SelfTestRequest, opts ...http.CallOption) (*SelfTestReply, error) {
-	var out SelfTestReply
-	pattern := "/user/contests/{contest_id}/problems/{problem_id}/test"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationContestServiceSelfTest))
+	opts = append(opts, http.Operation(OperationContestJoinContest))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -421,11 +356,37 @@ func (c *ContestServiceHTTPClientImpl) SelfTest(ctx context.Context, in *SelfTes
 	return &out, nil
 }
 
-func (c *ContestServiceHTTPClientImpl) Submit(ctx context.Context, in *SubmitRequest, opts ...http.CallOption) (*SubmitReply, error) {
+func (c *ContestHTTPClientImpl) ListRanking(ctx context.Context, in *ListRankingRequest, opts ...http.CallOption) (*ListRankingReply, error) {
+	var out ListRankingReply
+	pattern := "/user/contests/{contest_id}/ranking"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationContestListRanking))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ContestHTTPClientImpl) SelfTest(ctx context.Context, in *SelfTestRequest, opts ...http.CallOption) (*SelfTestReply, error) {
+	var out SelfTestReply
+	pattern := "/user/contests/{contest_id}/problems/{problem_id}/test"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationContestSelfTest))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ContestHTTPClientImpl) Submit(ctx context.Context, in *SubmitRequest, opts ...http.CallOption) (*SubmitReply, error) {
 	var out SubmitReply
 	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationContestServiceSubmit))
+	opts = append(opts, http.Operation(OperationContestSubmit))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

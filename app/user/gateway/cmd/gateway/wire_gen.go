@@ -7,13 +7,14 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/app/user/gateway/internal/conf"
 	"sastoj/app/user/gateway/internal/data"
 	"sastoj/app/user/gateway/internal/server"
 	"sastoj/app/user/gateway/internal/service"
+
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 import (
@@ -24,8 +25,8 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, client *conf.Client, logger log.Logger) (*kratos.App, func(), error) {
-	contestServiceClient := data.NewContestServiceClient(client)
-	dataData, cleanup, err := data.NewData(confData, contestServiceClient, logger)
+	contestClient := data.NewContestClient(client)
+	dataData, cleanup, err := data.NewData(confData, contestClient, logger)
 	if err != nil {
 		return nil, nil, err
 	}

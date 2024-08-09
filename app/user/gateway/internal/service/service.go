@@ -1,7 +1,7 @@
 package service
 
 import (
-	pb "sastoj/api/sastoj/user/gateway/service/v1"
+	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 
 	"github.com/google/wire"
@@ -12,8 +12,6 @@ var ProviderSet = wire.NewSet(NewGatewayService)
 
 type GatewayService struct {
 	pb.UnimplementedContestServer
-	pb.UnimplementedProblemServer
-	pb.UnimplementedSubmissionServer
 	contestUc    *biz.ContestUsecase
 	problemUc    *biz.ProblemUsecase
 	submissionUc *biz.SubmissionUsecase

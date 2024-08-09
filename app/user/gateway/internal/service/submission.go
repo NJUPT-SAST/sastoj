@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	pb "sastoj/api/sastoj/user/gateway/service/v1"
+	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/pkg/util"
 	"strconv"
@@ -33,6 +33,7 @@ func (s *GatewayService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 		Uuid: rv,
 	}, nil
 }
+
 func (s *GatewayService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
 	// TODO: Get the userID from context
 	id := uuid.New().String()
@@ -50,7 +51,8 @@ func (s *GatewayService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) 
 		Uuid: id,
 	}, nil
 }
-func (s *GatewayService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
+
+func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
 	// TODO: Get the userID from context
 	rv, err := s.submissionUc.GetSubmission(ctx, strconv.FormatInt(req.SubmissionId, 10), 0)
 	if err != nil {
@@ -66,9 +68,6 @@ func (s *GatewayService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 		TotalTime: rv.TotalTime,
 		MaxMemory: rv.MaxMemory,
 	}, nil
-}
-func (s *GatewayService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
-	return &pb.ListRankingReply{}, nil
 }
 
 func (s *GatewayService) UpdateSubmission(ctx context.Context, req *pb.UpdateSubmissionRequest) (*pb.UpdateSubmissionReply, error) {

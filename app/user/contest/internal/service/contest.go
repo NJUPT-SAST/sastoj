@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *UserContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
+func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
 	// TODO: Get the userID from context
 	userId := 0
 	rv, err := s.contestUc.ListContest(ctx, int64(userId))
@@ -15,7 +16,7 @@ func (s *UserContestService) GetContests(ctx context.Context, _ *pb.GetContestsR
 	}
 	reply := &pb.GetContestsReply{}
 	for _, p := range rv {
-		reply.Contests = append(reply.Contests, &pb.Contest{
+		reply.Contests = append(reply.Contests, &pb.GetContestsReply_Contest{
 			Id:          p.ID,
 			Title:       p.Title,
 			Description: p.Description,
@@ -25,21 +26,21 @@ func (s *UserContestService) GetContests(ctx context.Context, _ *pb.GetContestsR
 			EndTime:     timestamppb.New(p.EndTime),
 			Language:    p.Language,
 			ExtraTime:   int32(p.ExtraTime),
-			Groups:      p.Groups,
+			Contestants: p.Groups,
 		})
 	}
 	return reply, nil
 }
-func (s *UserContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
-	err := s.contestUc.JoinContest(ctx, 1, 1, req.JoinContestBody.IsJoin)
+func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
+	err := s.contestUc.JoinContest(ctx, 1, 1, req.Body.IsJoin)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.JoinContestReply{
-		IsJoin: req.JoinContestBody.IsJoin,
+		IsJoin: req.Body.IsJoin,
 	}, nil
 }
 
-func (s *UserContestService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
+func (s *ContestService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
 	return &pb.ListRankingReply{}, nil
 }
