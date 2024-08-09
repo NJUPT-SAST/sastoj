@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
-	v1 "sastoj/api/sastoj/user/gateway/service/v1"
+	v1 "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/conf"
 	"sastoj/app/user/gateway/internal/service"
 

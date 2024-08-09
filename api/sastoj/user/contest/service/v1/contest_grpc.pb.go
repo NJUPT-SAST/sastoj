@@ -19,23 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContestService_GetContests_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/GetContests"
-	ContestService_JoinContest_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/JoinContest"
-	ContestService_GetProblems_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/GetProblems"
-	ContestService_GetProblem_FullMethodName      = "/api.sastoj.user.contest.service.v1.ContestService/GetProblem"
-	ContestService_Submit_FullMethodName          = "/api.sastoj.user.contest.service.v1.ContestService/Submit"
-	ContestService_SelfTest_FullMethodName        = "/api.sastoj.user.contest.service.v1.ContestService/SelfTest"
-	ContestService_GetSubmission_FullMethodName   = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmission"
-	ContestService_GetSubmissions_FullMethodName  = "/api.sastoj.user.contest.service.v1.ContestService/GetSubmissions"
-	ContestService_GetCases_FullMethodName        = "/api.sastoj.user.contest.service.v1.ContestService/GetCases"
-	ContestService_ListRanking_FullMethodName     = "/api.sastoj.user.contest.service.v1.ContestService/ListRanking"
-	ContestService_RegisterGateway_FullMethodName = "/api.sastoj.user.contest.service.v1.ContestService/RegisterGateway"
+	Contest_GetContests_FullMethodName      = "/api.sastoj.user.contest.service.v1.Contest/GetContests"
+	Contest_JoinContest_FullMethodName      = "/api.sastoj.user.contest.service.v1.Contest/JoinContest"
+	Contest_GetProblems_FullMethodName      = "/api.sastoj.user.contest.service.v1.Contest/GetProblems"
+	Contest_GetProblem_FullMethodName       = "/api.sastoj.user.contest.service.v1.Contest/GetProblem"
+	Contest_Submit_FullMethodName           = "/api.sastoj.user.contest.service.v1.Contest/Submit"
+	Contest_SelfTest_FullMethodName         = "/api.sastoj.user.contest.service.v1.Contest/SelfTest"
+	Contest_GetSubmission_FullMethodName    = "/api.sastoj.user.contest.service.v1.Contest/GetSubmission"
+	Contest_GetSubmissions_FullMethodName   = "/api.sastoj.user.contest.service.v1.Contest/GetSubmissions"
+	Contest_GetCases_FullMethodName         = "/api.sastoj.user.contest.service.v1.Contest/GetCases"
+	Contest_ListRanking_FullMethodName      = "/api.sastoj.user.contest.service.v1.Contest/ListRanking"
+	Contest_Register_FullMethodName         = "/api.sastoj.user.contest.service.v1.Contest/Register"
+	Contest_UpdateSubmission_FullMethodName = "/api.sastoj.user.contest.service.v1.Contest/UpdateSubmission"
+	Contest_UpdateSelfTest_FullMethodName   = "/api.sastoj.user.contest.service.v1.Contest/UpdateSelfTest"
 )
 
-// ContestServiceClient is the client API for ContestService service.
+// ContestClient is the client API for Contest service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ContestServiceClient interface {
+type ContestClient interface {
 	GetContests(ctx context.Context, in *GetContestsRequest, opts ...grpc.CallOption) (*GetContestsReply, error)
 	JoinContest(ctx context.Context, in *JoinContestRequest, opts ...grpc.CallOption) (*JoinContestReply, error)
 	GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...grpc.CallOption) (*GetProblemsReply, error)
@@ -46,131 +48,153 @@ type ContestServiceClient interface {
 	GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...grpc.CallOption) (*GetSubmissionsReply, error)
 	GetCases(ctx context.Context, in *GetCasesRequest, opts ...grpc.CallOption) (*GetCasesReply, error)
 	ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error)
-	RegisterGateway(ctx context.Context, in *RegisterGatewayRequest, opts ...grpc.CallOption) (*RegisterGatewayReply, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error)
+	UpdateSubmission(ctx context.Context, in *UpdateSubmissionRequest, opts ...grpc.CallOption) (*UpdateSubmissionReply, error)
+	UpdateSelfTest(ctx context.Context, in *UpdateSelfTestRequest, opts ...grpc.CallOption) (*UpdateSelfTestReply, error)
 }
 
-type contestServiceClient struct {
+type contestClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewContestServiceClient(cc grpc.ClientConnInterface) ContestServiceClient {
-	return &contestServiceClient{cc}
+func NewContestClient(cc grpc.ClientConnInterface) ContestClient {
+	return &contestClient{cc}
 }
 
-func (c *contestServiceClient) GetContests(ctx context.Context, in *GetContestsRequest, opts ...grpc.CallOption) (*GetContestsReply, error) {
+func (c *contestClient) GetContests(ctx context.Context, in *GetContestsRequest, opts ...grpc.CallOption) (*GetContestsReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetContestsReply)
-	err := c.cc.Invoke(ctx, ContestService_GetContests_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetContests_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...grpc.CallOption) (*JoinContestReply, error) {
+func (c *contestClient) JoinContest(ctx context.Context, in *JoinContestRequest, opts ...grpc.CallOption) (*JoinContestReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(JoinContestReply)
-	err := c.cc.Invoke(ctx, ContestService_JoinContest_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_JoinContest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...grpc.CallOption) (*GetProblemsReply, error) {
+func (c *contestClient) GetProblems(ctx context.Context, in *GetProblemsRequest, opts ...grpc.CallOption) (*GetProblemsReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProblemsReply)
-	err := c.cc.Invoke(ctx, ContestService_GetProblems_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetProblems_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) GetProblem(ctx context.Context, in *GetProblemRequest, opts ...grpc.CallOption) (*GetProblemReply, error) {
+func (c *contestClient) GetProblem(ctx context.Context, in *GetProblemRequest, opts ...grpc.CallOption) (*GetProblemReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProblemReply)
-	err := c.cc.Invoke(ctx, ContestService_GetProblem_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetProblem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) Submit(ctx context.Context, in *SubmitRequest, opts ...grpc.CallOption) (*SubmitReply, error) {
+func (c *contestClient) Submit(ctx context.Context, in *SubmitRequest, opts ...grpc.CallOption) (*SubmitReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SubmitReply)
-	err := c.cc.Invoke(ctx, ContestService_Submit_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_Submit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error) {
+func (c *contestClient) SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SelfTestReply)
-	err := c.cc.Invoke(ctx, ContestService_SelfTest_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_SelfTest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error) {
+func (c *contestClient) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetSubmissionReply)
-	err := c.cc.Invoke(ctx, ContestService_GetSubmission_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetSubmission_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...grpc.CallOption) (*GetSubmissionsReply, error) {
+func (c *contestClient) GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...grpc.CallOption) (*GetSubmissionsReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetSubmissionsReply)
-	err := c.cc.Invoke(ctx, ContestService_GetSubmissions_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetSubmissions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) GetCases(ctx context.Context, in *GetCasesRequest, opts ...grpc.CallOption) (*GetCasesReply, error) {
+func (c *contestClient) GetCases(ctx context.Context, in *GetCasesRequest, opts ...grpc.CallOption) (*GetCasesReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCasesReply)
-	err := c.cc.Invoke(ctx, ContestService_GetCases_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_GetCases_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error) {
+func (c *contestClient) ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListRankingReply)
-	err := c.cc.Invoke(ctx, ContestService_ListRanking_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Contest_ListRanking_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *contestServiceClient) RegisterGateway(ctx context.Context, in *RegisterGatewayRequest, opts ...grpc.CallOption) (*RegisterGatewayReply, error) {
+func (c *contestClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterGatewayReply)
-	err := c.cc.Invoke(ctx, ContestService_RegisterGateway_FullMethodName, in, out, cOpts...)
+	out := new(RegisterReply)
+	err := c.cc.Invoke(ctx, Contest_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ContestServiceServer is the server API for ContestService service.
-// All implementations must embed UnimplementedContestServiceServer
+func (c *contestClient) UpdateSubmission(ctx context.Context, in *UpdateSubmissionRequest, opts ...grpc.CallOption) (*UpdateSubmissionReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSubmissionReply)
+	err := c.cc.Invoke(ctx, Contest_UpdateSubmission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contestClient) UpdateSelfTest(ctx context.Context, in *UpdateSelfTestRequest, opts ...grpc.CallOption) (*UpdateSelfTestReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSelfTestReply)
+	err := c.cc.Invoke(ctx, Contest_UpdateSelfTest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ContestServer is the server API for Contest service.
+// All implementations must embed UnimplementedContestServer
 // for forward compatibility.
-type ContestServiceServer interface {
+type ContestServer interface {
 	GetContests(context.Context, *GetContestsRequest) (*GetContestsReply, error)
 	JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error)
 	GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error)
@@ -181,319 +205,371 @@ type ContestServiceServer interface {
 	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
 	GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
-	RegisterGateway(context.Context, *RegisterGatewayRequest) (*RegisterGatewayReply, error)
-	mustEmbedUnimplementedContestServiceServer()
+	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
+	UpdateSubmission(context.Context, *UpdateSubmissionRequest) (*UpdateSubmissionReply, error)
+	UpdateSelfTest(context.Context, *UpdateSelfTestRequest) (*UpdateSelfTestReply, error)
+	mustEmbedUnimplementedContestServer()
 }
 
-// UnimplementedContestServiceServer must be embedded to have
+// UnimplementedContestServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedContestServiceServer struct{}
+type UnimplementedContestServer struct{}
 
-func (UnimplementedContestServiceServer) GetContests(context.Context, *GetContestsRequest) (*GetContestsReply, error) {
+func (UnimplementedContestServer) GetContests(context.Context, *GetContestsRequest) (*GetContestsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContests not implemented")
 }
-func (UnimplementedContestServiceServer) JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error) {
+func (UnimplementedContestServer) JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinContest not implemented")
 }
-func (UnimplementedContestServiceServer) GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error) {
+func (UnimplementedContestServer) GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProblems not implemented")
 }
-func (UnimplementedContestServiceServer) GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error) {
+func (UnimplementedContestServer) GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProblem not implemented")
 }
-func (UnimplementedContestServiceServer) Submit(context.Context, *SubmitRequest) (*SubmitReply, error) {
+func (UnimplementedContestServer) Submit(context.Context, *SubmitRequest) (*SubmitReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Submit not implemented")
 }
-func (UnimplementedContestServiceServer) SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error) {
+func (UnimplementedContestServer) SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelfTest not implemented")
 }
-func (UnimplementedContestServiceServer) GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error) {
+func (UnimplementedContestServer) GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubmission not implemented")
 }
-func (UnimplementedContestServiceServer) GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error) {
+func (UnimplementedContestServer) GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubmissions not implemented")
 }
-func (UnimplementedContestServiceServer) GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error) {
+func (UnimplementedContestServer) GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCases not implemented")
 }
-func (UnimplementedContestServiceServer) ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error) {
+func (UnimplementedContestServer) ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRanking not implemented")
 }
-func (UnimplementedContestServiceServer) RegisterGateway(context.Context, *RegisterGatewayRequest) (*RegisterGatewayReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RegisterGateway not implemented")
+func (UnimplementedContestServer) Register(context.Context, *RegisterRequest) (*RegisterReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedContestServiceServer) mustEmbedUnimplementedContestServiceServer() {}
-func (UnimplementedContestServiceServer) testEmbeddedByValue()                        {}
+func (UnimplementedContestServer) UpdateSubmission(context.Context, *UpdateSubmissionRequest) (*UpdateSubmissionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSubmission not implemented")
+}
+func (UnimplementedContestServer) UpdateSelfTest(context.Context, *UpdateSelfTestRequest) (*UpdateSelfTestReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSelfTest not implemented")
+}
+func (UnimplementedContestServer) mustEmbedUnimplementedContestServer() {}
+func (UnimplementedContestServer) testEmbeddedByValue()                 {}
 
-// UnsafeContestServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ContestServiceServer will
+// UnsafeContestServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ContestServer will
 // result in compilation errors.
-type UnsafeContestServiceServer interface {
-	mustEmbedUnimplementedContestServiceServer()
+type UnsafeContestServer interface {
+	mustEmbedUnimplementedContestServer()
 }
 
-func RegisterContestServiceServer(s grpc.ServiceRegistrar, srv ContestServiceServer) {
-	// If the following call pancis, it indicates UnimplementedContestServiceServer was
+func RegisterContestServer(s grpc.ServiceRegistrar, srv ContestServer) {
+	// If the following call pancis, it indicates UnimplementedContestServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&ContestService_ServiceDesc, srv)
+	s.RegisterService(&Contest_ServiceDesc, srv)
 }
 
-func _ContestService_GetContests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetContests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetContestsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetContests(ctx, in)
+		return srv.(ContestServer).GetContests(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetContests_FullMethodName,
+		FullMethod: Contest_GetContests_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetContests(ctx, req.(*GetContestsRequest))
+		return srv.(ContestServer).GetContests(ctx, req.(*GetContestsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_JoinContest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_JoinContest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(JoinContestRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).JoinContest(ctx, in)
+		return srv.(ContestServer).JoinContest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_JoinContest_FullMethodName,
+		FullMethod: Contest_JoinContest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).JoinContest(ctx, req.(*JoinContestRequest))
+		return srv.(ContestServer).JoinContest(ctx, req.(*JoinContestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_GetProblems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetProblems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProblemsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetProblems(ctx, in)
+		return srv.(ContestServer).GetProblems(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetProblems_FullMethodName,
+		FullMethod: Contest_GetProblems_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetProblems(ctx, req.(*GetProblemsRequest))
+		return srv.(ContestServer).GetProblems(ctx, req.(*GetProblemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_GetProblem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetProblem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProblemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetProblem(ctx, in)
+		return srv.(ContestServer).GetProblem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetProblem_FullMethodName,
+		FullMethod: Contest_GetProblem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetProblem(ctx, req.(*GetProblemRequest))
+		return srv.(ContestServer).GetProblem(ctx, req.(*GetProblemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_Submit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_Submit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SubmitRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).Submit(ctx, in)
+		return srv.(ContestServer).Submit(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_Submit_FullMethodName,
+		FullMethod: Contest_Submit_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).Submit(ctx, req.(*SubmitRequest))
+		return srv.(ContestServer).Submit(ctx, req.(*SubmitRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_SelfTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_SelfTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SelfTestRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).SelfTest(ctx, in)
+		return srv.(ContestServer).SelfTest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_SelfTest_FullMethodName,
+		FullMethod: Contest_SelfTest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).SelfTest(ctx, req.(*SelfTestRequest))
+		return srv.(ContestServer).SelfTest(ctx, req.(*SelfTestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_GetSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSubmissionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetSubmission(ctx, in)
+		return srv.(ContestServer).GetSubmission(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetSubmission_FullMethodName,
+		FullMethod: Contest_GetSubmission_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetSubmission(ctx, req.(*GetSubmissionRequest))
+		return srv.(ContestServer).GetSubmission(ctx, req.(*GetSubmissionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSubmissionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetSubmissions(ctx, in)
+		return srv.(ContestServer).GetSubmissions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetSubmissions_FullMethodName,
+		FullMethod: Contest_GetSubmissions_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetSubmissions(ctx, req.(*GetSubmissionsRequest))
+		return srv.(ContestServer).GetSubmissions(ctx, req.(*GetSubmissionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_GetCases_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_GetCases_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCasesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).GetCases(ctx, in)
+		return srv.(ContestServer).GetCases(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_GetCases_FullMethodName,
+		FullMethod: Contest_GetCases_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).GetCases(ctx, req.(*GetCasesRequest))
+		return srv.(ContestServer).GetCases(ctx, req.(*GetCasesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_ListRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Contest_ListRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListRankingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).ListRanking(ctx, in)
+		return srv.(ContestServer).ListRanking(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_ListRanking_FullMethodName,
+		FullMethod: Contest_ListRanking_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).ListRanking(ctx, req.(*ListRankingRequest))
+		return srv.(ContestServer).ListRanking(ctx, req.(*ListRankingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ContestService_RegisterGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterGatewayRequest)
+func _Contest_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ContestServiceServer).RegisterGateway(ctx, in)
+		return srv.(ContestServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ContestService_RegisterGateway_FullMethodName,
+		FullMethod: Contest_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServiceServer).RegisterGateway(ctx, req.(*RegisterGatewayRequest))
+		return srv.(ContestServer).Register(ctx, req.(*RegisterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ContestService_ServiceDesc is the grpc.ServiceDesc for ContestService service.
+func _Contest_UpdateSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSubmissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContestServer).UpdateSubmission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Contest_UpdateSubmission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContestServer).UpdateSubmission(ctx, req.(*UpdateSubmissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Contest_UpdateSelfTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSelfTestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContestServer).UpdateSelfTest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Contest_UpdateSelfTest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContestServer).UpdateSelfTest(ctx, req.(*UpdateSelfTestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Contest_ServiceDesc is the grpc.ServiceDesc for Contest service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ContestService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.sastoj.user.contest.service.v1.ContestService",
-	HandlerType: (*ContestServiceServer)(nil),
+var Contest_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.sastoj.user.contest.service.v1.Contest",
+	HandlerType: (*ContestServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetContests",
-			Handler:    _ContestService_GetContests_Handler,
+			Handler:    _Contest_GetContests_Handler,
 		},
 		{
 			MethodName: "JoinContest",
-			Handler:    _ContestService_JoinContest_Handler,
+			Handler:    _Contest_JoinContest_Handler,
 		},
 		{
 			MethodName: "GetProblems",
-			Handler:    _ContestService_GetProblems_Handler,
+			Handler:    _Contest_GetProblems_Handler,
 		},
 		{
 			MethodName: "GetProblem",
-			Handler:    _ContestService_GetProblem_Handler,
+			Handler:    _Contest_GetProblem_Handler,
 		},
 		{
 			MethodName: "Submit",
-			Handler:    _ContestService_Submit_Handler,
+			Handler:    _Contest_Submit_Handler,
 		},
 		{
 			MethodName: "SelfTest",
-			Handler:    _ContestService_SelfTest_Handler,
+			Handler:    _Contest_SelfTest_Handler,
 		},
 		{
 			MethodName: "GetSubmission",
-			Handler:    _ContestService_GetSubmission_Handler,
+			Handler:    _Contest_GetSubmission_Handler,
 		},
 		{
 			MethodName: "GetSubmissions",
-			Handler:    _ContestService_GetSubmissions_Handler,
+			Handler:    _Contest_GetSubmissions_Handler,
 		},
 		{
 			MethodName: "GetCases",
-			Handler:    _ContestService_GetCases_Handler,
+			Handler:    _Contest_GetCases_Handler,
 		},
 		{
 			MethodName: "ListRanking",
-			Handler:    _ContestService_ListRanking_Handler,
+			Handler:    _Contest_ListRanking_Handler,
 		},
 		{
-			MethodName: "RegisterGateway",
-			Handler:    _ContestService_RegisterGateway_Handler,
+			MethodName: "Register",
+			Handler:    _Contest_Register_Handler,
+		},
+		{
+			MethodName: "UpdateSubmission",
+			Handler:    _Contest_UpdateSubmission_Handler,
+		},
+		{
+			MethodName: "UpdateSelfTest",
+			Handler:    _Contest_UpdateSelfTest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

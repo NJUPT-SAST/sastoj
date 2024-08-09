@@ -5,13 +5,14 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/pkg/util"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *UserContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
+func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
 	if err != nil {
 		return nil, err
@@ -32,14 +33,14 @@ func (s *UserContestService) Submit(ctx context.Context, req *pb.SubmitRequest) 
 		return nil, err
 	}
 	return &pb.SubmitReply{
-		SubmitId: submit,
+		Uuid: strconv.FormatInt(submit, 10),
 	}, nil
 }
 
-func (s *UserContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
-	pretestId := uuid.New().String()
+func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
+	selfTestID := uuid.New().String()
 	err := s.submitUc.PretestProblem(ctx, &biz.Pretest{
-		ID:       pretestId,
+		ID:       selfTestID,
 		UserID:   1, // TODO: Get the userID from context
 		Code:     util.Crlf2lf(req.Code),
 		Language: req.Language,
@@ -49,28 +50,28 @@ func (s *UserContestService) SelfTest(ctx context.Context, req *pb.SelfTestReque
 		return nil, err
 	}
 	return &pb.SelfTestReply{
-		PretestId: pretestId,
+		Uuid: selfTestID,
 	}, nil
 }
 
-func (s *UserContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
+func (s *ContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
 	submission, err := s.submitUc.GetSubmission(ctx, req.SubmissionId, 1) // TODO: Get the userID from context
 	if err != nil {
 		return nil, err
 	}
 	return &pb.GetSubmissionReply{
-		Id:        submission.ID,
+		Uuid:      strconv.FormatInt(submission.ID, 10),
 		Code:      submission.Code,
 		Language:  submission.Language,
 		Point:     int32(submission.Point),
-		Status:    int32(submission.Status),
+		State:     int32(submission.Status),
 		CreatedAt: timestamppb.New(submission.CreateTime),
 		TotalTime: submission.TotalTime,
 		MaxMemory: submission.MaxMemory,
 	}, nil
 }
 
-func (s *UserContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionsRequest) (*pb.GetSubmissionsReply, error) {
+func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionsRequest) (*pb.GetSubmissionsReply, error) {
 	// TODO: Get the userID from context
 	submissions, err := s.submitUc.GetSubmissions(ctx, 1, req.GetProblemId())
 	if err != nil {
@@ -91,7 +92,7 @@ func (s *UserContestService) GetSubmissions(ctx context.Context, req *pb.GetSubm
 	}, nil
 }
 
-func (s *UserContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
+func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
 	var userID int64 = 1 // TODO: Get the userID from context
 	cases, err := s.submitUc.GetCases(req.GetSubmissionId(), userID)
 	if err != nil {

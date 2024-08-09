@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	pb "sastoj/api/sastoj/user/gateway/service/v1"
+	pb "sastoj/api/sastoj/user/contest/service/v1"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *GatewayService) GetContests(ctx context.Context, req *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
+func (s *GatewayService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
 	// TODO: get groupID from ctx
 	groupID := int64(0)
 	rv, err := s.contestUc.GetContests(ctx, groupID)
@@ -33,4 +33,8 @@ func (s *GatewayService) GetContests(ctx context.Context, req *pb.GetContestsReq
 }
 func (s *GatewayService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
 	return &pb.JoinContestReply{}, nil
+}
+
+func (s *GatewayService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
+	return &pb.ListRankingReply{}, nil
 }
