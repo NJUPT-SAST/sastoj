@@ -7,13 +7,14 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/app/user/contest/internal/conf"
 	"sastoj/app/user/contest/internal/data"
 	"sastoj/app/user/contest/internal/server"
 	"sastoj/app/user/contest/internal/service"
+
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 import (
@@ -36,7 +37,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	submitUsecase := biz.NewSubmitUsecase(submitRepo, logger)
 	registerRepo := data.NewRegisterRepo(dataData, logger)
 	registerUsecase := biz.NewRegisterUsecase(registerRepo, logger)
-	userContestService := service.NewUserContestService(contestUsecase, problemUsecase, submitUsecase, registerUsecase)
+	userContestService := service.NewContestService(contestUsecase, problemUsecase, submitUsecase, registerUsecase)
 	grpcServer := server.NewGRPCServer(confServer, userContestService, logger)
 	httpServer := server.NewHTTPServer(confServer, userContestService, logger)
 	app := newApp(logger, grpcServer, httpServer)

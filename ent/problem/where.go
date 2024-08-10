@@ -79,6 +79,11 @@ func Index(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIndex, v))
 }
 
+// RestrictPresentation applies equality check predicate on the "restrict_presentation" field. It's identical to RestrictPresentationEQ.
+func RestrictPresentation(v bool) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldRestrictPresentation, v))
+}
+
 // IsDeleted applies equality check predicate on the "is_deleted" field. It's identical to IsDeletedEQ.
 func IsDeleted(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIsDeleted, v))
@@ -352,6 +357,16 @@ func IndexLT(v int16) predicate.Problem {
 // IndexLTE applies the LTE predicate on the "index" field.
 func IndexLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldIndex, v))
+}
+
+// RestrictPresentationEQ applies the EQ predicate on the "restrict_presentation" field.
+func RestrictPresentationEQ(v bool) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldRestrictPresentation, v))
+}
+
+// RestrictPresentationNEQ applies the NEQ predicate on the "restrict_presentation" field.
+func RestrictPresentationNEQ(v bool) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldRestrictPresentation, v))
 }
 
 // IsDeletedEQ applies the EQ predicate on the "is_deleted" field.

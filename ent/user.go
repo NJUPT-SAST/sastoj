@@ -80,10 +80,12 @@ func (e UserEdges) OwnedProblemsOrErr() ([]*Problem, error) {
 // GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) GroupsOrErr() (*Group, error) {
-	if e.Groups != nil {
+	if e.loadedTypes[3] {
+		if e.Groups == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: group.Label}
+		}
 		return e.Groups, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: group.Label}
 	}
 	return nil, &NotLoadedError{edge: "groups"}
 }

@@ -7,71 +7,25 @@ option java_multiple_files = true;
 option java_package = "sastoj.gojudge.judge.service.v1";
 
 service Judge {
-  //CreateOne create a judge with config
-  rpc CreateOne (CreateOneRequest) returns (CreateOneReply);
-  //Fetch status for one specific judge by uuid or name
-  rpc FetchStatus(FetchStatusRequest) returns (FetchStatusReply);
-  //Modify config for one specific judge by uuid or name
-  rpc ModifyConfig(ModifyConfigRequest) returns (ModifyConfigReply);
-  //Delete one judge
-  rpc DeleteOne (DeleteOneRequest) returns (DeleteOneReply);
   //List all judges and check status
-  rpc ListAll (ListAllRequest) returns (ListAllReply);
+  rpc ListAllStatus (ListAllStatusRequest) returns (ListAllStatusReply);
 }
 
 
-message CreateOneRequest {
-  Config config = 3;
+message ListAllStatusRequest {
 }
-message CreateOneReply {
-  bool success = 1;
-  Status status = 3;
-}
-
-
-message FetchStatusRequest{
-  string uuid = 1;
-}
-message FetchStatusReply{
-  Status status = 2;
-}
-
-
-message ModifyConfigRequest{
-  string uuid = 1;
-  Config config = 3;
-}
-message ModifyConfigReply{
-  bool success = 1;
-  Status status = 2;
-}
-
-
-message DeleteOneRequest {
-  string uuid = 1;
-}
-message DeleteOneReply {
-  bool success = 1;
-}
-
-
-message ListAllRequest {
-}
-message ListAllReply {
+message ListAllStatusReply {
   repeated Status status = 2;
 }
 
-message Config{
-  string topic = 1;
-  string endpoint = 2;
-}
-
-
 message Status{
-  string uuid = 1;
-  string status = 3;
-  Config config = 4;
+  JudgeType type = 2;
+  string endpoint = 4;
 }
 
+enum JudgeType{
+  rsjudge = 0;
+  gojudge = 1;
+}
 
 

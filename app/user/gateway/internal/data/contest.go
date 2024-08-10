@@ -2,8 +2,9 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/gateway/internal/biz"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type contestRepo struct {
@@ -12,7 +13,7 @@ type contestRepo struct {
 }
 
 func (c *contestRepo) GetContests(ctx context.Context, groupID int64) ([]*biz.Contest, error) {
-	return c.data.cache.group2contests[groupID], nil
+	return c.data.cache.contestantsMap[groupID], nil
 }
 
 func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, isJoin bool) error {

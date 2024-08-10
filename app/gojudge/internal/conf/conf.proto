@@ -6,51 +6,56 @@ option go_package = "gojudge/internal/conf;conf";
 import "google/protobuf/duration.proto";
 
 message Bootstrap {
-  Server server = 1;
-  Client client = 2;
-  Data data = 3;
-}
-
-message Server {
-  message HTTP {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
-  }
-  message GRPC {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
-  }
-  HTTP http = 1;
-  GRPC grpc = 2;
-}
-
-message Client {
-  message HTTP {
-    string addr = 1;
-    google.protobuf.Duration timeout = 2;
-  }
-  message GRPC {
-    string addr = 1;
-    google.protobuf.Duration timeout = 2;
-    string endpoint = 3;
-  }
-  HTTP http = 1;
-  GRPC grpc = 2;
+  Data data = 1;
+  JudgeMiddleware judge_middleware = 2;
 }
 
 message Data {
-  message Database {
-    string driver = 1;
-    string source = 2;
-  }
-  message Load {
-    string problem_cases_location = 1;
-  }
   string mq = 1;
-  int64 port = 2;
-  string secret = 3;
-  Database database = 4;
-  Load load = 5;
+  Database database = 2;
+  Redis redis = 3;
+  Load load = 4;
+}
+
+message Database {
+  string driver = 1;
+  string source = 2;
+}
+
+message Redis {
+  string addr = 1;
+  int32 db = 2;
+}
+
+message Load {
+  string problem_cases_location = 1;
+}
+
+message JudgeMiddleware{
+  string endpoint = 1;
+  Language language = 2;
+}
+
+message Language{
+  repeated string enable = 1;
+  map<string, string> compile = 2;
+  map<string, string> run = 3;
+  map<string, string> source = 4;
+  map<string, string> target = 5;
+  map<string, LanguageConfig> exec_config = 6;
+}
+
+message LanguageConfig{
+  ExecConfig compile = 1;
+  ExecConfig run = 2;
+}
+
+message ExecConfig{
+  uint64 proc_limit = 1;
+  uint64 cpu_time_limit = 2;
+  uint64 cpu_rate_limit = 3;
+  uint64 clock_time_limit = 4;
+  uint64 memory_limit = 5;
+  int64 stdout_max_size = 6;
+  int64 stderr_max_size = 7;
 }

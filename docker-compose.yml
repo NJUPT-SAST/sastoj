@@ -1,0 +1,190 @@
+version: "3"
+
+services:
+#  redis:
+#    image: redis:6.0.9
+#    restart: always
+#    ports:
+#      - "6379:6379"
+#    network_mode: bridge
+#  some-rabbit:
+#    image: rabbitmq:3.8.9-management
+#    restart: always
+#    ports:
+#        - "5672:5672"
+#        - "15672:15672"
+#    environment:
+#        RABBITMQ_DEFAULT_USER: sastoj
+#        RABBITMQ_DEFAULT_PASS: 123456
+#    network_mode: bridge
+#  oj-pg:
+#    image: postgres:13.1
+#    restart: always
+#    ports:
+#        - "5432:5432"
+#    environment:
+#        POSTGRES_USER: sastoj
+#        POSTGRES_PASSWORD: 123456
+#    volumes:
+#        - ./data/pg:/var/lib/postgresql/data
+#    network_mode: bridge
+#  go-judge:
+#    image: criyle/go-judge:v1.8.0
+#    restart: always
+#    ports:
+#      - "5051:5051"
+#    privileged: true
+#    shm_size: 512m
+#    network_mode: bridge
+  oj-group:
+    image: sastoj/group
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: group
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - ./conf/admin/group:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-user:
+    image: sastoj/user
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: user
+    ports:
+      - "8001:8000"
+      - "9001:9000"
+    volumes:
+      - ./conf/admin/user:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-problem:
+    image: sastoj/problem
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: problem
+    ports:
+      - "8002:8000"
+      - "9002:9000"
+    volumes:
+      - ./conf/admin/problem:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-case:
+    image: sastoj/case
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: case
+    ports:
+      - "8003:8000"
+      - "9003:9000"
+    volumes:
+      - ./conf/admin/case:/data/conf
+      - ./data/cases:/data/cases
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-contest:
+    image: sastoj/contest
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: contest
+    ports:
+      - "8004:8000"
+      - "9004:9000"
+    volumes:
+      - ./conf/admin/contest:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-judge:
+    image: sastoj/judge
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: judge
+    ports:
+      - "8005:8000"
+      - "9005:9000"
+    volumes:
+      - ./conf/admin/judge:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-user-contest:
+    image: sastoj/user-contest
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: user-contest
+    ports:
+      - "8100:8000"
+      - "9100:9000"
+    volumes:
+      - ./conf/user/contest:/data/conf
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+  oj-gojudge:
+    image: sastoj/gojudge-server
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: gojudge-server
+    volumes:
+      - ./conf/gojudge:/data/conf
+      - ./data/cases:/data/cases
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+      - go-judge:goj
+    network_mode: bridge
+  oj-public-auth:
+    image: sastoj/public-auth
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: public-auth
+    ports:
+      - "8300:8000"
+      - "9300:9000"
+    volumes:
+      - ./conf/public/auth:/data/conf
+    external_links:
+      - redis:rd
+      - oj-pg:pg
+    network_mode: bridge

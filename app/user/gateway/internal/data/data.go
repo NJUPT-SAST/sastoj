@@ -4,30 +4,31 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/google/wire"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"net"
 	v1 "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/app/user/gateway/internal/conf"
 	"strconv"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/google/wire"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo, NewSubmissionRepo, NewContestServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo, NewSubmissionRepo, NewContestClient)
 
 // Data .
 type Data struct {
 	cache *Cache
 	ch    *amqp.Channel
-	cc    v1.ContestServiceClient
+	cc    v1.ContestClient
 }
 
 // Cache is a map store.
 type Cache struct {
-	group2contests   map[int64][]*biz.Contest
+	contestantsMap   map[int64][]*biz.Contest
 	contest2problems map[int64][]*biz.Problem
 	problems         map[int64]*biz.Problem
 	submissions      map[string]*biz.Submission
@@ -36,13 +37,13 @@ type Cache struct {
 }
 
 // NewData .
-func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data, func(), error) {
+func NewData(c *conf.Data, cc v1.ContestClient, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 	// connect to redis
 	cache := &Cache{
-		group2contests:   make(map[int64][]*biz.Contest),
+		contestantsMap:   make(map[int64][]*biz.Contest),
 		contest2problems: make(map[int64][]*biz.Problem),
 		problems:         make(map[int64]*biz.Problem),
 		submissions:      make(map[string]*biz.Submission),
@@ -54,7 +55,7 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 		return nil, nil, err
 	}
 	endpoint := ip + ":" + strconv.FormatInt(c.Port, 10)
-	registerGateway, err := cc.RegisterGateway(context.Background(), &v1.RegisterGatewayRequest{
+	registerGateway, err := cc.Register(context.Background(), &v1.RegisterRequest{
 		Endpoint: endpoint,
 		Secret:   c.Secret,
 	})
@@ -67,7 +68,7 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 	if err != nil {
 		return nil, nil, err
 	}
-	groupID2contests := make(map[int64][]*biz.Contest)
+	contestantsMap := make(map[int64][]*biz.Contest)
 	for _, contestDTO := range contestsDTO.Contests {
 		contest := &biz.Contest{
 			ID:          contestDTO.Id,
@@ -80,12 +81,12 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 			Language:    contestDTO.Language,
 			ExtraTime:   int16(contestDTO.ExtraTime),
 		}
-		for _, groupID := range contestDTO.Groups {
-			groupID2contests[groupID] = append(groupID2contests[groupID], contest)
+		for _, groupID := range contestDTO.Contestants {
+			contestantsMap[groupID] = append(contestantsMap[groupID], contest)
 		}
 	}
-	for groupID, contests := range groupID2contests {
-		cache.group2contests[groupID] = contests
+	for groupID, contests := range contestantsMap {
+		cache.contestantsMap[groupID] = contests
 	}
 
 	// get problems
@@ -140,16 +141,16 @@ func NewData(c *conf.Data, cc v1.ContestServiceClient, logger log.Logger) (*Data
 	}, cleanup, nil
 }
 
-func NewContestServiceClient(conf *conf.Client) v1.ContestServiceClient {
+func NewContestClient(conf *conf.Client) v1.ContestClient {
 	conn, err := grpc.DialInsecure(
 		context.Background(),
-		grpc.WithEndpoint(conf.Grpc.Endpoint),
+		grpc.WithEndpoint(conf.Grpc.Addr),
 	)
 	if err != nil {
 		panic(err)
 	}
-	c := v1.NewContestServiceClient(conn)
-	return c
+	cc := v1.NewContestClient(conn)
+	return cc
 }
 
 func getIPv4(ipv4Prefix byte) (string, error) {
@@ -166,5 +167,6 @@ func getIPv4(ipv4Prefix byte) (string, error) {
 			}
 		}
 	}
-	return "", errors.New("IPv4 start with " + strconv.Itoa(int(ipv4Prefix)) + " not found")
+	return "", fmt.Errorf("get %s, but IPv4 start with %d not found", adds, ipv4Prefix)
+	//return "", errors.New("IPv4 start with " + strconv.Itoa(int(ipv4Prefix)) + " not found")
 }

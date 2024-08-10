@@ -217,26 +217,6 @@ func (scu *SubmissionCaseUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (scu *SubmissionCaseUpdate) check() error {
-	if v, ok := scu.mutation.State(); ok {
-		if err := submissioncase.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.state": %w`, err)}
-		}
-	}
-	if v, ok := scu.mutation.Point(); ok {
-		if err := submissioncase.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.point": %w`, err)}
-		}
-	}
-	if v, ok := scu.mutation.Time(); ok {
-		if err := submissioncase.TimeValidator(v); err != nil {
-			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.time": %w`, err)}
-		}
-	}
-	if v, ok := scu.mutation.Memory(); ok {
-		if err := submissioncase.MemoryValidator(v); err != nil {
-			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.memory": %w`, err)}
-		}
-	}
 	if _, ok := scu.mutation.SubmissionID(); scu.mutation.SubmissionCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "SubmissionCase.submission"`)
 	}
@@ -564,26 +544,6 @@ func (scuo *SubmissionCaseUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (scuo *SubmissionCaseUpdateOne) check() error {
-	if v, ok := scuo.mutation.State(); ok {
-		if err := submissioncase.StateValidator(v); err != nil {
-			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.state": %w`, err)}
-		}
-	}
-	if v, ok := scuo.mutation.Point(); ok {
-		if err := submissioncase.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.point": %w`, err)}
-		}
-	}
-	if v, ok := scuo.mutation.Time(); ok {
-		if err := submissioncase.TimeValidator(v); err != nil {
-			return &ValidationError{Name: "time", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.time": %w`, err)}
-		}
-	}
-	if v, ok := scuo.mutation.Memory(); ok {
-		if err := submissioncase.MemoryValidator(v); err != nil {
-			return &ValidationError{Name: "memory", err: fmt.Errorf(`ent: validator failed for field "SubmissionCase.memory": %w`, err)}
-		}
-	}
 	if _, ok := scuo.mutation.SubmissionID(); scuo.mutation.SubmissionCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "SubmissionCase.submission"`)
 	}

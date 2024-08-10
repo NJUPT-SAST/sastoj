@@ -2,8 +2,7 @@ package service
 
 import (
 	"context"
-
-	pb "sastoj/api/sastoj/user/gateway/service/v1"
+	pb "sastoj/api/sastoj/user/contest/service/v1"
 )
 
 func (s *GatewayService) GetProblems(ctx context.Context, req *pb.GetProblemsRequest) (*pb.GetProblemsReply, error) {

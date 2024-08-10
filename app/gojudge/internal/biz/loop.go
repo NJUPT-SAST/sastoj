@@ -8,11 +8,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// Judge allows all judges to handling messages from an amqp.Channel
-type Judge struct {
-	log *log.Helper
-}
-
 type Submit struct {
 	ID         string    `json:"id,omitempty"`
 	UserID     int64     `json:"user_id,omitempty"`
@@ -33,12 +28,13 @@ type SelfTest struct {
 	Code     string `json:"code,omitempty"`
 	Language string `json:"language,omitempty"`
 	Input    string `json:"input,omitempty"`
+	Output   string `json:"output,omitempty"`
 	Token    string `json:"secret,omitempty"`
 }
 
 // StartLoopOnSubmit start a loop for handling messages from an amqp.Channel and return a function to stop the loop.
 // The handle function is used to handling Submit, which interact with the judge, then save the result and do not require to return.
-func (g *Judge) StartLoopOnSubmit(ch *amqp.Channel, topic string, handle func(v *Submit) error) (close func()) {
+func StartLoopOnSubmit(log *log.Helper, ch *amqp.Channel, topic string, handle func(v *Submit) error) (close func()) {
 	control := make(chan bool)
 	_, err := ch.QueueDeclare(
 		topic,
@@ -49,7 +45,7 @@ func (g *Judge) StartLoopOnSubmit(ch *amqp.Channel, topic string, handle func(v 
 		nil,
 	)
 	if err != nil {
-		g.log.Errorf("Go-Judge Consumer(OnSubmit) Start Failed: Failed to declare a queue: %s", err)
+		log.Errorf("Go-Middleware Consumer(OnSubmit) Start Failed: Failed to declare a queue: %s", err)
 	}
 	go func() {
 		for {
@@ -67,18 +63,17 @@ func (g *Judge) StartLoopOnSubmit(ch *amqp.Channel, topic string, handle func(v 
 					nil,
 				)
 				if err != nil {
-					g.log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed consume message: %s", err)
+					log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed consume message: %s", err)
 				}
 				for d := range messages {
 					body := d.Body
-					g.log.Infof("Go-Judge Consumer(OnSubmit) Received a message: %s", body)
+					log.Infof("Go-Middleware Consumer(OnSubmit) Received a message: %s", body)
 					v := &Submit{}
-					err := json.Unmarshal(body, v)
-					if err != nil {
-						g.log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed to de-serialise a submit: %s", err)
+					if err = json.Unmarshal(body, v); err != nil {
+						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to de-serialise a submit: %s", err)
 					}
-					if handle(v) != nil {
-						g.log.Errorf("Go-Judge Consumer(OnSubmit) Error: Failed to handle a submit: %s", err)
+					if err = handle(v); err != nil {
+						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed to handle a submit: %s", err)
 					}
 				}
 			}
@@ -91,7 +86,7 @@ func (g *Judge) StartLoopOnSubmit(ch *amqp.Channel, topic string, handle func(v 
 
 // StartLoopOnSelfTest start a loop for handling messages from an amqp.Channel and return a function to stop the loop.
 // The handle function is used to handling SelfTest, which interact with the judge, then save the result and do not require to return.
-func (g *Judge) StartLoopOnSelfTest(ch *amqp.Channel, topic string, handle func(v *SelfTest) error) (close func()) {
+func StartLoopOnSelfTest(log *log.Helper, ch *amqp.Channel, topic string, handle func(v *SelfTest) error) (close func()) {
 	control := make(chan bool)
 	_, err := ch.QueueDeclare(
 		topic,
@@ -102,7 +97,7 @@ func (g *Judge) StartLoopOnSelfTest(ch *amqp.Channel, topic string, handle func(
 		nil,
 	)
 	if err != nil {
-		g.log.Errorf("Go-Judge Consumer(OnSelfTest) Start Failed: Failed to declare a queue: %s", err)
+		log.Errorf("Go-Middleware Consumer(OnSelfTest) Start Failed: Failed to declare a queue: %s", err)
 	}
 	go func() {
 		for {
@@ -120,18 +115,17 @@ func (g *Judge) StartLoopOnSelfTest(ch *amqp.Channel, topic string, handle func(
 					nil,
 				)
 				if err != nil {
-					g.log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed consume message: %s", err)
+					log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed consume message: %s", err)
 				}
 				for d := range messages {
 					body := d.Body
-					g.log.Infof("Go-Judge Consumer(OnSelfTest) Received a message: %s", body)
+					log.Infof("Go-Middleware Consumer(OnSelfTest) Received a message: %s", body)
 					v := &SelfTest{}
-					err := json.Unmarshal(body, v)
-					if err != nil {
-						g.log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed to de-serialise a self test: %s", err)
+					if err = json.Unmarshal(body, v); err != nil {
+						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to de-serialise a self test: %s", err)
 					}
-					if handle(v) != nil {
-						g.log.Errorf("Go-Judge Consumer(OnSelfTest) Error: Failed to handle a self test: %s", err)
+					if err = handle(v); err != nil {
+						log.Errorf("Go-Middleware Consumer(OnSelfTest) Error: Failed to handle a self test: %s", err)
 					}
 				}
 			}

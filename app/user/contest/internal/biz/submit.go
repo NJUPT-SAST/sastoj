@@ -2,8 +2,9 @@ package biz
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type Submit struct {
@@ -40,6 +41,7 @@ type SubmitRepo interface {
 	UpdateStatus(ctx context.Context, submitID int64, status int16) error
 	UpdateSubmit(ctx context.Context, submit *Submit) error
 	GetSubmission(ctx context.Context, submitID int64, userID int64) (*Submit, error)
+	GetSubmissions(ctx context.Context, userID int64, problemID int64) ([]*Submit, error)
 	CreatePretest(ctx context.Context, pretest *Pretest) error
 	GetCases(submissionID int64, userID int64) ([]*Case, error)
 }
@@ -71,6 +73,10 @@ func (uc *SubmitUsecase) UpdateSubmit(ctx context.Context, submit *Submit) error
 
 func (uc *SubmitUsecase) GetSubmission(ctx context.Context, submitID int64, userID int64) (*Submit, error) {
 	return uc.repo.GetSubmission(ctx, submitID, userID)
+}
+
+func (uc *SubmitUsecase) GetSubmissions(ctx context.Context, userID int64, problemID int64) ([]*Submit, error) {
+	return uc.repo.GetSubmissions(ctx, userID, problemID)
 }
 
 func (uc *SubmitUsecase) PretestProblem(ctx context.Context, pretest *Pretest) error {
