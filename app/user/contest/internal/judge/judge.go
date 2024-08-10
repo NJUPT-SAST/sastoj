@@ -3,9 +3,9 @@ package judge
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 
+	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -14,8 +14,8 @@ type Judge struct {
 	log *log.Helper
 }
 
-type Submit = biz.Submit
-type SelfTest = biz.Pretest
+type Submit = biz.Submission
+type SelfTest = biz.SelfTest
 
 const (
 	submit   = "submit"

@@ -34,7 +34,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	problemRepo := data.NewProblemRepo(dataData, logger)
 	problemUsecase := biz.NewProblemUsecase(problemRepo, logger)
 	submitRepo := data.NewSubmitRepo(dataData, logger)
-	submitUsecase := biz.NewSubmitUsecase(submitRepo, logger)
+	submitUsecase := biz.NewSubmissionUsecase(submitRepo, logger)
 	registerRepo := data.NewRegisterRepo(dataData, logger)
 	registerUsecase := biz.NewRegisterUsecase(registerRepo, logger)
 	userContestService := service.NewContestService(contestUsecase, problemUsecase, submitUsecase, registerUsecase)
