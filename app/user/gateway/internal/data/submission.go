@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"time"
 
@@ -37,6 +38,26 @@ type selfTestDTO struct {
 type submissionRepo struct {
 	data *Data
 	log  *log.Helper
+}
+
+func (s *submissionRepo) GetCases(ctx context.Context, userID int64, submissionID string) ([]*biz.Case, error) {
+	cases, ok := s.data.cache.cases[submissionID]
+	if !ok {
+		rev, err := s.data.cc.GetCases(ctx, &pb.GetCasesRequest{
+			SubmissionId: submissionID,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range rev.Cases {
+			cases = append(cases, &biz.Case{
+				Index: v.Index,
+				State: v.State,
+			})
+		}
+	}
+	return cases, nil
 }
 
 func (s *submissionRepo) UpdateSubmission(ctx context.Context, submission *biz.Submission) error {

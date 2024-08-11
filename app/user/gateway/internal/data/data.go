@@ -33,6 +33,7 @@ type Cache struct {
 	problems         map[int64]*biz.Problem
 	submissions      map[string]*biz.Submission
 	selfTests        map[string]*biz.SelfTest
+	cases            map[string][]*biz.Case
 	token            string
 }
 
@@ -48,6 +49,7 @@ func NewData(c *conf.Data, cc v1.ContestClient, logger log.Logger) (*Data, func(
 		problems:         make(map[int64]*biz.Problem),
 		submissions:      make(map[string]*biz.Submission),
 		selfTests:        make(map[string]*biz.SelfTest),
+		cases:            make(map[string][]*biz.Case),
 	}
 	// get registerGateway IPv4
 	ip, err := getIPv4(byte(c.Ipv4Prefix))

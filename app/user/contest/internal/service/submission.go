@@ -5,7 +5,6 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/pkg/util"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,10 +13,12 @@ import (
 
 func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
+	id := uuid.NewString()
 	if err != nil {
 		return nil, err
 	}
-	submit, err := s.submitUc.CreateSubmit(ctx, &biz.Submit{
+	err = s.submitUc.CreateSubmission(ctx, &biz.Submission{
+		ID:          id,
 		UserID:      1, // TODO: Get the userID from context
 		ProblemID:   req.ProblemId,
 		Code:        util.Crlf2lf(req.Code),
@@ -33,13 +34,13 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 		return nil, err
 	}
 	return &pb.SubmitReply{
-		Uuid: strconv.FormatInt(submit, 10),
+		Uuid: id,
 	}, nil
 }
 
 func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
-	selfTestID := uuid.New().String()
-	err := s.submitUc.PretestProblem(ctx, &biz.Pretest{
+	selfTestID := uuid.NewString()
+	err := s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:       selfTestID,
 		UserID:   1, // TODO: Get the userID from context
 		Code:     util.Crlf2lf(req.Code),
@@ -60,7 +61,7 @@ func (s *ContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 		return nil, err
 	}
 	return &pb.GetSubmissionReply{
-		Uuid:      strconv.FormatInt(submission.ID, 10),
+		Id:        submission.ID,
 		Code:      submission.Code,
 		Language:  submission.Language,
 		Point:     int32(submission.Point),
@@ -80,7 +81,7 @@ func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 	var pbSubmissions []*pb.GetSubmissionsReply_Submission
 	for _, s := range submissions {
 		pbSubmissions = append(pbSubmissions, &pb.GetSubmissionsReply_Submission{
-			Id:        s.ID,
+			Id:        util.ParseInt64(s.ID),
 			Language:  s.Language,
 			Point:     int32(s.Point),
 			Status:    int32(s.Status),
@@ -94,15 +95,15 @@ func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 
 func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
 	var userID int64 = 1 // TODO: Get the userID from context
-	cases, err := s.submitUc.GetCases(req.GetSubmissionId(), userID)
+	cases, err := s.submitUc.GetCases(ctx, req.GetSubmissionId(), userID)
 	if err != nil {
 		return nil, err
 	}
 	var pbCases []*pb.GetCasesReply_Case
 	for _, c := range cases {
 		pbCases = append(pbCases, &pb.GetCasesReply_Case{
-			Index:  int32(c.Index),
-			Status: int32(c.State),
+			Index: c.Index,
+			State: c.State,
 		})
 	}
 	return &pb.GetCasesReply{

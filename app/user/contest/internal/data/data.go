@@ -2,9 +2,13 @@ package data
 
 import (
 	"context"
+	"fmt"
+	"sastoj/app/user/contest/internal/conf"
+	"sastoj/ent"
+	"sastoj/pkg/mq"
+
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
@@ -13,8 +17,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"sastoj/app/user/contest/internal/conf"
-	"sastoj/ent"
 )
 
 // ProviderSet is data providers.
@@ -24,7 +26,8 @@ var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo, NewSubmit
 type Data struct {
 	db    *ent.Client
 	redis *redis.Client
-	ch    *amqp.Channel
+	sCh   *mq.OjChannel
+	stCh  *mq.OjChannel
 }
 
 // NewData .
@@ -78,5 +81,13 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		log.Errorf("failed opening a channel")
 	}
-	return &Data{client, redisClient, ch}, cleanup, nil
+	sCh, err := mq.NewSubmissionChannel(ch)
+	if err != nil {
+		log.Errorf("failed creating a submission channel")
+	}
+	stCh, err := mq.NewSelfTestChannel(ch)
+	if err != nil {
+		log.Errorf("failed creating a self-test channel")
+	}
+	return &Data{client, redisClient, sCh, stCh}, cleanup, nil
 }

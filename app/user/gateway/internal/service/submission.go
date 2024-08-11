@@ -5,7 +5,6 @@ import (
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/gateway/internal/biz"
 	"sastoj/pkg/util"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -54,12 +53,12 @@ func (s *GatewayService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) 
 
 func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
 	// TODO: Get the userID from context
-	rv, err := s.submissionUc.GetSubmission(ctx, strconv.FormatInt(req.SubmissionId, 10), 0)
+	rv, err := s.submissionUc.GetSubmission(ctx, req.SubmissionId, 1)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.GetSubmissionReply{
-		Uuid:      rv.ID,
+		Id:        rv.ID,
 		Code:      rv.Code,
 		Language:  rv.Language,
 		Point:     int32(rv.Point),
@@ -68,6 +67,11 @@ func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 		TotalTime: rv.TotalTime,
 		MaxMemory: rv.MaxMemory,
 	}, nil
+}
+
+func (s *GatewayService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
+	res := &pb.GetCasesReply{}
+	return res, nil
 }
 
 func (s *GatewayService) UpdateSubmission(ctx context.Context, req *pb.UpdateSubmissionRequest) (*pb.UpdateSubmissionReply, error) {

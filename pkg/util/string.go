@@ -1,5 +1,7 @@
 package util
 
+import "strconv"
+
 func BytesMatchIgnoringSpacesAndNewlines(a, b []byte) bool {
 	skipWhitespace := func(c byte) bool {
 		return c == ' ' || c == '\n' || c == '\t' || c == '\r'
@@ -28,4 +30,9 @@ func BytesMatchIgnoringSpacesAndNewlines(a, b []byte) bool {
 		j++
 	}
 	return i == lenA && j == lenB
+}
+
+func ParseInt64(s string) int64 {
+	parseInt, _ := strconv.ParseInt(s, 10, 64)
+	return parseInt
 }
