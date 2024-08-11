@@ -23,6 +23,12 @@ type Data struct {
 	db *ent.Client
 }
 
+type JWT struct {
+	secret     string
+	expiration string
+	issuer     string
+}
+
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {

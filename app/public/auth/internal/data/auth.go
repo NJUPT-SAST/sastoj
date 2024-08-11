@@ -23,18 +23,18 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.AuthRepo {
 }
 
 func (r *AuthRepo) FindByUserName(ctx context.Context, username string) (*biz.User, error) {
-	user, err := r.data.db.User.Query().Where(user.UsernameEQ(username)).Only(ctx)
+	po, err := r.data.db.User.Query().Where(user.UsernameEQ(username)).Only(ctx)
 	if err != nil {
 		return nil, err
 	}
-	group, err := user.QueryGroups().Only(ctx)
+	group, err := po.QueryGroups().Only(ctx)
 	return &biz.User{
-		ID:        user.ID,
-		Username:  user.Username,
-		Password:  user.Password,
-		Salt:      user.Salt,
-		Status:    user.Status,
-		GroupID:   user.GroupID,
+		ID:        po.ID,
+		Username:  po.Username,
+		Password:  po.Password,
+		Salt:      po.Salt,
+		Status:    po.Status,
+		GroupID:   po.GroupID,
 		GroupName: group.GroupName,
 	}, nil
 }
