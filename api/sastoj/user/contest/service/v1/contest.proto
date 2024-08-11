@@ -45,13 +45,13 @@ service Contest {
 	};
 	rpc GetSubmission (GetSubmissionRequest) returns (GetSubmissionReply) {
 		option (google.api.http) = {
-			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
+			get: "/user/submission/{submission_id}"
 		};
 	};
 	rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply);
 	rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
 		option (google.api.http) = {
-			get: "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases"
+			get: "/user/submission/{submission_id}/cases"
 		};
 	};
 	rpc ListRanking (ListRankingRequest) returns (ListRankingReply) {
@@ -139,12 +139,10 @@ message SelfTestReply {
 }
 
 message GetSubmissionRequest {
-	int64 contest_id = 1;
-	int64 problem_id = 2;
-	int64 submission_id = 3;
+	string submission_id = 1;
 }
 message GetSubmissionReply {
-	string uuid = 1;
+	string id = 1;
 	string code = 2;
 	string language = 3;
 	int32 point = 4;
@@ -171,14 +169,12 @@ message GetSubmissionsReply {
 }
 
 message GetCasesRequest {
-	int64 contest_id = 1;
-	int64 problem_id = 2;
-	int64 submission_id = 3;
+	string submission_id = 1;
 }
 message GetCasesReply {
 	message Case {
 		int32 index = 1;
-		int32 status = 2;
+		int32 state = 2;
 	}
 	repeated Case cases = 1;
 }

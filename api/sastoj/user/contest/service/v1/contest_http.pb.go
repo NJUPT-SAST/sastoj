@@ -49,8 +49,8 @@ func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r.GET("/user/contests/{contest_id}/problems/{problem_id}", _Contest_GetProblem0_HTTP_Handler(srv))
 	r.POST("/user/contests/{contest_id}/problems/{problem_id}/submission", _Contest_Submit0_HTTP_Handler(srv))
 	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _Contest_SelfTest0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}", _Contest_GetSubmission0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases", _Contest_GetCases0_HTTP_Handler(srv))
+	r.GET("/user/submission/{submission_id}", _Contest_GetSubmission0_HTTP_Handler(srv))
+	r.GET("/user/submission/{submission_id}/cases", _Contest_GetCases0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/ranking", _Contest_ListRanking0_HTTP_Handler(srv))
 }
 
@@ -280,7 +280,7 @@ func NewContestHTTPClient(client *http.Client) ContestHTTPClient {
 
 func (c *ContestHTTPClientImpl) GetCases(ctx context.Context, in *GetCasesRequest, opts ...http.CallOption) (*GetCasesReply, error) {
 	var out GetCasesReply
-	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submission/{submission_id}/cases"
+	pattern := "/user/submission/{submission_id}/cases"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationContestGetCases))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -332,7 +332,7 @@ func (c *ContestHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblems
 
 func (c *ContestHTTPClientImpl) GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
 	var out GetSubmissionReply
-	pattern := "/user/contests/{contest_id}/problems/{problem_id}/submissions/{submission_id}"
+	pattern := "/user/submission/{submission_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationContestGetSubmission))
 	opts = append(opts, http.PathTemplate(pattern))

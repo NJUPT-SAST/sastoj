@@ -1401,10 +1401,6 @@ func (m *GetSubmissionRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ContestId
-
-	// no validation rules for ProblemId
-
 	// no validation rules for SubmissionId
 
 	if len(errors) > 0 {
@@ -1509,7 +1505,7 @@ func (m *GetSubmissionReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Uuid
+	// no validation rules for Id
 
 	// no validation rules for Code
 
@@ -1924,10 +1920,6 @@ func (m *GetCasesRequest) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for ContestId
-
-	// no validation rules for ProblemId
 
 	// no validation rules for SubmissionId
 
@@ -3574,7 +3566,7 @@ func (m *GetCasesReply_Case) validate(all bool) error {
 
 	// no validation rules for Index
 
-	// no validation rules for Status
+	// no validation rules for State
 
 	if len(errors) > 0 {
 		return GetCasesReply_CaseMultiError(errors)

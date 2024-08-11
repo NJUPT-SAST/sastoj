@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 	"strconv"
@@ -18,15 +20,32 @@ type submissionRepo struct {
 	log  *log.Helper
 }
 
-func (s *submissionRepo) GetCases(submissionID int64, userID int64) ([]*biz.Case, error) {
-	po, err := s.data.redis.Get(context.Background(), "case:"+strconv.FormatInt(userID, 10)+":"+strconv.FormatInt(submissionID, 10)).Result()
-	if err != nil {
-		return nil, err
-	}
+func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, userID int64) ([]*biz.Case, error) {
+	id, err := strconv.ParseInt(submissionID, 10, 64)
 	var cases []*biz.Case
-	err = json.Unmarshal([]byte(po), &cases)
 	if err != nil {
-		return nil, err
+		// get from redis
+		po, err := s.data.redis.Get(ctx, fmt.Sprintf("cases:%d:%s", userID, submissionID)).Result()
+		if err != nil {
+			return nil, fmt.Errorf("no cases found: %s", submissionID)
+		}
+		err = json.Unmarshal([]byte(po), &cases)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// get from db
+		po, err := s.data.db.SubmissionCase.Query().Where(submissioncase.SubmissionIDEQ(id)).All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		cases = make([]*biz.Case, 0)
+		for i, v := range po {
+			cases = append(cases, &biz.Case{
+				Index: int32(i),
+				State: int32(v.State),
+			})
+		}
 	}
 	return cases, nil
 }
@@ -42,28 +61,43 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 	})
 }
 
-func (s *submissionRepo) GetSubmission(ctx context.Context, submitID int64, userID int64) (*biz.Submission, error) {
-	po, err := s.data.db.Submission.Get(ctx, submitID)
+func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, userID int64) (*biz.Submission, error) {
+	id, err := strconv.ParseInt(submissionID, 10, 64)
+	var res *biz.Submission
 	if err != nil {
-		return nil, err
+		// get from redis
+		result, err := s.data.redis.Get(ctx, fmt.Sprintf("submissions:%d:%s", userID, submissionID)).Result()
+		if err != nil {
+			return nil, fmt.Errorf("no submission found: %s", submissionID)
+		}
+		err = json.Unmarshal([]byte(result), &res)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// get from db
+		po, err := s.data.db.Submission.Get(ctx, id)
+		if err != nil {
+			return nil, fmt.Errorf("no submission found: %s", submissionID)
+		}
+		if po.UserID != userID {
+			// TODO: ADD Global Error: Permission Denied
+			return nil, errors.New("permission denied")
+		}
+		res = &biz.Submission{
+			ID:         strconv.FormatInt(po.ID, 10),
+			UserID:     po.UserID,
+			ProblemID:  po.ProblemID,
+			Code:       po.Code,
+			Status:     po.Status,
+			Point:      po.Point,
+			CreateTime: po.CreateTime,
+			TotalTime:  po.TotalTime,
+			MaxMemory:  po.MaxMemory,
+			Language:   po.Language,
+		}
 	}
-	if po.UserID != userID {
-		// TODO: ADD Global Error: Permission Denied
-		return nil, errors.New("permission denied")
-	}
-	return &biz.Submission{
-		ID:          strconv.FormatInt(po.ID, 10),
-		UserID:      po.UserID,
-		ProblemID:   po.ProblemID,
-		Code:        po.Code,
-		Status:      po.Status,
-		Point:       po.Point,
-		CreateTime:  po.CreateTime,
-		TotalTime:   po.TotalTime,
-		MaxMemory:   po.MaxMemory,
-		Language:    po.Language,
-		CaseVersion: po.CaseVersion,
-	}, nil
+	return res, nil
 }
 
 func (s *submissionRepo) GetSubmissions(ctx context.Context, userId int64, problemId int64) ([]*biz.Submission, error) {
@@ -97,12 +131,12 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 	})
 }
 
-func (s *submissionRepo) UpdateStatus(ctx context.Context, submitID int64, status int16) error {
-	_, err := s.data.db.Submission.UpdateOneID(submitID).
-		SetStatus(status).
-		Save(ctx)
-	return err
-}
+//func (s *submissionRepo) UpdateStatus(ctx context.Context, submitID string, status int16) error {
+//	_, err := s.data.db.Submission.UpdateOneID(submitID).
+//		SetStatus(status).
+//		Save(ctx)
+//	return err
+//}
 
 func (s *submissionRepo) UpdateSubmission(ctx context.Context, submission *biz.Submission) error {
 	_, err := s.data.db.Submission.UpdateOneID(util.ParseInt64(submission.ID)).

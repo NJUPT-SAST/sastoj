@@ -31,19 +31,18 @@ type SelfTest struct {
 }
 
 type Case struct {
-	ID    int64 `json:"id,omitempty"`
-	Index int16 `json:"index,omitempty"`
-	State int16 `json:"state,omitempty"`
-	Point int16 `json:"point,omitempty"`
+	Index int32 `json:"index,omitempty"`
+	State int32 `json:"state,omitempty"`
 }
+
 type SubmissionRepo interface {
 	CreateSubmission(ctx context.Context, submission *Submission) error
 	CreateSelfTest(ctx context.Context, pretest *SelfTest) error
-	UpdateStatus(ctx context.Context, submissionID int64, status int16) error
+	// UpdateSubmission UpdateStatus(ctx context.Context, submissionID string, status int16) error
 	UpdateSubmission(ctx context.Context, submission *Submission) error
-	GetSubmission(ctx context.Context, submissionID int64, userID int64) (*Submission, error)
+	GetSubmission(ctx context.Context, submissionID string, userID int64) (*Submission, error)
 	GetSubmissions(ctx context.Context, userID int64, problemID int64) ([]*Submission, error)
-	GetCases(submissionID int64, userID int64) ([]*Case, error)
+	GetCases(ctx context.Context, submissionID string, userID int64) ([]*Case, error)
 }
 
 type SubmissionUsecase struct {
@@ -59,15 +58,15 @@ func (uc *SubmissionUsecase) CreateSubmission(ctx context.Context, submission *S
 	return uc.repo.CreateSubmission(ctx, submission)
 }
 
-func (uc *SubmissionUsecase) UpdateStatus(ctx context.Context, submissionID int64, status int16) error {
-	return uc.repo.UpdateStatus(ctx, submissionID, status)
-}
+//func (uc *SubmissionUsecase) UpdateStatus(ctx context.Context, submissionID string, status int16) error {
+//	return uc.repo.UpdateStatus(ctx, submissionID, status)
+//}
 
 func (uc *SubmissionUsecase) UpdateSubmission(ctx context.Context, submission *Submission) error {
 	return uc.repo.UpdateSubmission(ctx, submission)
 }
 
-func (uc *SubmissionUsecase) GetSubmission(ctx context.Context, submissionID int64, userID int64) (*Submission, error) {
+func (uc *SubmissionUsecase) GetSubmission(ctx context.Context, submissionID string, userID int64) (*Submission, error) {
 	return uc.repo.GetSubmission(ctx, submissionID, userID)
 }
 
@@ -79,6 +78,6 @@ func (uc *SubmissionUsecase) CreateSelfTest(ctx context.Context, selfTest *SelfT
 	return uc.repo.CreateSelfTest(ctx, selfTest)
 }
 
-func (uc *SubmissionUsecase) GetCases(submissionID int64, userID int64) ([]*Case, error) {
-	return uc.repo.GetCases(submissionID, userID)
+func (uc *SubmissionUsecase) GetCases(ctx context.Context, submissionID string, userID int64) ([]*Case, error) {
+	return uc.repo.GetCases(ctx, submissionID, userID)
 }
