@@ -133,6 +133,8 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 		UserID:    submission.UserID,
 		ProblemID: submission.ProblemID,
 		Code:      submission.Code,
+		Language:  submission.Language,
+		Token:     "",
 	})
 }
 
