@@ -6,7 +6,7 @@ COPY . /src
 WORKDIR /src
 
 RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
-        && apk add --no-cache make \
+        && apk add --no-cache make git\
         && cd app/admin \
         && for p in case group judge problem user contest; do cd $p && make build && cd ..; done \
         && cd .. \
