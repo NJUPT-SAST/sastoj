@@ -52,8 +52,7 @@ func (s *GatewayService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) 
 }
 
 func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
-	// TODO: Get the userID from context
-	rv, err := s.submissionUc.GetSubmission(ctx, req.SubmissionId, 1)
+	rv, err := s.submissionUc.GetSubmission(ctx, req.GetSubmissionId(), req.GetContestId())
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +68,36 @@ func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 	}, nil
 }
 
+func (s *GatewayService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionsRequest) (*pb.GetSubmissionsReply, error) {
+	submissions, err := s.submissionUc.GetSubmissions(ctx, req.ContestId, req.ProblemId)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.GetSubmissionsReply{}
+	for _, v := range submissions {
+		res.Submissions = append(res.Submissions, &pb.GetSubmissionsReply_Submission{
+			Id:        util.ParseInt64(v.ID),
+			Language:  v.Language,
+			Point:     int32(v.Point),
+			Status:    int32(v.Status),
+			CreatedAt: timestamppb.New(v.CreateTime),
+		})
+	}
+	return res, nil
+}
+
 func (s *GatewayService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
+	cases, err := s.submissionUc.GetCases(ctx, req.ContestId, req.SubmissionId)
+	if err != nil {
+		return nil, err
+	}
 	res := &pb.GetCasesReply{}
+	for _, v := range cases {
+		res.Cases = append(res.Cases, &pb.GetCasesReply_Case{
+			Index: v.Index,
+			State: v.State,
+		})
+	}
 	return res, nil
 }
 

@@ -20,8 +20,9 @@ type submissionRepo struct {
 	log  *log.Helper
 }
 
-func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, userID int64) ([]*biz.Case, error) {
+func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
+	userID := 1 // TODO: Get the userID from context
 	var cases []*biz.Case
 	if err != nil {
 		// get from redis
@@ -47,6 +48,7 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, user
 			})
 		}
 	}
+	// TODO: Add permission check, including contest type and userID
 	return cases, nil
 }
 
@@ -61,8 +63,9 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 	})
 }
 
-func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, userID int64) (*biz.Submission, error) {
+func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
+	userID := 1 // TODO: Get the userID from context
 	var res *biz.Submission
 	if err != nil {
 		// get from redis
@@ -80,7 +83,7 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 		if err != nil {
 			return nil, fmt.Errorf("no submission found: %s", submissionID)
 		}
-		if po.UserID != userID {
+		if po.UserID != int64(userID) {
 			// TODO: ADD Global Error: Permission Denied
 			return nil, errors.New("permission denied")
 		}
@@ -97,29 +100,31 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 			Language:   po.Language,
 		}
 	}
+	// TODO: Add contest type check
 	return res, nil
 }
 
-func (s *submissionRepo) GetSubmissions(ctx context.Context, userId int64, problemId int64) ([]*biz.Submission, error) {
-	submissions, err := s.data.db.Submission.Query().
+func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
+	userID := 1 // TODO: Get the userID from context
+	po, err := s.data.db.Submission.Query().
 		Select(submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime).
-		Where(submission.UserIDEQ(userId), submission.ProblemIDEQ(problemId)).
+		Where(submission.UserIDEQ(int64(userID)), submission.ProblemIDEQ(problemId)).
 		All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var submits []*biz.Submission
-	for _, v := range submissions {
-		submits = append(submits, &biz.Submission{
+	var submissions []*biz.Submission
+	for _, v := range po {
+		submissions = append(submissions, &biz.Submission{
 			ID:         strconv.FormatInt(v.ID, 10),
-			UserID:     userId,
 			ProblemID:  problemId,
 			Status:     v.Status,
 			Point:      v.Point,
 			CreateTime: v.CreateTime,
 		})
 	}
-	return submits, nil
+	// TODO: Add contest type check
+	return submissions, nil
 }
 
 func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.Submission) error {

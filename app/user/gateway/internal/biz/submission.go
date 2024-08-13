@@ -37,10 +37,11 @@ type Case struct {
 type SubmissionRepo interface {
 	CreateSubmission(ctx context.Context, submission *Submission) (string, error)
 	UpdateSubmission(ctx context.Context, submission *Submission) error
-	GetSubmission(ctx context.Context, submissionID string, userID int64) (*Submission, error)
+	GetSubmission(ctx context.Context, submissionID string, contestID int64) (*Submission, error)
+	GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*Submission, error)
 	CreateSelfTest(ctx context.Context, selfTest *SelfTest) error
 	UpdateSelfTest(ctx context.Context, selfTest *SelfTest) error
-	GetCases(ctx context.Context, userID int64, submissionID string) ([]*Case, error)
+	GetCases(ctx context.Context, contestID int64, submissionID string) ([]*Case, error)
 }
 
 type SubmissionUsecase struct {
@@ -56,12 +57,20 @@ func (uc *SubmissionUsecase) CreateSubmission(ctx context.Context, submission *S
 	return submissionID, nil
 }
 
-func (uc *SubmissionUsecase) GetSubmission(ctx context.Context, submissionID string, userID int64) (*Submission, error) {
-	submission, err := uc.repo.GetSubmission(ctx, submissionID, userID)
+func (uc *SubmissionUsecase) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*Submission, error) {
+	submission, err := uc.repo.GetSubmission(ctx, submissionID, contestID)
 	if err != nil {
 		return nil, err
 	}
 	return submission, nil
+}
+
+func (uc *SubmissionUsecase) GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*Submission, error) {
+	submissions, err := uc.repo.GetSubmissions(ctx, contestID, problemID)
+	if err != nil {
+		return nil, err
+	}
+	return submissions, nil
 }
 
 func (uc *SubmissionUsecase) CreateSelfTest(ctx context.Context, selfTest *SelfTest) error {
@@ -76,8 +85,8 @@ func (uc *SubmissionUsecase) UpdateSelfTest(ctx context.Context, selfTest *SelfT
 	return uc.repo.UpdateSelfTest(ctx, selfTest)
 }
 
-func (uc *SubmissionUsecase) GetCases(ctx context.Context, userID int64, submissionID string) ([]*Case, error) {
-	cases, err := uc.repo.GetCases(ctx, userID, submissionID)
+func (uc *SubmissionUsecase) GetCases(ctx context.Context, contestID int64, submissionID string) ([]*Case, error) {
+	cases, err := uc.repo.GetCases(ctx, contestID, submissionID)
 	if err != nil {
 		return nil, err
 	}

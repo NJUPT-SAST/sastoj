@@ -1401,6 +1401,8 @@ func (m *GetSubmissionRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for ContestId
+
 	// no validation rules for SubmissionId
 
 	if len(errors) > 0 {
@@ -1920,6 +1922,8 @@ func (m *GetCasesRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for ContestId
 
 	// no validation rules for SubmissionId
 

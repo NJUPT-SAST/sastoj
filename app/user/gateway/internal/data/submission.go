@@ -40,7 +40,12 @@ type submissionRepo struct {
 	log  *log.Helper
 }
 
-func (s *submissionRepo) GetCases(ctx context.Context, userID int64, submissionID string) ([]*biz.Case, error) {
+func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*biz.Submission, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *submissionRepo) GetCases(ctx context.Context, contestID int64, submissionID string) ([]*biz.Case, error) {
 	cases, ok := s.data.cache.cases[submissionID]
 	if !ok {
 		rev, err := s.data.cc.GetCases(ctx, &pb.GetCasesRequest{
@@ -57,6 +62,7 @@ func (s *submissionRepo) GetCases(ctx context.Context, userID int64, submissionI
 			})
 		}
 	}
+	// TODO: Add permission check, including contest type and userID
 	return cases, nil
 }
 
@@ -156,11 +162,13 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 	return submission.ID, nil
 }
 
-func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, userID int64) (*biz.Submission, error) {
+func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
+	userID := 1 // TODO: Get the userID from context
 	po := s.data.cache.submissions[submissionID]
-	if po.UserID != userID {
+	if po.UserID != int64(userID) {
 		return nil, errors.New("permission denied")
 	}
+	// TODO: Add permission check, including contest type and userID
 	return po, nil
 }
 
