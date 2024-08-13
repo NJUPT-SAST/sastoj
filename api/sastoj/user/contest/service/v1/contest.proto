@@ -48,7 +48,11 @@ service Contest {
 			get: "/user/contests/{contest_id}/submissions/{submission_id}"
 		};
 	};
-	rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply);
+	rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions"
+		};
+	};
 	rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
 		option (google.api.http) = {
 			get: "/user/contests/{contest_id}/submissions/{submission_id}/cases"
