@@ -129,12 +129,13 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 
 func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.Submission) error {
 	return s.data.sCh.Publish(ctx, &mq.Submission{
-		ID:        submission.ID,
-		UserID:    submission.UserID,
-		ProblemID: submission.ProblemID,
-		Code:      submission.Code,
-		Language:  submission.Language,
-		Token:     "",
+		ID:         submission.ID,
+		UserID:     submission.UserID,
+		ProblemID:  submission.ProblemID,
+		Code:       submission.Code,
+		Language:   submission.Language,
+		CreateTime: submission.CreateTime,
+		Token:      "",
 	})
 }
 
