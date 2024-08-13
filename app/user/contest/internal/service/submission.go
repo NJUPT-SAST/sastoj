@@ -56,7 +56,7 @@ func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) 
 }
 
 func (s *ContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissionRequest) (*pb.GetSubmissionReply, error) {
-	submission, err := s.submitUc.GetSubmission(ctx, req.SubmissionId, 1) // TODO: Get the userID from context
+	submission, err := s.submitUc.GetSubmission(ctx, req.SubmissionId, req.GetContestId())
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +73,7 @@ func (s *ContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 }
 
 func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissionsRequest) (*pb.GetSubmissionsReply, error) {
-	// TODO: Get the userID from context
-	submissions, err := s.submitUc.GetSubmissions(ctx, 1, req.GetProblemId())
+	submissions, err := s.submitUc.GetSubmissions(ctx, req.GetContestId(), req.GetProblemId())
 	if err != nil {
 		return nil, err
 	}
@@ -94,8 +93,7 @@ func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 }
 
 func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
-	var userID int64 = 1 // TODO: Get the userID from context
-	cases, err := s.submitUc.GetCases(ctx, req.GetSubmissionId(), userID)
+	cases, err := s.submitUc.GetCases(ctx, req.GetSubmissionId(), req.GetContestId())
 	if err != nil {
 		return nil, err
 	}
