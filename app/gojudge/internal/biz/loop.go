@@ -2,9 +2,9 @@ package biz
 
 import (
 	"encoding/json"
-	"github.com/go-kratos/kratos/v2/log"
 	"time"
 
+	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -64,6 +64,10 @@ func StartLoopOnSubmit(log *log.Helper, ch *amqp.Channel, topic string, handle f
 				)
 				if err != nil {
 					log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Failed consume message: %s", err)
+					if ch.IsClosed() {
+						log.Errorf("Go-Middleware Consumer(OnSubmit) Error: Channel is closed")
+						return
+					}
 				}
 				for d := range messages {
 					body := d.Body

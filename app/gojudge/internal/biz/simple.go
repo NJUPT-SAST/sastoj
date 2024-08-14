@@ -3,12 +3,17 @@ package biz
 import (
 	"bytes"
 	"context"
-	"github.com/google/uuid"
+	"encoding/json"
+	"fmt"
 	"sastoj/ent"
 	"sastoj/ent/problem"
+	"sastoj/pkg/mq"
 	u "sastoj/pkg/util"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 // Simple Adapter
@@ -23,39 +28,59 @@ type Simple struct {
 // 2. get in-out by problem-id and case-id
 // 3. judge each case-submission and save, then create submission and save
 func (s *Simple) handleSubmit(v *Submit) error {
-	//cache and refresh config by problem-id
+	ctx := context.Background()
 
 	//get problem from ent
 	pro, err := s.middleware.ent.Problem.Query().
 		Where(problem.ID(v.ProblemID)).
 		WithProblemCases().
-		First(context.Background())
+		First(ctx)
 	if err != nil {
 		return err
 	}
 
+	submission, err := s.middleware.ent.Submission.Create().
+		SetCode(v.Code).
+		SetStatus(u.Waiting).
+		SetCompileMessage("").
+		SetPoint(0).
+		SetCreateTime(v.CreateTime).
+		SetTotalTime(0).
+		SetMaxMemory(0).
+		SetLanguage(v.Language).
+		SetCaseVersion(int8(pro.CaseVersion)).
+		SetProblemsID(v.ProblemID).
+		SetUsersID(v.UserID).
+		Save(ctx)
+	if err != nil {
+		return err
+	}
+	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
+	//cache and refresh config by problem-id
+
 	//compile submit
 	fileID, result, err := s.middleware.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
+		submission.Status = u.CompileError
 		if result != nil {
-			create := s.middleware.ent.Submission.Create().
-				SetCaseVersion(int8(pro.CaseVersion)).
-				SetUsersID(v.UserID).
-				SetCode(v.Code).
-				SetLanguage(v.Language).
-				SetPoint(0).
-				SetStatus(u.CompileError).
-				SetCreateTime(v.CreateTime).
-				SetTotalTime(0).
-				SetMaxMemory(0).
-				SetProblemsID(v.ProblemID)
 			compileError, ok := result.Files["stderr"]
 			if !ok {
-				create.SetCompileMessage("Compile error")
+				submission.CompileMessage = "Compile error"
 			} else {
-				create.SetCompileMessage(string(compileError))
+				submission.CompileMessage = string(compileError)
 			}
-			err = create.Exec(context.Background())
+		}
+		_, updateErr := submission.Update().Save(ctx)
+		marshal, marshalErr := json.Marshal(mq.Ent2mq(submission))
+		if marshalErr != nil {
+			return marshalErr
+		}
+		redisErr := s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour).Err()
+		if redisErr != nil {
+			return err
+		}
+		if updateErr != nil {
+			return updateErr
 		}
 		return err
 	}
@@ -159,25 +184,16 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		return err
 	}
 	//Save into database
-
-	submission, err := s.middleware.ent.Submission.Create().
-		SetCaseVersion(int8(pro.CaseVersion)).
-		SetUsersID(v.UserID).
-		SetCode(v.Code).
-		SetLanguage(v.Language).
-		SetPoint(score).
-		SetStatus(status).
-		SetCreateTime(v.CreateTime).
-		SetTotalTime(int32(totalTime)).
-		SetMaxMemory(int32(maxMemory)).
-		SetCompileMessage("").
-		SetProblemsID(v.ProblemID).
-		Save(context.Background())
-
+	submission.Status = status
+	submission.Point = score
+	submission.TotalTime = int32(totalTime)
+	submission.MaxMemory = int32(maxMemory)
+	_, err = submission.Update().Save(ctx)
+	marshal, _ := json.Marshal(mq.Ent2mq(submission))
+	s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
 	if err != nil {
 		return err
 	}
-
 	for _, build := range builders {
 		build.SetSubmissionID(submission.ID)
 	}
