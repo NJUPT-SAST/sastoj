@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sastoj/app/user/contest/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
 	"sastoj/pkg/mq"
@@ -121,8 +122,9 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
 	userID := 1 // TODO: Get the userID from context
 	po, err := s.data.db.Submission.Query().
-		Select(submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime).
+		Select(submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime, submission.FieldLanguage).
 		Where(submission.UserIDEQ(int64(userID)), submission.ProblemIDEQ(problemId)).
+		Order(ent.Desc(submission.FieldCreateTime)).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -132,6 +134,7 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 		submissions = append(submissions, &biz.Submission{
 			ID:         strconv.FormatInt(v.ID, 10),
 			ProblemID:  problemId,
+			Language:   v.Language,
 			Status:     v.Status,
 			Point:      v.Point,
 			CreateTime: v.CreateTime,
