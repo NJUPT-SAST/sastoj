@@ -11,6 +11,7 @@ const (
 	TimeLimitExceeded
 	MemoryLimitExceeded
 	OutputLimitExceeded
+	Waiting
 )
 
 // rsjudge

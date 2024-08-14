@@ -11,6 +11,7 @@ import (
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 	"strconv"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -69,13 +70,26 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 	var res *biz.Submission
 	if err != nil {
 		// get from redis
-		result, err := s.data.redis.Get(ctx, fmt.Sprintf("submissions:%d:%s", userID, submissionID)).Result()
+		var po *mq.Submission
+		result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
 		if err != nil {
 			return nil, fmt.Errorf("no submission found: %s", submissionID)
 		}
-		err = json.Unmarshal([]byte(result), &res)
+		err = json.Unmarshal([]byte(result), &po)
 		if err != nil {
 			return nil, err
+		}
+		res = &biz.Submission{
+			ID:         po.ID,
+			UserID:     po.UserID,
+			ProblemID:  po.ProblemID,
+			Code:       po.Code,
+			Status:     po.Status,
+			Point:      po.Point,
+			CreateTime: po.CreateTime,
+			TotalTime:  po.TotalTime,
+			MaxMemory:  po.MaxMemory,
+			Language:   po.Language,
 		}
 	} else {
 		// get from db
@@ -128,15 +142,32 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 }
 
 func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.Submission) error {
-	return s.data.sCh.Publish(ctx, &mq.Submission{
+	m := &mq.Submission{
 		ID:         submission.ID,
 		UserID:     submission.UserID,
 		ProblemID:  submission.ProblemID,
 		Code:       submission.Code,
-		Language:   submission.Language,
+		Status:     util.Waiting,
+		Point:      0,
 		CreateTime: submission.CreateTime,
+		TotalTime:  0,
+		MaxMemory:  0,
+		Language:   submission.Language,
 		Token:      "",
-	})
+	}
+	err := s.data.sCh.Publish(ctx, m)
+	if err != nil {
+		return err
+	}
+	marshal, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	set := s.data.redis.Set(ctx, fmt.Sprintf("submission:%d:%s", submission.UserID, submission.ID), marshal, 2*time.Hour)
+	if set.Err() != nil {
+		return set.Err()
+	}
+	return nil
 }
 
 //func (s *submissionRepo) UpdateStatus(ctx context.Context, submitID string, status int16) error {
