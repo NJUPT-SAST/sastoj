@@ -40,6 +40,7 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	}
 
 	// TODO: cache and refresh config by problem-id
+
 	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
 
 	//compile submit
@@ -179,6 +180,7 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	if err != nil {
 		return err
 	}
+
 	//Save into database
 	save, err := s.middleware.ent.Submission.Create().
 		SetCaseVersion(int8(pro.CaseVersion)).
@@ -195,13 +197,18 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	if err != nil {
 		return err
 	}
+
 	v.ID = strconv.FormatInt(save.ID, 10)
 	v.Status = status
 	v.Point = score
 	v.TotalTime = int32(totalTime)
 	v.MaxMemory = int32(maxMemory)
-	marshal, _ := json.Marshal(v)
+	marshal, err := json.Marshal(v)
+	if err != nil {
+		log.Errorf("marshal error: %v", err)
+	}
 	s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
+
 	for _, build := range builders {
 		build.SetSubmissionID(save.ID)
 	}
