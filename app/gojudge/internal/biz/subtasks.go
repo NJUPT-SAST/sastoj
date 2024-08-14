@@ -3,12 +3,17 @@ package biz
 import (
 	"bytes"
 	"context"
-	"github.com/google/uuid"
+	"encoding/json"
+	"fmt"
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	u "sastoj/pkg/util"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
 )
 
 // Subtasks Adapter
@@ -23,22 +28,31 @@ type Subtasks struct {
 // 2. get in-out by problem-id and case-id
 // 3. judge each case-submission and save, then create submission and save
 func (s *Subtasks) handleSubmit(v *Submit) error {
-	//cache and refresh config by problem-id
+	ctx := context.Background()
 
 	//get problem from ent
 	pro, err := s.middleware.ent.Problem.Query().
 		Where(problem.ID(v.ProblemID)).
 		WithProblemCases().
-		First(context.Background())
+		First(ctx)
 	if err != nil {
 		return err
 	}
+
+	// TODO: cache and refresh config by problem-id
+
+	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
 
 	//compile submit
 	fileID, result, err := s.middleware.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
-			create := s.middleware.ent.Submission.Create().
+			stderr := "Compile error"
+			compileError, ok := result.Files["stderr"]
+			if ok {
+				stderr = string(compileError)
+			}
+			save, err := s.middleware.ent.Submission.Create().
 				SetCaseVersion(int8(pro.CaseVersion)).
 				SetUsersID(v.UserID).
 				SetCode(v.Code).
@@ -48,16 +62,24 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 				SetCreateTime(v.CreateTime).
 				SetTotalTime(0).
 				SetMaxMemory(0).
-				SetProblemsID(v.ProblemID)
-			compileError, ok := result.Files["stderr"]
-			if !ok {
-				create.SetCompileMessage("Compile error")
-			} else {
-				create.SetCompileMessage(string(compileError))
+				SetProblemsID(v.ProblemID).
+				SetCompileMessage(stderr).
+				Save(ctx)
+			if err != nil {
+				log.Errorf("save error: %v", err)
 			}
-			err = create.Exec(context.Background())
+			v.ID = strconv.FormatInt(save.ID, 10)
+			v.Status = u.CompileError
+			marshal, marshalErr := json.Marshal(v)
+			if marshalErr != nil {
+				log.Errorf("marshal error: %v", marshalErr)
+			}
+			redisErr := s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour).Err()
+			if redisErr != nil {
+				log.Errorf("redis error: %v", redisErr)
+			}
+			return err
 		}
-		return err
 	}
 
 	var totalTime uint64 = 0
@@ -178,8 +200,8 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 	if err != nil {
 		return err
 	}
-	//Save into database
 
+	//Save into database
 	submission, err := s.middleware.ent.Submission.Create().
 		SetCaseVersion(int8(pro.CaseVersion)).
 		SetUsersID(v.UserID).
@@ -192,16 +214,26 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 		SetMaxMemory(int32(maxMemory)).
 		SetCompileMessage("").
 		SetProblemsID(v.ProblemID).
-		Save(context.Background())
-
+		Save(ctx)
 	if err != nil {
 		return err
 	}
 
+	v.ID = strconv.FormatInt(submission.ID, 10)
+	v.Status = status
+	v.Point = score
+	v.TotalTime = int32(totalTime)
+	v.MaxMemory = int32(maxMemory)
+	marshal, err := json.Marshal(v)
+	if err != nil {
+		log.Errorf("marshal error: %v", err)
+	}
+	s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
+
 	for _, build := range builders {
 		build.SetSubmissionID(submission.ID)
 	}
-	_, err = s.middleware.ent.SubmissionCase.CreateBulk(builders...).Save(context.Background())
+	_, err = s.middleware.ent.SubmissionCase.CreateBulk(builders...).Save(ctx)
 	if err != nil {
 		return err
 	}
