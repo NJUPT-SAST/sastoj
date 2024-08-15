@@ -9,6 +9,7 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/pkg/middleware/auth"
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 	"strconv"
@@ -24,7 +25,8 @@ type submissionRepo struct {
 
 func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	userID := 1 // TODO: Get the userID from context
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserId
 	var cases []*biz.Case
 	if err != nil {
 		// get from redis
@@ -67,7 +69,8 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 
 func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	userID := 1 // TODO: Get the userID from context
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserId
 	var res *biz.Submission
 	if err != nil {
 		// get from redis
@@ -120,7 +123,8 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 }
 
 func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
-	userID := 1 // TODO: Get the userID from context
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserId
 	po, err := s.data.db.Submission.Query().
 		Select(submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime, submission.FieldLanguage).
 		Where(submission.UserIDEQ(int64(userID)), submission.ProblemIDEQ(problemId)).

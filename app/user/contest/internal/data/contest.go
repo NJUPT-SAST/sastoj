@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/contest"
@@ -10,6 +9,8 @@ import (
 	"sastoj/ent/user"
 	"strconv"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type contestRepo struct {
@@ -32,6 +33,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 					),
 				),
 			).
+			Order(ent.Desc(contest.FieldStartTime)).
 			All(ctx)
 	} else {
 		po, err = c.data.db.Contest.
