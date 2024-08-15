@@ -23,6 +23,7 @@ message Server {
   }
   HTTP http = 1;
   GRPC grpc = 2;
+  string jwtSecret = 3;
 }
 
 message Data {

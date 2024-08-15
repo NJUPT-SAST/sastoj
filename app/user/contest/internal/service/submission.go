@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
 	"sastoj/app/user/contest/internal/biz"
+	"sastoj/pkg/middleware/auth"
 	"sastoj/pkg/util"
 	"time"
 
@@ -13,13 +14,15 @@ import (
 
 func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserId
 	id := uuid.NewString()
 	if err != nil {
 		return nil, err
 	}
 	err = s.submitUc.CreateSubmission(ctx, &biz.Submission{
 		ID:          id,
-		UserID:      1, // TODO: Get the userID from context
+		UserID:      userID,
 		ProblemID:   req.ProblemId,
 		Code:        util.Crlf2lf(req.Code),
 		Status:      0,
@@ -40,9 +43,11 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 
 func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
 	selfTestID := uuid.NewString()
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserId
 	err := s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:       selfTestID,
-		UserID:   1, // TODO: Get the userID from context
+		UserID:   userID,
 		Code:     util.Crlf2lf(req.Code),
 		Language: req.Language,
 		Input:    util.Crlf2lf(req.Input),
