@@ -2,13 +2,13 @@ package auth
 
 import (
 	"context"
+
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/golang-jwt/jwt/v5"
-	"strings"
 )
 
 var (
@@ -26,9 +26,9 @@ var (
 )
 
 type Claims struct {
-	userId    int64
-	groupId   int64
-	groupName string
+	UserId    int64
+	GroupId   int64
+	GroupName string
 	//contestIds []int64
 }
 
@@ -48,18 +48,18 @@ func Auth(keyFunc jwt.Keyfunc, operMap map[string]string) middleware.Middleware 
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			requ, _ := http.RequestFromServerContext(ctx)
 
-			log.Infof("s", requ)
-			trans, ok := transport.FromServerContext(ctx)
-			if !ok {
-				return nil, ErrWrongContext
-			}
-			oper := strings.Split(trans.Operation(), "/")[2]
-			role, exists := operMap[oper]
-			if !exists {
-				log.Infof("Accessing Public Method: ", trans.Operation())
-				return handler(ctx, req)
-			}
-
+			log.Infof("%v", requ)
+			//trans, ok := transport.FromServerContext(ctx)
+			//if !ok {
+			//	return nil, ErrWrongContext
+			//}
+			//oper := strings.Split(trans.Operation(), "/")[2]
+			//role, exists := operMap[oper]
+			//if !exists {
+			//	log.Infof("Accessing Public Method: ", trans.Operation())
+			//	return handler(ctx, req)
+			//}
+			//
 			token, err := getTokenFromTrans(ctx)
 			if err != nil {
 				return nil, err
@@ -74,20 +74,20 @@ func Auth(keyFunc jwt.Keyfunc, operMap map[string]string) middleware.Middleware 
 			}
 			//put claims into context so that other service could retrieve it
 			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
-			switch role {
-			case "user":
-				if !strings.HasPrefix(claimsInfo.groupName, "user") {
-					return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-				}
-			case "manager":
-				if !strings.HasPrefix(claimsInfo.groupName, "manager") {
-					return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-				}
-			case "admin":
-				if !strings.HasPrefix(claimsInfo.groupName, "admin") {
-					return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-				}
-			}
+			//switch role {
+			//case "user":
+			//	if !strings.HasPrefix(claimsInfo.groupName, "user") {
+			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+			//	}
+			//case "manager":
+			//	if !strings.HasPrefix(claimsInfo.groupName, "manager") {
+			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+			//	}
+			//case "admin":
+			//	if !strings.HasPrefix(claimsInfo.groupName, "admin") {
+			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+			//	}
+			//}
 			return handler(ctx, req)
 		}
 	}
@@ -139,8 +139,8 @@ func praseClaims(claims jwt.Claims) (*Claims, error) {
 		return nil, ErrMissingClaims
 	}
 	return &Claims{
-		userId:    int64(userId),
-		groupId:   int64(groupId),
-		groupName: groupName,
+		UserId:    int64(userId),
+		GroupId:   int64(groupId),
+		GroupName: groupName,
 	}, nil
 }
