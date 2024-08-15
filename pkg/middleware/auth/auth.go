@@ -9,7 +9,6 @@ import (
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/golang-jwt/jwt/v5"
-	"strings"
 )
 
 var (
