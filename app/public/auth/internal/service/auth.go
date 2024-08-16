@@ -2,9 +2,8 @@ package service
 
 import (
 	"context"
-	"sastoj/app/public/auth/internal/biz"
-
 	pb "sastoj/api/sastoj/public/auth/service/v1"
+	"sastoj/app/public/auth/internal/biz"
 )
 
 type AuthService struct {
@@ -17,13 +16,7 @@ func NewAuthService(au *biz.AuthUsecase) *AuthService {
 }
 
 func (s *AuthService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginReply, error) {
-	user, err := s.au.Login(ctx, req.Username, req.Password)
-	if err != nil {
-		return nil, err
-	}
-	int64s := []int64{1, 2, 3}
-
-	jwtToken, err := s.au.GenerateJWT(*user, int64s)
+	jwtToken, err := s.au.Login(ctx, req.Username, req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +25,7 @@ func (s *AuthService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 	}, nil
 
 }
-func (s *AuthService) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutReply, error) {
-	return &pb.LogoutReply{}, nil
-}
+
+//func (s *AuthService) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutReply, error) {
+//	return &pb.LogoutReply{}, nil
+//}
