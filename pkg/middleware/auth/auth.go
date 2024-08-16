@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -26,10 +28,10 @@ var (
 )
 
 type Claims struct {
-	UserId    int64
-	GroupId   int64
-	GroupName string
-	//contestIds []int64
+	UserID     int64   `json:"user_id"`
+	GroupID    int64   `json:"group_id"`
+	GroupName  string  `json:"group_name"`
+	ContestIDs []int64 `json:"contest_ids"`
 }
 
 const (
@@ -38,56 +40,52 @@ const (
 	GROUPADMIN2CONTESTS string = "groupAdmin2contests:"
 )
 
-//type Repo struct {
-//	data *Data
-//	log  *log.Helper
-//}
-
-func Auth(keyFunc jwt.Keyfunc, operMap map[string]string) middleware.Middleware {
+func Auth(keyFunc jwt.Keyfunc, opMap map[string]string) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
-			requ, _ := http.RequestFromServerContext(ctx)
-
-			log.Infof("%v", requ)
-			//trans, ok := transport.FromServerContext(ctx)
-			//if !ok {
-			//	return nil, ErrWrongContext
-			//}
-			//oper := strings.Split(trans.Operation(), "/")[2]
-			//role, exists := operMap[oper]
-			//if !exists {
-			//	log.Infof("Accessing Public Method: ", trans.Operation())
-			//	return handler(ctx, req)
-			//}
-			//
+			requestFromServerContext, _ := http.RequestFromServerContext(ctx)
 			token, err := getTokenFromTrans(ctx)
 			if err != nil {
 				return nil, err
 			}
-			claims, err := praseToken(token, keyFunc, jwt.SigningMethodHS256)
+			claims, err := parseToken(token, keyFunc, jwt.SigningMethodHS256)
 			if err != nil {
 				return nil, err
 			}
-			claimsInfo, err := praseClaims(*claims)
+			claimsInfo, err := parseClaims(*claims)
 			if err != nil {
 				return nil, err
 			}
 			//put claims into context so that other service could retrieve it
 			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
-			//switch role {
-			//case "user":
-			//	if !strings.HasPrefix(claimsInfo.groupName, "user") {
-			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-			//	}
-			//case "manager":
-			//	if !strings.HasPrefix(claimsInfo.groupName, "manager") {
-			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-			//	}
-			//case "admin":
-			//	if !strings.HasPrefix(claimsInfo.groupName, "admin") {
-			//		return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
-			//	}
-			//}
+
+			log.Infof("%v", requestFromServerContext)
+			if opMap != nil {
+				trans, ok := transport.FromServerContext(ctx)
+				if !ok {
+					return nil, ErrWrongContext
+				}
+				oper := strings.Split(trans.Operation(), "/")[2]
+				role, exists := opMap[oper]
+				if !exists {
+					log.Infof("Accessing Public Method: %s", trans.Operation())
+					return handler(ctx, req)
+				}
+				switch role {
+				case "user":
+					if !strings.HasPrefix(claimsInfo.GroupName, "user") {
+						return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+					}
+				case "manager":
+					if !strings.HasPrefix(claimsInfo.GroupName, "manager") {
+						return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+					}
+				case "admin":
+					if !strings.HasPrefix(claimsInfo.GroupName, "admin") {
+						return nil, errors.Unauthorized("UNAUTHORIZED", "Operation not allowed")
+					}
+				}
+			}
 			return handler(ctx, req)
 		}
 	}
@@ -100,12 +98,12 @@ func getTokenFromTrans(ctx context.Context) (string, error) {
 	return "", ErrWrongContext
 }
 
-func praseToken(token string, keyfunc jwt.Keyfunc, signingMethod jwt.SigningMethod) (*jwt.Claims, error) {
+func parseToken(token string, keyFunc jwt.Keyfunc, signingMethod jwt.SigningMethod) (*jwt.Claims, error) {
 	var (
 		tokenInfo *jwt.Token
 		err       error
 	)
-	tokenInfo, err = jwt.Parse(token, keyfunc)
+	tokenInfo, err = jwt.Parse(token, keyFunc, jwt.WithJSONNumber())
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenMalformed) || errors.Is(err, jwt.ErrTokenUnverifiable) {
 			return nil, ErrTokenInvalid
@@ -124,23 +122,31 @@ func praseToken(token string, keyfunc jwt.Keyfunc, signingMethod jwt.SigningMeth
 	return &tokenInfo.Claims, nil
 }
 
-func praseClaims(claims jwt.Claims) (*Claims, error) {
-
-	userId, ok := claims.(jwt.MapClaims)["user_id"].(float64)
-	if !ok {
+func parseClaims(claims jwt.Claims) (*Claims, error) {
+	userId, err := claims.(jwt.MapClaims)["user_id"].(json.Number).Int64()
+	if err != nil {
 		return nil, ErrMissingClaims
 	}
-	groupId, ok := claims.(jwt.MapClaims)["group_id"].(float64)
-	if !ok {
+	groupId, err := claims.(jwt.MapClaims)["group_id"].(json.Number).Int64()
+	if err != nil {
 		return nil, ErrMissingClaims
 	}
 	groupName, ok := claims.(jwt.MapClaims)["group_name"].(string)
 	if !ok {
 		return nil, ErrMissingClaims
 	}
+	contestIDs := make([]int64, 0)
+	for _, id := range claims.(jwt.MapClaims)["contest_ids"].([]interface{}) {
+		contestID, err := id.(json.Number).Int64()
+		if err != nil {
+			return nil, ErrMissingClaims
+		}
+		contestIDs = append(contestIDs, contestID)
+	}
 	return &Claims{
-		UserId:    int64(userId),
-		GroupId:   int64(groupId),
-		GroupName: groupName,
+		UserID:     userId,
+		GroupID:    groupId,
+		GroupName:  groupName,
+		ContestIDs: contestIDs,
 	}, nil
 }

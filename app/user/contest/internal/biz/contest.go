@@ -2,8 +2,9 @@ package biz
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 // Contest is a Contest model.
@@ -40,12 +41,10 @@ func NewContestUsecase(repo ContestRepo, logger log.Logger) *ContestUsecase {
 
 // ListContest list all contests.
 func (uc *ContestUsecase) ListContest(ctx context.Context, userID int64) ([]*Contest, error) {
-	uc.log.Infof("userID: %d", userID)
 	contests, err := uc.repo.ListContest(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	uc.log.Infof("contests: %v", contests)
 	return contests, nil
 }
 

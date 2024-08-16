@@ -5,10 +5,11 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/golang-jwt/jwt/v5"
 	"sastoj/app/public/auth/internal/conf"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // User is a Greeter model.
@@ -29,15 +30,16 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-// AuthRepo is a Greater repo.
+// AuthRepo is a user and contest repo.
 type AuthRepo interface {
-	FindByUserName(context.Context, string) (*User, error)
+	FindUserByName(context.Context, string) (*User, error)
+	GetContests(ctx context.Context, groupID int64) ([]int64, error)
 }
 
 type jwtConfig struct {
-	Secret     string
-	Expiration time.Duration
-	Issuer     string
+	secret     string
+	expiration time.Duration
+	issuer     string
 }
 
 // AuthUsecase is a Greeter usecase.
@@ -49,23 +51,42 @@ type AuthUsecase struct {
 
 // NewAuthUsecase new a Greeter usecase.
 func NewAuthUsecase(repo AuthRepo, logger log.Logger, c *conf.Jwt) *AuthUsecase {
-	return &AuthUsecase{repo: repo, log: log.NewHelper(logger), jwtConf: jwtConfig{
-		Secret:     c.Secret,
-		Expiration: time.Duration(c.Expiration) * time.Hour,
-		Issuer:     c.Issuer},
+	var exp int32 = 2
+	if c.Expiration != 0 {
+		exp = c.Expiration
+	}
+	var issuer = "sastoj"
+	if c.Issuer != "" {
+		issuer = c.Issuer
+	}
+	return &AuthUsecase{
+		repo: repo,
+		log:  log.NewHelper(logger),
+		jwtConf: jwtConfig{
+			secret:     c.Secret,
+			expiration: time.Duration(exp) * time.Hour,
+			issuer:     issuer,
+		},
 	}
 }
 
-func (uc *AuthUsecase) Login(ctx context.Context, username string, password string) (*User, error) {
-	user, err := uc.repo.FindByUserName(ctx, username)
+func (uc *AuthUsecase) Login(ctx context.Context, username string, password string) (string, error) {
+	user, err := uc.repo.FindUserByName(ctx, username)
 	if err != nil {
-		return nil, err
+		return "", errors.New("user or password is wrong")
 	}
-	if verifyPassword(password, user.Salt, user.Password) {
-		return user, nil
+	if !verifyPassword(password, user.Salt, user.Password) {
+		return "", errors.New("user or password is wrong")
 	}
-	return nil, errors.New("password is wrong")
-
+	contestIDs, err := uc.repo.GetContests(ctx, user.GroupID)
+	if err != nil {
+		return "", err
+	}
+	j, err := uc.generateJWT(user, contestIDs)
+	if err != nil {
+		return "", err
+	}
+	return j, nil
 }
 
 func generateMD5Password(password string, salt string) string {
@@ -79,13 +100,13 @@ func generateMD5Password(password string, salt string) string {
 func verifyPassword(password string, salt string, hash string) bool {
 	return generateMD5Password(password, salt) == hash
 }
-func (uc *AuthUsecase) GenerateJWT(user User, contestIds []int64) (string, error) {
+func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, error) {
 	// 设置声明（Claims）
 	registeredClaims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(uc.jwtConf.Expiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(uc.jwtConf.expiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
-		Issuer:    uc.jwtConf.Issuer,
+		Issuer:    uc.jwtConf.issuer,
 		Subject:   "a",
 		ID:        "1",
 	}
@@ -98,7 +119,7 @@ func (uc *AuthUsecase) GenerateJWT(user User, contestIds []int64) (string, error
 	}
 	// 使用密钥对 Token 进行签名，生成最终的 JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(uc.jwtConf.Secret))
+	signedToken, err := token.SignedString([]byte(uc.jwtConf.secret))
 	if err != nil {
 		return "", err
 	}
