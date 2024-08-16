@@ -13,3 +13,7 @@ data:
     addr: rd:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
+jwt:
+  secret: sastoj
+  expiration: 2 # hours
+  issuer: sastoj
