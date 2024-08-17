@@ -6,11 +6,44 @@ import (
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/pkg/util"
+	"strconv"
 	"testing"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
+
+const (
+	// DefaultEndpoint is the default endpoint of go-judge
+	DefaultEndpoint = "127.0.0.1:5051"
+)
+
+var defaultLanguageConfig = map[string]*conf.LanguageConfig{
+	"default": {
+		Compile: &conf.ExecConfig{
+			ProcLimit:      50,
+			CpuTimeLimit:   10000000000,
+			CpuRateLimit:   10000000000,
+			ClockTimeLimit: 100000000000,
+			MemoryLimit:    104857600,
+			StdoutMaxSize:  100000000,
+			StderrMaxSize:  100000000,
+		},
+		Run: &conf.ExecConfig{
+			ProcLimit:      50,
+			CpuTimeLimit:   10000000000,
+			CpuRateLimit:   10000000000,
+			ClockTimeLimit: 100000000000,
+			MemoryLimit:    104857600,
+			StdoutMaxSize:  100000000,
+			StderrMaxSize:  100000000,
+		},
+	},
+}
+
+var defaultEnv = map[string][]string{
+	"default": {"PATH=/usr/bin:/bin"},
+}
 
 // TestHandleSubmit require start with the env: go-judge(diff languages)
 func TestCGoJudge(t *testing.T) {
@@ -193,7 +226,6 @@ func TestBashGoJudge(t *testing.T) {
 	}
 }
 
-// TODO: fix Java build
 func TestJavaGoJudge(t *testing.T) {
 	language := "Java"
 	code := `import java.util.Scanner;
@@ -207,12 +239,11 @@ public class Main {
 	}
 }`
 	inputs := []string{"1 2\n", "3 4\n"}
-	endpoint := "127.0.0.1:5051"
 
 	//connect to go-judge
 	ClientConn, err := grpc.DialInsecure(
 		context.Background(),
-		grpc.WithEndpoint(endpoint),
+		grpc.WithEndpoint(DefaultEndpoint),
 		grpc.WithHealthCheck(false))
 	if err != nil {
 		panic(err)
@@ -224,38 +255,16 @@ public class Main {
 		"default": {"PATH=/usr/bin:/bin"},
 	}
 	compile := map[string]string{
-		"Java": `/usr/bin/bash -c "/usr/bin/javac Main.java && /usr/bin/jar cvf Main.jar *.class > /dev/null"`,
+		"Java": "",
 	}
 	run := map[string]string{
-		"Java": "/usr/bin/java Main.jar",
+		"Java": "/usr/bin/java Main.java",
 	}
 	source := map[string]string{
 		"Java": "Main.java",
 	}
 	target := map[string]string{
-		"Java": "Main.jar",
-	}
-	configs := map[string]*conf.LanguageConfig{
-		"default": {
-			Compile: &conf.ExecConfig{
-				ProcLimit:      50,
-				CpuTimeLimit:   10000000000,
-				CpuRateLimit:   10000000000,
-				ClockTimeLimit: 100000000000,
-				MemoryLimit:    104857600,
-				StdoutMaxSize:  100000000,
-				StderrMaxSize:  100000000,
-			},
-			Run: &conf.ExecConfig{
-				ProcLimit:      50,
-				CpuTimeLimit:   10000000000,
-				CpuRateLimit:   10000000000,
-				ClockTimeLimit: 100000000000,
-				MemoryLimit:    104857600,
-				StdoutMaxSize:  100000000,
-				StderrMaxSize:  100000000,
-			},
-		},
+		"Java": "Main.java",
 	}
 	command := data.NewCommands(
 		enable,
@@ -264,7 +273,7 @@ public class Main {
 		run,
 		source,
 		target,
-		configs,
+		defaultLanguageConfig,
 	)
 
 	goJudge := GoJudge{
@@ -584,6 +593,247 @@ echo $nums[0] + $nums[1];`
 	//judge
 	for _, input := range inputs {
 		judge, err := goJudge.Judge([]byte(input), language, fileID, "2", 10000000000, 10000000000*2, 104857600, 1240000)
+		if err != nil {
+			log.Errorf("failed running judge: %v", err)
+			panic(err)
+		}
+		log.Infof("judge: %v", judge)
+	}
+
+	//delete compiled file
+	err = goJudge.DeleteFile(fileID)
+	if err != nil {
+		log.Errorf("failed deleting file: %v", err)
+		panic(err)
+	}
+}
+
+func TestNodeJSGoJudge(t *testing.T) {
+	language := "NodeJS"
+	code := `const readline = require('readline');
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+rl.on('line', (line) => {
+	const nums = line.split(' ');
+	console.log(parseInt(nums[0]) + parseInt(nums[1]));
+});`
+	inputs := []string{"1 2\n", "3 4\n"}
+
+	clientConn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(DefaultEndpoint), grpc.WithHealthCheck(false))
+	if err != nil {
+		return
+	}
+
+	exec := pb.NewExecutorClient(clientConn)
+
+	commands := data.NewCommands(
+		[]string{"NodeJS"},
+		defaultEnv,
+		map[string]string{},
+		map[string]string{
+			"NodeJS": "/usr/bin/node foo.js",
+		},
+		map[string]string{},
+		map[string]string{
+			"NodeJS": "foo.js",
+		},
+		defaultLanguageConfig,
+	)
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+
+	compileAndJudge([]byte(code), language, inputs, &goJudge)
+}
+
+func TestRubyGoJudge(t *testing.T) {
+	language := "Ruby"
+	code := `line = gets
+nums = line.split(' ')
+puts nums[0].to_i + nums[1].to_i`
+	inputs := []string{"1 2\n", "3 4\n"}
+
+	clientConn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(DefaultEndpoint), grpc.WithHealthCheck(false))
+	if err != nil {
+		panic(err)
+	}
+
+	exec := pb.NewExecutorClient(clientConn)
+
+	commands := data.NewCommands(
+		[]string{"Ruby"},
+		defaultEnv,
+		map[string]string{},
+		map[string]string{
+			"Ruby": "/usr/bin/ruby foo.rb",
+		},
+		map[string]string{},
+		map[string]string{
+			"Ruby": "foo.rb",
+		},
+		defaultLanguageConfig,
+	)
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+
+	compileAndJudge([]byte(code), language, inputs, &goJudge)
+}
+
+// TODO: fix Rust run
+func TestRustGoJudge(t *testing.T) {
+	language := "Rust"
+	code := `
+use std::io;
+
+fn main(){
+    let mut input=String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let mut s=input.trim().split(' ');
+
+    let a:i32=s.next().unwrap()
+               .parse().unwrap();
+    let b:i32=s.next().unwrap()
+               .parse().unwrap();
+    println!("{}",a+b);
+}
+`
+	inputs := []string{"1 2\n", "3 4\n"}
+
+	clientConn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(DefaultEndpoint), grpc.WithHealthCheck(false))
+
+	if err != nil {
+		panic(err)
+	}
+
+	exec := pb.NewExecutorClient(clientConn)
+
+	commands := data.NewCommands(
+		[]string{"Rust"},
+		defaultEnv,
+		map[string]string{
+			"Rust": "/usr/bin/rustc -O -o /w/foo /w/foo.rs",
+		},
+		map[string]string{},
+		map[string]string{
+			"Rust": "foo.rs",
+		},
+		map[string]string{
+			"Rust": "foo",
+		},
+		defaultLanguageConfig,
+	)
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+
+	compileAndJudge([]byte(code), language, inputs, &goJudge)
+}
+
+// TODO: fix Pascal run
+func TestPascelGoJudge(t *testing.T) {
+	language := "Pascal"
+	code := `program add;
+var a, b: integer;
+begin
+	readln(a, b);
+	writeln(a + b);
+end.`
+	inputs := []string{"1 2\n", "3 4\n"}
+
+	clientConn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(DefaultEndpoint), grpc.WithHealthCheck(false))
+	if err != nil {
+		panic(err)
+	}
+
+	exec := pb.NewExecutorClient(clientConn)
+
+	commands := data.NewCommands(
+		[]string{"Pascal"},
+		defaultEnv,
+		map[string]string{
+			"Pascal": "/usr/bin/fpc -O2 -o/w/foo foo.pas",
+		},
+		map[string]string{},
+		map[string]string{
+			"Pascal": "foo.pas",
+		},
+		map[string]string{
+			"Pascal": "foo",
+		},
+		defaultLanguageConfig,
+	)
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+
+	compileAndJudge([]byte(code), language, inputs, &goJudge)
+}
+
+// TODO: fix Perl run
+func TestHaskellGoJudge(t *testing.T) {
+	language := "Haskell"
+	code := `main :: IO ()
+main = do
+	line <- getLine
+	let [a, b] = map read $ words line
+	print $ a + b`
+
+	inputs := []string{"1 2\n", "3 4\n"}
+
+	clientConn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(DefaultEndpoint), grpc.WithHealthCheck(false))
+	if err != nil {
+		panic(err)
+	}
+
+	exec := pb.NewExecutorClient(clientConn)
+
+	commands := data.NewCommands(
+		[]string{"Haskell"},
+		defaultEnv,
+		map[string]string{
+			"Haskell": "/usr/bin/ghc -O -outputdir /tmp -o foo foo.hs",
+		},
+		map[string]string{},
+		map[string]string{
+			"Haskell": "foo.hs",
+		},
+		map[string]string{
+			"Haskell": "foo",
+		},
+		defaultLanguageConfig,
+	)
+
+	goJudge := GoJudge{
+		client:   &exec,
+		commands: &commands,
+	}
+
+	compileAndJudge([]byte(code), language, inputs, &goJudge)
+}
+
+func compileAndJudge(code []byte, language string, inputs []string, goJudge *GoJudge) {
+	fileID, res, err := goJudge.Compile(code, language, "1")
+	if err != nil {
+		log.Errorf("failed compile file: %v  \nres :%v", err, res)
+		panic(err)
+	}
+	log.Infof("compiled fileID: %v", fileID)
+
+	//judge
+	for i, s := range inputs {
+		judge, err := goJudge.Judge([]byte(s), language, fileID, strconv.Itoa(i), 10000000000, 10000000000*2, 104857600, 1240000)
 		if err != nil {
 			log.Errorf("failed running judge: %v", err)
 			panic(err)
