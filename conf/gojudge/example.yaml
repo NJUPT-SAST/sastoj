@@ -27,8 +27,10 @@ judge_middleware:
       - Bash
       - Java
       - Golang
-      - Python3
+      - NodeJS
       - PHP
+      - Python3
+      - Ruby
     env:
       "default":
         - "PATH=/usr/bin"
@@ -67,7 +69,7 @@ judge_middleware:
       Rust: /usr/bin/rustc -O -o /w/foo /w/foo.rs
       Haskell: /usr/bin/ghc -O -outputdir /tmp -o foo foo.hs
       Golang: /usr/bin/go build -o foo foo.go
-      Java: /usr/bin/bash -c "javac -d /w -encoding utf8 ./Main.java && jar cvf Main.jar *.class >/dev/null"
+#      Java: /usr/bin/bash -c "javac -d /w -encoding utf8 ./Main.java && jar cvf Main.jar *.class >/dev/null"
       Kotlin/JVM: kotlinc -include-runtime -d foo.jar foo.kt
       Python: /usr/bin/python -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
       Python 3: /usr/bin/python3 -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
@@ -76,7 +78,7 @@ judge_middleware:
     run:
       default: foo
       Bash: /bin/bash foo.sh
-      Java: /usr/bin/java -cp Main.jar Main
+      Java: /usr/bin/java -cp Main.java Main
       Kotlin/JVM: /usr/bin/java -jar foo.jar
       Python: /usr/bin/python foo
       Python 3: /usr/bin/python3 foo
