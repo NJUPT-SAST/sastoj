@@ -29,6 +29,7 @@ type ContestRepo interface {
 	FindByID(context.Context, int64) (*Contest, error)
 	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
 	AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error
+	GetRacingContests(ctx context.Context) ([]*Contest, error)
 }
 
 type ContestUsecase struct {
@@ -62,4 +63,7 @@ func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, g
 	}
 
 	return uc.repo.AddContestants(ctx, contestId, groupId, role)
+}
+func (uc *ContestUsecase) GetRacingContests(ctx context.Context) ([]*Contest, error) {
+	return uc.repo.GetRacingContests(ctx)
 }
