@@ -24,6 +24,7 @@ const OperationContestCreateContest = "/api.sastoj.admin.contest.Contest/CreateC
 const OperationContestDeleteContest = "/api.sastoj.admin.contest.Contest/DeleteContest"
 const OperationContestGetContest = "/api.sastoj.admin.contest.Contest/GetContest"
 const OperationContestListContest = "/api.sastoj.admin.contest.Contest/ListContest"
+const OperationContestManualRanking = "/api.sastoj.admin.contest.Contest/ManualRanking"
 const OperationContestUpdateContest = "/api.sastoj.admin.contest.Contest/UpdateContest"
 
 type ContestHTTPServer interface {
@@ -32,6 +33,7 @@ type ContestHTTPServer interface {
 	DeleteContest(context.Context, *DeleteContestRequest) (*DeleteContestReply, error)
 	GetContest(context.Context, *GetContestRequest) (*GetContestReply, error)
 	ListContest(context.Context, *ListContestRequest) (*ListContestReply, error)
+	ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error)
 	UpdateContest(context.Context, *UpdateContestRequest) (*UpdateContestReply, error)
 }
 
@@ -43,6 +45,7 @@ func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r.GET("/contest/{id}", _Contest_GetContest0_HTTP_Handler(srv))
 	r.GET("/contest", _Contest_ListContest0_HTTP_Handler(srv))
 	r.POST("/contest/contestants", _Contest_AddContestants0_HTTP_Handler(srv))
+	r.POST("/contest/rank", _Contest_ManualRanking0_HTTP_Handler(srv))
 }
 
 func _Contest_CreateContest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
@@ -174,12 +177,35 @@ func _Contest_AddContestants0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.
 	}
 }
 
+func _Contest_ManualRanking0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ManualRankingRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationContestManualRanking)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ManualRanking(ctx, req.(*ManualRankingRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ManualRankingReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type ContestHTTPClient interface {
 	AddContestants(ctx context.Context, req *AddContestantsRequest, opts ...http.CallOption) (rsp *AddContestantsReply, err error)
 	CreateContest(ctx context.Context, req *CreateContestRequest, opts ...http.CallOption) (rsp *CreateContestReply, err error)
 	DeleteContest(ctx context.Context, req *DeleteContestRequest, opts ...http.CallOption) (rsp *DeleteContestReply, err error)
 	GetContest(ctx context.Context, req *GetContestRequest, opts ...http.CallOption) (rsp *GetContestReply, err error)
 	ListContest(ctx context.Context, req *ListContestRequest, opts ...http.CallOption) (rsp *ListContestReply, err error)
+	ManualRanking(ctx context.Context, req *ManualRankingRequest, opts ...http.CallOption) (rsp *ManualRankingReply, err error)
 	UpdateContest(ctx context.Context, req *UpdateContestRequest, opts ...http.CallOption) (rsp *UpdateContestReply, err error)
 }
 
@@ -250,6 +276,19 @@ func (c *ContestHTTPClientImpl) ListContest(ctx context.Context, in *ListContest
 	opts = append(opts, http.Operation(OperationContestListContest))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *ContestHTTPClientImpl) ManualRanking(ctx context.Context, in *ManualRankingRequest, opts ...http.CallOption) (*ManualRankingReply, error) {
+	var out ManualRankingReply
+	pattern := "/contest/rank"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationContestManualRanking))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

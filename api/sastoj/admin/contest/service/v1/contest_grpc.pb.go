@@ -25,6 +25,7 @@ const (
 	Contest_GetContest_FullMethodName     = "/api.sastoj.admin.contest.Contest/GetContest"
 	Contest_ListContest_FullMethodName    = "/api.sastoj.admin.contest.Contest/ListContest"
 	Contest_AddContestants_FullMethodName = "/api.sastoj.admin.contest.Contest/AddContestants"
+	Contest_ManualRanking_FullMethodName  = "/api.sastoj.admin.contest.Contest/ManualRanking"
 )
 
 // ContestClient is the client API for Contest service.
@@ -37,6 +38,7 @@ type ContestClient interface {
 	GetContest(ctx context.Context, in *GetContestRequest, opts ...grpc.CallOption) (*GetContestReply, error)
 	ListContest(ctx context.Context, in *ListContestRequest, opts ...grpc.CallOption) (*ListContestReply, error)
 	AddContestants(ctx context.Context, in *AddContestantsRequest, opts ...grpc.CallOption) (*AddContestantsReply, error)
+	ManualRanking(ctx context.Context, in *ManualRankingRequest, opts ...grpc.CallOption) (*ManualRankingReply, error)
 }
 
 type contestClient struct {
@@ -107,6 +109,16 @@ func (c *contestClient) AddContestants(ctx context.Context, in *AddContestantsRe
 	return out, nil
 }
 
+func (c *contestClient) ManualRanking(ctx context.Context, in *ManualRankingRequest, opts ...grpc.CallOption) (*ManualRankingReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ManualRankingReply)
+	err := c.cc.Invoke(ctx, Contest_ManualRanking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContestServer is the server API for Contest service.
 // All implementations must embed UnimplementedContestServer
 // for forward compatibility
@@ -117,6 +129,7 @@ type ContestServer interface {
 	GetContest(context.Context, *GetContestRequest) (*GetContestReply, error)
 	ListContest(context.Context, *ListContestRequest) (*ListContestReply, error)
 	AddContestants(context.Context, *AddContestantsRequest) (*AddContestantsReply, error)
+	ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error)
 	mustEmbedUnimplementedContestServer()
 }
 
@@ -141,6 +154,9 @@ func (UnimplementedContestServer) ListContest(context.Context, *ListContestReque
 }
 func (UnimplementedContestServer) AddContestants(context.Context, *AddContestantsRequest) (*AddContestantsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddContestants not implemented")
+}
+func (UnimplementedContestServer) ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ManualRanking not implemented")
 }
 func (UnimplementedContestServer) mustEmbedUnimplementedContestServer() {}
 
@@ -263,6 +279,24 @@ func _Contest_AddContestants_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Contest_ManualRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ManualRankingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContestServer).ManualRanking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Contest_ManualRanking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContestServer).ManualRanking(ctx, req.(*ManualRankingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Contest_ServiceDesc is the grpc.ServiceDesc for Contest service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -293,6 +327,10 @@ var Contest_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddContestants",
 			Handler:    _Contest_AddContestants_Handler,
+		},
+		{
+			MethodName: "ManualRanking",
+			Handler:    _Contest_ManualRanking_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

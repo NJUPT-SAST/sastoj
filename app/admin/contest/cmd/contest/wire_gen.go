@@ -7,14 +7,19 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/contest/internal/biz"
 	"sastoj/app/admin/contest/internal/conf"
 	"sastoj/app/admin/contest/internal/data"
 	"sastoj/app/admin/contest/internal/server"
 	"sastoj/app/admin/contest/internal/service"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
+import (
+	_ "github.com/lib/pq"
+	_ "go.uber.org/automaxprocs"
+	_ "sastoj/ent/runtime"
 )
 
 // Injectors from wire.go:
@@ -25,11 +30,13 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	ContestRepo := data.NewContestRepo(dataData, logger)
-	ContestUsecase := biz.NewContestUsecase(ContestRepo, logger)
-	ContestService := service.NewContestService(ContestUsecase)
-	grpcServer := server.NewGRPCServer(confServer, ContestService, logger)
-	httpServer := server.NewHTTPServer(confServer, ContestService, logger)
+	contestRepo := data.NewContestRepo(dataData, logger)
+	contestUsecase := biz.NewContestUsecase(contestRepo, logger)
+	rankRepo := data.NewRankRepo(dataData, logger)
+	rankUsecase := biz.NewRankUsecase(rankRepo, logger)
+	contestService := service.NewContestService(contestUsecase, rankUsecase)
+	grpcServer := server.NewGRPCServer(confServer, contestService, logger)
+	httpServer := server.NewHTTPServer(confServer, contestService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

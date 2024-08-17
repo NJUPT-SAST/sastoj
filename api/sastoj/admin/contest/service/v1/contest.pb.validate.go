@@ -1644,6 +1644,214 @@ var _ interface {
 	ErrorName() string
 } = AddContestantsReplyValidationError{}
 
+// Validate checks the field values on ManualRankingRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ManualRankingRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ManualRankingRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ManualRankingRequestMultiError, or nil if none found.
+func (m *ManualRankingRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ManualRankingRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ContestId
+
+	if len(errors) > 0 {
+		return ManualRankingRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ManualRankingRequestMultiError is an error wrapping multiple validation
+// errors returned by ManualRankingRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ManualRankingRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ManualRankingRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ManualRankingRequestMultiError) AllErrors() []error { return m }
+
+// ManualRankingRequestValidationError is the validation error returned by
+// ManualRankingRequest.Validate if the designated constraints aren't met.
+type ManualRankingRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ManualRankingRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ManualRankingRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ManualRankingRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ManualRankingRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ManualRankingRequestValidationError) ErrorName() string {
+	return "ManualRankingRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ManualRankingRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sManualRankingRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ManualRankingRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ManualRankingRequestValidationError{}
+
+// Validate checks the field values on ManualRankingReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ManualRankingReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ManualRankingReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ManualRankingReplyMultiError, or nil if none found.
+func (m *ManualRankingReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ManualRankingReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return ManualRankingReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// ManualRankingReplyMultiError is an error wrapping multiple validation errors
+// returned by ManualRankingReply.ValidateAll() if the designated constraints
+// aren't met.
+type ManualRankingReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ManualRankingReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ManualRankingReplyMultiError) AllErrors() []error { return m }
+
+// ManualRankingReplyValidationError is the validation error returned by
+// ManualRankingReply.Validate if the designated constraints aren't met.
+type ManualRankingReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ManualRankingReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ManualRankingReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ManualRankingReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ManualRankingReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ManualRankingReplyValidationError) ErrorName() string {
+	return "ManualRankingReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ManualRankingReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sManualRankingReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ManualRankingReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ManualRankingReplyValidationError{}
+
 // Validate checks the field values on ListContestReply_Contest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
