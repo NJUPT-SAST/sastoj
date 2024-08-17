@@ -36,7 +36,7 @@ func (g *GoJudge) Compile(code []byte, language string, requestID string) (strin
 		Cmd: []*pb.Request_CmdType{
 			{
 				Args: command.Compile,
-				Env:  []string{"PATH=/usr/bin:/bin"},
+				Env:  command.Env,
 				Files: []*pb.Request_File{
 					requestMemory([]byte{}),
 					requestPipe("stdout", command.CompileConfig.StdoutMaxSize),

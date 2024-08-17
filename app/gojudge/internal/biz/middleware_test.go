@@ -2,14 +2,15 @@ package biz
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/google/uuid"
 	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/gojudge/internal/conf"
 	"sastoj/app/gojudge/internal/data"
 	"testing"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/google/uuid"
 )
 
 func TestHandleSubmit(t *testing.T) {
@@ -40,6 +41,9 @@ echo "$sum"`
 
 	commands := data.NewCommands(
 		[]string{"Bash"},
+		map[string][]string{
+			"default": {"PATH=/usr/bin:/bin"},
+		},
 		map[string]string{},
 		map[string]string{
 			"Bash": "/bin/bash foo.sh",
