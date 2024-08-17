@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sastoj/app/admin/contest/internal/biz"
 	"sastoj/ent/contest"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -128,4 +129,29 @@ func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, group
 		return errors.New("role not exist")
 	}
 
+}
+
+func (r *ContestRepo) GetRacingContests(ctx context.Context) ([]*biz.Contest, error) {
+	cs, err := r.data.db.Contest.Query().Where(
+		contest.StartTimeLTE(time.Now()),
+		contest.EndTimeGTE(time.Now()),
+	).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rv := make([]*biz.Contest, 0)
+	for _, c := range cs {
+		rv = append(rv, &biz.Contest{
+			Title:       c.Title,
+			Description: c.Description,
+			Status:      int32(c.Status),
+			Type:        int32(c.Type),
+			StartTime:   c.StartTime,
+			EndTime:     c.EndTime,
+			Language:    c.Language,
+			ExtraTime:   int32(c.ExtraTime),
+			CreateTime:  c.CreateTime,
+		})
+	}
+	return rv, nil
 }

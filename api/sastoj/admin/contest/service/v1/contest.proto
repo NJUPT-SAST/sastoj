@@ -45,6 +45,13 @@ service Contest {
 			body: "*"
 		};
 	}
+
+	rpc ManualRanking (ManualRankingRequest) returns (ManualRankingReply){
+		option (google.api.http) = {
+			post: "/contest/rank"
+			body: "*"
+		};
+	}
 }
 enum ErrorReason {
 	// 设置缺省错误码
@@ -143,5 +150,12 @@ message AddContestantsRequest {
 	int32 role = 3 [(validate.rules).int32 =  {in: [0,1]}];
 }
 message AddContestantsReply {
+	bool success = 1;
+}
+
+message ManualRankingRequest {
+	int64 contest_id = 1;
+}
+message ManualRankingReply {
 	bool success = 1;
 }

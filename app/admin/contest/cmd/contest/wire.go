@@ -9,6 +9,7 @@ import (
 	"sastoj/app/admin/contest/internal/biz"
 	"sastoj/app/admin/contest/internal/conf"
 	"sastoj/app/admin/contest/internal/data"
+	"sastoj/app/admin/contest/internal/job"
 	"sastoj/app/admin/contest/internal/server"
 	"sastoj/app/admin/contest/internal/service"
 
@@ -18,6 +19,6 @@ import (
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+func wireApp(*conf.Server, *conf.Data, *conf.Job, log.Logger) (*kratos.App, func(), error) {
+	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, job.ProviderSet, newApp))
 }

@@ -13,10 +13,11 @@ import (
 type ContestService struct {
 	v1.UnimplementedContestServer
 	cs *biz.ContestUsecase
+	rs *biz.RankUsecase
 }
 
-func NewContestService(cs *biz.ContestUsecase) *ContestService {
-	return &ContestService{cs: cs}
+func NewContestService(cs *biz.ContestUsecase, rs *biz.RankUsecase) *ContestService {
+	return &ContestService{cs: cs, rs: rs}
 }
 
 func (s *ContestService) CreateContest(ctx context.Context, req *v1.CreateContestRequest) (*v1.CreateContestReply, error) {
@@ -133,6 +134,25 @@ func (s *ContestService) AddContestants(ctx context.Context, req *v1.AddContesta
 	return &v1.AddContestantsReply{
 		Success: true,
 	}, nil
+}
+func (s *ContestService) ManualRanking(ctx context.Context, req *v1.ManualRankingRequest) (*v1.ManualRankingReply, error) {
+	contest, err := s.cs.FindContest(ctx, req.ContestId)
+	if err != nil {
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+		}
+		return nil, err
+	}
+	rank, err := s.rs.FindRank(ctx, contest)
+	if err != nil && rank != nil {
+		return nil, err
+	}
+	err = s.rs.SaveRank(ctx, contest, rank)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ManualRankingReply{Success: true}, nil
 }
 
 func convertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {
