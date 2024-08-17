@@ -19,15 +19,21 @@ type Submission struct {
 	MaxMemory   int32     `json:"max_memory,omitempty"`
 	Language    string    `json:"language,omitempty"`
 	CaseVersion int8      `json:"case_version,omitempty"`
+	CompileMsg  string    `json:"compile_msg,omitempty"`
 }
 
 type SelfTest struct {
-	ID       string `json:"id,omitempty"`
-	UserID   int64  `json:"user_id,omitempty"`
-	Code     string `json:"code,omitempty"`
-	Language string `json:"language,omitempty"`
-	Input    string `json:"input,omitempty"`
-	Output   string `json:"output,omitempty"`
+	ID         string `json:"id,omitempty"`
+	UserID     int64  `json:"user_id,omitempty"`
+	Code       string `json:"code,omitempty"`
+	Language   string `json:"language,omitempty"`
+	Input      string `json:"input,omitempty"`
+	IsCompiled bool   `json:"is_compiled,omitempty"`
+	CompileMsg string `json:"compile_msg,omitempty"`
+	Stdout     string `json:"stdout,omitempty"`
+	Stderr     string `json:"stderr,omitempty"`
+	Time       uint64 `json:"time,omitempty"`
+	Memory     uint64 `json:"memory,omitempty"`
 }
 
 type Case struct {
@@ -42,6 +48,7 @@ type SubmissionRepo interface {
 	UpdateSubmission(ctx context.Context, submission *Submission) error
 	GetSubmission(ctx context.Context, submissionID string, contestID int64) (*Submission, error)
 	GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*Submission, error)
+	GetSelfTest(ctx context.Context, submissionID string) (*SelfTest, error)
 	GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Case, error)
 }
 
@@ -76,6 +83,10 @@ func (uc *SubmissionUsecase) GetSubmissions(ctx context.Context, contestID int64
 
 func (uc *SubmissionUsecase) CreateSelfTest(ctx context.Context, selfTest *SelfTest) error {
 	return uc.repo.CreateSelfTest(ctx, selfTest)
+}
+
+func (uc *SubmissionUsecase) GetSelfTest(ctx context.Context, submissionID string) (*SelfTest, error) {
+	return uc.repo.GetSelfTest(ctx, submissionID)
 }
 
 func (uc *SubmissionUsecase) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Case, error) {

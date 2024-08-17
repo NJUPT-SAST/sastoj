@@ -43,6 +43,10 @@ message Language{
   map<string, string> source = 4;
   map<string, string> target = 5;
   map<string, LanguageConfig> exec_config = 6;
+  message Env {
+    repeated string env = 1;
+  }
+  map<string, Env> env = 7;
 }
 
 message LanguageConfig{

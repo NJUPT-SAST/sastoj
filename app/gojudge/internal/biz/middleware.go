@@ -2,14 +2,17 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"sastoj/app/gojudge/internal/data"
+	"sastoj/ent"
+	"sastoj/pkg/mq"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
-	"sastoj/app/gojudge/internal/data"
-	"sastoj/ent"
-	"strings"
 )
 
 const (
@@ -105,6 +108,7 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 // 1. compile submission
 // 2. judge each case-submission and save as self-test
 func (m *Middleware) handleSelfTest(v *SelfTest) error {
+	ctx := context.Background()
 	commands := *m.goJudge.commands
 	testConfig := commands["test"]
 	fileID, result, err := m.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
@@ -116,7 +120,24 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 			} else {
 				v.Output = "compile error"
 			}
-			m.redis.Set(context.Background(), v.ID, result, 10000)
+			sT := &mq.SelfTest{
+				ID:         v.ID,
+				UserID:     v.UserID,
+				Code:       v.Code,
+				Language:   v.Language,
+				Input:      v.Input,
+				IsCompiled: false,
+				Stdout:     "",
+				Stderr:     v.Output,
+				Time:       0,
+				Memory:     0,
+				Token:      "",
+			}
+			marshal, err := json.Marshal(sT)
+			if err != nil {
+				m.logger.Errorf("marshal error: %v", err)
+			}
+			m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 10000)
 		}
 		return err
 	}
@@ -129,8 +150,27 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		return err
 	}
-	std := strings.Join([]string{string(result.Files["stdout"]), string(result.Files["stderr"])}, "")
-	v.Output = std
-	m.redis.Set(context.Background(), v.ID, v, 10000)
+	time := result.Time
+	memory := result.Memory
+	stdout := string(result.Files["stdout"])
+	stderr := string(result.Files["stderr"])
+	sT := &mq.SelfTest{
+		ID:         v.ID,
+		UserID:     v.UserID,
+		Code:       v.Code,
+		Language:   v.Language,
+		Input:      v.Input,
+		IsCompiled: true,
+		Stdout:     stdout,
+		Stderr:     stderr,
+		Time:       time,
+		Memory:     memory,
+		Token:      "",
+	}
+	marshal, err := json.Marshal(sT)
+	if err != nil {
+		m.logger.Errorf("marshal error: %v", err)
+	}
+	m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 10000)
 	return nil
 }
