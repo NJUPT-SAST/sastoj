@@ -36,7 +36,7 @@ type ContestHTTPServer interface {
 	GetContests(context.Context, *GetContestsRequest) (*GetContestsReply, error)
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	GetProblems(context.Context, *GetProblemsRequest) (*GetProblemsReply, error)
-	GetSelfTest(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
+	GetSelfTest(context.Context, *GetSelfTestRequest) (*GetSelfTestReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
 	JoinContest(context.Context, *JoinContestRequest) (*JoinContestReply, error)
@@ -55,7 +55,7 @@ func RegisterContestHTTPServer(s *http.Server, srv ContestHTTPServer) {
 	r.POST("/user/contests/{contest_id}/problems/{problem_id}/test", _Contest_SelfTest0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/submissions/{submission_id}", _Contest_GetSubmission0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/problems/{problem_id}/submissions", _Contest_GetSubmissions0_HTTP_Handler(srv))
-	r.GET("/user/contests/{contest_id}/self-tests/{submission_id}", _Contest_GetSelfTest0_HTTP_Handler(srv))
+	r.GET("/user/contests/{contest_id}/self-tests/{self_test_id}", _Contest_GetSelfTest0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/submissions/{submission_id}/cases", _Contest_GetCases0_HTTP_Handler(srv))
 	r.GET("/user/contests/{contest_id}/ranking", _Contest_ListRanking0_HTTP_Handler(srv))
 }
@@ -244,7 +244,7 @@ func _Contest_GetSubmissions0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.
 
 func _Contest_GetSelfTest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetSubmissionRequest
+		var in GetSelfTestRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -253,13 +253,13 @@ func _Contest_GetSelfTest0_HTTP_Handler(srv ContestHTTPServer) func(ctx http.Con
 		}
 		http.SetOperation(ctx, OperationContestGetSelfTest)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetSelfTest(ctx, req.(*GetSubmissionRequest))
+			return srv.GetSelfTest(ctx, req.(*GetSelfTestRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetSubmissionReply)
+		reply := out.(*GetSelfTestReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -313,7 +313,7 @@ type ContestHTTPClient interface {
 	GetContests(ctx context.Context, req *GetContestsRequest, opts ...http.CallOption) (rsp *GetContestsReply, err error)
 	GetProblem(ctx context.Context, req *GetProblemRequest, opts ...http.CallOption) (rsp *GetProblemReply, err error)
 	GetProblems(ctx context.Context, req *GetProblemsRequest, opts ...http.CallOption) (rsp *GetProblemsReply, err error)
-	GetSelfTest(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
+	GetSelfTest(ctx context.Context, req *GetSelfTestRequest, opts ...http.CallOption) (rsp *GetSelfTestReply, err error)
 	GetSubmission(ctx context.Context, req *GetSubmissionRequest, opts ...http.CallOption) (rsp *GetSubmissionReply, err error)
 	GetSubmissions(ctx context.Context, req *GetSubmissionsRequest, opts ...http.CallOption) (rsp *GetSubmissionsReply, err error)
 	JoinContest(ctx context.Context, req *JoinContestRequest, opts ...http.CallOption) (rsp *JoinContestReply, err error)
@@ -382,9 +382,9 @@ func (c *ContestHTTPClientImpl) GetProblems(ctx context.Context, in *GetProblems
 	return &out, nil
 }
 
-func (c *ContestHTTPClientImpl) GetSelfTest(ctx context.Context, in *GetSubmissionRequest, opts ...http.CallOption) (*GetSubmissionReply, error) {
-	var out GetSubmissionReply
-	pattern := "/user/contests/{contest_id}/self-tests/{submission_id}"
+func (c *ContestHTTPClientImpl) GetSelfTest(ctx context.Context, in *GetSelfTestRequest, opts ...http.CallOption) (*GetSelfTestReply, error) {
+	var out GetSelfTestReply
+	pattern := "/user/contests/{contest_id}/self-tests/{self_test_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationContestGetSelfTest))
 	opts = append(opts, http.PathTemplate(pattern))

@@ -2029,15 +2029,13 @@ func (m *GetSelfTestReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for IsCompiled
 
-	// no validation rules for Code
+	// no validation rules for CompileMsg
 
-	// no validation rules for Language
+	// no validation rules for Stdout
 
-	// no validation rules for Input
-
-	// no validation rules for Output
+	// no validation rules for Stderr
 
 	// no validation rules for Time
 

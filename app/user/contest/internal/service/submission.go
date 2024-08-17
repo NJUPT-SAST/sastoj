@@ -103,13 +103,12 @@ func (s *ContestService) GetSelfTest(ctx context.Context, req *pb.GetSelfTestReq
 		return nil, err
 	}
 	return &pb.GetSelfTestReply{
-		Id:       selfTest.ID,
-		Code:     selfTest.Code,
-		Language: selfTest.Language,
-		Input:    selfTest.Input,
-		Output:   selfTest.Output,
-		Time:     selfTest.Time,
-		Memory:   selfTest.Memory,
+		IsCompiled: selfTest.IsCompiled,
+		CompileMsg: selfTest.CompileMsg,
+		Stdout:     selfTest.Stdout,
+		Stderr:     selfTest.Stderr,
+		Time:       selfTest.Time,
+		Memory:     selfTest.Memory,
 	}, nil
 }
 

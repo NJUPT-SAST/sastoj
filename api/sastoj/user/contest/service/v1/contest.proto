@@ -53,9 +53,9 @@ service Contest {
 			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions"
 		};
 	};
-	rpc GetSelfTest (GetSubmissionRequest) returns (GetSubmissionReply) {
+	rpc GetSelfTest (GetSelfTestRequest) returns (GetSelfTestReply) {
 		option (google.api.http) = {
-			get: "/user/contests/{contest_id}/self-tests/{submission_id}"
+			get: "/user/contests/{contest_id}/self-tests/{self_test_id}"
 		};
 	};
 	rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
@@ -183,13 +183,12 @@ message GetSelfTestRequest {
 	string self_test_id = 2;
 }
 message GetSelfTestReply {
-	string id = 1;
-	string code = 2;
-	string language = 3;
-	string input = 4;
-	string output = 5;
-	uint64 time = 6;
-	uint64 memory = 7;
+	bool is_compiled = 1;
+	string compile_msg = 2;
+	string stdout = 3;
+	string stderr = 4;
+	uint64 time = 5;
+	uint64 memory = 6;
 }
 
 message GetCasesRequest {

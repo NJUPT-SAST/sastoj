@@ -47,7 +47,7 @@ type ContestClient interface {
 	SelfTest(ctx context.Context, in *SelfTestRequest, opts ...grpc.CallOption) (*SelfTestReply, error)
 	GetSubmission(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
 	GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...grpc.CallOption) (*GetSubmissionsReply, error)
-	GetSelfTest(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error)
+	GetSelfTest(ctx context.Context, in *GetSelfTestRequest, opts ...grpc.CallOption) (*GetSelfTestReply, error)
 	GetCases(ctx context.Context, in *GetCasesRequest, opts ...grpc.CallOption) (*GetCasesReply, error)
 	ListRanking(ctx context.Context, in *ListRankingRequest, opts ...grpc.CallOption) (*ListRankingReply, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error)
@@ -143,9 +143,9 @@ func (c *contestClient) GetSubmissions(ctx context.Context, in *GetSubmissionsRe
 	return out, nil
 }
 
-func (c *contestClient) GetSelfTest(ctx context.Context, in *GetSubmissionRequest, opts ...grpc.CallOption) (*GetSubmissionReply, error) {
+func (c *contestClient) GetSelfTest(ctx context.Context, in *GetSelfTestRequest, opts ...grpc.CallOption) (*GetSelfTestReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSubmissionReply)
+	out := new(GetSelfTestReply)
 	err := c.cc.Invoke(ctx, Contest_GetSelfTest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ type ContestServer interface {
 	SelfTest(context.Context, *SelfTestRequest) (*SelfTestReply, error)
 	GetSubmission(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
 	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
-	GetSelfTest(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error)
+	GetSelfTest(context.Context, *GetSelfTestRequest) (*GetSelfTestReply, error)
 	GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error)
 	ListRanking(context.Context, *ListRankingRequest) (*ListRankingReply, error)
 	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
@@ -255,7 +255,7 @@ func (UnimplementedContestServer) GetSubmission(context.Context, *GetSubmissionR
 func (UnimplementedContestServer) GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubmissions not implemented")
 }
-func (UnimplementedContestServer) GetSelfTest(context.Context, *GetSubmissionRequest) (*GetSubmissionReply, error) {
+func (UnimplementedContestServer) GetSelfTest(context.Context, *GetSelfTestRequest) (*GetSelfTestReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSelfTest not implemented")
 }
 func (UnimplementedContestServer) GetCases(context.Context, *GetCasesRequest) (*GetCasesReply, error) {
@@ -439,7 +439,7 @@ func _Contest_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _Contest_GetSelfTest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSubmissionRequest)
+	in := new(GetSelfTestRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -451,7 +451,7 @@ func _Contest_GetSelfTest_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: Contest_GetSelfTest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContestServer).GetSelfTest(ctx, req.(*GetSubmissionRequest))
+		return srv.(ContestServer).GetSelfTest(ctx, req.(*GetSelfTestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

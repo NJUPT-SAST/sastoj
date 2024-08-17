@@ -38,13 +38,15 @@ func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*b
 		return nil, err
 	}
 	res = &biz.SelfTest{
-		ID:     po.ID,
-		UserID: po.UserID,
-		Code:   po.Code,
-		Input:  po.Input,
-		Output: po.Output,
-		Time:   po.Time,
-		Memory: po.Memory,
+		ID:         po.ID,
+		UserID:     po.UserID,
+		Code:       po.Code,
+		Input:      po.Input,
+		IsCompiled: po.IsCompiled,
+		Stdout:     po.Stdout,
+		Stderr:     po.Stderr,
+		Time:       po.Time,
+		Memory:     po.Memory,
 	}
 	return res, nil
 }
@@ -84,15 +86,17 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 
 func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfTest) error {
 	return s.data.stCh.Publish(ctx, &mq.SelfTest{
-		ID:       selfTest.ID,
-		UserID:   selfTest.UserID,
-		Code:     selfTest.Code,
-		Language: selfTest.Language,
-		Input:    selfTest.Input,
-		Output:   "",
-		Time:     0,
-		Memory:   0,
-		Token:    "",
+		ID:         selfTest.ID,
+		UserID:     selfTest.UserID,
+		Code:       selfTest.Code,
+		Language:   selfTest.Language,
+		Input:      selfTest.Input,
+		IsCompiled: false,
+		Stdout:     "",
+		Stderr:     "",
+		Time:       0,
+		Memory:     0,
+		Token:      "",
 	})
 }
 
