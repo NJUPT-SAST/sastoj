@@ -53,6 +53,11 @@ service Contest {
 			get: "/user/contests/{contest_id}/problems/{problem_id}/submissions"
 		};
 	};
+	rpc GetSelfTest (GetSubmissionRequest) returns (GetSubmissionReply) {
+		option (google.api.http) = {
+			get: "/user/contests/{contest_id}/self-tests/{submission_id}"
+		};
+	};
 	rpc GetCases (GetCasesRequest) returns (GetCasesReply) {
 		option (google.api.http) = {
 			get: "/user/contests/{contest_id}/submissions/{submission_id}/cases"
@@ -171,6 +176,20 @@ message GetSubmissionsReply {
 		google.protobuf.Timestamp created_at = 5;
 	}
 	repeated Submission submissions = 1;
+}
+
+message GetSelfTestRequest {
+	int64 contest_id = 1;
+	string self_test_id = 2;
+}
+message GetSelfTestReply {
+	string id = 1;
+	string code = 2;
+	string language = 3;
+	string input = 4;
+	string output = 5;
+	uint64 time = 6;
+	uint64 memory = 7;
 }
 
 message GetCasesRequest {

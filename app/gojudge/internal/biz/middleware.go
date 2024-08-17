@@ -2,14 +2,18 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"sastoj/app/gojudge/internal/data"
+	"sastoj/ent"
+	"sastoj/pkg/mq"
+	"strings"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
-	"sastoj/app/gojudge/internal/data"
-	"sastoj/ent"
-	"strings"
 )
 
 const (
@@ -129,8 +133,24 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		return err
 	}
+	time := result.Time
+	memory := result.Memory
 	std := strings.Join([]string{string(result.Files["stdout"]), string(result.Files["stderr"])}, "")
-	v.Output = std
-	m.redis.Set(context.Background(), v.ID, v, 10000)
+	sT := &mq.SelfTest{
+		ID:       v.ID,
+		UserID:   v.UserID,
+		Code:     v.Code,
+		Language: v.Language,
+		Input:    v.Input,
+		Output:   std,
+		Time:     time,
+		Memory:   memory,
+		Token:    "",
+	}
+	marshal, err := json.Marshal(sT)
+	if err != nil {
+		m.logger.Errorf("marshal error: %v", err)
+	}
+	m.redis.Set(context.Background(), fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 10000)
 	return nil
 }

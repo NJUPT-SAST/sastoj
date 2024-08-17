@@ -6,5 +6,8 @@ type SelfTest struct {
 	Code     string `json:"code,omitempty"`
 	Language string `json:"language,omitempty"`
 	Input    string `json:"input,omitempty"`
+	Output   string `json:"output,omitempty"`
+	Time     uint64 `json:"time,omitempty"`
+	Memory   uint64 `json:"memory,omitempty"`
 	Token    string `json:"secret,omitempty"`
 }

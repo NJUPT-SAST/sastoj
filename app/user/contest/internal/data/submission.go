@@ -23,6 +23,32 @@ type submissionRepo struct {
 	log  *log.Helper
 }
 
+func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*biz.SelfTest, error) {
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	userID := claim.UserID
+	var res *biz.SelfTest
+	// get from redis
+	var po *mq.SelfTest
+	result, err := s.data.redis.Get(ctx, fmt.Sprintf("self-test:%d:%s", userID, selfTestID)).Result()
+	if err != nil {
+		return nil, fmt.Errorf("no self-test found: %s", selfTestID)
+	}
+	err = json.Unmarshal([]byte(result), &po)
+	if err != nil {
+		return nil, err
+	}
+	res = &biz.SelfTest{
+		ID:     po.ID,
+		UserID: po.UserID,
+		Code:   po.Code,
+		Input:  po.Input,
+		Output: po.Output,
+		Time:   po.Time,
+		Memory: po.Memory,
+	}
+	return res, nil
+}
+
 func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
 	claim := ctx.Value("userInfo").(*auth.Claims)
@@ -63,6 +89,9 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 		Code:     selfTest.Code,
 		Language: selfTest.Language,
 		Input:    selfTest.Input,
+		Output:   "",
+		Time:     0,
+		Memory:   0,
 		Token:    "",
 	})
 }

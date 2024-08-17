@@ -1901,6 +1901,226 @@ var _ interface {
 	ErrorName() string
 } = GetSubmissionsReplyValidationError{}
 
+// Validate checks the field values on GetSelfTestRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSelfTestRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSelfTestRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSelfTestRequestMultiError, or nil if none found.
+func (m *GetSelfTestRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSelfTestRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ContestId
+
+	// no validation rules for SelfTestId
+
+	if len(errors) > 0 {
+		return GetSelfTestRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSelfTestRequestMultiError is an error wrapping multiple validation errors
+// returned by GetSelfTestRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetSelfTestRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSelfTestRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSelfTestRequestMultiError) AllErrors() []error { return m }
+
+// GetSelfTestRequestValidationError is the validation error returned by
+// GetSelfTestRequest.Validate if the designated constraints aren't met.
+type GetSelfTestRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSelfTestRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSelfTestRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSelfTestRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSelfTestRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSelfTestRequestValidationError) ErrorName() string {
+	return "GetSelfTestRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSelfTestRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSelfTestRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSelfTestRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSelfTestRequestValidationError{}
+
+// Validate checks the field values on GetSelfTestReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetSelfTestReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSelfTestReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSelfTestReplyMultiError, or nil if none found.
+func (m *GetSelfTestReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSelfTestReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Code
+
+	// no validation rules for Language
+
+	// no validation rules for Input
+
+	// no validation rules for Output
+
+	// no validation rules for Time
+
+	// no validation rules for Memory
+
+	if len(errors) > 0 {
+		return GetSelfTestReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSelfTestReplyMultiError is an error wrapping multiple validation errors
+// returned by GetSelfTestReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetSelfTestReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSelfTestReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSelfTestReplyMultiError) AllErrors() []error { return m }
+
+// GetSelfTestReplyValidationError is the validation error returned by
+// GetSelfTestReply.Validate if the designated constraints aren't met.
+type GetSelfTestReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSelfTestReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSelfTestReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSelfTestReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSelfTestReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSelfTestReplyValidationError) ErrorName() string { return "GetSelfTestReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetSelfTestReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSelfTestReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSelfTestReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSelfTestReplyValidationError{}
+
 // Validate checks the field values on GetCasesRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

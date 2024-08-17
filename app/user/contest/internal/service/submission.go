@@ -97,6 +97,22 @@ func (s *ContestService) GetSubmissions(ctx context.Context, req *pb.GetSubmissi
 	}, nil
 }
 
+func (s *ContestService) GetSelfTest(ctx context.Context, req *pb.GetSelfTestRequest) (*pb.GetSelfTestReply, error) {
+	selfTest, err := s.submitUc.GetSelfTest(ctx, req.GetSelfTestId())
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetSelfTestReply{
+		Id:       selfTest.ID,
+		Code:     selfTest.Code,
+		Language: selfTest.Language,
+		Input:    selfTest.Input,
+		Output:   selfTest.Output,
+		Time:     selfTest.Time,
+		Memory:   selfTest.Memory,
+	}, nil
+}
+
 func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) (*pb.GetCasesReply, error) {
 	cases, err := s.submitUc.GetCases(ctx, req.GetSubmissionId(), req.GetContestId())
 	if err != nil {
