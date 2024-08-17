@@ -2,25 +2,24 @@ package data
 
 import (
 	"context"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"errors"
 	"fmt"
+	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
+	"sastoj/app/gojudge/internal/conf"
+	"sastoj/ent"
+	"time"
+
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/google/wire"
+	_ "github.com/lib/pq"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
-	"sastoj/ent"
-	"time"
-
-	"sastoj/app/gojudge/internal/conf"
-
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
-	_ "github.com/lib/pq"
 )
 
 // ProviderSet is data providers.
@@ -43,9 +42,15 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	logHelper := log.NewHelper(log.With(logger, "module", "data"))
 
 	logHelper.Infof("Read Go-Judge Conf Success: Endpoint=%s", c.JudgeMiddleware.Endpoint)
+
+	envs := make(map[string][]string)
+	for s := range c.JudgeMiddleware.Language.Env {
+		envs[s] = c.JudgeMiddleware.Language.Env[s].Env
+	}
 	//commands to judge
 	command := NewCommands(
 		c.JudgeMiddleware.Language.Enable,
+		envs,
 		c.JudgeMiddleware.Language.Compile,
 		c.JudgeMiddleware.Language.Run,
 		c.JudgeMiddleware.Language.Source,

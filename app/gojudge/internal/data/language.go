@@ -9,6 +9,7 @@ type Commands = map[string]Command
 
 type Command struct {
 	Compile       []string
+	Env           []string
 	Run           []string
 	Source        string
 	Target        string
@@ -18,6 +19,7 @@ type Command struct {
 
 func NewCommands(
 	enable []string,
+	env map[string][]string,
 	compile map[string]string,
 	run map[string]string,
 	source map[string]string,
@@ -26,6 +28,10 @@ func NewCommands(
 
 	res := make(map[string]Command)
 	for _, language := range enable {
+		e, ok := env[language]
+		if !ok {
+			e = env["default"]
+		}
 		r, ok := run[language]
 		if !ok {
 			r = run["default"]
@@ -44,17 +50,32 @@ func NewCommands(
 		if !ok {
 			t = target["default"]
 		}
-		e, ok := configs[language]
+		config, ok := configs[language]
 		if !ok {
-			e = configs["default"]
+			config = configs["default"]
 		}
+
+		compileCmd := strings.Fields(c)
+		index := strings.Index(c, "\"")
+		if index != -1 {
+			compileCmd = strings.Fields(c[:index])
+			compileCmd = append(compileCmd, c[index:])
+		}
+		runCmd := strings.Fields(r)
+		index = strings.Index(r, "\"")
+		if index != -1 {
+			runCmd = strings.Fields(r[:index])
+			runCmd = append(runCmd, r[index:])
+		}
+
 		res[language] = Command{
-			Compile:       strings.Fields(c),
-			Run:           strings.Fields(r),
+			Env:           e,
+			Compile:       compileCmd,
+			Run:           runCmd,
 			Source:        s,
 			Target:        t,
-			CompileConfig: e.Compile,
-			RunConfig:     e.Run,
+			CompileConfig: config.Compile,
+			RunConfig:     config.Run,
 		}
 	}
 	return res

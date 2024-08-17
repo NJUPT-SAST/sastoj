@@ -8,7 +8,7 @@ data:
     write_timeout: 0.2s
     db: 0
   mq: amqp://sastoj:123456@mq:5672/
-  load: 
+  load:
     problem_cases_location: /data/cases
 
 judge_middleware:
@@ -25,6 +25,16 @@ judge_middleware:
       - C++17
       - C++17(O2)
       - Bash
+      - Java
+      - Golang
+      - Python3
+      - PHP
+    env:
+      "default":
+        - "PATH=/usr/bin"
+      "Golang":
+        - "PATH=/usr/bin:bin"
+        - "GOCACHE=/tmp/"
     exec_config:
       default:
         compile:
