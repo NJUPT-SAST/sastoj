@@ -8,6 +8,7 @@ import (
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/ent"
 	"sastoj/pkg/mq"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
@@ -110,7 +111,10 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	ctx := context.Background()
 	commands := *m.goJudge.commands
-	testConfig := commands["test"]
+	testConfig, ok := commands[v.Language]
+	if !ok {
+		return errors.New("language not supported")
+	}
 	fileID, result, err := m.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
@@ -137,7 +141,7 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 			if err != nil {
 				m.logger.Errorf("marshal error: %v", err)
 			}
-			m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 10000)
+			m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 30*time.Minute)
 		}
 		return err
 	}
@@ -150,7 +154,7 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		return err
 	}
-	time := result.Time
+	t := result.Time
 	memory := result.Memory
 	stdout := string(result.Files["stdout"])
 	stderr := string(result.Files["stderr"])
@@ -163,7 +167,7 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 		IsCompiled: true,
 		Stdout:     stdout,
 		Stderr:     stderr,
-		Time:       time,
+		Time:       t,
 		Memory:     memory,
 		Token:      "",
 	}
@@ -171,6 +175,6 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	if err != nil {
 		m.logger.Errorf("marshal error: %v", err)
 	}
-	m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 10000)
+	m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 30*time.Minute)
 	return nil
 }
