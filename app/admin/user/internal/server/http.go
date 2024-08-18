@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/golang-jwt/jwt/v5"
 	v1 "sastoj/api/sastoj/admin/user/service/v1"
 	"sastoj/app/admin/user/internal/conf"
 	"sastoj/app/admin/user/internal/service"
@@ -14,15 +13,10 @@ import (
 
 // NewHTTPServer new an HTTP server.
 func NewHTTPServer(c *conf.Server, user *service.UserService, logger log.Logger) *http.Server {
-	apiMap := map[string]string{
-		"UpdateUser": "admin",
-	}
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
-			auth.Auth(func(token *jwt.Token) (interface{}, error) {
-				return []byte("sastoj"), nil
-			}, apiMap),
+			auth.Auth(c.JwtSecret, auth.AdminGroup, nil),
 		),
 	}
 	if c.Http.Network != "" {
