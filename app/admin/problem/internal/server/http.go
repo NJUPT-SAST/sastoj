@@ -4,6 +4,7 @@ import (
 	v1 "sastoj/api/sastoj/admin/problem/service/v1"
 	"sastoj/app/admin/problem/internal/conf"
 	"sastoj/app/admin/problem/internal/service"
+	"sastoj/pkg/middleware/auth"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -15,6 +16,7 @@ func NewHTTPServer(c *conf.Server, problem *service.ProblemService, logger log.L
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			auth.Auth(c.JwtSecret, auth.AdminGroup, nil),
 		),
 	}
 	if c.Http.Network != "" {

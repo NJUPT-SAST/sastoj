@@ -1,13 +1,15 @@
 package server
 
 import (
+	v1 "sastoj/api/sastoj/admin/case/service/v1"
+	"sastoj/app/admin/case/internal/conf"
+	"sastoj/app/admin/case/internal/service"
+	"sastoj/pkg/middleware/auth"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	v1 "sastoj/api/sastoj/admin/case/service/v1"
-	"sastoj/app/admin/case/internal/conf"
-	"sastoj/app/admin/case/internal/service"
 )
 
 // NewHTTPServer new an HTTP server.
@@ -16,6 +18,7 @@ func NewHTTPServer(c *conf.Server, problemCase *service.CaseService, logger log.
 		http.Middleware(
 			validate.Validator(),
 			recovery.Recovery(),
+			auth.Auth(c.JwtSecret, auth.UserGroup, nil),
 		),
 	}
 	if c.Http.Network != "" {

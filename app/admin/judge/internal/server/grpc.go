@@ -4,6 +4,7 @@ import (
 	v1 "sastoj/api/sastoj/admin/judge/service/v1"
 	"sastoj/app/admin/judge/internal/conf"
 	"sastoj/app/admin/judge/internal/service"
+	"sastoj/pkg/middleware/auth"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -15,6 +16,7 @@ func NewGRPCServer(c *conf.Server, judge *service.JudgeService, logger log.Logge
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			auth.Auth(c.JwtSecret, auth.AdminGroup, nil),
 		),
 	}
 	if c.Grpc.Network != "" {
