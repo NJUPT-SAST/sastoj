@@ -5,6 +5,7 @@ server:
   grpc:
     addr: 0.0.0.0:9000
     timeout: 1s
+  jwt_secret: sastoj
 data:
   database:
     driver: postgres

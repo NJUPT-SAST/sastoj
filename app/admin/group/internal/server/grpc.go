@@ -1,13 +1,14 @@
 package server
 
 import (
-	"github.com/go-kratos/kratos/v2/middleware/validate"
 	v1 "sastoj/api/sastoj/admin/group/service/v1"
 	"sastoj/app/admin/group/internal/conf"
 	"sastoj/app/admin/group/internal/service"
+	"sastoj/pkg/middleware/auth"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
 
@@ -17,6 +18,7 @@ func NewGRPCServer(c *conf.Server, group *service.GroupService, logger log.Logge
 		grpc.Middleware(
 			validate.Validator(),
 			recovery.Recovery(),
+			auth.Auth(c.JwtSecret, auth.AdminGroup, nil),
 		),
 	}
 	if c.Grpc.Network != "" {
