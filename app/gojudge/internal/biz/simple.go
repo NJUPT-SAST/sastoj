@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sastoj/ent"
 	"sastoj/ent/problem"
+	"sastoj/pkg/mq"
 	u "sastoj/pkg/util"
 	"strconv"
 	"strings"
@@ -30,23 +32,43 @@ type Simple struct {
 func (s *Simple) handleSubmit(v *Submit) error {
 	ctx := context.Background()
 
+	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
+
+	submission := &mq.Submission{
+		ID:         v.ID,
+		UserID:     v.UserID,
+		ProblemID:  v.ProblemID,
+		Code:       v.Code,
+		Status:     v.Status,
+		Point:      0,
+		CreateTime: v.CreateTime,
+		TotalTime:  0,
+		MaxMemory:  0,
+		Language:   v.Language,
+		CompileMsg: "",
+		Token:      v.Token,
+	}
+
 	//get problem from ent
 	pro, err := s.middleware.ent.Problem.Query().
 		Where(problem.ID(v.ProblemID)).
 		WithProblemCases().
 		First(ctx)
 	if err != nil {
-		return err
+		submission.Status = u.SystemError
+		submission.CompileMsg = "problem not found"
+		marshal, _ := json.Marshal(submission)
+		s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
+		return errors.New("problem not found")
 	}
 
 	// TODO: cache and refresh config by problem-id
-
-	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
 
 	//compile submit
 	fileID, result, err := s.middleware.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())
 	if err != nil {
 		if result != nil {
+			submission.Status = u.CompileError
 			stderr := "Compile error"
 			compileError, ok := result.Files["stderr"]
 			if ok {
@@ -68,18 +90,15 @@ func (s *Simple) handleSubmit(v *Submit) error {
 			if err != nil {
 				log.Errorf("save error: %v", err)
 			}
-			v.ID = strconv.FormatInt(save.ID, 10)
-			v.Status = u.CompileError
-			marshal, marshalErr := json.Marshal(v)
-			if marshalErr != nil {
-				log.Errorf("marshal error: %v", marshalErr)
-			}
-			redisErr := s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour).Err()
-			if redisErr != nil {
-				log.Errorf("redis error: %v", redisErr)
-			}
-			return err
+			submission.ID = strconv.FormatInt(save.ID, 10)
+			submission.CompileMsg = stderr
+		} else {
+			submission.Status = u.SystemError
+			submission.CompileMsg = err.Error()
 		}
+		marshal, _ := json.Marshal(submission)
+		s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
+		return err
 	}
 
 	var totalTime uint64 = 0
@@ -108,8 +127,9 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		result, err := s.middleware.goJudge.Judge(in, v.Language, fileID, uuid.NewString(), uint64(s.config.ResourceLimits.Time), uint64(s.config.ResourceLimits.Time*2), uint64(s.config.ResourceLimits.Memory), int64(len(ans)))
 		if err != nil {
 			_ = s.middleware.goJudge.DeleteFile(fileID)
-			return err
+			s.middleware.logger.Errorf("judge error: %v", err)
 		}
+		s.middleware.logger.Infof("submission: %s result: %+v", v.ID, result)
 		state := u.FromGoJudgeState(int32(result.Status.Number()))
 
 		if out := result.Files["stdout"]; state == u.Accepted && out != nil {
@@ -176,9 +196,10 @@ func (s *Simple) handleSubmit(v *Submit) error {
 			SetPoint(score)
 		builders = append(builders, create)
 	}
+
 	err = s.middleware.goJudge.DeleteFile(fileID)
 	if err != nil {
-		return err
+		s.middleware.logger.Errorf("delete gojudge file error: %v", err)
 	}
 
 	//Save into database
@@ -195,18 +216,15 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		SetProblemsID(v.ProblemID).
 		Save(context.Background())
 	if err != nil {
-		return err
+		s.middleware.logger.Errorf("save error: %v", err)
 	}
 
-	v.ID = strconv.FormatInt(save.ID, 10)
-	v.Status = status
-	v.Point = score
-	v.TotalTime = int32(totalTime)
-	v.MaxMemory = int32(maxMemory)
-	marshal, err := json.Marshal(v)
-	if err != nil {
-		log.Errorf("marshal error: %v", err)
-	}
+	submission.ID = strconv.FormatInt(save.ID, 10)
+	submission.Status = status
+	submission.Point = score
+	submission.TotalTime = int32(totalTime)
+	submission.MaxMemory = int32(maxMemory)
+	marshal, _ := json.Marshal(submission)
 	s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
 
 	for _, build := range builders {

@@ -124,6 +124,9 @@ func handleExecError(requestID string, response *pb.Response, err error) (*pb.Re
 	if err != nil {
 		return nil, err
 	}
+	if len(response.Results) == 0 {
+		return nil, errors.New("request=" + requestID + ": no result")
+	}
 	result := response.Results[0]
 	if result.Error != "" {
 		return result, errors.New("request=" + requestID + ": " + result.Error)

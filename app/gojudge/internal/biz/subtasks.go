@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sastoj/ent"
 	"sastoj/ent/problem"
@@ -36,7 +37,7 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 		WithProblemCases().
 		First(ctx)
 	if err != nil {
-		return err
+		return errors.New("problem not found")
 	}
 
 	// TODO: cache and refresh config by problem-id
@@ -78,8 +79,15 @@ func (s *Subtasks) handleSubmit(v *Submit) error {
 			if redisErr != nil {
 				log.Errorf("redis error: %v", redisErr)
 			}
-			return err
+		} else {
+			v.Status = u.CompileError
+			marshal, err := json.Marshal(v)
+			if err != nil {
+				log.Errorf("marshal error: %v", err)
+			}
+			s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
 		}
+		return err
 	}
 
 	var totalTime uint64 = 0
