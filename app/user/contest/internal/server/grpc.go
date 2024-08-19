@@ -5,6 +5,7 @@ import (
 	"sastoj/app/user/contest/internal/conf"
 	"sastoj/app/user/contest/internal/service"
 	"sastoj/pkg/middleware/auth"
+	"sastoj/pkg/middleware/limiter"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -17,6 +18,7 @@ func NewGRPCServer(c *conf.Server, contest *service.ContestService, logger log.L
 		grpc.Middleware(
 			recovery.Recovery(),
 			auth.Auth(c.JwtSecret, auth.UserGroup, nil),
+			limiter.ApiLimiterMiddleware(apiLimiter),
 		),
 	}
 	if c.Grpc.Network != "" {
