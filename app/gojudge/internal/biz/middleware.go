@@ -113,6 +113,24 @@ func (m *Middleware) handleSelfTest(v *SelfTest) error {
 	commands := *m.goJudge.commands
 	testConfig, ok := commands[v.Language]
 	if !ok {
+		sT := &mq.SelfTest{
+			ID:         v.ID,
+			UserID:     v.UserID,
+			Code:       v.Code,
+			Language:   v.Language,
+			Input:      v.Input,
+			IsCompiled: false,
+			Stdout:     "",
+			Stderr:     "language not supported",
+			Time:       0,
+			Memory:     0,
+			Token:      "",
+		}
+		marshal, err := json.Marshal(sT)
+		if err != nil {
+			m.logger.Errorf("marshal error: %v", err)
+		}
+		m.redis.Set(ctx, fmt.Sprintf("self-test:%d:%s", v.UserID, v.ID), marshal, 30*time.Minute)
 		return errors.New("language not supported")
 	}
 	fileID, result, err := m.goJudge.Compile([]byte(v.Code), v.Language, uuid.NewString())

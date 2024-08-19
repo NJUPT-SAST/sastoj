@@ -3,6 +3,7 @@ package mq
 import (
 	"context"
 	"encoding/json"
+	"github.com/go-kratos/kratos/v2/log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -60,6 +61,7 @@ func (o *OjChannel) Publish(ctx context.Context, v any) error {
 	if err != nil {
 		return err
 	}
+	log.Infof("publish message: %s", body)
 	return o.ch.PublishWithContext(ctx, "", o.q.Name, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        body,
