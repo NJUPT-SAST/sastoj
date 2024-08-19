@@ -158,9 +158,9 @@ message GetSubmissionReply {
 	int32 point = 4;
 	int32 state = 5;
 	google.protobuf.Timestamp created_at = 6;
-	google.protobuf.Timestamp updated_at = 7;
-	int32 total_time = 8;
-	int32 max_memory = 9;
+	string stderr = 7;
+	uint64 total_time = 8;
+	uint64 max_memory = 9;
 }
 
 message GetSubmissionsRequest {
