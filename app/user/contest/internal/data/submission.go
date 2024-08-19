@@ -127,6 +127,7 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 			TotalTime:  po.TotalTime,
 			MaxMemory:  po.MaxMemory,
 			Language:   po.Language,
+			CompileMsg: po.CompileMsg,
 		}
 	} else {
 		// get from db
@@ -134,7 +135,7 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 		if err != nil {
 			return nil, fmt.Errorf("no submission found: %s", submissionID)
 		}
-		if po.UserID != int64(userID) {
+		if po.UserID != userID {
 			// TODO: ADD Global Error: Permission Denied
 			return nil, errors.New("permission denied")
 		}
@@ -149,6 +150,7 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 			TotalTime:  po.TotalTime,
 			MaxMemory:  po.MaxMemory,
 			Language:   po.Language,
+			CompileMsg: po.CompileMessage,
 		}
 	}
 	// TODO: Add contest type check

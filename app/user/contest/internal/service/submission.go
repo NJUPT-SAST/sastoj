@@ -72,8 +72,9 @@ func (s *ContestService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 		Point:     int32(submission.Point),
 		State:     int32(submission.Status),
 		CreatedAt: timestamppb.New(submission.CreateTime),
-		TotalTime: submission.TotalTime,
-		MaxMemory: submission.MaxMemory,
+		TotalTime: uint64(submission.TotalTime),
+		MaxMemory: uint64(submission.MaxMemory),
+		Stderr:    submission.CompileMsg,
 	}, nil
 }
 
