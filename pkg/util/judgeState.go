@@ -12,6 +12,7 @@ const (
 	MemoryLimitExceeded
 	OutputLimitExceeded
 	Waiting
+	Judging
 	SystemError
 )
 
