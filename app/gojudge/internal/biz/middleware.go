@@ -8,6 +8,7 @@ import (
 	"sastoj/app/gojudge/internal/data"
 	"sastoj/ent"
 	"sastoj/pkg/mq"
+	"strconv"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -93,7 +94,42 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 				middleware: m,
 				config:     config,
 			}
-			return simple.handleSubmit(v)
+			submission, builders, err := simple.handleSubmit(v)
+			save, entErr := m.ent.Submission.Create().
+				SetUserID(v.UserID).
+				SetProblemID(v.ProblemID).
+				SetCode(v.Code).
+				SetStatus(submission.Status).
+				SetPoint(submission.Point).
+				SetCreateTime(submission.CreateTime).
+				SetTotalTime(int32(submission.TotalTime)).
+				SetMaxMemory(int32(submission.MaxMemory)).
+				SetLanguage(v.Language).
+				SetCompileMessage(submission.Stderr).
+				SetCaseVersion(int8(submission.CaseVer)).
+				Save(context.Background())
+			if entErr != nil {
+				m.logger.Errorf("save error: %v", err)
+			} else {
+				submission.ID = strconv.FormatInt(save.ID, 10)
+			}
+			marshal, _ := json.Marshal(submission)
+			redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
+			redisErr := m.redis.Set(context.Background(), redisKey, marshal, 30*time.Minute).Err()
+			if redisErr != nil {
+				m.logger.Errorf("redis error: %v", redisErr)
+			}
+			if err != nil {
+				return err
+			}
+			for _, builder := range builders {
+				builder.SetSubmissionID(save.ID)
+			}
+			_, err = m.ent.SubmissionCase.CreateBulk(builders...).Save(context.Background())
+			if err != nil {
+				return err
+			}
+
 		case "subtasks":
 			subtasks := Subtasks{
 				middleware: m,

@@ -127,7 +127,7 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 			TotalTime:  po.TotalTime,
 			MaxMemory:  po.MaxMemory,
 			Language:   po.Language,
-			CompileMsg: po.CompileMsg,
+			CompileMsg: po.Stderr,
 		}
 	} else {
 		// get from db
@@ -147,8 +147,8 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 			Status:     po.Status,
 			Point:      po.Point,
 			CreateTime: po.CreateTime,
-			TotalTime:  po.TotalTime,
-			MaxMemory:  po.MaxMemory,
+			TotalTime:  uint64(po.TotalTime),
+			MaxMemory:  uint64(po.MaxMemory),
 			Language:   po.Language,
 			CompileMsg: po.CompileMessage,
 		}
@@ -223,8 +223,8 @@ func (s *submissionRepo) UpdateSubmission(ctx context.Context, submission *biz.S
 	_, err := s.data.db.Submission.UpdateOneID(util.ParseInt64(submission.ID)).
 		SetStatus(submission.Status).
 		SetPoint(submission.Point).
-		SetTotalTime(submission.TotalTime).
-		SetMaxMemory(submission.MaxMemory).
+		SetTotalTime(int32(submission.TotalTime)).
+		SetMaxMemory(int32(submission.MaxMemory)).
 		Save(ctx)
 	return err
 }

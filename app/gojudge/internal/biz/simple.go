@@ -3,19 +3,14 @@ package biz
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/google/uuid"
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	"sastoj/pkg/mq"
 	u "sastoj/pkg/util"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/uuid"
 )
 
 // Simple Adapter
@@ -24,28 +19,26 @@ type Simple struct {
 	config     *u.JudgeConfig
 }
 
-// handleSubmit process the submission
+// handleSubmit process the submission:
 // 1. get problem, problem-cases and config-file and by problem-id
 // 2. compile submission
 // 2. get in-out by problem-id and case-id
 // 3. judge each case-submission and save, then create submission and save
-func (s *Simple) handleSubmit(v *Submit) error {
+func (s *Simple) handleSubmit(v *Submit) (*mq.Submission, []*ent.SubmissionCaseCreate, error) {
 	ctx := context.Background()
-
-	redisKey := fmt.Sprintf("submission:%d:%s", v.UserID, v.ID)
 
 	submission := &mq.Submission{
 		ID:         v.ID,
 		UserID:     v.UserID,
 		ProblemID:  v.ProblemID,
 		Code:       v.Code,
-		Status:     v.Status,
+		Status:     u.Judging,
 		Point:      0,
 		CreateTime: v.CreateTime,
 		TotalTime:  0,
 		MaxMemory:  0,
 		Language:   v.Language,
-		CompileMsg: "",
+		Stderr:     "",
 		Token:      v.Token,
 	}
 
@@ -56,11 +49,10 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		First(ctx)
 	if err != nil {
 		submission.Status = u.SystemError
-		submission.CompileMsg = "problem not found"
-		marshal, _ := json.Marshal(submission)
-		s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
-		return errors.New("problem not found")
+		return submission, nil, errors.New("problem not found")
 	}
+
+	submission.CaseVer = pro.CaseVersion
 
 	// TODO: cache and refresh config by problem-id
 
@@ -69,36 +61,15 @@ func (s *Simple) handleSubmit(v *Submit) error {
 	if err != nil {
 		if result != nil {
 			submission.Status = u.CompileError
-			stderr := "Compile error"
+			submission.Stderr = "Compile error without stderr"
 			compileError, ok := result.Files["stderr"]
 			if ok {
-				stderr = string(compileError)
+				submission.Stderr = string(compileError)
 			}
-			save, err := s.middleware.ent.Submission.Create().
-				SetCaseVersion(int8(pro.CaseVersion)).
-				SetUsersID(v.UserID).
-				SetCode(v.Code).
-				SetLanguage(v.Language).
-				SetPoint(0).
-				SetStatus(u.CompileError).
-				SetCreateTime(v.CreateTime).
-				SetTotalTime(0).
-				SetMaxMemory(0).
-				SetProblemsID(v.ProblemID).
-				SetCompileMessage(stderr).
-				Save(ctx)
-			if err != nil {
-				log.Errorf("save error: %v", err)
-			}
-			submission.ID = strconv.FormatInt(save.ID, 10)
-			submission.CompileMsg = stderr
 		} else {
 			submission.Status = u.SystemError
-			submission.CompileMsg = err.Error()
 		}
-		marshal, _ := json.Marshal(submission)
-		s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
-		return err
+		return submission, nil, err
 	}
 
 	var totalTime uint64 = 0
@@ -113,7 +84,9 @@ func (s *Simple) handleSubmit(v *Submit) error {
 
 		fileIndex, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
 		if err != nil {
-			return err
+			submission.Status = u.Invalid
+			_ = s.middleware.goJudge.DeleteFile(fileID)
+			return submission, nil, err
 		}
 
 		in, ans, err := s.middleware.fileManage.FetchCase(v.ProblemID, c.Input, c.Answer)
@@ -121,14 +94,22 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		in = u.RemoveCr(in)
 		ans = u.RemoveCr(ans)
 		if err != nil {
+			submission.Status = u.SystemError
 			_ = s.middleware.goJudge.DeleteFile(fileID)
-			return err
+			return submission, nil, err
 		}
+
 		result, err := s.middleware.goJudge.Judge(in, v.Language, fileID, uuid.NewString(), uint64(s.config.ResourceLimits.Time), uint64(s.config.ResourceLimits.Time*2), uint64(s.config.ResourceLimits.Memory), int64(len(ans)))
 		if err != nil {
-			_ = s.middleware.goJudge.DeleteFile(fileID)
-			s.middleware.logger.Errorf("judge error: %v", err)
+			submission.Status = u.RuntimeError
+			submission.Stderr = err.Error()
+			gojudgeErr := s.middleware.goJudge.DeleteFile(fileID)
+			if gojudgeErr != nil {
+				s.middleware.logger.Errorf("delete gojudge file error: %v", gojudgeErr)
+			}
+			return submission, nil, err
 		}
+
 		s.middleware.logger.Infof("submission: %s result: %+v", v.ID, result)
 		state := u.FromGoJudgeState(int32(result.Status.Number()))
 
@@ -202,37 +183,10 @@ func (s *Simple) handleSubmit(v *Submit) error {
 		s.middleware.logger.Errorf("delete gojudge file error: %v", err)
 	}
 
-	//Save into database
-	save, err := s.middleware.ent.Submission.Create().
-		SetCaseVersion(int8(pro.CaseVersion)).
-		SetUsersID(v.UserID).
-		SetCode(v.Code).
-		SetLanguage(v.Language).
-		SetPoint(score).
-		SetStatus(status).
-		SetCreateTime(v.CreateTime).
-		SetTotalTime(int32(totalTime)).
-		SetMaxMemory(int32(maxMemory)).
-		SetProblemsID(v.ProblemID).
-		Save(context.Background())
-	if err != nil {
-		s.middleware.logger.Errorf("save error: %v", err)
-	}
-
-	submission.ID = strconv.FormatInt(save.ID, 10)
 	submission.Status = status
 	submission.Point = score
-	submission.TotalTime = int32(totalTime)
-	submission.MaxMemory = int32(maxMemory)
-	marshal, _ := json.Marshal(submission)
-	s.middleware.redis.Set(ctx, redisKey, marshal, 2*time.Hour)
+	submission.TotalTime = totalTime
+	submission.MaxMemory = maxMemory
 
-	for _, build := range builders {
-		build.SetSubmissionID(save.ID)
-	}
-	_, err = s.middleware.ent.SubmissionCase.CreateBulk(builders...).Save(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
+	return submission, builders, nil
 }
