@@ -49,6 +49,7 @@ const (
 func Auth(secret string, defaultRule string, customApiMap map[string]string) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+			// get token from transport and parse it
 			token, err := getTokenFromTrans(ctx)
 			if err != nil {
 				return nil, err
@@ -62,9 +63,18 @@ func Auth(secret string, defaultRule string, customApiMap map[string]string) mid
 			if err != nil {
 				return nil, err
 			}
+			log.Infof("receive request from user: %d", claimsInfo.UserID)
+
 			//put claims into context so that other service could retrieve it
 			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
 
+			// if the user is an admin, then return directly
+			if strings.HasPrefix(claimsInfo.GroupName, AdminGroup) {
+				log.Infof("receive request from admin: %d", claimsInfo.UserID)
+				return handler(ctx, req)
+			}
+
+			// check the role of the user
 			trans, ok := transport.FromServerContext(ctx)
 			if !ok {
 				return nil, ErrWrongContext
