@@ -121,8 +121,11 @@ func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) 
 	var pbCases []*pb.GetCasesReply_Case
 	for _, c := range cases {
 		pbCases = append(pbCases, &pb.GetCasesReply_Case{
-			Index: c.Index,
-			State: c.State,
+			Index:  c.Index,
+			Point:  c.Point,
+			State:  c.State,
+			Time:   c.Time,
+			Memory: c.Memory,
 		})
 	}
 	return &pb.GetCasesReply{
