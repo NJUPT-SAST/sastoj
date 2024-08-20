@@ -37,8 +37,11 @@ type SelfTest struct {
 }
 
 type Case struct {
-	Index int32 `json:"index,omitempty"`
-	State int32 `json:"state,omitempty"`
+	Index  int32  `json:"index,omitempty"`
+	Point  int32  `json:"point,omitempty"`
+	State  int32  `json:"state,omitempty"`
+	Time   uint64 `json:"time,omitempty"`
+	Memory uint64 `json:"memory,omitempty"`
 }
 
 type SubmissionRepo interface {

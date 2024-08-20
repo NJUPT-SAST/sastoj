@@ -129,16 +129,19 @@ func (m *Middleware) handleSubmit(v *Submit) error {
 			if err != nil {
 				return err
 			}
-
+			return nil
 		case "subtasks":
 			subtasks := Subtasks{
 				middleware: m,
 				config:     config,
 			}
 			return subtasks.handleSubmit(v)
+		default:
+			return errors.New("invalid simple task type")
 		}
+	default:
+		return errors.New("invalid judge type")
 	}
-	return errors.New("invalid judge type")
 }
 
 // handleSubmit process the self-test

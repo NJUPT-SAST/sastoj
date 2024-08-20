@@ -3761,7 +3761,13 @@ func (m *GetCasesReply_Case) validate(all bool) error {
 
 	// no validation rules for Index
 
+	// no validation rules for Point
+
 	// no validation rules for State
+
+	// no validation rules for Time
+
+	// no validation rules for Memory
 
 	if len(errors) > 0 {
 		return GetCasesReply_CaseMultiError(errors)

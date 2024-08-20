@@ -58,14 +58,15 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 	var cases []*biz.Case
 	if err != nil {
 		// get from redis
-		po, err := s.data.redis.Get(ctx, fmt.Sprintf("cases:%d:%s", userID, submissionID)).Result()
-		if err != nil {
-			return nil, fmt.Errorf("no cases found: %s", submissionID)
-		}
-		err = json.Unmarshal([]byte(po), &cases)
-		if err != nil {
-			return nil, err
-		}
+		//po, err := s.data.redis.Get(ctx, fmt.Sprintf("cases:%d:%s", userID, submissionID)).Result()
+		//if err != nil {
+		//	return nil, fmt.Errorf("no cases found: %s", submissionID)
+		//}
+		//err = json.Unmarshal([]byte(po), &cases)
+		//if err != nil {
+		//	return nil, err
+		//}
+		return nil, errors.New("not support to get cases by UUID")
 	} else {
 		// get from db
 		po, err := s.data.db.SubmissionCase.Query().Where(submissioncase.SubmissionIDEQ(id)).All(ctx)
@@ -75,12 +76,22 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 		cases = make([]*biz.Case, 0)
 		for i, v := range po {
 			cases = append(cases, &biz.Case{
-				Index: int32(i),
-				State: int32(v.State),
+				Index:  int32(i),
+				Point:  int32(v.Point),
+				State:  int32(v.State),
+				Time:   uint64(v.Time),
+				Memory: uint64(v.Memory),
 			})
 		}
 	}
-	// TODO: Add permission check, including contest type and userID
+	exist, err := s.data.db.Submission.Query().Where(submission.IDEQ(id)).Where(submission.UserIDEQ(userID)).Exist(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, errors.New("permission denied")
+	}
+	// TODO: Add permission check, including contest type
 	return cases, nil
 }
 

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	"sastoj/pkg/mq"
 	u "sastoj/pkg/util"
 	"strconv"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 // Simple Adapter
@@ -166,6 +167,11 @@ func (s *Simple) handleSubmit(v *Submit) (*mq.Submission, []*ent.SubmissionCaseC
 				problemCasesID = problemCase.ID
 			}
 		}
+		if problemCasesID == 0 {
+			submission.Status = u.SystemError
+			_ = s.middleware.goJudge.DeleteFile(fileID)
+			return submission, nil, errors.New("problem case not found")
+		}
 
 		//gen builder
 		create := s.middleware.ent.SubmissionCase.Create().
@@ -174,7 +180,7 @@ func (s *Simple) handleSubmit(v *Submit) (*mq.Submission, []*ent.SubmissionCaseC
 			SetTime(int32(result.RunTime)).
 			SetMessage(result.Status.String()).
 			SetState(state).
-			SetPoint(score)
+			SetPoint(c.Score)
 		builders = append(builders, create)
 	}
 
