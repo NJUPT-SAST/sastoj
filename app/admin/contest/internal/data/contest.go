@@ -134,7 +134,7 @@ func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, group
 func (r *ContestRepo) GetRacingContests(ctx context.Context) ([]*biz.Contest, error) {
 	cs, err := r.data.db.Contest.Query().Where(
 		contest.StartTimeLTE(time.Now()),
-		contest.EndTimeGTE(time.Now()),
+		contest.EndTimeGTE(time.Now().Add(time.Hour)),
 	).All(ctx)
 	if err != nil {
 		return nil, err

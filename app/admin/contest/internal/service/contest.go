@@ -148,6 +148,10 @@ func (s *ContestService) ManualRanking(ctx context.Context, req *v1.ManualRankin
 	if err != nil && rank != nil {
 		return nil, err
 	}
+	rank, err = s.rs.RefreshRank(ctx, contest, rank)
+	if err != nil && rank != nil {
+		return nil, err
+	}
 	err = s.rs.SaveRank(ctx, contest, rank)
 	if err != nil {
 		return nil, err

@@ -36,6 +36,11 @@ func (s *ContestJob) Ranking(ctx context.Context) {
 			log.Warn(err.Error())
 			return
 		}
+		rank, err = s.rc.RefreshRank(ctx, contest, rank)
+		if err != nil {
+			log.Warn(err.Error())
+			return
+		}
 		err = s.rc.SaveRank(ctx, contest, rank)
 		if err != nil {
 			log.Warn(err.Error())
