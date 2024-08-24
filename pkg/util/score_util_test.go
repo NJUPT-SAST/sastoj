@@ -2,7 +2,7 @@ package util
 
 import "testing"
 
-func TestCalculateScores(t *testing.T) {
+func TestCalculateSimpleScores(t *testing.T) {
 	type args struct {
 		config *JudgeConfig
 	}
@@ -13,7 +13,7 @@ func TestCalculateScores(t *testing.T) {
 		wantRes []int16
 	}{
 		{
-			name: "Test CalculateScores 1",
+			name: "Test CalculateSimpleScores 1",
 			args: args{
 				config: &JudgeConfig{
 					Judge: Judge{
@@ -40,7 +40,7 @@ func TestCalculateScores(t *testing.T) {
 			wantRes: []int16{30, 40, 30},
 		},
 		{
-			name: "Test CalculateScores 2",
+			name: "Test CalculateSimpleScores 2",
 			args: args{
 				config: &JudgeConfig{
 					Judge: Judge{
@@ -63,11 +63,11 @@ func TestCalculateScores(t *testing.T) {
 					},
 				},
 			},
-			wantErr: true,
-			wantRes: []int16{10, 90, 10},
+			wantErr: false,
+			wantRes: []int16{33, 33, 34},
 		},
 		{
-			name: "Test CalculateScores 3",
+			name: "Test CalculateSimpleScores 3",
 			args: args{
 				config: &JudgeConfig{
 					Judge: Judge{
@@ -93,6 +93,125 @@ func TestCalculateScores(t *testing.T) {
 			wantErr: false,
 			wantRes: []int16{23, 33, 44},
 		},
+		{
+			name: "Test CalculateSimpleScores 4",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "simple",
+						Cases: []Cases{
+							{
+								Score: 0,
+							},
+							{
+								Score: 0,
+							},
+							{
+								Score: 40,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{30, 30, 40},
+		},
+		{
+			name: "Test CalculateSimpleScores 5",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "simple",
+						Cases:    []Cases{},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{},
+		},
+		{
+			name: "Test CalculateSimpleScores 6",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 0,
+					Task: Task{
+						TaskType: "simple",
+						Cases: []Cases{
+							{
+								Score: 20,
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{20},
+		},
+		{
+			name: "Test CalculateSimpleScores 7",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 2,
+					Task: Task{
+						TaskType: "simple",
+						Cases: []Cases{
+							{
+								Score: 20,
+							},
+							{
+								Score: 30,
+							},
+							{
+								Score: 40,
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{20, 30, 40},
+		},
+		{
+			name: "Test CalculateSimpleScores 8",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "simple",
+						Cases: []Cases{
+							{
+								Score: 0,
+							},
+							{
+								Score: 0,
+							},
+							{
+								Score: 99,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{33, 33, 34},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -106,4 +225,234 @@ func TestCalculateScores(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCalculateSubtaskScores(t *testing.T) {
+	type args struct {
+		config *JudgeConfig
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		wantRes []int16
+	}{
+		{
+			name: "Test CalculateSubtaskScores 1",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 30,
+							},
+							{
+								Score: 40,
+							},
+							{
+								Score: 29,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{30, 40, 30},
+		},
+		{
+			name: "Test CalculateSubtaskScores 2",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 10,
+							},
+							{
+								Score: 90,
+							},
+							{
+								Score: 10,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{33, 33, 34},
+		},
+		{
+			name: "Test CalculateSubtaskScores 3",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 20,
+							},
+							{
+								Score: 30,
+							},
+							{
+								Score: 40,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{23, 33, 44},
+		},
+		{
+			name: "Test CalculateSubtaskScores 4",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 0,
+							},
+							{
+								Score: 0,
+							},
+							{
+								Score: 40,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{30, 30, 40},
+		},
+		{
+			name: "Test CalculateSubtaskScores 5",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{},
+		},
+		{
+			name: "Test CalculateSubtaskScores 6",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 0,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 20,
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{20},
+		},
+		{
+			name: "Test CalculateSubtaskScores 7",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 2,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 20,
+							},
+							{
+								Score: 30,
+							},
+							{
+								Score: 40,
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+			wantRes: []int16{20, 30, 40},
+		},
+		{
+			name: "Test CalculateSubtaskScores 8",
+			args: args{
+				config: &JudgeConfig{
+					Judge: Judge{
+						JudgeType: "classic",
+					},
+					Score: 100,
+					Task: Task{
+						TaskType: "subtasks",
+						Subtasks: []Subtasks{
+							{
+								Score: 0,
+							},
+							{
+								Score: 0,
+							},
+							{
+								Score: 99,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+			wantRes: []int16{33, 33, 34},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := CalculateScores(tt.args.config); (err != nil) != tt.wantErr {
+				t.Errorf("CalculateScores() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			for i, c := range tt.args.config.Task.Subtasks {
+				if c.Score != tt.wantRes[i] {
+					t.Errorf("CalculateScores() = %v, want %v", c.Score, tt.wantRes[i])
+				}
+			}
+		})
+	}
+}
+
+func TestCalculateScores(t *testing.T) {
+	TestCalculateSimpleScores(t)
+	TestCalculateSubtaskScores(t)
 }
