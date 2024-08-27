@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package cases.v1;
+package api.sastoj.rsjudge.cases.service.v1;
 
 option go_package = "sastoj/api/sastoj/rsjudge/cases/service/v1;v1";
 

@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package api.sastoj.admin.problem;
+package api.sastoj.admin.problem.service.v1;
 
-option go_package = "sastoj/api/sastoj/admin/problem;problem";
+option go_package = "sastoj/api/sastoj/admin/problem/service/v1;v1";
 option java_multiple_files = true;
-option java_package = "api.sastoj.admin.problem";
+option java_package = "api.sastoj.admin.problem.service.v1";
 
 import "google/api/annotations.proto";
 

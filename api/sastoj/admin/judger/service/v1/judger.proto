@@ -4,7 +4,7 @@ package api.sastoj.admin.judger.service.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "sastoj//api/sastoj/admin/judger/service/v1;v1";
+option go_package = "sastoj/api/sastoj/admin/judger/service/v1;v1";
 option java_multiple_files = true;
 option java_package = ".api.sastoj.admin.judger.service.v1";
 
