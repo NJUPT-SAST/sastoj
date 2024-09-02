@@ -96,15 +96,6 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 					if err != nil {
 						return nil, err
 					}
-					if c.Score == 0 {
-						cases = append(cases, &Case{
-							ProblemId: problemId,
-							Point:     int32(config.Score / int16(len(config.Task.Cases))),
-							Index:     int32(index),
-							IsAuto:    true,
-						})
-						continue
-					}
 					cases = append(cases, &Case{
 						ProblemId: problemId,
 						Point:     int32(c.Score),
@@ -117,6 +108,8 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 					return nil, err
 				}
 				return out, nil
+			} else if config.Task.TaskType == "subtask" {
+
 			}
 			return nil, nil
 		}
