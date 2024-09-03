@@ -3,12 +3,9 @@ package data
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/mholt/archiver/v4"
 	"io"
-	"io/fs"
 	"mime/multipart"
 	"os"
-	"path/filepath"
 	"sastoj/app/admin/case/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/problemcase"
@@ -90,108 +87,58 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 	return rv, nil
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (util.JudgeConfig, error) {
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (*util.JudgeConfig, error) {
 	baseLocation := r.data.problemCasesLocation
 	location := baseLocation + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
 		err := os.RemoveAll(location)
 		if err != nil {
-			return util.JudgeConfig{}, err
+			return nil, err
 		}
 	}
 	err := os.Mkdir(location, os.ModePerm)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 	f, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 	defer f.Close()
 	_, err = io.Copy(f, casesFile)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// handle files
+	err = util.ExtractExc(f, location, []string{"config.yaml"})
+	if err != nil {
+		return nil, err
+	}
 	if casesType == "hydro" {
-		format, reader, err := archiver.Identify("config.tar.zst", f)
-		if err != nil {
-			return util.JudgeConfig{}, err
-		}
-		err = format.(archiver.Extractor).Extract(context.TODO(), reader, nil, func(ctx context.Context, f archiver.File) error {
-			if f.FileInfo.IsDir() {
-				err = os.MkdirAll(filepath.Join(location, f.NameInArchive), f.Mode())
-				if err != nil {
-					return err
-				}
-				return nil
-			}
-			v, err := f.Open()
-			if err != nil {
-				return err
-			}
-			defer func(v io.ReadCloser) {
-				_ = v.Close()
-			}(v)
-
-			bytes, err := io.ReadAll(v)
-			if err != nil {
-				return err
-			}
-
-			return os.WriteFile(location+f.NameInArchive, bytes, 0644)
-		})
-		if err != nil {
-			return util.JudgeConfig{}, err
-		}
-
 		dir, err := os.ReadDir(location + "config")
 		if err != nil {
-			return util.JudgeConfig{}, err
+			return nil, err
 		}
 		for _, file := range dir {
 			if file.IsDir() {
 				//os.Mkdir(location + "testdata", os.ModePerm)
 				err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
 				if err != nil {
-					return util.JudgeConfig{}, err
+					return nil, err
 				}
 				err = os.RemoveAll(location + "config")
 				if err != nil {
-					return util.JudgeConfig{}, err
+					return nil, err
 				}
 			}
-		}
-	}
-	if casesType == "custom" {
-		format := archiver.Zip{}
-		os.Mkdir(location+"testdata", 0644)
-		err = format.Extract(context.TODO(), f, nil, func(ctx context.Context, f archiver.File) error {
-			v, err := f.Open()
-			if err != nil {
-				return err
-			}
-			defer func(v io.ReadCloser) {
-				_ = v.Close()
-			}(v)
-
-			bytes, err := io.ReadAll(v)
-			if err != nil {
-				return err
-			}
-
-			return os.WriteFile(location+f.NameInArchive, bytes, 0644)
-		})
-		if err != nil {
-			return util.JudgeConfig{}, err
 		}
 	}
 
 	// unmarshal toml
 	config, err := util.GetConfig(problemId, baseLocation)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// crlf to lf
@@ -228,7 +175,7 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 		select {
 		case r := <-sem:
 			if err, ok := r.(error); ok {
-				return util.JudgeConfig{}, err
+				return nil, err
 			}
 		}
 	}
@@ -236,45 +183,19 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	// count scores
 	err = util.CalculateScores(config)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// save toml config to file
 	err = util.SetConfig(problemId, baseLocation, *config)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// compressed
-	tarFiles := map[string]string{}
-	err = filepath.WalkDir(location+"testdata", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		tarFiles[path] = "testdata/"
-		return nil
-	})
-	files, err := archiver.FilesFromDisk(nil, tarFiles)
+	err = util.CompressAndArchive(location+"testdata", ".tar.zst")
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	out, err := os.Create(location + "testdata.tar.zst")
-	defer out.Close()
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	err = archiver.CompressedArchive{
-		Compression: archiver.Zstd{},
-		Archival:    archiver.Tar{},
-	}.Archive(context.TODO(), out, files)
-	if err != nil {
-		return util.JudgeConfig{}, err
-	}
-	return *config, nil
+	return config, nil
 }

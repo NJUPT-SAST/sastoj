@@ -24,7 +24,7 @@ type CaseRepo interface {
 	DeleteByCaseIds(context.Context, []int64) error
 	DeleteByProblemId(context.Context, int64) error
 	FindByProblemId(context.Context, int64) ([]*Case, error)
-	UploadCasesFile(int64, multipart.File, string, string) (util.JudgeConfig, error)
+	UploadCasesFile(int64, multipart.File, string, string) (*util.JudgeConfig, error)
 }
 
 type CaseUsecase struct {
@@ -84,7 +84,10 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 		return nil, err
 	}
 	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
-	uc.repo.DeleteByProblemId(ctx, problemId)
+	err = uc.repo.DeleteByProblemId(ctx, problemId)
+	if err != nil {
+		return nil, err
+	}
 	var cases []*Case
 	// TODO: cases problem as special-cases, interactive or subtask type
 	switch config.Judge.JudgeType {
