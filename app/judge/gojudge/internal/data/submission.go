@@ -24,6 +24,7 @@ const (
 	ProblemKey    = "problem"
 	CaseKey       = "case"
 	SubmissionKey = "submission"
+	SelfTestKey   = "self-test"
 )
 
 type submissionRepo struct {
@@ -32,6 +33,59 @@ type submissionRepo struct {
 }
 
 func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) error {
+	test.IsCompiled = false
+	test.Stdout = ""
+	test.Stderr = ""
+	test.Time = 0
+	test.Memory = 0
+
+	defer func() {
+		marshal, err := json.Marshal(test)
+		if err != nil {
+			r.log.Errorf("marshal error: %v", err)
+			return
+		}
+		err = r.data.redis.Set(ctx, fmt.Sprintf("%s:%d:%s", SelfTestKey, test.UserID, test.ID), marshal, 2*time.Hour).Err()
+		if err != nil {
+			r.log.Errorf("cache redis error: %v", err)
+		}
+	}()
+
+	command := *r.data.gojudge.Commands
+	testConfig, ok := command[test.Language]
+	if !ok {
+		return errors.New("language not supported")
+	}
+
+	fileID, result, err := r.data.gojudge.Compile([]byte(test.Code), test.Language, uuid.NewString())
+	if err != nil {
+		if result != nil {
+			test.Stderr = "compile error"
+			stderr, ok := result.Files["stderr"]
+			if ok {
+				test.Stderr = string(stderr)
+			}
+		}
+		return err
+	}
+
+	test.IsCompiled = true
+
+	defer func() {
+		if err := r.data.gojudge.DeleteFile(fileID); err != nil {
+			r.log.Errorf("delete file error: %v", err)
+		}
+	}()
+
+	result, err = r.data.gojudge.ClassicJudge([]byte(test.Input), test.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
+	if err != nil {
+		return err
+	}
+
+	test.Time = result.Time
+	test.Memory = result.Memory
+	test.Stderr = string(result.Files["stderr"])
+	test.Stdout = string(result.Files["stdout"])
 	return nil
 }
 
