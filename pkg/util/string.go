@@ -36,3 +36,15 @@ func ParseInt64(s string) int64 {
 	parseInt, _ := strconv.ParseInt(s, 10, 64)
 	return parseInt
 }
+
+func GetCaseIndex(s string) int {
+	res := 0
+	for _, b := range []byte(s) {
+		if b >= '0' && b <= '9' {
+			res = res*10 + int(b-'0')
+		} else {
+			break
+		}
+	}
+	return res
+}

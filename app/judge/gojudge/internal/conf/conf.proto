@@ -1,0 +1,64 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "sastoj/app/judge/gojudge/internal/conf;conf";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  string mq = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string addr = 1;
+    int32 db = 2;
+  }
+  message Load {
+    string problem_cases_location = 1;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  Load load = 3;
+  JudgeMiddleware judge = 4;
+}
+
+message JudgeMiddleware {
+  string endpoint = 1;
+  Language language = 2;
+}
+
+message Language {
+  repeated string enable = 1;
+  map<string, string> compile = 2;
+  map<string, string> run = 3;
+  map<string, string> source = 4;
+  map<string, string> target = 5;
+  map<string, LanguageConfig> exec_config = 6;
+  message Env {
+    repeated string env = 1;
+  }
+  map<string, Env> env = 7;
+}
+
+message LanguageConfig {
+  ExecConfig compile = 1;
+  ExecConfig run = 2;
+}
+
+message ExecConfig {
+  uint64 proc_limit = 1;
+  uint64 cpu_time_limit = 2;
+  uint64 cpu_rate_limit = 3;
+  uint64 clock_time_limit = 4;
+  uint64 memory_limit = 5;
+  int64 stdout_max_size = 6;
+  int64 stderr_max_size = 7;
+}
