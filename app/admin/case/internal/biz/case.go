@@ -24,7 +24,7 @@ type CaseRepo interface {
 	DeleteByCaseIds(context.Context, []int64) error
 	DeleteByProblemId(context.Context, int64) error
 	FindByProblemId(context.Context, int64) ([]*Case, error)
-	UploadCasesFile(int64, multipart.File, string, string) (util.JudgeConfig, error)
+	UploadCasesFile(int64, multipart.File, string, string) (*util.JudgeConfig, error)
 }
 
 type CaseUsecase struct {
@@ -84,7 +84,10 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 		return nil, err
 	}
 	uc.log.WithContext(ctx).Infof("Upload %v completed. Start saving info", filename)
-	uc.repo.DeleteByProblemId(ctx, problemId)
+	err = uc.repo.DeleteByProblemId(ctx, problemId)
+	if err != nil {
+		return nil, err
+	}
 	var cases []*Case
 	// TODO: cases problem as special-cases, interactive or subtask type
 	switch config.Judge.JudgeType {
@@ -95,15 +98,6 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 					index, err := strconv.Atoi(strings.Split(c.Input, ".")[0])
 					if err != nil {
 						return nil, err
-					}
-					if c.Score == 0 {
-						cases = append(cases, &Case{
-							ProblemId: problemId,
-							Point:     int32(config.Score / int16(len(config.Task.Cases))),
-							Index:     int32(index),
-							IsAuto:    true,
-						})
-						continue
 					}
 					cases = append(cases, &Case{
 						ProblemId: problemId,
@@ -117,6 +111,8 @@ func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFi
 					return nil, err
 				}
 				return out, nil
+			} else if config.Task.TaskType == "subtask" {
+
 			}
 			return nil, nil
 		}

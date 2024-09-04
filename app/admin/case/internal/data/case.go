@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/mholt/archiver/v3"
 	"io"
 	"mime/multipart"
 	"os"
@@ -88,48 +87,49 @@ func (r *caseRepo) FindByProblemId(ctx context.Context, pi int64) ([]*biz.Case, 
 	return rv, nil
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (util.JudgeConfig, error) {
+func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) (*util.JudgeConfig, error) {
 	baseLocation := r.data.problemCasesLocation
 	location := baseLocation + "/" + strconv.FormatInt(problemId, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
 		err := os.RemoveAll(location)
 		if err != nil {
-			return util.JudgeConfig{}, err
+			return nil, err
 		}
 	}
 	err := os.Mkdir(location, os.ModePerm)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 	f, err := os.OpenFile(location+filename, os.O_RDWR|os.O_CREATE, 0o666)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 	defer f.Close()
-	_, _ = io.Copy(f, casesFile)
-
-	// decompressed
-	err = archiver.Unarchive(location+filename, location)
+	_, err = io.Copy(f, casesFile)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// handle files
+	err = util.ExtractExc(f, location, []string{"config.yaml"})
+	if err != nil {
+		return nil, err
+	}
 	if casesType == "hydro" {
 		dir, err := os.ReadDir(location + "config")
 		if err != nil {
-			return util.JudgeConfig{}, err
+			return nil, err
 		}
 		for _, file := range dir {
 			if file.IsDir() {
 				//os.Mkdir(location + "testdata", os.ModePerm)
 				err := os.Rename(location+"config"+"/"+file.Name()+"/"+"testdata", location+"testdata")
 				if err != nil {
-					return util.JudgeConfig{}, err
+					return nil, err
 				}
 				err = os.RemoveAll(location + "config")
 				if err != nil {
-					return util.JudgeConfig{}, err
+					return nil, err
 				}
 			}
 		}
@@ -138,7 +138,7 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	// unmarshal toml
 	config, err := util.GetConfig(problemId, baseLocation)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// crlf to lf
@@ -175,7 +175,7 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 		select {
 		case r := <-sem:
 			if err, ok := r.(error); ok {
-				return util.JudgeConfig{}, err
+				return nil, err
 			}
 		}
 	}
@@ -183,19 +183,19 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	// count scores
 	err = util.CalculateScores(config)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// save toml config to file
 	err = util.SetConfig(problemId, baseLocation, *config)
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
 
 	// compressed
-	err = archiver.Archive([]string{location + "testdata"}, location+"/"+"testdata.tar.zst")
+	err = util.CompressAndArchive(location+"testdata", ".tar.zst")
 	if err != nil {
-		return util.JudgeConfig{}, err
+		return nil, err
 	}
-	return *config, nil
+	return config, nil
 }
