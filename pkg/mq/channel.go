@@ -3,8 +3,8 @@ package mq
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/go-kratos/kratos/v2/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -26,7 +26,7 @@ type OjChannel struct {
 func newChannel(ch *amqp.Channel, name string) (amqp.Queue, error) {
 	return ch.QueueDeclare(
 		name,  // name
-		false, // durable
+		true,  // durable
 		false, // delete when unused
 		false, // exclusive
 		false, // no-wait
