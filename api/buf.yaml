@@ -8,6 +8,10 @@ lint:
   use:
     - DEFAULT
 
+modules:
+  - path: sastoj
+    name: buf.build/sast-oj/backend
+
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/kratos/apis

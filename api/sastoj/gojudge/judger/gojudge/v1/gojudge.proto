@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-package pb;
+package criyle.gojudge.pb;
 
 option go_package = "github.com/criyle/go-judge/pb";
 

@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package api.sastoj.admin.contest;
+package api.sastoj.admin.contest.service.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "errors/errors.proto";
 import "validate/validate.proto";
-option go_package = "sastoj/api/sastoj/admin/contest;contest";
+option go_package = "sastoj/api/sastoj/admin/contest/service/v1;v1";
 option java_multiple_files = true;
-option java_package = "api.sastoj.admin.contest";
+option java_package = "api.sastoj.admin.contest.service.v1";
 
 service Contest {
 	rpc CreateContest (CreateContestRequest) returns (CreateContestReply){
