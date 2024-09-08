@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"math"
 	"sastoj/ent/predicate"
-	"sastoj/ent/problemcase"
-	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -19,12 +18,11 @@ import (
 // SubmissionCaseQuery is the builder for querying SubmissionCase entities.
 type SubmissionCaseQuery struct {
 	config
-	ctx              *QueryContext
-	order            []submissioncase.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.SubmissionCase
-	withSubmission   *SubmissionQuery
-	withProblemCases *ProblemCaseQuery
+	ctx                    *QueryContext
+	order                  []submissioncase.OrderOption
+	inters                 []Interceptor
+	predicates             []predicate.SubmissionCase
+	withSubmissionSubtasks *SubmissionSubtaskQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +59,9 @@ func (scq *SubmissionCaseQuery) Order(o ...submissioncase.OrderOption) *Submissi
 	return scq
 }
 
-// QuerySubmission chains the current query on the "submission" edge.
-func (scq *SubmissionCaseQuery) QuerySubmission() *SubmissionQuery {
-	query := (&SubmissionClient{config: scq.config}).Query()
+// QuerySubmissionSubtasks chains the current query on the "submission_subtasks" edge.
+func (scq *SubmissionCaseQuery) QuerySubmissionSubtasks() *SubmissionSubtaskQuery {
+	query := (&SubmissionSubtaskClient{config: scq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := scq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,30 +72,8 @@ func (scq *SubmissionCaseQuery) QuerySubmission() *SubmissionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, selector),
-			sqlgraph.To(submission.Table, submission.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.SubmissionTable, submissioncase.SubmissionColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(scq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryProblemCases chains the current query on the "problem_cases" edge.
-func (scq *SubmissionCaseQuery) QueryProblemCases() *ProblemCaseQuery {
-	query := (&ProblemCaseClient{config: scq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := scq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := scq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, selector),
-			sqlgraph.To(problemcase.Table, problemcase.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.ProblemCasesTable, submissioncase.ProblemCasesColumn),
+			sqlgraph.To(submissionsubtask.Table, submissionsubtask.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.SubmissionSubtasksTable, submissioncase.SubmissionSubtasksColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(scq.driver.Dialect(), step)
 		return fromU, nil
@@ -292,38 +268,26 @@ func (scq *SubmissionCaseQuery) Clone() *SubmissionCaseQuery {
 		return nil
 	}
 	return &SubmissionCaseQuery{
-		config:           scq.config,
-		ctx:              scq.ctx.Clone(),
-		order:            append([]submissioncase.OrderOption{}, scq.order...),
-		inters:           append([]Interceptor{}, scq.inters...),
-		predicates:       append([]predicate.SubmissionCase{}, scq.predicates...),
-		withSubmission:   scq.withSubmission.Clone(),
-		withProblemCases: scq.withProblemCases.Clone(),
+		config:                 scq.config,
+		ctx:                    scq.ctx.Clone(),
+		order:                  append([]submissioncase.OrderOption{}, scq.order...),
+		inters:                 append([]Interceptor{}, scq.inters...),
+		predicates:             append([]predicate.SubmissionCase{}, scq.predicates...),
+		withSubmissionSubtasks: scq.withSubmissionSubtasks.Clone(),
 		// clone intermediate query.
 		sql:  scq.sql.Clone(),
 		path: scq.path,
 	}
 }
 
-// WithSubmission tells the query-builder to eager-load the nodes that are connected to
-// the "submission" edge. The optional arguments are used to configure the query builder of the edge.
-func (scq *SubmissionCaseQuery) WithSubmission(opts ...func(*SubmissionQuery)) *SubmissionCaseQuery {
-	query := (&SubmissionClient{config: scq.config}).Query()
+// WithSubmissionSubtasks tells the query-builder to eager-load the nodes that are connected to
+// the "submission_subtasks" edge. The optional arguments are used to configure the query builder of the edge.
+func (scq *SubmissionCaseQuery) WithSubmissionSubtasks(opts ...func(*SubmissionSubtaskQuery)) *SubmissionCaseQuery {
+	query := (&SubmissionSubtaskClient{config: scq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	scq.withSubmission = query
-	return scq
-}
-
-// WithProblemCases tells the query-builder to eager-load the nodes that are connected to
-// the "problem_cases" edge. The optional arguments are used to configure the query builder of the edge.
-func (scq *SubmissionCaseQuery) WithProblemCases(opts ...func(*ProblemCaseQuery)) *SubmissionCaseQuery {
-	query := (&ProblemCaseClient{config: scq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	scq.withProblemCases = query
+	scq.withSubmissionSubtasks = query
 	return scq
 }
 
@@ -405,9 +369,8 @@ func (scq *SubmissionCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	var (
 		nodes       = []*SubmissionCase{}
 		_spec       = scq.querySpec()
-		loadedTypes = [2]bool{
-			scq.withSubmission != nil,
-			scq.withProblemCases != nil,
+		loadedTypes = [1]bool{
+			scq.withSubmissionSubtasks != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -428,26 +391,20 @@ func (scq *SubmissionCaseQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := scq.withSubmission; query != nil {
-		if err := scq.loadSubmission(ctx, query, nodes, nil,
-			func(n *SubmissionCase, e *Submission) { n.Edges.Submission = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := scq.withProblemCases; query != nil {
-		if err := scq.loadProblemCases(ctx, query, nodes, nil,
-			func(n *SubmissionCase, e *ProblemCase) { n.Edges.ProblemCases = e }); err != nil {
+	if query := scq.withSubmissionSubtasks; query != nil {
+		if err := scq.loadSubmissionSubtasks(ctx, query, nodes, nil,
+			func(n *SubmissionCase, e *SubmissionSubtask) { n.Edges.SubmissionSubtasks = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (scq *SubmissionCaseQuery) loadSubmission(ctx context.Context, query *SubmissionQuery, nodes []*SubmissionCase, init func(*SubmissionCase), assign func(*SubmissionCase, *Submission)) error {
+func (scq *SubmissionCaseQuery) loadSubmissionSubtasks(ctx context.Context, query *SubmissionSubtaskQuery, nodes []*SubmissionCase, init func(*SubmissionCase), assign func(*SubmissionCase, *SubmissionSubtask)) error {
 	ids := make([]int64, 0, len(nodes))
 	nodeids := make(map[int64][]*SubmissionCase)
 	for i := range nodes {
-		fk := nodes[i].SubmissionID
+		fk := nodes[i].SubmissionSubtaskID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -456,7 +413,7 @@ func (scq *SubmissionCaseQuery) loadSubmission(ctx context.Context, query *Submi
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(submission.IDIn(ids...))
+	query.Where(submissionsubtask.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -464,36 +421,7 @@ func (scq *SubmissionCaseQuery) loadSubmission(ctx context.Context, query *Submi
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "submission_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (scq *SubmissionCaseQuery) loadProblemCases(ctx context.Context, query *ProblemCaseQuery, nodes []*SubmissionCase, init func(*SubmissionCase), assign func(*SubmissionCase, *ProblemCase)) error {
-	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*SubmissionCase)
-	for i := range nodes {
-		fk := nodes[i].ProblemCaseID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(problemcase.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "problem_case_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "submission_subtask_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -527,11 +455,8 @@ func (scq *SubmissionCaseQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if scq.withSubmission != nil {
-			_spec.Node.AddColumnOnce(submissioncase.FieldSubmissionID)
-		}
-		if scq.withProblemCases != nil {
-			_spec.Node.AddColumnOnce(submissioncase.FieldProblemCaseID)
+		if scq.withSubmissionSubtasks != nil {
+			_spec.Node.AddColumnOnce(submissioncase.FieldSubmissionSubtaskID)
 		}
 	}
 	if ps := scq.predicates; len(ps) > 0 {

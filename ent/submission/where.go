@@ -60,14 +60,19 @@ func Code(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldCode, v))
 }
 
-// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldEQ(FieldStatus, v))
+// State applies equality check predicate on the "state" field. It's identical to StateEQ.
+func State(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldState, v))
 }
 
-// CompileMessage applies equality check predicate on the "compile_message" field. It's identical to CompileMessageEQ.
-func CompileMessage(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldEQ(FieldCompileMessage, v))
+// CompileStdout applies equality check predicate on the "compile_stdout" field. It's identical to CompileStdoutEQ.
+func CompileStdout(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileStdout, v))
+}
+
+// CompileStderr applies equality check predicate on the "compile_stderr" field. It's identical to CompileStderrEQ.
+func CompileStderr(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileStderr, v))
 }
 
 // Point applies equality check predicate on the "point" field. It's identical to PointEQ.
@@ -81,12 +86,12 @@ func CreateTime(v time.Time) predicate.Submission {
 }
 
 // TotalTime applies equality check predicate on the "total_time" field. It's identical to TotalTimeEQ.
-func TotalTime(v int32) predicate.Submission {
+func TotalTime(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldTotalTime, v))
 }
 
 // MaxMemory applies equality check predicate on the "max_memory" field. It's identical to MaxMemoryEQ.
-func MaxMemory(v int32) predicate.Submission {
+func MaxMemory(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldMaxMemory, v))
 }
 
@@ -175,119 +180,174 @@ func CodeContainsFold(v string) predicate.Submission {
 	return predicate.Submission(sql.FieldContainsFold(FieldCode, v))
 }
 
-// StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldEQ(FieldStatus, v))
+// StateEQ applies the EQ predicate on the "state" field.
+func StateEQ(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldState, v))
 }
 
-// StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldNEQ(FieldStatus, v))
+// StateNEQ applies the NEQ predicate on the "state" field.
+func StateNEQ(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldState, v))
 }
 
-// StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...int16) predicate.Submission {
-	return predicate.Submission(sql.FieldIn(FieldStatus, vs...))
+// StateIn applies the In predicate on the "state" field.
+func StateIn(vs ...int16) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldState, vs...))
 }
 
-// StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...int16) predicate.Submission {
-	return predicate.Submission(sql.FieldNotIn(FieldStatus, vs...))
+// StateNotIn applies the NotIn predicate on the "state" field.
+func StateNotIn(vs ...int16) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldState, vs...))
 }
 
-// StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldGT(FieldStatus, v))
+// StateGT applies the GT predicate on the "state" field.
+func StateGT(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldState, v))
 }
 
-// StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldGTE(FieldStatus, v))
+// StateGTE applies the GTE predicate on the "state" field.
+func StateGTE(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldState, v))
 }
 
-// StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldLT(FieldStatus, v))
+// StateLT applies the LT predicate on the "state" field.
+func StateLT(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldState, v))
 }
 
-// StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v int16) predicate.Submission {
-	return predicate.Submission(sql.FieldLTE(FieldStatus, v))
+// StateLTE applies the LTE predicate on the "state" field.
+func StateLTE(v int16) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldState, v))
 }
 
-// CompileMessageEQ applies the EQ predicate on the "compile_message" field.
-func CompileMessageEQ(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldEQ(FieldCompileMessage, v))
+// CompileStdoutEQ applies the EQ predicate on the "compile_stdout" field.
+func CompileStdoutEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileStdout, v))
 }
 
-// CompileMessageNEQ applies the NEQ predicate on the "compile_message" field.
-func CompileMessageNEQ(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldNEQ(FieldCompileMessage, v))
+// CompileStdoutNEQ applies the NEQ predicate on the "compile_stdout" field.
+func CompileStdoutNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldCompileStdout, v))
 }
 
-// CompileMessageIn applies the In predicate on the "compile_message" field.
-func CompileMessageIn(vs ...string) predicate.Submission {
-	return predicate.Submission(sql.FieldIn(FieldCompileMessage, vs...))
+// CompileStdoutIn applies the In predicate on the "compile_stdout" field.
+func CompileStdoutIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldCompileStdout, vs...))
 }
 
-// CompileMessageNotIn applies the NotIn predicate on the "compile_message" field.
-func CompileMessageNotIn(vs ...string) predicate.Submission {
-	return predicate.Submission(sql.FieldNotIn(FieldCompileMessage, vs...))
+// CompileStdoutNotIn applies the NotIn predicate on the "compile_stdout" field.
+func CompileStdoutNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldCompileStdout, vs...))
 }
 
-// CompileMessageGT applies the GT predicate on the "compile_message" field.
-func CompileMessageGT(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldGT(FieldCompileMessage, v))
+// CompileStdoutGT applies the GT predicate on the "compile_stdout" field.
+func CompileStdoutGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldCompileStdout, v))
 }
 
-// CompileMessageGTE applies the GTE predicate on the "compile_message" field.
-func CompileMessageGTE(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldGTE(FieldCompileMessage, v))
+// CompileStdoutGTE applies the GTE predicate on the "compile_stdout" field.
+func CompileStdoutGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldCompileStdout, v))
 }
 
-// CompileMessageLT applies the LT predicate on the "compile_message" field.
-func CompileMessageLT(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldLT(FieldCompileMessage, v))
+// CompileStdoutLT applies the LT predicate on the "compile_stdout" field.
+func CompileStdoutLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldCompileStdout, v))
 }
 
-// CompileMessageLTE applies the LTE predicate on the "compile_message" field.
-func CompileMessageLTE(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldLTE(FieldCompileMessage, v))
+// CompileStdoutLTE applies the LTE predicate on the "compile_stdout" field.
+func CompileStdoutLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldCompileStdout, v))
 }
 
-// CompileMessageContains applies the Contains predicate on the "compile_message" field.
-func CompileMessageContains(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldContains(FieldCompileMessage, v))
+// CompileStdoutContains applies the Contains predicate on the "compile_stdout" field.
+func CompileStdoutContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldCompileStdout, v))
 }
 
-// CompileMessageHasPrefix applies the HasPrefix predicate on the "compile_message" field.
-func CompileMessageHasPrefix(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldHasPrefix(FieldCompileMessage, v))
+// CompileStdoutHasPrefix applies the HasPrefix predicate on the "compile_stdout" field.
+func CompileStdoutHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldCompileStdout, v))
 }
 
-// CompileMessageHasSuffix applies the HasSuffix predicate on the "compile_message" field.
-func CompileMessageHasSuffix(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldHasSuffix(FieldCompileMessage, v))
+// CompileStdoutHasSuffix applies the HasSuffix predicate on the "compile_stdout" field.
+func CompileStdoutHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldCompileStdout, v))
 }
 
-// CompileMessageIsNil applies the IsNil predicate on the "compile_message" field.
-func CompileMessageIsNil() predicate.Submission {
-	return predicate.Submission(sql.FieldIsNull(FieldCompileMessage))
+// CompileStdoutEqualFold applies the EqualFold predicate on the "compile_stdout" field.
+func CompileStdoutEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldCompileStdout, v))
 }
 
-// CompileMessageNotNil applies the NotNil predicate on the "compile_message" field.
-func CompileMessageNotNil() predicate.Submission {
-	return predicate.Submission(sql.FieldNotNull(FieldCompileMessage))
+// CompileStdoutContainsFold applies the ContainsFold predicate on the "compile_stdout" field.
+func CompileStdoutContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldCompileStdout, v))
 }
 
-// CompileMessageEqualFold applies the EqualFold predicate on the "compile_message" field.
-func CompileMessageEqualFold(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldEqualFold(FieldCompileMessage, v))
+// CompileStderrEQ applies the EQ predicate on the "compile_stderr" field.
+func CompileStderrEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEQ(FieldCompileStderr, v))
 }
 
-// CompileMessageContainsFold applies the ContainsFold predicate on the "compile_message" field.
-func CompileMessageContainsFold(v string) predicate.Submission {
-	return predicate.Submission(sql.FieldContainsFold(FieldCompileMessage, v))
+// CompileStderrNEQ applies the NEQ predicate on the "compile_stderr" field.
+func CompileStderrNEQ(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldNEQ(FieldCompileStderr, v))
+}
+
+// CompileStderrIn applies the In predicate on the "compile_stderr" field.
+func CompileStderrIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldIn(FieldCompileStderr, vs...))
+}
+
+// CompileStderrNotIn applies the NotIn predicate on the "compile_stderr" field.
+func CompileStderrNotIn(vs ...string) predicate.Submission {
+	return predicate.Submission(sql.FieldNotIn(FieldCompileStderr, vs...))
+}
+
+// CompileStderrGT applies the GT predicate on the "compile_stderr" field.
+func CompileStderrGT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGT(FieldCompileStderr, v))
+}
+
+// CompileStderrGTE applies the GTE predicate on the "compile_stderr" field.
+func CompileStderrGTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldGTE(FieldCompileStderr, v))
+}
+
+// CompileStderrLT applies the LT predicate on the "compile_stderr" field.
+func CompileStderrLT(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLT(FieldCompileStderr, v))
+}
+
+// CompileStderrLTE applies the LTE predicate on the "compile_stderr" field.
+func CompileStderrLTE(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldLTE(FieldCompileStderr, v))
+}
+
+// CompileStderrContains applies the Contains predicate on the "compile_stderr" field.
+func CompileStderrContains(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContains(FieldCompileStderr, v))
+}
+
+// CompileStderrHasPrefix applies the HasPrefix predicate on the "compile_stderr" field.
+func CompileStderrHasPrefix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasPrefix(FieldCompileStderr, v))
+}
+
+// CompileStderrHasSuffix applies the HasSuffix predicate on the "compile_stderr" field.
+func CompileStderrHasSuffix(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldHasSuffix(FieldCompileStderr, v))
+}
+
+// CompileStderrEqualFold applies the EqualFold predicate on the "compile_stderr" field.
+func CompileStderrEqualFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldEqualFold(FieldCompileStderr, v))
+}
+
+// CompileStderrContainsFold applies the ContainsFold predicate on the "compile_stderr" field.
+func CompileStderrContainsFold(v string) predicate.Submission {
+	return predicate.Submission(sql.FieldContainsFold(FieldCompileStderr, v))
 }
 
 // PointEQ applies the EQ predicate on the "point" field.
@@ -371,82 +431,82 @@ func CreateTimeLTE(v time.Time) predicate.Submission {
 }
 
 // TotalTimeEQ applies the EQ predicate on the "total_time" field.
-func TotalTimeEQ(v int32) predicate.Submission {
+func TotalTimeEQ(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldTotalTime, v))
 }
 
 // TotalTimeNEQ applies the NEQ predicate on the "total_time" field.
-func TotalTimeNEQ(v int32) predicate.Submission {
+func TotalTimeNEQ(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldTotalTime, v))
 }
 
 // TotalTimeIn applies the In predicate on the "total_time" field.
-func TotalTimeIn(vs ...int32) predicate.Submission {
+func TotalTimeIn(vs ...uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeNotIn applies the NotIn predicate on the "total_time" field.
-func TotalTimeNotIn(vs ...int32) predicate.Submission {
+func TotalTimeNotIn(vs ...uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldTotalTime, vs...))
 }
 
 // TotalTimeGT applies the GT predicate on the "total_time" field.
-func TotalTimeGT(v int32) predicate.Submission {
+func TotalTimeGT(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldGT(FieldTotalTime, v))
 }
 
 // TotalTimeGTE applies the GTE predicate on the "total_time" field.
-func TotalTimeGTE(v int32) predicate.Submission {
+func TotalTimeGTE(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldGTE(FieldTotalTime, v))
 }
 
 // TotalTimeLT applies the LT predicate on the "total_time" field.
-func TotalTimeLT(v int32) predicate.Submission {
+func TotalTimeLT(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldLT(FieldTotalTime, v))
 }
 
 // TotalTimeLTE applies the LTE predicate on the "total_time" field.
-func TotalTimeLTE(v int32) predicate.Submission {
+func TotalTimeLTE(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldLTE(FieldTotalTime, v))
 }
 
 // MaxMemoryEQ applies the EQ predicate on the "max_memory" field.
-func MaxMemoryEQ(v int32) predicate.Submission {
+func MaxMemoryEQ(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldEQ(FieldMaxMemory, v))
 }
 
 // MaxMemoryNEQ applies the NEQ predicate on the "max_memory" field.
-func MaxMemoryNEQ(v int32) predicate.Submission {
+func MaxMemoryNEQ(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldNEQ(FieldMaxMemory, v))
 }
 
 // MaxMemoryIn applies the In predicate on the "max_memory" field.
-func MaxMemoryIn(vs ...int32) predicate.Submission {
+func MaxMemoryIn(vs ...uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldIn(FieldMaxMemory, vs...))
 }
 
 // MaxMemoryNotIn applies the NotIn predicate on the "max_memory" field.
-func MaxMemoryNotIn(vs ...int32) predicate.Submission {
+func MaxMemoryNotIn(vs ...uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldMaxMemory, vs...))
 }
 
 // MaxMemoryGT applies the GT predicate on the "max_memory" field.
-func MaxMemoryGT(v int32) predicate.Submission {
+func MaxMemoryGT(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldGT(FieldMaxMemory, v))
 }
 
 // MaxMemoryGTE applies the GTE predicate on the "max_memory" field.
-func MaxMemoryGTE(v int32) predicate.Submission {
+func MaxMemoryGTE(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldGTE(FieldMaxMemory, v))
 }
 
 // MaxMemoryLT applies the LT predicate on the "max_memory" field.
-func MaxMemoryLT(v int32) predicate.Submission {
+func MaxMemoryLT(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldLT(FieldMaxMemory, v))
 }
 
 // MaxMemoryLTE applies the LTE predicate on the "max_memory" field.
-func MaxMemoryLTE(v int32) predicate.Submission {
+func MaxMemoryLTE(v uint64) predicate.Submission {
 	return predicate.Submission(sql.FieldLTE(FieldMaxMemory, v))
 }
 
@@ -595,21 +655,21 @@ func UserIDNotIn(vs ...int64) predicate.Submission {
 	return predicate.Submission(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// HasSubmissionCases applies the HasEdge predicate on the "submission_cases" edge.
-func HasSubmissionCases() predicate.Submission {
+// HasSubmissionSubtasks applies the HasEdge predicate on the "submission_subtasks" edge.
+func HasSubmissionSubtasks() predicate.Submission {
 	return predicate.Submission(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionCasesTable, SubmissionCasesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, SubmissionSubtasksTable, SubmissionSubtasksColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSubmissionCasesWith applies the HasEdge predicate on the "submission_cases" edge with a given conditions (other predicates).
-func HasSubmissionCasesWith(preds ...predicate.SubmissionCase) predicate.Submission {
+// HasSubmissionSubtasksWith applies the HasEdge predicate on the "submission_subtasks" edge with a given conditions (other predicates).
+func HasSubmissionSubtasksWith(preds ...predicate.SubmissionSubtask) predicate.Submission {
 	return predicate.Submission(func(s *sql.Selector) {
-		step := newSubmissionCasesStep()
+		step := newSubmissionSubtasksStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

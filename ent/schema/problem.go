@@ -11,31 +11,40 @@ type Problem struct {
 	ent.Schema
 }
 
+// LfCompare holds the schema definition for the LfCompare entity.
+type LfCompare struct {
+	IgnoreLineEndSpace      bool
+	IgnoreLineEndEnter      bool
+	IgnoreTextTrailingSpace bool
+	IgnoreTextTrailingEnter bool
+}
+
 // Fields of the Problem.
 func (Problem) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique(),
+		field.Int64("problem_type_id"),
 		field.String("title"),
 		field.String("content"),
-		field.Int16("point").NonNegative(),
+		field.Int16("score").NonNegative(),
 		field.Int16("case_version").Default(1),
 		field.Int16("index").Positive(),
-		field.Bool("restrict_presentation").Default(true),
+		field.JSON("lf_compare", LfCompare{}),
 		field.Bool("is_deleted").Default(false),
-		field.String("config"),
 		field.Int64("contest_id"),
 		field.Int64("user_id"),
-		field.Int8("visibility").Default(0).Comment("private:0 pub:1 contest:2"),
+		field.Enum("visibility").Values("PRIVATE", "PUBLIC", "CONTEST").Default("PRIVATE"),
+		field.JSON("metadata", map[string]string{}).Default(make(map[string]string)).Comment("Metadata like 'allowed languages' of the problem."),
 	}
 }
 
 // Edges of the Problem.
 func (Problem) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("problem_cases", ProblemCase.Type),
 		edge.To("submission", Submission.Type),
 		edge.From("contests", Contest.Type).Ref("problems").Field("contest_id").Unique().Required(),
 		edge.From("owner", User.Type).Ref("owned_problems").Field("user_id").Unique().Required(),
+		edge.From("problem_types", ProblemType.Type).Ref("problems").Field("problem_type_id").Unique().Required(),
 		edge.To("judgers", Group.Type),
 	}
 }

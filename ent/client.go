@@ -16,9 +16,10 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
-	"sastoj/ent/problemcase"
+	"sastoj/ent/problemtype"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"sastoj/ent/user"
 
 	"entgo.io/ent"
@@ -42,12 +43,14 @@ type Client struct {
 	LoginSession *LoginSessionClient
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
-	// ProblemCase is the client for interacting with the ProblemCase builders.
-	ProblemCase *ProblemCaseClient
+	// ProblemType is the client for interacting with the ProblemType builders.
+	ProblemType *ProblemTypeClient
 	// Submission is the client for interacting with the Submission builders.
 	Submission *SubmissionClient
 	// SubmissionCase is the client for interacting with the SubmissionCase builders.
 	SubmissionCase *SubmissionCaseClient
+	// SubmissionSubtask is the client for interacting with the SubmissionSubtask builders.
+	SubmissionSubtask *SubmissionSubtaskClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -66,9 +69,10 @@ func (c *Client) init() {
 	c.Group = NewGroupClient(c.config)
 	c.LoginSession = NewLoginSessionClient(c.config)
 	c.Problem = NewProblemClient(c.config)
-	c.ProblemCase = NewProblemCaseClient(c.config)
+	c.ProblemType = NewProblemTypeClient(c.config)
 	c.Submission = NewSubmissionClient(c.config)
 	c.SubmissionCase = NewSubmissionCaseClient(c.config)
+	c.SubmissionSubtask = NewSubmissionSubtaskClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -160,17 +164,18 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Contest:        NewContestClient(cfg),
-		ContestResult:  NewContestResultClient(cfg),
-		Group:          NewGroupClient(cfg),
-		LoginSession:   NewLoginSessionClient(cfg),
-		Problem:        NewProblemClient(cfg),
-		ProblemCase:    NewProblemCaseClient(cfg),
-		Submission:     NewSubmissionClient(cfg),
-		SubmissionCase: NewSubmissionCaseClient(cfg),
-		User:           NewUserClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Contest:           NewContestClient(cfg),
+		ContestResult:     NewContestResultClient(cfg),
+		Group:             NewGroupClient(cfg),
+		LoginSession:      NewLoginSessionClient(cfg),
+		Problem:           NewProblemClient(cfg),
+		ProblemType:       NewProblemTypeClient(cfg),
+		Submission:        NewSubmissionClient(cfg),
+		SubmissionCase:    NewSubmissionCaseClient(cfg),
+		SubmissionSubtask: NewSubmissionSubtaskClient(cfg),
+		User:              NewUserClient(cfg),
 	}, nil
 }
 
@@ -188,17 +193,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Contest:        NewContestClient(cfg),
-		ContestResult:  NewContestResultClient(cfg),
-		Group:          NewGroupClient(cfg),
-		LoginSession:   NewLoginSessionClient(cfg),
-		Problem:        NewProblemClient(cfg),
-		ProblemCase:    NewProblemCaseClient(cfg),
-		Submission:     NewSubmissionClient(cfg),
-		SubmissionCase: NewSubmissionCaseClient(cfg),
-		User:           NewUserClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Contest:           NewContestClient(cfg),
+		ContestResult:     NewContestResultClient(cfg),
+		Group:             NewGroupClient(cfg),
+		LoginSession:      NewLoginSessionClient(cfg),
+		Problem:           NewProblemClient(cfg),
+		ProblemType:       NewProblemTypeClient(cfg),
+		Submission:        NewSubmissionClient(cfg),
+		SubmissionCase:    NewSubmissionCaseClient(cfg),
+		SubmissionSubtask: NewSubmissionSubtaskClient(cfg),
+		User:              NewUserClient(cfg),
 	}, nil
 }
 
@@ -228,8 +234,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
-		c.Submission, c.SubmissionCase, c.User,
+		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemType,
+		c.Submission, c.SubmissionCase, c.SubmissionSubtask, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -239,8 +245,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemCase,
-		c.Submission, c.SubmissionCase, c.User,
+		c.Contest, c.ContestResult, c.Group, c.LoginSession, c.Problem, c.ProblemType,
+		c.Submission, c.SubmissionCase, c.SubmissionSubtask, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -259,12 +265,14 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.LoginSession.mutate(ctx, m)
 	case *ProblemMutation:
 		return c.Problem.mutate(ctx, m)
-	case *ProblemCaseMutation:
-		return c.ProblemCase.mutate(ctx, m)
+	case *ProblemTypeMutation:
+		return c.ProblemType.mutate(ctx, m)
 	case *SubmissionMutation:
 		return c.Submission.mutate(ctx, m)
 	case *SubmissionCaseMutation:
 		return c.SubmissionCase.mutate(ctx, m)
+	case *SubmissionSubtaskMutation:
+		return c.SubmissionSubtask.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -1136,22 +1144,6 @@ func (c *ProblemClient) GetX(ctx context.Context, id int64) *Problem {
 	return obj
 }
 
-// QueryProblemCases queries the problem_cases edge of a Problem.
-func (c *ProblemClient) QueryProblemCases(pr *Problem) *ProblemCaseQuery {
-	query := (&ProblemCaseClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problem.Table, problem.FieldID, id),
-			sqlgraph.To(problemcase.Table, problemcase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, problem.ProblemCasesTable, problem.ProblemCasesColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QuerySubmission queries the submission edge of a Problem.
 func (c *ProblemClient) QuerySubmission(pr *Problem) *SubmissionQuery {
 	query := (&SubmissionClient{config: c.config}).Query()
@@ -1200,6 +1192,22 @@ func (c *ProblemClient) QueryOwner(pr *Problem) *UserQuery {
 	return query
 }
 
+// QueryProblemTypes queries the problem_types edge of a Problem.
+func (c *ProblemClient) QueryProblemTypes(pr *Problem) *ProblemTypeQuery {
+	query := (&ProblemTypeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(problem.Table, problem.FieldID, id),
+			sqlgraph.To(problemtype.Table, problemtype.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ProblemTypesTable, problem.ProblemTypesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryJudgers queries the judgers edge of a Problem.
 func (c *ProblemClient) QueryJudgers(pr *Problem) *GroupQuery {
 	query := (&GroupClient{config: c.config}).Query()
@@ -1241,107 +1249,107 @@ func (c *ProblemClient) mutate(ctx context.Context, m *ProblemMutation) (Value, 
 	}
 }
 
-// ProblemCaseClient is a client for the ProblemCase schema.
-type ProblemCaseClient struct {
+// ProblemTypeClient is a client for the ProblemType schema.
+type ProblemTypeClient struct {
 	config
 }
 
-// NewProblemCaseClient returns a client for the ProblemCase from the given config.
-func NewProblemCaseClient(c config) *ProblemCaseClient {
-	return &ProblemCaseClient{config: c}
+// NewProblemTypeClient returns a client for the ProblemType from the given config.
+func NewProblemTypeClient(c config) *ProblemTypeClient {
+	return &ProblemTypeClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `problemcase.Hooks(f(g(h())))`.
-func (c *ProblemCaseClient) Use(hooks ...Hook) {
-	c.hooks.ProblemCase = append(c.hooks.ProblemCase, hooks...)
+// A call to `Use(f, g, h)` equals to `problemtype.Hooks(f(g(h())))`.
+func (c *ProblemTypeClient) Use(hooks ...Hook) {
+	c.hooks.ProblemType = append(c.hooks.ProblemType, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `problemcase.Intercept(f(g(h())))`.
-func (c *ProblemCaseClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ProblemCase = append(c.inters.ProblemCase, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `problemtype.Intercept(f(g(h())))`.
+func (c *ProblemTypeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProblemType = append(c.inters.ProblemType, interceptors...)
 }
 
-// Create returns a builder for creating a ProblemCase entity.
-func (c *ProblemCaseClient) Create() *ProblemCaseCreate {
-	mutation := newProblemCaseMutation(c.config, OpCreate)
-	return &ProblemCaseCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a ProblemType entity.
+func (c *ProblemTypeClient) Create() *ProblemTypeCreate {
+	mutation := newProblemTypeMutation(c.config, OpCreate)
+	return &ProblemTypeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of ProblemCase entities.
-func (c *ProblemCaseClient) CreateBulk(builders ...*ProblemCaseCreate) *ProblemCaseCreateBulk {
-	return &ProblemCaseCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ProblemType entities.
+func (c *ProblemTypeClient) CreateBulk(builders ...*ProblemTypeCreate) *ProblemTypeCreateBulk {
+	return &ProblemTypeCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *ProblemCaseClient) MapCreateBulk(slice any, setFunc func(*ProblemCaseCreate, int)) *ProblemCaseCreateBulk {
+func (c *ProblemTypeClient) MapCreateBulk(slice any, setFunc func(*ProblemTypeCreate, int)) *ProblemTypeCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &ProblemCaseCreateBulk{err: fmt.Errorf("calling to ProblemCaseClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ProblemTypeCreateBulk{err: fmt.Errorf("calling to ProblemTypeClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*ProblemCaseCreate, rv.Len())
+	builders := make([]*ProblemTypeCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &ProblemCaseCreateBulk{config: c.config, builders: builders}
+	return &ProblemTypeCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for ProblemCase.
-func (c *ProblemCaseClient) Update() *ProblemCaseUpdate {
-	mutation := newProblemCaseMutation(c.config, OpUpdate)
-	return &ProblemCaseUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ProblemType.
+func (c *ProblemTypeClient) Update() *ProblemTypeUpdate {
+	mutation := newProblemTypeMutation(c.config, OpUpdate)
+	return &ProblemTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ProblemCaseClient) UpdateOne(pc *ProblemCase) *ProblemCaseUpdateOne {
-	mutation := newProblemCaseMutation(c.config, OpUpdateOne, withProblemCase(pc))
-	return &ProblemCaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ProblemTypeClient) UpdateOne(pt *ProblemType) *ProblemTypeUpdateOne {
+	mutation := newProblemTypeMutation(c.config, OpUpdateOne, withProblemType(pt))
+	return &ProblemTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ProblemCaseClient) UpdateOneID(id int64) *ProblemCaseUpdateOne {
-	mutation := newProblemCaseMutation(c.config, OpUpdateOne, withProblemCaseID(id))
-	return &ProblemCaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ProblemTypeClient) UpdateOneID(id int64) *ProblemTypeUpdateOne {
+	mutation := newProblemTypeMutation(c.config, OpUpdateOne, withProblemTypeID(id))
+	return &ProblemTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for ProblemCase.
-func (c *ProblemCaseClient) Delete() *ProblemCaseDelete {
-	mutation := newProblemCaseMutation(c.config, OpDelete)
-	return &ProblemCaseDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ProblemType.
+func (c *ProblemTypeClient) Delete() *ProblemTypeDelete {
+	mutation := newProblemTypeMutation(c.config, OpDelete)
+	return &ProblemTypeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ProblemCaseClient) DeleteOne(pc *ProblemCase) *ProblemCaseDeleteOne {
-	return c.DeleteOneID(pc.ID)
+func (c *ProblemTypeClient) DeleteOne(pt *ProblemType) *ProblemTypeDeleteOne {
+	return c.DeleteOneID(pt.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProblemCaseClient) DeleteOneID(id int64) *ProblemCaseDeleteOne {
-	builder := c.Delete().Where(problemcase.ID(id))
+func (c *ProblemTypeClient) DeleteOneID(id int64) *ProblemTypeDeleteOne {
+	builder := c.Delete().Where(problemtype.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &ProblemCaseDeleteOne{builder}
+	return &ProblemTypeDeleteOne{builder}
 }
 
-// Query returns a query builder for ProblemCase.
-func (c *ProblemCaseClient) Query() *ProblemCaseQuery {
-	return &ProblemCaseQuery{
+// Query returns a query builder for ProblemType.
+func (c *ProblemTypeClient) Query() *ProblemTypeQuery {
+	return &ProblemTypeQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeProblemCase},
+		ctx:    &QueryContext{Type: TypeProblemType},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a ProblemCase entity by its id.
-func (c *ProblemCaseClient) Get(ctx context.Context, id int64) (*ProblemCase, error) {
-	return c.Query().Where(problemcase.ID(id)).Only(ctx)
+// Get returns a ProblemType entity by its id.
+func (c *ProblemTypeClient) Get(ctx context.Context, id int64) (*ProblemType, error) {
+	return c.Query().Where(problemtype.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ProblemCaseClient) GetX(ctx context.Context, id int64) *ProblemCase {
+func (c *ProblemTypeClient) GetX(ctx context.Context, id int64) *ProblemType {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1349,61 +1357,44 @@ func (c *ProblemCaseClient) GetX(ctx context.Context, id int64) *ProblemCase {
 	return obj
 }
 
-// QuerySubmissionCases queries the submission_cases edge of a ProblemCase.
-func (c *ProblemCaseClient) QuerySubmissionCases(pc *ProblemCase) *SubmissionCaseQuery {
-	query := (&SubmissionCaseClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
-			sqlgraph.To(submissioncase.Table, submissioncase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, problemcase.SubmissionCasesTable, problemcase.SubmissionCasesColumn),
-		)
-		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProblem queries the problem edge of a ProblemCase.
-func (c *ProblemCaseClient) QueryProblem(pc *ProblemCase) *ProblemQuery {
+// QueryProblems queries the problems edge of a ProblemType.
+func (c *ProblemTypeClient) QueryProblems(pt *ProblemType) *ProblemQuery {
 	query := (&ProblemClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pc.ID
+		id := pt.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(problemcase.Table, problemcase.FieldID, id),
+			sqlgraph.From(problemtype.Table, problemtype.FieldID, id),
 			sqlgraph.To(problem.Table, problem.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problemcase.ProblemTable, problemcase.ProblemColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, problemtype.ProblemsTable, problemtype.ProblemsColumn),
 		)
-		fromV = sqlgraph.Neighbors(pc.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(pt.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *ProblemCaseClient) Hooks() []Hook {
-	hooks := c.hooks.ProblemCase
-	return append(hooks[:len(hooks):len(hooks)], problemcase.Hooks[:]...)
+func (c *ProblemTypeClient) Hooks() []Hook {
+	return c.hooks.ProblemType
 }
 
 // Interceptors returns the client interceptors.
-func (c *ProblemCaseClient) Interceptors() []Interceptor {
-	return c.inters.ProblemCase
+func (c *ProblemTypeClient) Interceptors() []Interceptor {
+	return c.inters.ProblemType
 }
 
-func (c *ProblemCaseClient) mutate(ctx context.Context, m *ProblemCaseMutation) (Value, error) {
+func (c *ProblemTypeClient) mutate(ctx context.Context, m *ProblemTypeMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&ProblemCaseCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ProblemTypeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&ProblemCaseUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ProblemTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&ProblemCaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ProblemTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&ProblemCaseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ProblemTypeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown ProblemCase mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown ProblemType mutation op: %q", m.Op())
 	}
 }
 
@@ -1515,15 +1506,15 @@ func (c *SubmissionClient) GetX(ctx context.Context, id int64) *Submission {
 	return obj
 }
 
-// QuerySubmissionCases queries the submission_cases edge of a Submission.
-func (c *SubmissionClient) QuerySubmissionCases(s *Submission) *SubmissionCaseQuery {
-	query := (&SubmissionCaseClient{config: c.config}).Query()
+// QuerySubmissionSubtasks queries the submission_subtasks edge of a Submission.
+func (c *SubmissionClient) QuerySubmissionSubtasks(s *Submission) *SubmissionSubtaskQuery {
+	query := (&SubmissionSubtaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submission.Table, submission.FieldID, id),
-			sqlgraph.To(submissioncase.Table, submissioncase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submission.SubmissionCasesTable, submission.SubmissionCasesColumn),
+			sqlgraph.To(submissionsubtask.Table, submissionsubtask.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submission.SubmissionSubtasksTable, submission.SubmissionSubtasksColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1712,31 +1703,15 @@ func (c *SubmissionCaseClient) GetX(ctx context.Context, id int64) *SubmissionCa
 	return obj
 }
 
-// QuerySubmission queries the submission edge of a SubmissionCase.
-func (c *SubmissionCaseClient) QuerySubmission(sc *SubmissionCase) *SubmissionQuery {
-	query := (&SubmissionClient{config: c.config}).Query()
+// QuerySubmissionSubtasks queries the submission_subtasks edge of a SubmissionCase.
+func (c *SubmissionCaseClient) QuerySubmissionSubtasks(sc *SubmissionCase) *SubmissionSubtaskQuery {
+	query := (&SubmissionSubtaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := sc.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, id),
-			sqlgraph.To(submission.Table, submission.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.SubmissionTable, submissioncase.SubmissionColumn),
-		)
-		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProblemCases queries the problem_cases edge of a SubmissionCase.
-func (c *SubmissionCaseClient) QueryProblemCases(sc *SubmissionCase) *ProblemCaseQuery {
-	query := (&ProblemCaseClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := sc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(submissioncase.Table, submissioncase.FieldID, id),
-			sqlgraph.To(problemcase.Table, problemcase.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.ProblemCasesTable, submissioncase.ProblemCasesColumn),
+			sqlgraph.To(submissionsubtask.Table, submissionsubtask.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submissioncase.SubmissionSubtasksTable, submissioncase.SubmissionSubtasksColumn),
 		)
 		fromV = sqlgraph.Neighbors(sc.driver.Dialect(), step)
 		return fromV, nil
@@ -1766,6 +1741,171 @@ func (c *SubmissionCaseClient) mutate(ctx context.Context, m *SubmissionCaseMuta
 		return (&SubmissionCaseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown SubmissionCase mutation op: %q", m.Op())
+	}
+}
+
+// SubmissionSubtaskClient is a client for the SubmissionSubtask schema.
+type SubmissionSubtaskClient struct {
+	config
+}
+
+// NewSubmissionSubtaskClient returns a client for the SubmissionSubtask from the given config.
+func NewSubmissionSubtaskClient(c config) *SubmissionSubtaskClient {
+	return &SubmissionSubtaskClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `submissionsubtask.Hooks(f(g(h())))`.
+func (c *SubmissionSubtaskClient) Use(hooks ...Hook) {
+	c.hooks.SubmissionSubtask = append(c.hooks.SubmissionSubtask, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `submissionsubtask.Intercept(f(g(h())))`.
+func (c *SubmissionSubtaskClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SubmissionSubtask = append(c.inters.SubmissionSubtask, interceptors...)
+}
+
+// Create returns a builder for creating a SubmissionSubtask entity.
+func (c *SubmissionSubtaskClient) Create() *SubmissionSubtaskCreate {
+	mutation := newSubmissionSubtaskMutation(c.config, OpCreate)
+	return &SubmissionSubtaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SubmissionSubtask entities.
+func (c *SubmissionSubtaskClient) CreateBulk(builders ...*SubmissionSubtaskCreate) *SubmissionSubtaskCreateBulk {
+	return &SubmissionSubtaskCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SubmissionSubtaskClient) MapCreateBulk(slice any, setFunc func(*SubmissionSubtaskCreate, int)) *SubmissionSubtaskCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SubmissionSubtaskCreateBulk{err: fmt.Errorf("calling to SubmissionSubtaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SubmissionSubtaskCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SubmissionSubtaskCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SubmissionSubtask.
+func (c *SubmissionSubtaskClient) Update() *SubmissionSubtaskUpdate {
+	mutation := newSubmissionSubtaskMutation(c.config, OpUpdate)
+	return &SubmissionSubtaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SubmissionSubtaskClient) UpdateOne(ss *SubmissionSubtask) *SubmissionSubtaskUpdateOne {
+	mutation := newSubmissionSubtaskMutation(c.config, OpUpdateOne, withSubmissionSubtask(ss))
+	return &SubmissionSubtaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SubmissionSubtaskClient) UpdateOneID(id int64) *SubmissionSubtaskUpdateOne {
+	mutation := newSubmissionSubtaskMutation(c.config, OpUpdateOne, withSubmissionSubtaskID(id))
+	return &SubmissionSubtaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SubmissionSubtask.
+func (c *SubmissionSubtaskClient) Delete() *SubmissionSubtaskDelete {
+	mutation := newSubmissionSubtaskMutation(c.config, OpDelete)
+	return &SubmissionSubtaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SubmissionSubtaskClient) DeleteOne(ss *SubmissionSubtask) *SubmissionSubtaskDeleteOne {
+	return c.DeleteOneID(ss.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SubmissionSubtaskClient) DeleteOneID(id int64) *SubmissionSubtaskDeleteOne {
+	builder := c.Delete().Where(submissionsubtask.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SubmissionSubtaskDeleteOne{builder}
+}
+
+// Query returns a query builder for SubmissionSubtask.
+func (c *SubmissionSubtaskClient) Query() *SubmissionSubtaskQuery {
+	return &SubmissionSubtaskQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSubmissionSubtask},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SubmissionSubtask entity by its id.
+func (c *SubmissionSubtaskClient) Get(ctx context.Context, id int64) (*SubmissionSubtask, error) {
+	return c.Query().Where(submissionsubtask.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SubmissionSubtaskClient) GetX(ctx context.Context, id int64) *SubmissionSubtask {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySubmissionCases queries the submission_cases edge of a SubmissionSubtask.
+func (c *SubmissionSubtaskClient) QuerySubmissionCases(ss *SubmissionSubtask) *SubmissionCaseQuery {
+	query := (&SubmissionCaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ss.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submissionsubtask.Table, submissionsubtask.FieldID, id),
+			sqlgraph.To(submissioncase.Table, submissioncase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submissionsubtask.SubmissionCasesTable, submissionsubtask.SubmissionCasesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ss.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySubmissions queries the submissions edge of a SubmissionSubtask.
+func (c *SubmissionSubtaskClient) QuerySubmissions(ss *SubmissionSubtask) *SubmissionQuery {
+	query := (&SubmissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ss.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(submissionsubtask.Table, submissionsubtask.FieldID, id),
+			sqlgraph.To(submission.Table, submission.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, submissionsubtask.SubmissionsTable, submissionsubtask.SubmissionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ss.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SubmissionSubtaskClient) Hooks() []Hook {
+	return c.hooks.SubmissionSubtask
+}
+
+// Interceptors returns the client interceptors.
+func (c *SubmissionSubtaskClient) Interceptors() []Interceptor {
+	return c.inters.SubmissionSubtask
+}
+
+func (c *SubmissionSubtaskClient) mutate(ctx context.Context, m *SubmissionSubtaskMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SubmissionSubtaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SubmissionSubtaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SubmissionSubtaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SubmissionSubtaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SubmissionSubtask mutation op: %q", m.Op())
 	}
 }
 
@@ -1985,11 +2125,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Contest, ContestResult, Group, LoginSession, Problem, ProblemCase, Submission,
-		SubmissionCase, User []ent.Hook
+		Contest, ContestResult, Group, LoginSession, Problem, ProblemType, Submission,
+		SubmissionCase, SubmissionSubtask, User []ent.Hook
 	}
 	inters struct {
-		Contest, ContestResult, Group, LoginSession, Problem, ProblemCase, Submission,
-		SubmissionCase, User []ent.Interceptor
+		Contest, ContestResult, Group, LoginSession, Problem, ProblemType, Submission,
+		SubmissionCase, SubmissionSubtask, User []ent.Interceptor
 	}
 )

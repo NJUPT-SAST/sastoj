@@ -9,7 +9,8 @@ import (
 	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
-	"sastoj/ent/problemcase"
+	"sastoj/ent/problemtype"
+	"sastoj/ent/schema"
 	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
@@ -26,6 +27,12 @@ type ProblemCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetProblemTypeID sets the "problem_type_id" field.
+func (pc *ProblemCreate) SetProblemTypeID(i int64) *ProblemCreate {
+	pc.mutation.SetProblemTypeID(i)
+	return pc
+}
+
 // SetTitle sets the "title" field.
 func (pc *ProblemCreate) SetTitle(s string) *ProblemCreate {
 	pc.mutation.SetTitle(s)
@@ -38,9 +45,9 @@ func (pc *ProblemCreate) SetContent(s string) *ProblemCreate {
 	return pc
 }
 
-// SetPoint sets the "point" field.
-func (pc *ProblemCreate) SetPoint(i int16) *ProblemCreate {
-	pc.mutation.SetPoint(i)
+// SetScore sets the "score" field.
+func (pc *ProblemCreate) SetScore(i int16) *ProblemCreate {
+	pc.mutation.SetScore(i)
 	return pc
 }
 
@@ -64,17 +71,9 @@ func (pc *ProblemCreate) SetIndex(i int16) *ProblemCreate {
 	return pc
 }
 
-// SetRestrictPresentation sets the "restrict_presentation" field.
-func (pc *ProblemCreate) SetRestrictPresentation(b bool) *ProblemCreate {
-	pc.mutation.SetRestrictPresentation(b)
-	return pc
-}
-
-// SetNillableRestrictPresentation sets the "restrict_presentation" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableRestrictPresentation(b *bool) *ProblemCreate {
-	if b != nil {
-		pc.SetRestrictPresentation(*b)
-	}
+// SetLfCompare sets the "lf_compare" field.
+func (pc *ProblemCreate) SetLfCompare(sc schema.LfCompare) *ProblemCreate {
+	pc.mutation.SetLfCompare(sc)
 	return pc
 }
 
@@ -92,12 +91,6 @@ func (pc *ProblemCreate) SetNillableIsDeleted(b *bool) *ProblemCreate {
 	return pc
 }
 
-// SetConfig sets the "config" field.
-func (pc *ProblemCreate) SetConfig(s string) *ProblemCreate {
-	pc.mutation.SetConfig(s)
-	return pc
-}
-
 // SetContestID sets the "contest_id" field.
 func (pc *ProblemCreate) SetContestID(i int64) *ProblemCreate {
 	pc.mutation.SetContestID(i)
@@ -111,16 +104,22 @@ func (pc *ProblemCreate) SetUserID(i int64) *ProblemCreate {
 }
 
 // SetVisibility sets the "visibility" field.
-func (pc *ProblemCreate) SetVisibility(i int8) *ProblemCreate {
-	pc.mutation.SetVisibility(i)
+func (pc *ProblemCreate) SetVisibility(pr problem.Visibility) *ProblemCreate {
+	pc.mutation.SetVisibility(pr)
 	return pc
 }
 
 // SetNillableVisibility sets the "visibility" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableVisibility(i *int8) *ProblemCreate {
-	if i != nil {
-		pc.SetVisibility(*i)
+func (pc *ProblemCreate) SetNillableVisibility(pr *problem.Visibility) *ProblemCreate {
+	if pr != nil {
+		pc.SetVisibility(*pr)
 	}
+	return pc
+}
+
+// SetMetadata sets the "metadata" field.
+func (pc *ProblemCreate) SetMetadata(m map[string]string) *ProblemCreate {
+	pc.mutation.SetMetadata(m)
 	return pc
 }
 
@@ -128,21 +127,6 @@ func (pc *ProblemCreate) SetNillableVisibility(i *int8) *ProblemCreate {
 func (pc *ProblemCreate) SetID(i int64) *ProblemCreate {
 	pc.mutation.SetID(i)
 	return pc
-}
-
-// AddProblemCaseIDs adds the "problem_cases" edge to the ProblemCase entity by IDs.
-func (pc *ProblemCreate) AddProblemCaseIDs(ids ...int64) *ProblemCreate {
-	pc.mutation.AddProblemCaseIDs(ids...)
-	return pc
-}
-
-// AddProblemCases adds the "problem_cases" edges to the ProblemCase entity.
-func (pc *ProblemCreate) AddProblemCases(p ...*ProblemCase) *ProblemCreate {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return pc.AddProblemCaseIDs(ids...)
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submission entity by IDs.
@@ -180,6 +164,17 @@ func (pc *ProblemCreate) SetOwnerID(id int64) *ProblemCreate {
 // SetOwner sets the "owner" edge to the User entity.
 func (pc *ProblemCreate) SetOwner(u *User) *ProblemCreate {
 	return pc.SetOwnerID(u.ID)
+}
+
+// SetProblemTypesID sets the "problem_types" edge to the ProblemType entity by ID.
+func (pc *ProblemCreate) SetProblemTypesID(id int64) *ProblemCreate {
+	pc.mutation.SetProblemTypesID(id)
+	return pc
+}
+
+// SetProblemTypes sets the "problem_types" edge to the ProblemType entity.
+func (pc *ProblemCreate) SetProblemTypes(p *ProblemType) *ProblemCreate {
+	return pc.SetProblemTypesID(p.ID)
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
@@ -236,10 +231,6 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultCaseVersion
 		pc.mutation.SetCaseVersion(v)
 	}
-	if _, ok := pc.mutation.RestrictPresentation(); !ok {
-		v := problem.DefaultRestrictPresentation
-		pc.mutation.SetRestrictPresentation(v)
-	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		v := problem.DefaultIsDeleted
 		pc.mutation.SetIsDeleted(v)
@@ -248,22 +239,29 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultVisibility
 		pc.mutation.SetVisibility(v)
 	}
+	if _, ok := pc.mutation.Metadata(); !ok {
+		v := problem.DefaultMetadata
+		pc.mutation.SetMetadata(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProblemCreate) check() error {
+	if _, ok := pc.mutation.ProblemTypeID(); !ok {
+		return &ValidationError{Name: "problem_type_id", err: errors.New(`ent: missing required field "Problem.problem_type_id"`)}
+	}
 	if _, ok := pc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Problem.title"`)}
 	}
 	if _, ok := pc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Problem.content"`)}
 	}
-	if _, ok := pc.mutation.Point(); !ok {
-		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Problem.point"`)}
+	if _, ok := pc.mutation.Score(); !ok {
+		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "Problem.score"`)}
 	}
-	if v, ok := pc.mutation.Point(); ok {
-		if err := problem.PointValidator(v); err != nil {
-			return &ValidationError{Name: "point", err: fmt.Errorf(`ent: validator failed for field "Problem.point": %w`, err)}
+	if v, ok := pc.mutation.Score(); ok {
+		if err := problem.ScoreValidator(v); err != nil {
+			return &ValidationError{Name: "score", err: fmt.Errorf(`ent: validator failed for field "Problem.score": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.CaseVersion(); !ok {
@@ -277,14 +275,11 @@ func (pc *ProblemCreate) check() error {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
 		}
 	}
-	if _, ok := pc.mutation.RestrictPresentation(); !ok {
-		return &ValidationError{Name: "restrict_presentation", err: errors.New(`ent: missing required field "Problem.restrict_presentation"`)}
+	if _, ok := pc.mutation.LfCompare(); !ok {
+		return &ValidationError{Name: "lf_compare", err: errors.New(`ent: missing required field "Problem.lf_compare"`)}
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "Problem.is_deleted"`)}
-	}
-	if _, ok := pc.mutation.Config(); !ok {
-		return &ValidationError{Name: "config", err: errors.New(`ent: missing required field "Problem.config"`)}
 	}
 	if _, ok := pc.mutation.ContestID(); !ok {
 		return &ValidationError{Name: "contest_id", err: errors.New(`ent: missing required field "Problem.contest_id"`)}
@@ -295,11 +290,22 @@ func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.Visibility(); !ok {
 		return &ValidationError{Name: "visibility", err: errors.New(`ent: missing required field "Problem.visibility"`)}
 	}
+	if v, ok := pc.mutation.Visibility(); ok {
+		if err := problem.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Problem.visibility": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.Metadata(); !ok {
+		return &ValidationError{Name: "metadata", err: errors.New(`ent: missing required field "Problem.metadata"`)}
+	}
 	if _, ok := pc.mutation.ContestsID(); !ok {
 		return &ValidationError{Name: "contests", err: errors.New(`ent: missing required edge "Problem.contests"`)}
 	}
 	if _, ok := pc.mutation.OwnerID(); !ok {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "Problem.owner"`)}
+	}
+	if _, ok := pc.mutation.ProblemTypesID(); !ok {
+		return &ValidationError{Name: "problem_types", err: errors.New(`ent: missing required edge "Problem.problem_types"`)}
 	}
 	return nil
 }
@@ -342,9 +348,9 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
-	if value, ok := pc.mutation.Point(); ok {
-		_spec.SetField(problem.FieldPoint, field.TypeInt16, value)
-		_node.Point = value
+	if value, ok := pc.mutation.Score(); ok {
+		_spec.SetField(problem.FieldScore, field.TypeInt16, value)
+		_node.Score = value
 	}
 	if value, ok := pc.mutation.CaseVersion(); ok {
 		_spec.SetField(problem.FieldCaseVersion, field.TypeInt16, value)
@@ -354,37 +360,21 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
 	}
-	if value, ok := pc.mutation.RestrictPresentation(); ok {
-		_spec.SetField(problem.FieldRestrictPresentation, field.TypeBool, value)
-		_node.RestrictPresentation = value
+	if value, ok := pc.mutation.LfCompare(); ok {
+		_spec.SetField(problem.FieldLfCompare, field.TypeJSON, value)
+		_node.LfCompare = value
 	}
 	if value, ok := pc.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)
 		_node.IsDeleted = value
 	}
-	if value, ok := pc.mutation.Config(); ok {
-		_spec.SetField(problem.FieldConfig, field.TypeString, value)
-		_node.Config = value
-	}
 	if value, ok := pc.mutation.Visibility(); ok {
-		_spec.SetField(problem.FieldVisibility, field.TypeInt8, value)
+		_spec.SetField(problem.FieldVisibility, field.TypeEnum, value)
 		_node.Visibility = value
 	}
-	if nodes := pc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   problem.ProblemCasesTable,
-			Columns: []string{problem.ProblemCasesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := pc.mutation.Metadata(); ok {
+		_spec.SetField(problem.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if nodes := pc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -436,6 +426,23 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := pc.mutation.ProblemTypesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   problem.ProblemTypesTable,
+			Columns: []string{problem.ProblemTypesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(problemtype.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ProblemTypeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := pc.mutation.JudgersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -459,7 +466,7 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.Problem.Create().
-//		SetTitle(v).
+//		SetProblemTypeID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -468,7 +475,7 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProblemUpsert) {
-//			SetTitle(v+v).
+//			SetProblemTypeID(v+v).
 //		}).
 //		Exec(ctx)
 func (pc *ProblemCreate) OnConflict(opts ...sql.ConflictOption) *ProblemUpsertOne {
@@ -504,6 +511,18 @@ type (
 	}
 )
 
+// SetProblemTypeID sets the "problem_type_id" field.
+func (u *ProblemUpsert) SetProblemTypeID(v int64) *ProblemUpsert {
+	u.Set(problem.FieldProblemTypeID, v)
+	return u
+}
+
+// UpdateProblemTypeID sets the "problem_type_id" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateProblemTypeID() *ProblemUpsert {
+	u.SetExcluded(problem.FieldProblemTypeID)
+	return u
+}
+
 // SetTitle sets the "title" field.
 func (u *ProblemUpsert) SetTitle(v string) *ProblemUpsert {
 	u.Set(problem.FieldTitle, v)
@@ -528,21 +547,21 @@ func (u *ProblemUpsert) UpdateContent() *ProblemUpsert {
 	return u
 }
 
-// SetPoint sets the "point" field.
-func (u *ProblemUpsert) SetPoint(v int16) *ProblemUpsert {
-	u.Set(problem.FieldPoint, v)
+// SetScore sets the "score" field.
+func (u *ProblemUpsert) SetScore(v int16) *ProblemUpsert {
+	u.Set(problem.FieldScore, v)
 	return u
 }
 
-// UpdatePoint sets the "point" field to the value that was provided on create.
-func (u *ProblemUpsert) UpdatePoint() *ProblemUpsert {
-	u.SetExcluded(problem.FieldPoint)
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateScore() *ProblemUpsert {
+	u.SetExcluded(problem.FieldScore)
 	return u
 }
 
-// AddPoint adds v to the "point" field.
-func (u *ProblemUpsert) AddPoint(v int16) *ProblemUpsert {
-	u.Add(problem.FieldPoint, v)
+// AddScore adds v to the "score" field.
+func (u *ProblemUpsert) AddScore(v int16) *ProblemUpsert {
+	u.Add(problem.FieldScore, v)
 	return u
 }
 
@@ -582,15 +601,15 @@ func (u *ProblemUpsert) AddIndex(v int16) *ProblemUpsert {
 	return u
 }
 
-// SetRestrictPresentation sets the "restrict_presentation" field.
-func (u *ProblemUpsert) SetRestrictPresentation(v bool) *ProblemUpsert {
-	u.Set(problem.FieldRestrictPresentation, v)
+// SetLfCompare sets the "lf_compare" field.
+func (u *ProblemUpsert) SetLfCompare(v schema.LfCompare) *ProblemUpsert {
+	u.Set(problem.FieldLfCompare, v)
 	return u
 }
 
-// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
-func (u *ProblemUpsert) UpdateRestrictPresentation() *ProblemUpsert {
-	u.SetExcluded(problem.FieldRestrictPresentation)
+// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateLfCompare() *ProblemUpsert {
+	u.SetExcluded(problem.FieldLfCompare)
 	return u
 }
 
@@ -603,18 +622,6 @@ func (u *ProblemUpsert) SetIsDeleted(v bool) *ProblemUpsert {
 // UpdateIsDeleted sets the "is_deleted" field to the value that was provided on create.
 func (u *ProblemUpsert) UpdateIsDeleted() *ProblemUpsert {
 	u.SetExcluded(problem.FieldIsDeleted)
-	return u
-}
-
-// SetConfig sets the "config" field.
-func (u *ProblemUpsert) SetConfig(v string) *ProblemUpsert {
-	u.Set(problem.FieldConfig, v)
-	return u
-}
-
-// UpdateConfig sets the "config" field to the value that was provided on create.
-func (u *ProblemUpsert) UpdateConfig() *ProblemUpsert {
-	u.SetExcluded(problem.FieldConfig)
 	return u
 }
 
@@ -643,7 +650,7 @@ func (u *ProblemUpsert) UpdateUserID() *ProblemUpsert {
 }
 
 // SetVisibility sets the "visibility" field.
-func (u *ProblemUpsert) SetVisibility(v int8) *ProblemUpsert {
+func (u *ProblemUpsert) SetVisibility(v problem.Visibility) *ProblemUpsert {
 	u.Set(problem.FieldVisibility, v)
 	return u
 }
@@ -654,9 +661,15 @@ func (u *ProblemUpsert) UpdateVisibility() *ProblemUpsert {
 	return u
 }
 
-// AddVisibility adds v to the "visibility" field.
-func (u *ProblemUpsert) AddVisibility(v int8) *ProblemUpsert {
-	u.Add(problem.FieldVisibility, v)
+// SetMetadata sets the "metadata" field.
+func (u *ProblemUpsert) SetMetadata(v map[string]string) *ProblemUpsert {
+	u.Set(problem.FieldMetadata, v)
+	return u
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateMetadata() *ProblemUpsert {
+	u.SetExcluded(problem.FieldMetadata)
 	return u
 }
 
@@ -708,6 +721,20 @@ func (u *ProblemUpsertOne) Update(set func(*ProblemUpsert)) *ProblemUpsertOne {
 	return u
 }
 
+// SetProblemTypeID sets the "problem_type_id" field.
+func (u *ProblemUpsertOne) SetProblemTypeID(v int64) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetProblemTypeID(v)
+	})
+}
+
+// UpdateProblemTypeID sets the "problem_type_id" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateProblemTypeID() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateProblemTypeID()
+	})
+}
+
 // SetTitle sets the "title" field.
 func (u *ProblemUpsertOne) SetTitle(v string) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
@@ -736,24 +763,24 @@ func (u *ProblemUpsertOne) UpdateContent() *ProblemUpsertOne {
 	})
 }
 
-// SetPoint sets the "point" field.
-func (u *ProblemUpsertOne) SetPoint(v int16) *ProblemUpsertOne {
+// SetScore sets the "score" field.
+func (u *ProblemUpsertOne) SetScore(v int16) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetPoint(v)
+		s.SetScore(v)
 	})
 }
 
-// AddPoint adds v to the "point" field.
-func (u *ProblemUpsertOne) AddPoint(v int16) *ProblemUpsertOne {
+// AddScore adds v to the "score" field.
+func (u *ProblemUpsertOne) AddScore(v int16) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.AddPoint(v)
+		s.AddScore(v)
 	})
 }
 
-// UpdatePoint sets the "point" field to the value that was provided on create.
-func (u *ProblemUpsertOne) UpdatePoint() *ProblemUpsertOne {
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateScore() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdatePoint()
+		s.UpdateScore()
 	})
 }
 
@@ -799,17 +826,17 @@ func (u *ProblemUpsertOne) UpdateIndex() *ProblemUpsertOne {
 	})
 }
 
-// SetRestrictPresentation sets the "restrict_presentation" field.
-func (u *ProblemUpsertOne) SetRestrictPresentation(v bool) *ProblemUpsertOne {
+// SetLfCompare sets the "lf_compare" field.
+func (u *ProblemUpsertOne) SetLfCompare(v schema.LfCompare) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetRestrictPresentation(v)
+		s.SetLfCompare(v)
 	})
 }
 
-// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
-func (u *ProblemUpsertOne) UpdateRestrictPresentation() *ProblemUpsertOne {
+// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateLfCompare() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateRestrictPresentation()
+		s.UpdateLfCompare()
 	})
 }
 
@@ -824,20 +851,6 @@ func (u *ProblemUpsertOne) SetIsDeleted(v bool) *ProblemUpsertOne {
 func (u *ProblemUpsertOne) UpdateIsDeleted() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIsDeleted()
-	})
-}
-
-// SetConfig sets the "config" field.
-func (u *ProblemUpsertOne) SetConfig(v string) *ProblemUpsertOne {
-	return u.Update(func(s *ProblemUpsert) {
-		s.SetConfig(v)
-	})
-}
-
-// UpdateConfig sets the "config" field to the value that was provided on create.
-func (u *ProblemUpsertOne) UpdateConfig() *ProblemUpsertOne {
-	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateConfig()
 	})
 }
 
@@ -870,16 +883,9 @@ func (u *ProblemUpsertOne) UpdateUserID() *ProblemUpsertOne {
 }
 
 // SetVisibility sets the "visibility" field.
-func (u *ProblemUpsertOne) SetVisibility(v int8) *ProblemUpsertOne {
+func (u *ProblemUpsertOne) SetVisibility(v problem.Visibility) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetVisibility(v)
-	})
-}
-
-// AddVisibility adds v to the "visibility" field.
-func (u *ProblemUpsertOne) AddVisibility(v int8) *ProblemUpsertOne {
-	return u.Update(func(s *ProblemUpsert) {
-		s.AddVisibility(v)
 	})
 }
 
@@ -887,6 +893,20 @@ func (u *ProblemUpsertOne) AddVisibility(v int8) *ProblemUpsertOne {
 func (u *ProblemUpsertOne) UpdateVisibility() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateVisibility()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *ProblemUpsertOne) SetMetadata(v map[string]string) *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateMetadata() *ProblemUpsertOne {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateMetadata()
 	})
 }
 
@@ -1025,7 +1045,7 @@ func (pcb *ProblemCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.ProblemUpsert) {
-//			SetTitle(v+v).
+//			SetProblemTypeID(v+v).
 //		}).
 //		Exec(ctx)
 func (pcb *ProblemCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProblemUpsertBulk {
@@ -1104,6 +1124,20 @@ func (u *ProblemUpsertBulk) Update(set func(*ProblemUpsert)) *ProblemUpsertBulk 
 	return u
 }
 
+// SetProblemTypeID sets the "problem_type_id" field.
+func (u *ProblemUpsertBulk) SetProblemTypeID(v int64) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetProblemTypeID(v)
+	})
+}
+
+// UpdateProblemTypeID sets the "problem_type_id" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateProblemTypeID() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateProblemTypeID()
+	})
+}
+
 // SetTitle sets the "title" field.
 func (u *ProblemUpsertBulk) SetTitle(v string) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
@@ -1132,24 +1166,24 @@ func (u *ProblemUpsertBulk) UpdateContent() *ProblemUpsertBulk {
 	})
 }
 
-// SetPoint sets the "point" field.
-func (u *ProblemUpsertBulk) SetPoint(v int16) *ProblemUpsertBulk {
+// SetScore sets the "score" field.
+func (u *ProblemUpsertBulk) SetScore(v int16) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetPoint(v)
+		s.SetScore(v)
 	})
 }
 
-// AddPoint adds v to the "point" field.
-func (u *ProblemUpsertBulk) AddPoint(v int16) *ProblemUpsertBulk {
+// AddScore adds v to the "score" field.
+func (u *ProblemUpsertBulk) AddScore(v int16) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.AddPoint(v)
+		s.AddScore(v)
 	})
 }
 
-// UpdatePoint sets the "point" field to the value that was provided on create.
-func (u *ProblemUpsertBulk) UpdatePoint() *ProblemUpsertBulk {
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateScore() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdatePoint()
+		s.UpdateScore()
 	})
 }
 
@@ -1195,17 +1229,17 @@ func (u *ProblemUpsertBulk) UpdateIndex() *ProblemUpsertBulk {
 	})
 }
 
-// SetRestrictPresentation sets the "restrict_presentation" field.
-func (u *ProblemUpsertBulk) SetRestrictPresentation(v bool) *ProblemUpsertBulk {
+// SetLfCompare sets the "lf_compare" field.
+func (u *ProblemUpsertBulk) SetLfCompare(v schema.LfCompare) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetRestrictPresentation(v)
+		s.SetLfCompare(v)
 	})
 }
 
-// UpdateRestrictPresentation sets the "restrict_presentation" field to the value that was provided on create.
-func (u *ProblemUpsertBulk) UpdateRestrictPresentation() *ProblemUpsertBulk {
+// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateLfCompare() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateRestrictPresentation()
+		s.UpdateLfCompare()
 	})
 }
 
@@ -1220,20 +1254,6 @@ func (u *ProblemUpsertBulk) SetIsDeleted(v bool) *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) UpdateIsDeleted() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateIsDeleted()
-	})
-}
-
-// SetConfig sets the "config" field.
-func (u *ProblemUpsertBulk) SetConfig(v string) *ProblemUpsertBulk {
-	return u.Update(func(s *ProblemUpsert) {
-		s.SetConfig(v)
-	})
-}
-
-// UpdateConfig sets the "config" field to the value that was provided on create.
-func (u *ProblemUpsertBulk) UpdateConfig() *ProblemUpsertBulk {
-	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateConfig()
 	})
 }
 
@@ -1266,16 +1286,9 @@ func (u *ProblemUpsertBulk) UpdateUserID() *ProblemUpsertBulk {
 }
 
 // SetVisibility sets the "visibility" field.
-func (u *ProblemUpsertBulk) SetVisibility(v int8) *ProblemUpsertBulk {
+func (u *ProblemUpsertBulk) SetVisibility(v problem.Visibility) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.SetVisibility(v)
-	})
-}
-
-// AddVisibility adds v to the "visibility" field.
-func (u *ProblemUpsertBulk) AddVisibility(v int8) *ProblemUpsertBulk {
-	return u.Update(func(s *ProblemUpsert) {
-		s.AddVisibility(v)
 	})
 }
 
@@ -1283,6 +1296,20 @@ func (u *ProblemUpsertBulk) AddVisibility(v int8) *ProblemUpsertBulk {
 func (u *ProblemUpsertBulk) UpdateVisibility() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
 		s.UpdateVisibility()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *ProblemUpsertBulk) SetMetadata(v map[string]string) *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateMetadata() *ProblemUpsertBulk {
+	return u.Update(func(s *ProblemUpsert) {
+		s.UpdateMetadata()
 	})
 }
 

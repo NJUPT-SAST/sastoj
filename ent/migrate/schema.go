@@ -103,14 +103,15 @@ var (
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "content", Type: field.TypeString},
-		{Name: "point", Type: field.TypeInt16},
+		{Name: "score", Type: field.TypeInt16},
 		{Name: "case_version", Type: field.TypeInt16, Default: 1},
 		{Name: "index", Type: field.TypeInt16},
-		{Name: "restrict_presentation", Type: field.TypeBool, Default: true},
+		{Name: "lf_compare", Type: field.TypeJSON},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
-		{Name: "config", Type: field.TypeString},
-		{Name: "visibility", Type: field.TypeInt8, Default: 0},
+		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"PRIVATE", "PUBLIC", "CONTEST"}, Default: "PRIVATE"},
+		{Name: "metadata", Type: field.TypeJSON},
 		{Name: "contest_id", Type: field.TypeInt64},
+		{Name: "problem_type_id", Type: field.TypeInt64},
 		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// ProblemsTable holds the schema information for the "problems" table.
@@ -126,46 +127,45 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "problems_users_owned_problems",
+				Symbol:     "problems_problem_types_problems",
 				Columns:    []*schema.Column{ProblemsColumns[11]},
+				RefColumns: []*schema.Column{ProblemTypesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "problems_users_owned_problems",
+				Columns:    []*schema.Column{ProblemsColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 	}
-	// ProblemCasesColumns holds the columns for the "problem_cases" table.
-	ProblemCasesColumns = []*schema.Column{
+	// ProblemTypesColumns holds the columns for the "problem_types" table.
+	ProblemTypesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
-		{Name: "point", Type: field.TypeInt16},
-		{Name: "index", Type: field.TypeInt16},
-		{Name: "is_auto", Type: field.TypeBool, Default: false},
-		{Name: "is_deleted", Type: field.TypeBool, Default: false},
-		{Name: "problem_id", Type: field.TypeInt64},
+		{Name: "slug_name", Type: field.TypeString},
+		{Name: "display_name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "channel_name", Type: field.TypeString},
+		{Name: "judge", Type: field.TypeString, Default: "default"},
 	}
-	// ProblemCasesTable holds the schema information for the "problem_cases" table.
-	ProblemCasesTable = &schema.Table{
-		Name:       "problem_cases",
-		Columns:    ProblemCasesColumns,
-		PrimaryKey: []*schema.Column{ProblemCasesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "problem_cases_problems_problem_cases",
-				Columns:    []*schema.Column{ProblemCasesColumns[5]},
-				RefColumns: []*schema.Column{ProblemsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
+	// ProblemTypesTable holds the schema information for the "problem_types" table.
+	ProblemTypesTable = &schema.Table{
+		Name:       "problem_types",
+		Columns:    ProblemTypesColumns,
+		PrimaryKey: []*schema.Column{ProblemTypesColumns[0]},
 	}
 	// SubmissionsColumns holds the columns for the "submissions" table.
 	SubmissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "code", Type: field.TypeString, Size: 2147483647},
-		{Name: "status", Type: field.TypeInt16},
-		{Name: "compile_message", Type: field.TypeString, Nullable: true},
+		{Name: "state", Type: field.TypeInt16},
+		{Name: "compile_stdout", Type: field.TypeString, Default: ""},
+		{Name: "compile_stderr", Type: field.TypeString, Default: ""},
 		{Name: "point", Type: field.TypeInt16},
 		{Name: "create_time", Type: field.TypeTime},
-		{Name: "total_time", Type: field.TypeInt32},
-		{Name: "max_memory", Type: field.TypeInt32},
+		{Name: "total_time", Type: field.TypeUint64},
+		{Name: "max_memory", Type: field.TypeUint64},
 		{Name: "language", Type: field.TypeString},
 		{Name: "case_version", Type: field.TypeInt8},
 		{Name: "problem_id", Type: field.TypeInt64},
@@ -179,13 +179,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "submissions_problems_submission",
-				Columns:    []*schema.Column{SubmissionsColumns[10]},
+				Columns:    []*schema.Column{SubmissionsColumns[11]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "submissions_users_submission",
-				Columns:    []*schema.Column{SubmissionsColumns[11]},
+				Columns:    []*schema.Column{SubmissionsColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -196,11 +196,11 @@ var (
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "state", Type: field.TypeInt16},
 		{Name: "point", Type: field.TypeInt16},
-		{Name: "message", Type: field.TypeString, Size: 2147483647},
-		{Name: "time", Type: field.TypeInt32},
-		{Name: "memory", Type: field.TypeInt32},
-		{Name: "problem_case_id", Type: field.TypeInt64},
-		{Name: "submission_id", Type: field.TypeInt64},
+		{Name: "time", Type: field.TypeUint64},
+		{Name: "memory", Type: field.TypeUint64},
+		{Name: "stdout", Type: field.TypeString, Default: ""},
+		{Name: "stderr", Type: field.TypeString, Default: ""},
+		{Name: "submission_subtask_id", Type: field.TypeInt64},
 	}
 	// SubmissionCasesTable holds the schema information for the "submission_cases" table.
 	SubmissionCasesTable = &schema.Table{
@@ -209,14 +209,31 @@ var (
 		PrimaryKey: []*schema.Column{SubmissionCasesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submission_cases_problem_cases_submission_cases",
-				Columns:    []*schema.Column{SubmissionCasesColumns[6]},
-				RefColumns: []*schema.Column{ProblemCasesColumns[0]},
+				Symbol:     "submission_cases_submission_subtasks_submission_cases",
+				Columns:    []*schema.Column{SubmissionCasesColumns[7]},
+				RefColumns: []*schema.Column{SubmissionSubtasksColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
+		},
+	}
+	// SubmissionSubtasksColumns holds the columns for the "submission_subtasks" table.
+	SubmissionSubtasksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "state", Type: field.TypeInt16},
+		{Name: "point", Type: field.TypeInt16},
+		{Name: "total_time", Type: field.TypeUint64},
+		{Name: "max_memory", Type: field.TypeUint64},
+		{Name: "submission_id", Type: field.TypeInt64},
+	}
+	// SubmissionSubtasksTable holds the schema information for the "submission_subtasks" table.
+	SubmissionSubtasksTable = &schema.Table{
+		Name:       "submission_subtasks",
+		Columns:    SubmissionSubtasksColumns,
+		PrimaryKey: []*schema.Column{SubmissionSubtasksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "submission_cases_submissions_submission_cases",
-				Columns:    []*schema.Column{SubmissionCasesColumns[7]},
+				Symbol:     "submission_subtasks_submissions_submission_subtasks",
+				Columns:    []*schema.Column{SubmissionSubtasksColumns[5]},
 				RefColumns: []*schema.Column{SubmissionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -352,9 +369,10 @@ var (
 		GroupsTable,
 		LoginSessionTable,
 		ProblemsTable,
-		ProblemCasesTable,
+		ProblemTypesTable,
 		SubmissionsTable,
 		SubmissionCasesTable,
+		SubmissionSubtasksTable,
 		UsersTable,
 		ContestContestantsTable,
 		ContestManagersTable,
@@ -372,12 +390,21 @@ func init() {
 		Table: "login_session",
 	}
 	ProblemsTable.ForeignKeys[0].RefTable = ContestsTable
-	ProblemsTable.ForeignKeys[1].RefTable = UsersTable
-	ProblemCasesTable.ForeignKeys[0].RefTable = ProblemsTable
+	ProblemsTable.ForeignKeys[1].RefTable = ProblemTypesTable
+	ProblemsTable.ForeignKeys[2].RefTable = UsersTable
+	ProblemTypesTable.Annotation = &entsql.Annotation{
+		Table: "problem_types",
+	}
 	SubmissionsTable.ForeignKeys[0].RefTable = ProblemsTable
 	SubmissionsTable.ForeignKeys[1].RefTable = UsersTable
-	SubmissionCasesTable.ForeignKeys[0].RefTable = ProblemCasesTable
-	SubmissionCasesTable.ForeignKeys[1].RefTable = SubmissionsTable
+	SubmissionCasesTable.ForeignKeys[0].RefTable = SubmissionSubtasksTable
+	SubmissionCasesTable.Annotation = &entsql.Annotation{
+		Table: "submission_cases",
+	}
+	SubmissionSubtasksTable.ForeignKeys[0].RefTable = SubmissionsTable
+	SubmissionSubtasksTable.Annotation = &entsql.Annotation{
+		Table: "submission_subtasks",
+	}
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
 	ContestContestantsTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestContestantsTable.ForeignKeys[1].RefTable = GroupsTable

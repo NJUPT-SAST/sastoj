@@ -22,12 +22,14 @@ type Tx struct {
 	LoginSession *LoginSessionClient
 	// Problem is the client for interacting with the Problem builders.
 	Problem *ProblemClient
-	// ProblemCase is the client for interacting with the ProblemCase builders.
-	ProblemCase *ProblemCaseClient
+	// ProblemType is the client for interacting with the ProblemType builders.
+	ProblemType *ProblemTypeClient
 	// Submission is the client for interacting with the Submission builders.
 	Submission *SubmissionClient
 	// SubmissionCase is the client for interacting with the SubmissionCase builders.
 	SubmissionCase *SubmissionCaseClient
+	// SubmissionSubtask is the client for interacting with the SubmissionSubtask builders.
+	SubmissionSubtask *SubmissionSubtaskClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -166,9 +168,10 @@ func (tx *Tx) init() {
 	tx.Group = NewGroupClient(tx.config)
 	tx.LoginSession = NewLoginSessionClient(tx.config)
 	tx.Problem = NewProblemClient(tx.config)
-	tx.ProblemCase = NewProblemCaseClient(tx.config)
+	tx.ProblemType = NewProblemTypeClient(tx.config)
 	tx.Submission = NewSubmissionClient(tx.config)
 	tx.SubmissionCase = NewSubmissionCaseClient(tx.config)
+	tx.SubmissionSubtask = NewSubmissionSubtaskClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

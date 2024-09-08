@@ -11,7 +11,7 @@ import (
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
-	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"sastoj/ent/user"
 
 	"entgo.io/ent/dialect/sql"
@@ -22,14 +22,14 @@ import (
 // SubmissionQuery is the builder for querying Submission entities.
 type SubmissionQuery struct {
 	config
-	ctx                 *QueryContext
-	order               []submission.OrderOption
-	inters              []Interceptor
-	predicates          []predicate.Submission
-	withSubmissionCases *SubmissionCaseQuery
-	withProblems        *ProblemQuery
-	withUsers           *UserQuery
-	withContestResults  *ContestResultQuery
+	ctx                    *QueryContext
+	order                  []submission.OrderOption
+	inters                 []Interceptor
+	predicates             []predicate.Submission
+	withSubmissionSubtasks *SubmissionSubtaskQuery
+	withProblems           *ProblemQuery
+	withUsers              *UserQuery
+	withContestResults     *ContestResultQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -66,9 +66,9 @@ func (sq *SubmissionQuery) Order(o ...submission.OrderOption) *SubmissionQuery {
 	return sq
 }
 
-// QuerySubmissionCases chains the current query on the "submission_cases" edge.
-func (sq *SubmissionQuery) QuerySubmissionCases() *SubmissionCaseQuery {
-	query := (&SubmissionCaseClient{config: sq.config}).Query()
+// QuerySubmissionSubtasks chains the current query on the "submission_subtasks" edge.
+func (sq *SubmissionQuery) QuerySubmissionSubtasks() *SubmissionSubtaskQuery {
+	query := (&SubmissionSubtaskClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -79,8 +79,8 @@ func (sq *SubmissionQuery) QuerySubmissionCases() *SubmissionCaseQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(submission.Table, submission.FieldID, selector),
-			sqlgraph.To(submissioncase.Table, submissioncase.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, submission.SubmissionCasesTable, submission.SubmissionCasesColumn),
+			sqlgraph.To(submissionsubtask.Table, submissionsubtask.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, submission.SubmissionSubtasksTable, submission.SubmissionSubtasksColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -341,29 +341,29 @@ func (sq *SubmissionQuery) Clone() *SubmissionQuery {
 		return nil
 	}
 	return &SubmissionQuery{
-		config:              sq.config,
-		ctx:                 sq.ctx.Clone(),
-		order:               append([]submission.OrderOption{}, sq.order...),
-		inters:              append([]Interceptor{}, sq.inters...),
-		predicates:          append([]predicate.Submission{}, sq.predicates...),
-		withSubmissionCases: sq.withSubmissionCases.Clone(),
-		withProblems:        sq.withProblems.Clone(),
-		withUsers:           sq.withUsers.Clone(),
-		withContestResults:  sq.withContestResults.Clone(),
+		config:                 sq.config,
+		ctx:                    sq.ctx.Clone(),
+		order:                  append([]submission.OrderOption{}, sq.order...),
+		inters:                 append([]Interceptor{}, sq.inters...),
+		predicates:             append([]predicate.Submission{}, sq.predicates...),
+		withSubmissionSubtasks: sq.withSubmissionSubtasks.Clone(),
+		withProblems:           sq.withProblems.Clone(),
+		withUsers:              sq.withUsers.Clone(),
+		withContestResults:     sq.withContestResults.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
 }
 
-// WithSubmissionCases tells the query-builder to eager-load the nodes that are connected to
-// the "submission_cases" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SubmissionQuery) WithSubmissionCases(opts ...func(*SubmissionCaseQuery)) *SubmissionQuery {
-	query := (&SubmissionCaseClient{config: sq.config}).Query()
+// WithSubmissionSubtasks tells the query-builder to eager-load the nodes that are connected to
+// the "submission_subtasks" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SubmissionQuery) WithSubmissionSubtasks(opts ...func(*SubmissionSubtaskQuery)) *SubmissionQuery {
+	query := (&SubmissionSubtaskClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withSubmissionCases = query
+	sq.withSubmissionSubtasks = query
 	return sq
 }
 
@@ -479,7 +479,7 @@ func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 		nodes       = []*Submission{}
 		_spec       = sq.querySpec()
 		loadedTypes = [4]bool{
-			sq.withSubmissionCases != nil,
+			sq.withSubmissionSubtasks != nil,
 			sq.withProblems != nil,
 			sq.withUsers != nil,
 			sq.withContestResults != nil,
@@ -503,10 +503,12 @@ func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withSubmissionCases; query != nil {
-		if err := sq.loadSubmissionCases(ctx, query, nodes,
-			func(n *Submission) { n.Edges.SubmissionCases = []*SubmissionCase{} },
-			func(n *Submission, e *SubmissionCase) { n.Edges.SubmissionCases = append(n.Edges.SubmissionCases, e) }); err != nil {
+	if query := sq.withSubmissionSubtasks; query != nil {
+		if err := sq.loadSubmissionSubtasks(ctx, query, nodes,
+			func(n *Submission) { n.Edges.SubmissionSubtasks = []*SubmissionSubtask{} },
+			func(n *Submission, e *SubmissionSubtask) {
+				n.Edges.SubmissionSubtasks = append(n.Edges.SubmissionSubtasks, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -532,7 +534,7 @@ func (sq *SubmissionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*S
 	return nodes, nil
 }
 
-func (sq *SubmissionQuery) loadSubmissionCases(ctx context.Context, query *SubmissionCaseQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *SubmissionCase)) error {
+func (sq *SubmissionQuery) loadSubmissionSubtasks(ctx context.Context, query *SubmissionSubtaskQuery, nodes []*Submission, init func(*Submission), assign func(*Submission, *SubmissionSubtask)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*Submission)
 	for i := range nodes {
@@ -543,10 +545,10 @@ func (sq *SubmissionQuery) loadSubmissionCases(ctx context.Context, query *Submi
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(submissioncase.FieldSubmissionID)
+		query.ctx.AppendFieldOnce(submissionsubtask.FieldSubmissionID)
 	}
-	query.Where(predicate.SubmissionCase(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(submission.SubmissionCasesColumn), fks...))
+	query.Where(predicate.SubmissionSubtask(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(submission.SubmissionSubtasksColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
