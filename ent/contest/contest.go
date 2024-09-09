@@ -3,6 +3,7 @@
 package contest
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -18,8 +19,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldStatus holds the string denoting the status field in the database.
-	FieldStatus = "status"
+	// FieldState holds the string denoting the state field in the database.
+	FieldState = "state"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldStartTime holds the string denoting the start_time field in the database.
@@ -73,7 +74,7 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldDescription,
-	FieldStatus,
+	FieldState,
 	FieldType,
 	FieldStartTime,
 	FieldEndTime,
@@ -102,8 +103,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int16) error
 	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	TypeValidator func(int16) error
 	// DefaultExtraTime holds the default value on creation for the "extra_time" field.
@@ -113,6 +112,34 @@ var (
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime time.Time
 )
+
+// State defines the type for the "state" enum field.
+type State string
+
+// StateHIDDEN is the default value of the State enum.
+const DefaultState = StateHIDDEN
+
+// State values.
+const (
+	StateNORMAL    State = "NORMAL"
+	StateCANCELLED State = "CANCELLED"
+	StateHIDDEN    State = "HIDDEN"
+	StateDELETED   State = "DELETED"
+)
+
+func (s State) String() string {
+	return string(s)
+}
+
+// StateValidator is a validator for the "state" field enum values. It is called by the builders before save.
+func StateValidator(s State) error {
+	switch s {
+	case StateNORMAL, StateCANCELLED, StateHIDDEN, StateDELETED:
+		return nil
+	default:
+		return fmt.Errorf("contest: invalid enum value for state field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the Contest queries.
 type OrderOption func(*sql.Selector)
@@ -132,9 +159,9 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByStatus orders the results by the status field.
-func ByStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+// ByState orders the results by the state field.
+func ByState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
 // ByType orders the results by the type field.

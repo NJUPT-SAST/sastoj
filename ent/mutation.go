@@ -54,8 +54,7 @@ type ContestMutation struct {
 	id                     *int64
 	title                  *string
 	description            *string
-	status                 *int16
-	addstatus              *int16
+	state                  *contest.State
 	_type                  *int16
 	add_type               *int16
 	start_time             *time.Time
@@ -258,60 +257,40 @@ func (m *ContestMutation) ResetDescription() {
 	m.description = nil
 }
 
-// SetStatus sets the "status" field.
-func (m *ContestMutation) SetStatus(i int16) {
-	m.status = &i
-	m.addstatus = nil
+// SetState sets the "state" field.
+func (m *ContestMutation) SetState(c contest.State) {
+	m.state = &c
 }
 
-// Status returns the value of the "status" field in the mutation.
-func (m *ContestMutation) Status() (r int16, exists bool) {
-	v := m.status
+// State returns the value of the "state" field in the mutation.
+func (m *ContestMutation) State() (r contest.State, exists bool) {
+	v := m.state
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldStatus returns the old "status" field's value of the Contest entity.
+// OldState returns the old "state" field's value of the Contest entity.
 // If the Contest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContestMutation) OldStatus(ctx context.Context) (v int16, err error) {
+func (m *ContestMutation) OldState(ctx context.Context) (v contest.State, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+		return v, errors.New("OldState is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
+		return v, errors.New("OldState requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+		return v, fmt.Errorf("querying old value for OldState: %w", err)
 	}
-	return oldValue.Status, nil
+	return oldValue.State, nil
 }
 
-// AddStatus adds i to the "status" field.
-func (m *ContestMutation) AddStatus(i int16) {
-	if m.addstatus != nil {
-		*m.addstatus += i
-	} else {
-		m.addstatus = &i
-	}
-}
-
-// AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *ContestMutation) AddedStatus() (r int16, exists bool) {
-	v := m.addstatus
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetStatus resets all changes to the "status" field.
-func (m *ContestMutation) ResetStatus() {
-	m.status = nil
-	m.addstatus = nil
+// ResetState resets all changes to the "state" field.
+func (m *ContestMutation) ResetState() {
+	m.state = nil
 }
 
 // SetType sets the "type" field.
@@ -827,8 +806,8 @@ func (m *ContestMutation) Fields() []string {
 	if m.description != nil {
 		fields = append(fields, contest.FieldDescription)
 	}
-	if m.status != nil {
-		fields = append(fields, contest.FieldStatus)
+	if m.state != nil {
+		fields = append(fields, contest.FieldState)
 	}
 	if m._type != nil {
 		fields = append(fields, contest.FieldType)
@@ -860,8 +839,8 @@ func (m *ContestMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case contest.FieldDescription:
 		return m.Description()
-	case contest.FieldStatus:
-		return m.Status()
+	case contest.FieldState:
+		return m.State()
 	case contest.FieldType:
 		return m.GetType()
 	case contest.FieldStartTime:
@@ -887,8 +866,8 @@ func (m *ContestMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case contest.FieldDescription:
 		return m.OldDescription(ctx)
-	case contest.FieldStatus:
-		return m.OldStatus(ctx)
+	case contest.FieldState:
+		return m.OldState(ctx)
 	case contest.FieldType:
 		return m.OldType(ctx)
 	case contest.FieldStartTime:
@@ -924,12 +903,12 @@ func (m *ContestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case contest.FieldStatus:
-		v, ok := value.(int16)
+	case contest.FieldState:
+		v, ok := value.(contest.State)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetStatus(v)
+		m.SetState(v)
 		return nil
 	case contest.FieldType:
 		v, ok := value.(int16)
@@ -981,9 +960,6 @@ func (m *ContestMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ContestMutation) AddedFields() []string {
 	var fields []string
-	if m.addstatus != nil {
-		fields = append(fields, contest.FieldStatus)
-	}
 	if m.add_type != nil {
 		fields = append(fields, contest.FieldType)
 	}
@@ -998,8 +974,6 @@ func (m *ContestMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ContestMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case contest.FieldStatus:
-		return m.AddedStatus()
 	case contest.FieldType:
 		return m.AddedType()
 	case contest.FieldExtraTime:
@@ -1013,13 +987,6 @@ func (m *ContestMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ContestMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case contest.FieldStatus:
-		v, ok := value.(int16)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddStatus(v)
-		return nil
 	case contest.FieldType:
 		v, ok := value.(int16)
 		if !ok {
@@ -1067,8 +1034,8 @@ func (m *ContestMutation) ResetField(name string) error {
 	case contest.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case contest.FieldStatus:
-		m.ResetStatus()
+	case contest.FieldState:
+		m.ResetState()
 		return nil
 	case contest.FieldType:
 		m.ResetType()

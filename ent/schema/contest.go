@@ -1,10 +1,11 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"time"
 )
 
 // Contest holds the schema definition for the Contest entity.
@@ -18,7 +19,7 @@ func (Contest) Fields() []ent.Field {
 		field.Int64("id").Unique(),
 		field.String("title"),
 		field.String("description"),
-		field.Int16("status").NonNegative(),
+		field.Enum("state").Values("NORMAL", "CANCELLED", "HIDDEN", "DELETED").Default("HIDDEN"),
 		field.Int16("type").Positive(),
 		field.Time("start_time"),
 		field.Time("end_time"),

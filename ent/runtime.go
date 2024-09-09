@@ -21,10 +21,6 @@ import (
 func init() {
 	contestFields := schema.Contest{}.Fields()
 	_ = contestFields
-	// contestDescStatus is the schema descriptor for status field.
-	contestDescStatus := contestFields[3].Descriptor()
-	// contest.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	contest.StatusValidator = contestDescStatus.Validators[0].(func(int16) error)
 	// contestDescType is the schema descriptor for type field.
 	contestDescType := contestFields[4].Descriptor()
 	// contest.TypeValidator is a validator for the "type" field. It is called by the builders before save.

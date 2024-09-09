@@ -53,11 +53,14 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 		for _, g := range v.Edges.Contestants {
 			groups = append(groups, g.ID)
 		}
+		if v.State != contest.StateNORMAL {
+			continue
+		}
 		ret = append(ret, &biz.Contest{
 			ID:          v.ID,
 			Title:       v.Title,
 			Description: v.Description,
-			Status:      v.Status,
+			Status:      timeToState(v.StartTime, v.EndTime),
 			Type:        v.Type,
 			StartTime:   v.StartTime,
 			EndTime:     v.EndTime,
@@ -97,4 +100,15 @@ func NewContestRepo(data *Data, logger log.Logger) biz.ContestRepo {
 		data: data,
 		log:  log.NewHelper(logger),
 	}
+}
+
+func timeToState(s, e time.Time) int16 {
+	now := time.Now()
+	if now.Before(s) {
+		return 0
+	}
+	if now.After(e) {
+		return 2
+	}
+	return 1
 }

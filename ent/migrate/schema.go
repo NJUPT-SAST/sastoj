@@ -14,7 +14,7 @@ var (
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
-		{Name: "status", Type: field.TypeInt16},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"NORMAL", "CANCELLED", "HIDDEN", "DELETED"}, Default: "HIDDEN"},
 		{Name: "type", Type: field.TypeInt16},
 		{Name: "start_time", Type: field.TypeTime},
 		{Name: "end_time", Type: field.TypeTime},
