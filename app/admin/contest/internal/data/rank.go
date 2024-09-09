@@ -3,8 +3,6 @@ package data
 import (
 	"context"
 	"encoding/json"
-	"entgo.io/ent/dialect/sql"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/contest/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/contest"
@@ -13,6 +11,9 @@ import (
 	"sastoj/ent/submission"
 	"strconv"
 	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type RankRepo struct {
@@ -162,11 +163,11 @@ func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 					SubmissionID: p.ID,
 					ProblemID:    p.ProblemID,
 					SubmitTime:   p.CreateTime,
-					Status:       p.Status,
+					Status:       p.State,
 					Point:        p.Point,
 					Index:        problemId[p.ProblemID],
 				})
-				if p.Status == SubmissionAccepted {
+				if p.State == SubmissionAccepted {
 					acceptCount += 1
 				}
 			}
@@ -240,11 +241,11 @@ func (r *RankRepo) ListPage(ctx context.Context, contest *biz.Contest, current i
 					SubmissionID: p.ID,
 					ProblemID:    p.ProblemID,
 					SubmitTime:   p.CreateTime,
-					Status:       p.Status,
+					Status:       p.State,
 					Point:        p.Point,
 					Index:        problemId[p.ProblemID],
 				})
-				if p.Status == SubmissionAccepted {
+				if p.State == SubmissionAccepted {
 					acceptCount += 1
 				}
 			}
@@ -283,7 +284,7 @@ func (r *RankRepo) FindNewSubmissions(ctx context.Context, contestId int64, star
 			SubmissionID: s.ID,
 			ProblemID:    s.ProblemID,
 			SubmitTime:   s.CreateTime,
-			Status:       s.Status,
+			Status:       s.State,
 			Point:        s.Point,
 			Index:        s.Edges.Problems.Index,
 		})

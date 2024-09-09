@@ -2,12 +2,13 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
 	"strconv"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type problemRepo struct {
@@ -31,7 +32,7 @@ func (p problemRepo) GetProblemCaseVer(ctx context.Context, problemId int64) (in
 
 func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.Problem, error) {
 	po, err := p.data.db.Problem.Query().
-		Select(problem.FieldID, problem.FieldTitle, problem.FieldPoint, problem.FieldIndex).
+		Select(problem.FieldID, problem.FieldTitle, problem.FieldScore, problem.FieldIndex).
 		Where(problem.HasContestsWith(contest.IDEQ(contestID))).
 		All(ctx)
 	if err != nil {
@@ -42,7 +43,7 @@ func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.P
 		problems = append(problems, &biz.Problem{
 			ID:    v.ID,
 			Title: v.Title,
-			Point: v.Point,
+			Point: v.Score,
 			Index: v.Index,
 		})
 	}
@@ -51,7 +52,7 @@ func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.P
 
 func (p problemRepo) GetProblem(ctx context.Context, problemID, contestID int64) (*biz.Problem, error) {
 	po, err := p.data.db.Problem.Query().
-		Select(problem.FieldID, problem.FieldTitle, problem.FieldContent, problem.FieldPoint).
+		Select(problem.FieldID, problem.FieldTitle, problem.FieldContent, problem.FieldScore).
 		Where(problem.IDEQ(problemID), problem.ContestIDEQ(contestID)).
 		Only(ctx)
 	if err != nil {

@@ -25,7 +25,7 @@ func NewJudgeRepo(data *Data, logger log.Logger) biz.JudgeRepo {
 }
 
 func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
-	_, err := r.data.db.Submission.Update().SetStatus(2).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
+	_, err := r.data.db.Submission.Update().SetState(2).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
 	if err != nil {
 		return err
 	}
@@ -43,11 +43,11 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 			Id:          p.ID,
 			Title:       p.Title,
 			Content:     p.Content,
-			Point:       int32(p.Point),
+			Point:       int32(p.Score),
 			ContestId:   p.ContestID,
 			CaseVersion: int32(p.CaseVersion),
 			Index:       int32(p.Index),
-			Config:      p.Config,
+			Config:      "",
 		})
 	}
 	return rv, nil
@@ -63,7 +63,7 @@ func (r *judgeRepo) GetSubmissions(ctx context.Context, problemId int64) ([]*biz
 		rv = append(rv, &biz.Submission{
 			Id:         s.ID,
 			Code:       s.Code,
-			Status:     int32(s.Status),
+			Status:     int32(s.State),
 			Point:      int32(s.Point),
 			CreateTime: s.CreateTime,
 		})
@@ -72,7 +72,7 @@ func (r *judgeRepo) GetSubmissions(ctx context.Context, problemId int64) ([]*biz
 }
 
 func (r *judgeRepo) GetSubmissionsWithStatus(ctx context.Context, problemId int64, status int32) ([]*biz.Submission, error) {
-	submissions, err := r.data.db.Submission.Query().Where(submission.And(submission.ProblemIDEQ(problemId), submission.StatusEQ(int16(status)))).All(ctx)
+	submissions, err := r.data.db.Submission.Query().Where(submission.And(submission.ProblemIDEQ(problemId), submission.StateEQ(int16(status)))).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (r *judgeRepo) GetSubmissionsWithStatus(ctx context.Context, problemId int6
 		rv = append(rv, &biz.Submission{
 			Id:         s.ID,
 			Code:       s.Code,
-			Status:     int32(s.Status),
+			Status:     int32(s.State),
 			Point:      int32(s.Point),
 			CreateTime: s.CreateTime,
 		})
