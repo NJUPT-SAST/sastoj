@@ -16,10 +16,12 @@ const (
 	FieldID = "id"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
-	// FieldStatus holds the string denoting the status field in the database.
-	FieldStatus = "status"
-	// FieldCompileMessage holds the string denoting the compile_message field in the database.
-	FieldCompileMessage = "compile_message"
+	// FieldState holds the string denoting the state field in the database.
+	FieldState = "state"
+	// FieldCompileStdout holds the string denoting the compile_stdout field in the database.
+	FieldCompileStdout = "compile_stdout"
+	// FieldCompileStderr holds the string denoting the compile_stderr field in the database.
+	FieldCompileStderr = "compile_stderr"
 	// FieldPoint holds the string denoting the point field in the database.
 	FieldPoint = "point"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
@@ -36,8 +38,8 @@ const (
 	FieldProblemID = "problem_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
-	// EdgeSubmissionCases holds the string denoting the submission_cases edge name in mutations.
-	EdgeSubmissionCases = "submission_cases"
+	// EdgeSubmissionSubtasks holds the string denoting the submission_subtasks edge name in mutations.
+	EdgeSubmissionSubtasks = "submission_subtasks"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
 	EdgeProblems = "problems"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
@@ -46,13 +48,13 @@ const (
 	EdgeContestResults = "contest_results"
 	// Table holds the table name of the submission in the database.
 	Table = "submissions"
-	// SubmissionCasesTable is the table that holds the submission_cases relation/edge.
-	SubmissionCasesTable = "submission_cases"
-	// SubmissionCasesInverseTable is the table name for the SubmissionCase entity.
-	// It exists in this package in order to avoid circular dependency with the "submissioncase" package.
-	SubmissionCasesInverseTable = "submission_cases"
-	// SubmissionCasesColumn is the table column denoting the submission_cases relation/edge.
-	SubmissionCasesColumn = "submission_id"
+	// SubmissionSubtasksTable is the table that holds the submission_subtasks relation/edge.
+	SubmissionSubtasksTable = "submission_subtasks"
+	// SubmissionSubtasksInverseTable is the table name for the SubmissionSubtask entity.
+	// It exists in this package in order to avoid circular dependency with the "submissionsubtask" package.
+	SubmissionSubtasksInverseTable = "submission_subtasks"
+	// SubmissionSubtasksColumn is the table column denoting the submission_subtasks relation/edge.
+	SubmissionSubtasksColumn = "submission_id"
 	// ProblemsTable is the table that holds the problems relation/edge.
 	ProblemsTable = "submissions"
 	// ProblemsInverseTable is the table name for the Problem entity.
@@ -78,8 +80,9 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldCode,
-	FieldStatus,
-	FieldCompileMessage,
+	FieldState,
+	FieldCompileStdout,
+	FieldCompileStderr,
 	FieldPoint,
 	FieldCreateTime,
 	FieldTotalTime,
@@ -107,6 +110,10 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCompileStdout holds the default value on creation for the "compile_stdout" field.
+	DefaultCompileStdout string
+	// DefaultCompileStderr holds the default value on creation for the "compile_stderr" field.
+	DefaultCompileStderr string
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime time.Time
 )
@@ -124,14 +131,19 @@ func ByCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCode, opts...).ToFunc()
 }
 
-// ByStatus orders the results by the status field.
-func ByStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+// ByState orders the results by the state field.
+func ByState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
-// ByCompileMessage orders the results by the compile_message field.
-func ByCompileMessage(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCompileMessage, opts...).ToFunc()
+// ByCompileStdout orders the results by the compile_stdout field.
+func ByCompileStdout(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompileStdout, opts...).ToFunc()
+}
+
+// ByCompileStderr orders the results by the compile_stderr field.
+func ByCompileStderr(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompileStderr, opts...).ToFunc()
 }
 
 // ByPoint orders the results by the point field.
@@ -174,17 +186,17 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
-// BySubmissionCasesCount orders the results by submission_cases count.
-func BySubmissionCasesCount(opts ...sql.OrderTermOption) OrderOption {
+// BySubmissionSubtasksCount orders the results by submission_subtasks count.
+func BySubmissionSubtasksCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSubmissionCasesStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newSubmissionSubtasksStep(), opts...)
 	}
 }
 
-// BySubmissionCases orders the results by submission_cases terms.
-func BySubmissionCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// BySubmissionSubtasks orders the results by submission_subtasks terms.
+func BySubmissionSubtasks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSubmissionCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newSubmissionSubtasksStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -215,11 +227,11 @@ func ByContestResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newContestResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newSubmissionCasesStep() *sqlgraph.Step {
+func newSubmissionSubtasksStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SubmissionCasesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionCasesTable, SubmissionCasesColumn),
+		sqlgraph.To(SubmissionSubtasksInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionSubtasksTable, SubmissionSubtasksColumn),
 	)
 }
 func newProblemsStep() *sqlgraph.Step {

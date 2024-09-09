@@ -13,6 +13,7 @@ import (
 	"sastoj/pkg/mq"
 	pJudge "sastoj/pkg/problem"
 	"sastoj/pkg/util"
+	"sync"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -117,7 +118,6 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		// get problem from ent
 		p, err = r.data.db.Problem.Query().
 			Where(problem.ID(s.ProblemID)).
-			WithProblemCases().
 			First(ctx)
 		if err != nil {
 			return err
@@ -158,8 +158,8 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 	s.Status = util.Accepted
 
 	// init submission cases
-	casesResult := make([]bool, len(config.Task.Cases))
-	builders := make([]*ent.SubmissionCaseCreate, len(config.Task.Cases))
+	subtaskCreates := make([]*ent.SubmissionSubtaskCreate, len(config.Task.Subtasks))
+	cases := make([][]*ent.SubmissionCaseCreate, len(config.Task.Subtasks))
 
 	// save submission
 	defer func() {
@@ -173,149 +173,169 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			return
 		}
 
-		scores, err := pJudge.Judging(casesResult, &config.Task)
-		if err != nil {
-			r.log.Errorf("judging score error: %v", err)
-			return
-		}
-
-		s.Point = 0
-		for i, score := range scores {
-			s.Point += score
-			builders[i].SetPoint(score)
-		}
-
 		submission, err := r.data.db.Submission.Create().
 			SetUserID(s.UserID).
 			SetProblemID(s.ProblemID).
 			SetCode(s.Code).
-			SetStatus(s.Status).
+			SetState(s.Status).
 			SetPoint(s.Point).
-			SetTotalTime(int32(s.TotalTime)).
-			SetMaxMemory(int32(s.MaxMemory)).
+			SetTotalTime(s.TotalTime).
+			SetMaxMemory(s.MaxMemory).
 			SetLanguage(s.Language).
-			SetCompileMessage(s.Stderr).
+			SetCompileStderr(s.Stderr).
 			SetCaseVersion(int8(s.CaseVer)).
 			Save(ctx)
 		if err != nil {
-			r.log.Errorf("save error: %v", err)
+			r.log.Errorf("save submission error: %v", err)
 			return
 		}
 
-		for _, builder := range builders {
+		for _, builder := range subtaskCreates {
 			builder.SetSubmissionID(submission.ID)
 		}
-		_, err = r.data.db.SubmissionCase.CreateBulk(builders...).Save(ctx)
+		subtasks, err := r.data.db.SubmissionSubtask.CreateBulk(subtaskCreates...).Save(ctx)
 		if err != nil {
-			r.log.Errorf("save error: %v", err)
+			r.log.Errorf("save subtasks error: %v", err)
+			return
+		}
+
+		submissionCase := make([]*ent.SubmissionCaseCreate, 0)
+		for i, submissionCaseCreates := range cases {
+			for _, create := range submissionCaseCreates {
+				create.SetSubmissionSubtaskID(subtasks[i].ID)
+				submissionCase = append(submissionCase, create)
+			}
+		}
+		_, err = r.data.db.SubmissionCase.CreateBulk(submissionCase...).Save(ctx)
+		if err != nil {
+			r.log.Errorf("save cases error: %v", err)
 		}
 	}()
 
 	// test each case
-	for _, c := range config.Task.Cases {
-		err := func() error {
-			// get file index
-			fileIndex := util.GetCaseIndex(c.Input)
+	for i, subtask := range config.Task.Subtasks {
+		var subtaskState int16 = util.Accepted
+		var totalTime uint64 = 0
+		var maxMemory uint64 = 0
+		submissionCaseCreates := make([]*ent.SubmissionCaseCreate, len(subtask.Cases))
+		casesResult := make([]bool, len(subtask.Cases))
+		subtaskBuilder := r.data.db.SubmissionSubtask.Create().
+			SetState(util.Waiting).
+			SetTotalTime(0).
+			SetMaxMemory(0).
+			SetPoint(0)
+		// wait for all cases finished
+		wg := sync.WaitGroup{}
+		wg.Add(len(subtask.Cases))
+		for _, c := range subtask.Cases {
+			err := func() error {
+				// get file index
+				fileIndex := util.GetCaseIndex(c.Input)
 
-			casesResult[fileIndex-1] = false
+				casesResult[fileIndex-1] = false
 
-			// get problem cases ID
-			problemCasesID := int64(-1)
-			for _, problemCase := range p.Edges.ProblemCases {
-				if problemCase.Index == int16(fileIndex) {
-					problemCasesID = problemCase.ID
+				builder := r.data.db.SubmissionCase.Create().
+					SetState(util.Waiting).
+					SetTime(0).
+					SetMemory(0).
+					SetPoint(0)
+
+				// TODO: cache case
+
+				// delete test file and set submission cases
+				defer func() {
+					submissionCaseCreates[fileIndex-1] = builder
+					wg.Done()
+				}()
+
+				// get case input and answer
+				in, ans, err := r.data.fm.FetchCase(s.ProblemID, c.Input, c.Answer)
+				if err != nil {
+					return err
 				}
-			}
+				in = util.RemoveCr(in)
+				ans = util.RemoveCr(ans)
 
-			if problemCasesID == -1 {
-				return errors.New("problem case not found")
-			}
+				// judge case
+				result, err := r.data.gojudge.ClassicJudge(in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
+				if err != nil {
+					builder.SetState(util.RuntimeError)
+					builder.SetStderr(err.Error())
+					s.Status = util.RuntimeError
+					s.Stderr = err.Error()
+					return nil
+				}
+				r.log.Infof("submission: %s result: %+v", s.ID, result)
 
-			builder := r.data.db.SubmissionCase.Create().
-				SetProblemCasesID(0).
-				SetState(util.Waiting).
-				SetTime(0).
-				SetMemory(0).
-				SetPoint(0).
-				SetMessage("")
+				// get result state
+				state := gojudge.Convert(result.Status)
 
-			// TODO: cache case
-
-			// delete test file and set submission cases
-			defer func() {
-				builders[fileIndex-1] = builder
-			}()
-
-			// get case input and answer
-			in, ans, err := r.data.fm.FetchCase(s.ProblemID, c.Input, c.Answer)
-			if err != nil {
-				return err
-			}
-			in = util.RemoveCr(in)
-			ans = util.RemoveCr(ans)
-
-			// judge case
-			result, err := r.data.gojudge.ClassicJudge(in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
-			if err != nil {
-				builder.SetState(util.RuntimeError)
-				builder.SetMessage(err.Error())
-				s.Status = util.RuntimeError
-				s.Stderr = err.Error()
-				return nil
-			}
-			r.log.Infof("submission: %s result: %+v", s.ID, result)
-
-			// get result state
-			state := gojudge.Convert(result.Status)
-
-			// TODO: support more compare method
-			if out := result.Files["stdout"]; state == util.Accepted && out != nil {
-				if p.RestrictPresentation && !bytes.Equal(out, ans) {
-					if util.BytesMatchIgnoringSpacesAndNewlines(out, ans) {
-						state = util.PresentationError
-					} else {
+				if out := result.Files["stdout"]; state == util.Accepted && out != nil {
+					// TODO: support more compare method with LfCompare in the problem
+					if !bytes.Equal(out, ans) {
 						state = util.WrongAnswer
 					}
-				} else if !util.BytesMatchIgnoringSpacesAndNewlines(out, ans) {
-					state = util.WrongAnswer
 				}
+
+				// set submission case
+				builder.SetState(state)
+				builder.SetTime(result.Time)
+				builder.SetMemory(result.Memory)
+				// TODO: support more contest type
+				builder.SetPoint(c.Score)
+
+				// set subtask info
+				totalTime += result.Time
+				maxMemory = max(maxMemory, result.Memory)
+
+				// set submission info
+				s.TotalTime += result.Time
+				s.MaxMemory = max(s.MaxMemory, result.Memory)
+
+				// set status
+				if state != util.Accepted {
+					if s.Status == util.Accepted {
+						s.Status = state
+					}
+					if subtaskState == util.Accepted {
+						subtaskState = state
+					}
+					msg, ok := result.Files["stderr"]
+					if ok {
+						builder.SetStderr(string(msg))
+					} else {
+						builder.SetStdout(result.Error)
+					}
+				}
+
+				// set result when AC
+				casesResult[fileIndex-1] = true
+
+				return nil
+			}()
+			if err != nil {
+				s.Status = util.SystemError
+				return err
 			}
-
-			// set submission case
-			builder.SetProblemCasesID(problemCasesID)
-			builder.SetState(state)
-			builder.SetTime(int32(result.Time))
-			builder.SetMemory(int32(result.Memory))
-			// TODO: support more contest type
-			builder.SetPoint(c.Score)
-
-			// set submission info
-			s.TotalTime += result.Time
-			s.MaxMemory = max(s.MaxMemory, result.Memory)
-
-			// set status
-			if state != util.Accepted {
-				if s.Status == util.Accepted {
-					s.Status = state
-				}
-
-				msg, ok := result.Files["stderr"]
-				if ok {
-					builder.SetMessage(string(msg))
-				} else {
-					builder.SetMessage(result.Error)
-				}
-			}
-
-			// set result when AC
-			casesResult[fileIndex-1] = true
-
-			return nil
-		}()
+		}
+		wg.Wait()
+		taskPoint, casesPoint, err := pJudge.Judging(casesResult, config.Task.TaskType, subtask)
 		if err != nil {
+			r.log.Errorf("judging score error: %v", err)
 			s.Status = util.SystemError
 			return err
 		}
+		for i, casesPoint := range casesPoint {
+			submissionCaseCreates[i].SetPoint(casesPoint)
+		}
+		cases[i] = submissionCaseCreates
+		subtaskBuilder.SetPoint(taskPoint)
+		subtaskBuilder.SetState(subtaskState)
+		subtaskBuilder.SetTotalTime(totalTime)
+		subtaskBuilder.SetMaxMemory(maxMemory)
+		subtaskCreates[i] = subtaskBuilder
+
+		s.Point += taskPoint
 	}
 	return nil
 }

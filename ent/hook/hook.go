@@ -68,16 +68,16 @@ func (f ProblemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemMutation", m)
 }
 
-// The ProblemCaseFunc type is an adapter to allow the use of ordinary
-// function as ProblemCase mutator.
-type ProblemCaseFunc func(context.Context, *ent.ProblemCaseMutation) (ent.Value, error)
+// The ProblemTypeFunc type is an adapter to allow the use of ordinary
+// function as ProblemType mutator.
+type ProblemTypeFunc func(context.Context, *ent.ProblemTypeMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ProblemCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ProblemCaseMutation); ok {
+func (f ProblemTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProblemTypeMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemCaseMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProblemTypeMutation", m)
 }
 
 // The SubmissionFunc type is an adapter to allow the use of ordinary
@@ -102,6 +102,18 @@ func (f SubmissionCaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmissionCaseMutation", m)
+}
+
+// The SubmissionSubtaskFunc type is an adapter to allow the use of ordinary
+// function as SubmissionSubtask mutator.
+type SubmissionSubtaskFunc func(context.Context, *ent.SubmissionSubtaskMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SubmissionSubtaskFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SubmissionSubtaskMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubmissionSubtaskMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

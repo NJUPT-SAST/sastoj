@@ -21,14 +21,17 @@ type LoginSession func(*sql.Selector)
 // Problem is the predicate function for problem builders.
 type Problem func(*sql.Selector)
 
-// ProblemCase is the predicate function for problemcase builders.
-type ProblemCase func(*sql.Selector)
+// ProblemType is the predicate function for problemtype builders.
+type ProblemType func(*sql.Selector)
 
 // Submission is the predicate function for submission builders.
 type Submission func(*sql.Selector)
 
 // SubmissionCase is the predicate function for submissioncase builders.
 type SubmissionCase func(*sql.Selector)
+
+// SubmissionSubtask is the predicate function for submissionsubtask builders.
+type SubmissionSubtask func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

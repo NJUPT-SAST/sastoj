@@ -12,9 +12,10 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/loginsession"
 	"sastoj/ent/problem"
-	"sastoj/ent/problemcase"
+	"sastoj/ent/problemtype"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"sastoj/ent/user"
 	"sync"
 
@@ -81,15 +82,16 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			contest.Table:        contest.ValidColumn,
-			contestresult.Table:  contestresult.ValidColumn,
-			group.Table:          group.ValidColumn,
-			loginsession.Table:   loginsession.ValidColumn,
-			problem.Table:        problem.ValidColumn,
-			problemcase.Table:    problemcase.ValidColumn,
-			submission.Table:     submission.ValidColumn,
-			submissioncase.Table: submissioncase.ValidColumn,
-			user.Table:           user.ValidColumn,
+			contest.Table:           contest.ValidColumn,
+			contestresult.Table:     contestresult.ValidColumn,
+			group.Table:             group.ValidColumn,
+			loginsession.Table:      loginsession.ValidColumn,
+			problem.Table:           problem.ValidColumn,
+			problemtype.Table:       problemtype.ValidColumn,
+			submission.Table:        submission.ValidColumn,
+			submissioncase.Table:    submissioncase.ValidColumn,
+			submissionsubtask.Table: submissionsubtask.ValidColumn,
+			user.Table:              user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

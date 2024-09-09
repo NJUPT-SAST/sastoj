@@ -5,23 +5,25 @@ import (
 )
 
 type SubtaskMin struct {
-	subtasks []util.Subtasks
+	subtasks util.Subtasks
 }
 
-func (s *SubtaskMin) judging(cases []bool) ([]int16, error) {
-	res := make([]int16, len(s.subtasks), len(s.subtasks))
-
-	for i, subtasks := range s.subtasks {
-		score := subtasks.Score
-		for _, c := range subtasks.Cases {
-			index := util.GetCaseIndex(c.Input)
-			if !cases[index-1] {
-				score = 0
-				break
-			}
+func (s *SubtaskMin) judging(cases []bool) (tasksPoint int16, casesPoint []int16, err error) {
+	tasksPoint = s.subtasks.Score
+	casesPoint = make([]int16, len(cases), len(cases))
+	err = nil
+	flag := true
+	for _, c := range s.subtasks.Cases {
+		i := util.GetCaseIndex(c.Input) - 1
+		if !cases[i] {
+			casesPoint[i] = 0
+			flag = false
+		} else {
+			casesPoint[i] = c.Score
 		}
-		res[i] = score
 	}
-
-	return res, nil
+	if !flag {
+		tasksPoint = 0
+	}
+	return
 }
