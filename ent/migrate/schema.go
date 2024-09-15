@@ -62,21 +62,13 @@ var (
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "group_name", Type: field.TypeString, Default: "unknown"},
-		{Name: "root_group_id", Type: field.TypeInt64, Nullable: true, Default: 1},
+		{Name: "is_root", Type: field.TypeBool, Default: false},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
 	GroupsTable = &schema.Table{
 		Name:       "groups",
 		Columns:    GroupsColumns,
 		PrimaryKey: []*schema.Column{GroupsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "groups_groups_subgroups",
-				Columns:    []*schema.Column{GroupsColumns[2]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// LoginSessionColumns holds the columns for the "login_session" table.
 	LoginSessionColumns = []*schema.Column{
@@ -245,7 +237,7 @@ var (
 		{Name: "username", Type: field.TypeString, Default: "unknown"},
 		{Name: "password", Type: field.TypeString},
 		{Name: "salt", Type: field.TypeString},
-		{Name: "status", Type: field.TypeInt16},
+		{Name: "state", Type: field.TypeEnum, Enums: []string{"NORMAL", "BANNED", "INACTIVE"}, Default: "NORMAL"},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -401,7 +393,6 @@ var (
 func init() {
 	ContestResultsTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestResultsTable.ForeignKeys[1].RefTable = UsersTable
-	GroupsTable.ForeignKeys[0].RefTable = GroupsTable
 	LoginSessionTable.ForeignKeys[0].RefTable = UsersTable
 	LoginSessionTable.Annotation = &entsql.Annotation{
 		Table: "login_session",

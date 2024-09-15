@@ -14,8 +14,8 @@ const (
 	FieldID = "id"
 	// FieldGroupName holds the string denoting the group_name field in the database.
 	FieldGroupName = "group_name"
-	// FieldRootGroupID holds the string denoting the root_group_id field in the database.
-	FieldRootGroupID = "root_group_id"
+	// FieldIsRoot holds the string denoting the is_root field in the database.
+	FieldIsRoot = "is_root"
 	// EdgeManage holds the string denoting the manage edge name in mutations.
 	EdgeManage = "manage"
 	// EdgeContests holds the string denoting the contests edge name in mutations.
@@ -24,10 +24,6 @@ const (
 	EdgeProblems = "problems"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
-	// EdgeRootGroup holds the string denoting the root_group edge name in mutations.
-	EdgeRootGroup = "root_group"
-	// EdgeSubgroups holds the string denoting the subgroups edge name in mutations.
-	EdgeSubgroups = "subgroups"
 	// Table holds the table name of the group in the database.
 	Table = "groups"
 	// ManageTable is the table that holds the manage relation/edge. The primary key declared below.
@@ -50,21 +46,13 @@ const (
 	// UsersInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UsersInverseTable = "users"
-	// RootGroupTable is the table that holds the root_group relation/edge.
-	RootGroupTable = "groups"
-	// RootGroupColumn is the table column denoting the root_group relation/edge.
-	RootGroupColumn = "root_group_id"
-	// SubgroupsTable is the table that holds the subgroups relation/edge.
-	SubgroupsTable = "groups"
-	// SubgroupsColumn is the table column denoting the subgroups relation/edge.
-	SubgroupsColumn = "root_group_id"
 )
 
 // Columns holds all SQL columns for group fields.
 var Columns = []string{
 	FieldID,
 	FieldGroupName,
-	FieldRootGroupID,
+	FieldIsRoot,
 }
 
 var (
@@ -95,8 +83,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultGroupName holds the default value on creation for the "group_name" field.
 	DefaultGroupName string
-	// DefaultRootGroupID holds the default value on creation for the "root_group_id" field.
-	DefaultRootGroupID int64
+	// DefaultIsRoot holds the default value on creation for the "is_root" field.
+	DefaultIsRoot bool
 )
 
 // OrderOption defines the ordering options for the Group queries.
@@ -112,9 +100,9 @@ func ByGroupName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGroupName, opts...).ToFunc()
 }
 
-// ByRootGroupID orders the results by the root_group_id field.
-func ByRootGroupID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRootGroupID, opts...).ToFunc()
+// ByIsRoot orders the results by the is_root field.
+func ByIsRoot(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsRoot, opts...).ToFunc()
 }
 
 // ByManageCount orders the results by manage count.
@@ -172,27 +160,6 @@ func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-
-// ByRootGroupField orders the results by root_group field.
-func ByRootGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRootGroupStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// BySubgroupsCount orders the results by subgroups count.
-func BySubgroupsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSubgroupsStep(), opts...)
-	}
-}
-
-// BySubgroups orders the results by subgroups terms.
-func BySubgroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSubgroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newManageStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -219,19 +186,5 @@ func newUsersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, UsersTable, UsersPrimaryKey...),
-	)
-}
-func newRootGroupStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(Table, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RootGroupTable, RootGroupColumn),
-	)
-}
-func newSubgroupsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(Table, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SubgroupsTable, SubgroupsColumn),
 	)
 }

@@ -18,7 +18,7 @@ func (User) Fields() []ent.Field {
 		field.String("username").Default("unknown"),
 		field.String("password"),
 		field.String("salt"),
-		field.Int16("status").NonNegative(),
+		field.Enum("state").Values("NORMAL", "BANNED", "INACTIVE").Default("NORMAL"),
 	}
 }
 

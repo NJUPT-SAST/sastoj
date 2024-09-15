@@ -2140,31 +2140,27 @@ func (m *ContestResultMutation) ResetEdge(name string) error {
 // GroupMutation represents an operation that mutates the Group nodes in the graph.
 type GroupMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int64
-	group_name        *string
-	clearedFields     map[string]struct{}
-	manage            map[int64]struct{}
-	removedmanage     map[int64]struct{}
-	clearedmanage     bool
-	contests          map[int64]struct{}
-	removedcontests   map[int64]struct{}
-	clearedcontests   bool
-	problems          map[int64]struct{}
-	removedproblems   map[int64]struct{}
-	clearedproblems   bool
-	users             map[int64]struct{}
-	removedusers      map[int64]struct{}
-	clearedusers      bool
-	root_group        *int64
-	clearedroot_group bool
-	subgroups         map[int64]struct{}
-	removedsubgroups  map[int64]struct{}
-	clearedsubgroups  bool
-	done              bool
-	oldValue          func(context.Context) (*Group, error)
-	predicates        []predicate.Group
+	op              Op
+	typ             string
+	id              *int64
+	group_name      *string
+	is_root         *bool
+	clearedFields   map[string]struct{}
+	manage          map[int64]struct{}
+	removedmanage   map[int64]struct{}
+	clearedmanage   bool
+	contests        map[int64]struct{}
+	removedcontests map[int64]struct{}
+	clearedcontests bool
+	problems        map[int64]struct{}
+	removedproblems map[int64]struct{}
+	clearedproblems bool
+	users           map[int64]struct{}
+	removedusers    map[int64]struct{}
+	clearedusers    bool
+	done            bool
+	oldValue        func(context.Context) (*Group, error)
+	predicates      []predicate.Group
 }
 
 var _ ent.Mutation = (*GroupMutation)(nil)
@@ -2307,40 +2303,40 @@ func (m *GroupMutation) ResetGroupName() {
 	m.group_name = nil
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (m *GroupMutation) SetRootGroupID(i int64) {
-	m.root_group = &i
+// SetIsRoot sets the "is_root" field.
+func (m *GroupMutation) SetIsRoot(b bool) {
+	m.is_root = &b
 }
 
-// RootGroupID returns the value of the "root_group_id" field in the mutation.
-func (m *GroupMutation) RootGroupID() (r int64, exists bool) {
-	v := m.root_group
+// IsRoot returns the value of the "is_root" field in the mutation.
+func (m *GroupMutation) IsRoot() (r bool, exists bool) {
+	v := m.is_root
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRootGroupID returns the old "root_group_id" field's value of the Group entity.
+// OldIsRoot returns the old "is_root" field's value of the Group entity.
 // If the Group object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldRootGroupID(ctx context.Context) (v int64, err error) {
+func (m *GroupMutation) OldIsRoot(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRootGroupID is only allowed on UpdateOne operations")
+		return v, errors.New("OldIsRoot is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRootGroupID requires an ID field in the mutation")
+		return v, errors.New("OldIsRoot requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRootGroupID: %w", err)
+		return v, fmt.Errorf("querying old value for OldIsRoot: %w", err)
 	}
-	return oldValue.RootGroupID, nil
+	return oldValue.IsRoot, nil
 }
 
-// ResetRootGroupID resets all changes to the "root_group_id" field.
-func (m *GroupMutation) ResetRootGroupID() {
-	m.root_group = nil
+// ResetIsRoot resets all changes to the "is_root" field.
+func (m *GroupMutation) ResetIsRoot() {
+	m.is_root = nil
 }
 
 // AddManageIDs adds the "manage" edge to the Contest entity by ids.
@@ -2559,87 +2555,6 @@ func (m *GroupMutation) ResetUsers() {
 	m.removedusers = nil
 }
 
-// ClearRootGroup clears the "root_group" edge to the Group entity.
-func (m *GroupMutation) ClearRootGroup() {
-	m.clearedroot_group = true
-	m.clearedFields[group.FieldRootGroupID] = struct{}{}
-}
-
-// RootGroupCleared reports if the "root_group" edge to the Group entity was cleared.
-func (m *GroupMutation) RootGroupCleared() bool {
-	return m.clearedroot_group
-}
-
-// RootGroupIDs returns the "root_group" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// RootGroupID instead. It exists only for internal usage by the builders.
-func (m *GroupMutation) RootGroupIDs() (ids []int64) {
-	if id := m.root_group; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetRootGroup resets all changes to the "root_group" edge.
-func (m *GroupMutation) ResetRootGroup() {
-	m.root_group = nil
-	m.clearedroot_group = false
-}
-
-// AddSubgroupIDs adds the "subgroups" edge to the Group entity by ids.
-func (m *GroupMutation) AddSubgroupIDs(ids ...int64) {
-	if m.subgroups == nil {
-		m.subgroups = make(map[int64]struct{})
-	}
-	for i := range ids {
-		m.subgroups[ids[i]] = struct{}{}
-	}
-}
-
-// ClearSubgroups clears the "subgroups" edge to the Group entity.
-func (m *GroupMutation) ClearSubgroups() {
-	m.clearedsubgroups = true
-}
-
-// SubgroupsCleared reports if the "subgroups" edge to the Group entity was cleared.
-func (m *GroupMutation) SubgroupsCleared() bool {
-	return m.clearedsubgroups
-}
-
-// RemoveSubgroupIDs removes the "subgroups" edge to the Group entity by IDs.
-func (m *GroupMutation) RemoveSubgroupIDs(ids ...int64) {
-	if m.removedsubgroups == nil {
-		m.removedsubgroups = make(map[int64]struct{})
-	}
-	for i := range ids {
-		delete(m.subgroups, ids[i])
-		m.removedsubgroups[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedSubgroups returns the removed IDs of the "subgroups" edge to the Group entity.
-func (m *GroupMutation) RemovedSubgroupsIDs() (ids []int64) {
-	for id := range m.removedsubgroups {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// SubgroupsIDs returns the "subgroups" edge IDs in the mutation.
-func (m *GroupMutation) SubgroupsIDs() (ids []int64) {
-	for id := range m.subgroups {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetSubgroups resets all changes to the "subgroups" edge.
-func (m *GroupMutation) ResetSubgroups() {
-	m.subgroups = nil
-	m.clearedsubgroups = false
-	m.removedsubgroups = nil
-}
-
 // Where appends a list predicates to the GroupMutation builder.
 func (m *GroupMutation) Where(ps ...predicate.Group) {
 	m.predicates = append(m.predicates, ps...)
@@ -2678,8 +2593,8 @@ func (m *GroupMutation) Fields() []string {
 	if m.group_name != nil {
 		fields = append(fields, group.FieldGroupName)
 	}
-	if m.root_group != nil {
-		fields = append(fields, group.FieldRootGroupID)
+	if m.is_root != nil {
+		fields = append(fields, group.FieldIsRoot)
 	}
 	return fields
 }
@@ -2691,8 +2606,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldGroupName:
 		return m.GroupName()
-	case group.FieldRootGroupID:
-		return m.RootGroupID()
+	case group.FieldIsRoot:
+		return m.IsRoot()
 	}
 	return nil, false
 }
@@ -2704,8 +2619,8 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case group.FieldGroupName:
 		return m.OldGroupName(ctx)
-	case group.FieldRootGroupID:
-		return m.OldRootGroupID(ctx)
+	case group.FieldIsRoot:
+		return m.OldIsRoot(ctx)
 	}
 	return nil, fmt.Errorf("unknown Group field %s", name)
 }
@@ -2722,12 +2637,12 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGroupName(v)
 		return nil
-	case group.FieldRootGroupID:
-		v, ok := value.(int64)
+	case group.FieldIsRoot:
+		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRootGroupID(v)
+		m.SetIsRoot(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -2736,16 +2651,13 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *GroupMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -2784,8 +2696,8 @@ func (m *GroupMutation) ResetField(name string) error {
 	case group.FieldGroupName:
 		m.ResetGroupName()
 		return nil
-	case group.FieldRootGroupID:
-		m.ResetRootGroupID()
+	case group.FieldIsRoot:
+		m.ResetIsRoot()
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -2793,7 +2705,7 @@ func (m *GroupMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *GroupMutation) AddedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 4)
 	if m.manage != nil {
 		edges = append(edges, group.EdgeManage)
 	}
@@ -2805,12 +2717,6 @@ func (m *GroupMutation) AddedEdges() []string {
 	}
 	if m.users != nil {
 		edges = append(edges, group.EdgeUsers)
-	}
-	if m.root_group != nil {
-		edges = append(edges, group.EdgeRootGroup)
-	}
-	if m.subgroups != nil {
-		edges = append(edges, group.EdgeSubgroups)
 	}
 	return edges
 }
@@ -2843,23 +2749,13 @@ func (m *GroupMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case group.EdgeRootGroup:
-		if id := m.root_group; id != nil {
-			return []ent.Value{*id}
-		}
-	case group.EdgeSubgroups:
-		ids := make([]ent.Value, 0, len(m.subgroups))
-		for id := range m.subgroups {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *GroupMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 4)
 	if m.removedmanage != nil {
 		edges = append(edges, group.EdgeManage)
 	}
@@ -2871,9 +2767,6 @@ func (m *GroupMutation) RemovedEdges() []string {
 	}
 	if m.removedusers != nil {
 		edges = append(edges, group.EdgeUsers)
-	}
-	if m.removedsubgroups != nil {
-		edges = append(edges, group.EdgeSubgroups)
 	}
 	return edges
 }
@@ -2906,19 +2799,13 @@ func (m *GroupMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case group.EdgeSubgroups:
-		ids := make([]ent.Value, 0, len(m.removedsubgroups))
-		for id := range m.removedsubgroups {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *GroupMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 4)
 	if m.clearedmanage {
 		edges = append(edges, group.EdgeManage)
 	}
@@ -2930,12 +2817,6 @@ func (m *GroupMutation) ClearedEdges() []string {
 	}
 	if m.clearedusers {
 		edges = append(edges, group.EdgeUsers)
-	}
-	if m.clearedroot_group {
-		edges = append(edges, group.EdgeRootGroup)
-	}
-	if m.clearedsubgroups {
-		edges = append(edges, group.EdgeSubgroups)
 	}
 	return edges
 }
@@ -2952,10 +2833,6 @@ func (m *GroupMutation) EdgeCleared(name string) bool {
 		return m.clearedproblems
 	case group.EdgeUsers:
 		return m.clearedusers
-	case group.EdgeRootGroup:
-		return m.clearedroot_group
-	case group.EdgeSubgroups:
-		return m.clearedsubgroups
 	}
 	return false
 }
@@ -2964,9 +2841,6 @@ func (m *GroupMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *GroupMutation) ClearEdge(name string) error {
 	switch name {
-	case group.EdgeRootGroup:
-		m.ClearRootGroup()
-		return nil
 	}
 	return fmt.Errorf("unknown Group unique edge %s", name)
 }
@@ -2986,12 +2860,6 @@ func (m *GroupMutation) ResetEdge(name string) error {
 		return nil
 	case group.EdgeUsers:
 		m.ResetUsers()
-		return nil
-	case group.EdgeRootGroup:
-		m.ResetRootGroup()
-		return nil
-	case group.EdgeSubgroups:
-		m.ResetSubgroups()
 		return nil
 	}
 	return fmt.Errorf("unknown Group edge %s", name)
@@ -8565,8 +8433,7 @@ type UserMutation struct {
 	username               *string
 	password               *string
 	salt                   *string
-	status                 *int16
-	addstatus              *int16
+	state                  *user.State
 	clearedFields          map[string]struct{}
 	submission             map[int64]struct{}
 	removedsubmission      map[int64]struct{}
@@ -8800,60 +8667,40 @@ func (m *UserMutation) ResetSalt() {
 	m.salt = nil
 }
 
-// SetStatus sets the "status" field.
-func (m *UserMutation) SetStatus(i int16) {
-	m.status = &i
-	m.addstatus = nil
+// SetState sets the "state" field.
+func (m *UserMutation) SetState(u user.State) {
+	m.state = &u
 }
 
-// Status returns the value of the "status" field in the mutation.
-func (m *UserMutation) Status() (r int16, exists bool) {
-	v := m.status
+// State returns the value of the "state" field in the mutation.
+func (m *UserMutation) State() (r user.State, exists bool) {
+	v := m.state
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldStatus returns the old "status" field's value of the User entity.
+// OldState returns the old "state" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldStatus(ctx context.Context) (v int16, err error) {
+func (m *UserMutation) OldState(ctx context.Context) (v user.State, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+		return v, errors.New("OldState is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
+		return v, errors.New("OldState requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+		return v, fmt.Errorf("querying old value for OldState: %w", err)
 	}
-	return oldValue.Status, nil
+	return oldValue.State, nil
 }
 
-// AddStatus adds i to the "status" field.
-func (m *UserMutation) AddStatus(i int16) {
-	if m.addstatus != nil {
-		*m.addstatus += i
-	} else {
-		m.addstatus = &i
-	}
-}
-
-// AddedStatus returns the value that was added to the "status" field in this mutation.
-func (m *UserMutation) AddedStatus() (r int16, exists bool) {
-	v := m.addstatus
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetStatus resets all changes to the "status" field.
-func (m *UserMutation) ResetStatus() {
-	m.status = nil
-	m.addstatus = nil
+// ResetState resets all changes to the "state" field.
+func (m *UserMutation) ResetState() {
+	m.state = nil
 }
 
 // AddSubmissionIDs adds the "submission" edge to the Submission entity by ids.
@@ -9170,8 +9017,8 @@ func (m *UserMutation) Fields() []string {
 	if m.salt != nil {
 		fields = append(fields, user.FieldSalt)
 	}
-	if m.status != nil {
-		fields = append(fields, user.FieldStatus)
+	if m.state != nil {
+		fields = append(fields, user.FieldState)
 	}
 	return fields
 }
@@ -9187,8 +9034,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Password()
 	case user.FieldSalt:
 		return m.Salt()
-	case user.FieldStatus:
-		return m.Status()
+	case user.FieldState:
+		return m.State()
 	}
 	return nil, false
 }
@@ -9204,8 +9051,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPassword(ctx)
 	case user.FieldSalt:
 		return m.OldSalt(ctx)
-	case user.FieldStatus:
-		return m.OldStatus(ctx)
+	case user.FieldState:
+		return m.OldState(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -9236,12 +9083,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSalt(v)
 		return nil
-	case user.FieldStatus:
-		v, ok := value.(int16)
+	case user.FieldState:
+		v, ok := value.(user.State)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetStatus(v)
+		m.SetState(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -9250,21 +9097,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
-	var fields []string
-	if m.addstatus != nil {
-		fields = append(fields, user.FieldStatus)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case user.FieldStatus:
-		return m.AddedStatus()
-	}
 	return nil, false
 }
 
@@ -9273,13 +9112,6 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case user.FieldStatus:
-		v, ok := value.(int16)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddStatus(v)
-		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -9316,8 +9148,8 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldSalt:
 		m.ResetSalt()
 		return nil
-	case user.FieldStatus:
-		m.ResetStatus()
+	case user.FieldState:
+		m.ResetState()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

@@ -52,9 +52,17 @@ func (uc *UserCreate) SetSalt(s string) *UserCreate {
 	return uc
 }
 
-// SetStatus sets the "status" field.
-func (uc *UserCreate) SetStatus(i int16) *UserCreate {
-	uc.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (uc *UserCreate) SetState(u user.State) *UserCreate {
+	uc.mutation.SetState(u)
+	return uc
+}
+
+// SetNillableState sets the "state" field if the given value is not nil.
+func (uc *UserCreate) SetNillableState(u *user.State) *UserCreate {
+	if u != nil {
+		uc.SetState(*u)
+	}
 	return uc
 }
 
@@ -178,6 +186,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUsername
 		uc.mutation.SetUsername(v)
 	}
+	if _, ok := uc.mutation.State(); !ok {
+		v := user.DefaultState
+		uc.mutation.SetState(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -191,12 +203,12 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Salt(); !ok {
 		return &ValidationError{Name: "salt", err: errors.New(`ent: missing required field "User.salt"`)}
 	}
-	if _, ok := uc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "User.status"`)}
+	if _, ok := uc.mutation.State(); !ok {
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "User.state"`)}
 	}
-	if v, ok := uc.mutation.Status(); ok {
-		if err := user.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
+	if v, ok := uc.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "User.state": %w`, err)}
 		}
 	}
 	return nil
@@ -244,9 +256,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 		_node.Salt = value
 	}
-	if value, ok := uc.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
-		_node.Status = value
+	if value, ok := uc.mutation.State(); ok {
+		_spec.SetField(user.FieldState, field.TypeEnum, value)
+		_node.State = value
 	}
 	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -416,21 +428,15 @@ func (u *UserUpsert) UpdateSalt() *UserUpsert {
 	return u
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsert) SetStatus(v int16) *UserUpsert {
-	u.Set(user.FieldStatus, v)
+// SetState sets the "state" field.
+func (u *UserUpsert) SetState(v user.State) *UserUpsert {
+	u.Set(user.FieldState, v)
 	return u
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsert) UpdateStatus() *UserUpsert {
-	u.SetExcluded(user.FieldStatus)
-	return u
-}
-
-// AddStatus adds v to the "status" field.
-func (u *UserUpsert) AddStatus(v int16) *UserUpsert {
-	u.Add(user.FieldStatus, v)
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsert) UpdateState() *UserUpsert {
+	u.SetExcluded(user.FieldState)
 	return u
 }
 
@@ -524,24 +530,17 @@ func (u *UserUpsertOne) UpdateSalt() *UserUpsertOne {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsertOne) SetStatus(v int16) *UserUpsertOne {
+// SetState sets the "state" field.
+func (u *UserUpsertOne) SetState(v user.State) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *UserUpsertOne) AddStatus(v int16) *UserUpsertOne {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateState() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateStatus() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 
@@ -801,24 +800,17 @@ func (u *UserUpsertBulk) UpdateSalt() *UserUpsertBulk {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsertBulk) SetStatus(v int16) *UserUpsertBulk {
+// SetState sets the "state" field.
+func (u *UserUpsertBulk) SetState(v user.State) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *UserUpsertBulk) AddStatus(v int16) *UserUpsertBulk {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateState() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateStatus() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 

@@ -41,10 +41,10 @@ func init() {
 	groupDescGroupName := groupFields[1].Descriptor()
 	// group.DefaultGroupName holds the default value on creation for the group_name field.
 	group.DefaultGroupName = groupDescGroupName.Default.(string)
-	// groupDescRootGroupID is the schema descriptor for root_group_id field.
-	groupDescRootGroupID := groupFields[2].Descriptor()
-	// group.DefaultRootGroupID holds the default value on creation for the root_group_id field.
-	group.DefaultRootGroupID = groupDescRootGroupID.Default.(int64)
+	// groupDescIsRoot is the schema descriptor for is_root field.
+	groupDescIsRoot := groupFields[2].Descriptor()
+	// group.DefaultIsRoot holds the default value on creation for the is_root field.
+	group.DefaultIsRoot = groupDescIsRoot.Default.(bool)
 	loginsessionFields := schema.LoginSession{}.Fields()
 	_ = loginsessionFields
 	// loginsessionDescCreateTime is the schema descriptor for create_time field.
@@ -109,8 +109,4 @@ func init() {
 	userDescUsername := userFields[1].Descriptor()
 	// user.DefaultUsername holds the default value on creation for the username field.
 	user.DefaultUsername = userDescUsername.Default.(string)
-	// userDescStatus is the schema descriptor for status field.
-	userDescStatus := userFields[4].Descriptor()
-	// user.StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	user.StatusValidator = userDescStatus.Validators[0].(func(int16) error)
 }

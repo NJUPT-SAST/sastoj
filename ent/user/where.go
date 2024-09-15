@@ -69,11 +69,6 @@ func Salt(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldSalt, v))
 }
 
-// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v int16) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldStatus, v))
-}
-
 // UsernameEQ applies the EQ predicate on the "username" field.
 func UsernameEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUsername, v))
@@ -269,44 +264,24 @@ func SaltContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldSalt, v))
 }
 
-// StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v int16) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldStatus, v))
+// StateEQ applies the EQ predicate on the "state" field.
+func StateEQ(v State) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldState, v))
 }
 
-// StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v int16) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldStatus, v))
+// StateNEQ applies the NEQ predicate on the "state" field.
+func StateNEQ(v State) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldState, v))
 }
 
-// StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...int16) predicate.User {
-	return predicate.User(sql.FieldIn(FieldStatus, vs...))
+// StateIn applies the In predicate on the "state" field.
+func StateIn(vs ...State) predicate.User {
+	return predicate.User(sql.FieldIn(FieldState, vs...))
 }
 
-// StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...int16) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldStatus, vs...))
-}
-
-// StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v int16) predicate.User {
-	return predicate.User(sql.FieldGT(FieldStatus, v))
-}
-
-// StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v int16) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldStatus, v))
-}
-
-// StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v int16) predicate.User {
-	return predicate.User(sql.FieldLT(FieldStatus, v))
-}
-
-// StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v int16) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldStatus, v))
+// StateNotIn applies the NotIn predicate on the "state" field.
+func StateNotIn(vs ...State) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldState, vs...))
 }
 
 // HasSubmission applies the HasEdge predicate on the "submission" edge.

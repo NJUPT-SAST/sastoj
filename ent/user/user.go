@@ -3,6 +3,8 @@
 package user
 
 import (
+	"fmt"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -18,8 +20,8 @@ const (
 	FieldPassword = "password"
 	// FieldSalt holds the string denoting the salt field in the database.
 	FieldSalt = "salt"
-	// FieldStatus holds the string denoting the status field in the database.
-	FieldStatus = "status"
+	// FieldState holds the string denoting the state field in the database.
+	FieldState = "state"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
 	// EdgeLoginSessions holds the string denoting the login_sessions edge name in mutations.
@@ -73,7 +75,7 @@ var Columns = []string{
 	FieldUsername,
 	FieldPassword,
 	FieldSalt,
-	FieldStatus,
+	FieldState,
 }
 
 var (
@@ -95,9 +97,34 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultUsername holds the default value on creation for the "username" field.
 	DefaultUsername string
-	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
-	StatusValidator func(int16) error
 )
+
+// State defines the type for the "state" enum field.
+type State string
+
+// StateNORMAL is the default value of the State enum.
+const DefaultState = StateNORMAL
+
+// State values.
+const (
+	StateNORMAL   State = "NORMAL"
+	StateBANNED   State = "BANNED"
+	StateINACTIVE State = "INACTIVE"
+)
+
+func (s State) String() string {
+	return string(s)
+}
+
+// StateValidator is a validator for the "state" field enum values. It is called by the builders before save.
+func StateValidator(s State) error {
+	switch s {
+	case StateNORMAL, StateBANNED, StateINACTIVE:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for state field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -122,9 +149,9 @@ func BySalt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSalt, opts...).ToFunc()
 }
 
-// ByStatus orders the results by the status field.
-func ByStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+// ByState orders the results by the state field.
+func ByState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
 // BySubmissionCount orders the results by submission count.

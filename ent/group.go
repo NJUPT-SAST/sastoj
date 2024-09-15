@@ -18,8 +18,8 @@ type Group struct {
 	ID int64 `json:"id,omitempty"`
 	// GroupName holds the value of the "group_name" field.
 	GroupName string `json:"group_name,omitempty"`
-	// RootGroupID holds the value of the "root_group_id" field.
-	RootGroupID int64 `json:"root_group_id,omitempty"`
+	// IsRoot holds the value of the "is_root" field.
+	IsRoot bool `json:"is_root,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges        GroupEdges `json:"edges"`
@@ -36,13 +36,9 @@ type GroupEdges struct {
 	Problems []*Problem `json:"problems,omitempty"`
 	// Users holds the value of the users edge.
 	Users []*User `json:"users,omitempty"`
-	// RootGroup holds the value of the root_group edge.
-	RootGroup *Group `json:"root_group,omitempty"`
-	// Subgroups holds the value of the subgroups edge.
-	Subgroups []*Group `json:"subgroups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [4]bool
 }
 
 // ManageOrErr returns the Manage value or an error if the edge
@@ -81,34 +77,14 @@ func (e GroupEdges) UsersOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "users"}
 }
 
-// RootGroupOrErr returns the RootGroup value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e GroupEdges) RootGroupOrErr() (*Group, error) {
-	if e.loadedTypes[4] {
-		if e.RootGroup == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: group.Label}
-		}
-		return e.RootGroup, nil
-	}
-	return nil, &NotLoadedError{edge: "root_group"}
-}
-
-// SubgroupsOrErr returns the Subgroups value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) SubgroupsOrErr() ([]*Group, error) {
-	if e.loadedTypes[5] {
-		return e.Subgroups, nil
-	}
-	return nil, &NotLoadedError{edge: "subgroups"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Group) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case group.FieldID, group.FieldRootGroupID:
+		case group.FieldIsRoot:
+			values[i] = new(sql.NullBool)
+		case group.FieldID:
 			values[i] = new(sql.NullInt64)
 		case group.FieldGroupName:
 			values[i] = new(sql.NullString)
@@ -139,11 +115,11 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				gr.GroupName = value.String
 			}
-		case group.FieldRootGroupID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field root_group_id", values[i])
+		case group.FieldIsRoot:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_root", values[i])
 			} else if value.Valid {
-				gr.RootGroupID = value.Int64
+				gr.IsRoot = value.Bool
 			}
 		default:
 			gr.selectValues.Set(columns[i], values[i])
@@ -178,16 +154,6 @@ func (gr *Group) QueryUsers() *UserQuery {
 	return NewGroupClient(gr.config).QueryUsers(gr)
 }
 
-// QueryRootGroup queries the "root_group" edge of the Group entity.
-func (gr *Group) QueryRootGroup() *GroupQuery {
-	return NewGroupClient(gr.config).QueryRootGroup(gr)
-}
-
-// QuerySubgroups queries the "subgroups" edge of the Group entity.
-func (gr *Group) QuerySubgroups() *GroupQuery {
-	return NewGroupClient(gr.config).QuerySubgroups(gr)
-}
-
 // Update returns a builder for updating this Group.
 // Note that you need to call Group.Unwrap() before calling this method if this Group
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -214,8 +180,8 @@ func (gr *Group) String() string {
 	builder.WriteString("group_name=")
 	builder.WriteString(gr.GroupName)
 	builder.WriteString(", ")
-	builder.WriteString("root_group_id=")
-	builder.WriteString(fmt.Sprintf("%v", gr.RootGroupID))
+	builder.WriteString("is_root=")
+	builder.WriteString(fmt.Sprintf("%v", gr.IsRoot))
 	builder.WriteByte(')')
 	return builder.String()
 }

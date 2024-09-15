@@ -44,16 +44,16 @@ func (gu *GroupUpdate) SetNillableGroupName(s *string) *GroupUpdate {
 	return gu
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (gu *GroupUpdate) SetRootGroupID(i int64) *GroupUpdate {
-	gu.mutation.SetRootGroupID(i)
+// SetIsRoot sets the "is_root" field.
+func (gu *GroupUpdate) SetIsRoot(b bool) *GroupUpdate {
+	gu.mutation.SetIsRoot(b)
 	return gu
 }
 
-// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
-func (gu *GroupUpdate) SetNillableRootGroupID(i *int64) *GroupUpdate {
-	if i != nil {
-		gu.SetRootGroupID(*i)
+// SetNillableIsRoot sets the "is_root" field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableIsRoot(b *bool) *GroupUpdate {
+	if b != nil {
+		gu.SetIsRoot(*b)
 	}
 	return gu
 }
@@ -116,26 +116,6 @@ func (gu *GroupUpdate) AddUsers(u ...*User) *GroupUpdate {
 		ids[i] = u[i].ID
 	}
 	return gu.AddUserIDs(ids...)
-}
-
-// SetRootGroup sets the "root_group" edge to the Group entity.
-func (gu *GroupUpdate) SetRootGroup(g *Group) *GroupUpdate {
-	return gu.SetRootGroupID(g.ID)
-}
-
-// AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
-func (gu *GroupUpdate) AddSubgroupIDs(ids ...int64) *GroupUpdate {
-	gu.mutation.AddSubgroupIDs(ids...)
-	return gu
-}
-
-// AddSubgroups adds the "subgroups" edges to the Group entity.
-func (gu *GroupUpdate) AddSubgroups(g ...*Group) *GroupUpdate {
-	ids := make([]int64, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return gu.AddSubgroupIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -227,33 +207,6 @@ func (gu *GroupUpdate) RemoveUsers(u ...*User) *GroupUpdate {
 	return gu.RemoveUserIDs(ids...)
 }
 
-// ClearRootGroup clears the "root_group" edge to the Group entity.
-func (gu *GroupUpdate) ClearRootGroup() *GroupUpdate {
-	gu.mutation.ClearRootGroup()
-	return gu
-}
-
-// ClearSubgroups clears all "subgroups" edges to the Group entity.
-func (gu *GroupUpdate) ClearSubgroups() *GroupUpdate {
-	gu.mutation.ClearSubgroups()
-	return gu
-}
-
-// RemoveSubgroupIDs removes the "subgroups" edge to Group entities by IDs.
-func (gu *GroupUpdate) RemoveSubgroupIDs(ids ...int64) *GroupUpdate {
-	gu.mutation.RemoveSubgroupIDs(ids...)
-	return gu
-}
-
-// RemoveSubgroups removes "subgroups" edges to Group entities.
-func (gu *GroupUpdate) RemoveSubgroups(g ...*Group) *GroupUpdate {
-	ids := make([]int64, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return gu.RemoveSubgroupIDs(ids...)
-}
-
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (gu *GroupUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, gu.sqlSave, gu.mutation, gu.hooks)
@@ -281,18 +234,7 @@ func (gu *GroupUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (gu *GroupUpdate) check() error {
-	if _, ok := gu.mutation.RootGroupID(); gu.mutation.RootGroupCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Group.root_group"`)
-	}
-	return nil
-}
-
 func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := gu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64))
 	if ps := gu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -303,6 +245,9 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := gu.mutation.GroupName(); ok {
 		_spec.SetField(group.FieldGroupName, field.TypeString, value)
+	}
+	if value, ok := gu.mutation.IsRoot(); ok {
+		_spec.SetField(group.FieldIsRoot, field.TypeBool, value)
 	}
 	if gu.mutation.ManageCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -484,80 +429,6 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if gu.mutation.RootGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   group.RootGroupTable,
-			Columns: []string{group.RootGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := gu.mutation.RootGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   group.RootGroupTable,
-			Columns: []string{group.RootGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if gu.mutation.SubgroupsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := gu.mutation.RemovedSubgroupsIDs(); len(nodes) > 0 && !gu.mutation.SubgroupsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := gu.mutation.SubgroupsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{group.Label}
@@ -592,16 +463,16 @@ func (guo *GroupUpdateOne) SetNillableGroupName(s *string) *GroupUpdateOne {
 	return guo
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (guo *GroupUpdateOne) SetRootGroupID(i int64) *GroupUpdateOne {
-	guo.mutation.SetRootGroupID(i)
+// SetIsRoot sets the "is_root" field.
+func (guo *GroupUpdateOne) SetIsRoot(b bool) *GroupUpdateOne {
+	guo.mutation.SetIsRoot(b)
 	return guo
 }
 
-// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
-func (guo *GroupUpdateOne) SetNillableRootGroupID(i *int64) *GroupUpdateOne {
-	if i != nil {
-		guo.SetRootGroupID(*i)
+// SetNillableIsRoot sets the "is_root" field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableIsRoot(b *bool) *GroupUpdateOne {
+	if b != nil {
+		guo.SetIsRoot(*b)
 	}
 	return guo
 }
@@ -664,26 +535,6 @@ func (guo *GroupUpdateOne) AddUsers(u ...*User) *GroupUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return guo.AddUserIDs(ids...)
-}
-
-// SetRootGroup sets the "root_group" edge to the Group entity.
-func (guo *GroupUpdateOne) SetRootGroup(g *Group) *GroupUpdateOne {
-	return guo.SetRootGroupID(g.ID)
-}
-
-// AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
-func (guo *GroupUpdateOne) AddSubgroupIDs(ids ...int64) *GroupUpdateOne {
-	guo.mutation.AddSubgroupIDs(ids...)
-	return guo
-}
-
-// AddSubgroups adds the "subgroups" edges to the Group entity.
-func (guo *GroupUpdateOne) AddSubgroups(g ...*Group) *GroupUpdateOne {
-	ids := make([]int64, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return guo.AddSubgroupIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -775,33 +626,6 @@ func (guo *GroupUpdateOne) RemoveUsers(u ...*User) *GroupUpdateOne {
 	return guo.RemoveUserIDs(ids...)
 }
 
-// ClearRootGroup clears the "root_group" edge to the Group entity.
-func (guo *GroupUpdateOne) ClearRootGroup() *GroupUpdateOne {
-	guo.mutation.ClearRootGroup()
-	return guo
-}
-
-// ClearSubgroups clears all "subgroups" edges to the Group entity.
-func (guo *GroupUpdateOne) ClearSubgroups() *GroupUpdateOne {
-	guo.mutation.ClearSubgroups()
-	return guo
-}
-
-// RemoveSubgroupIDs removes the "subgroups" edge to Group entities by IDs.
-func (guo *GroupUpdateOne) RemoveSubgroupIDs(ids ...int64) *GroupUpdateOne {
-	guo.mutation.RemoveSubgroupIDs(ids...)
-	return guo
-}
-
-// RemoveSubgroups removes "subgroups" edges to Group entities.
-func (guo *GroupUpdateOne) RemoveSubgroups(g ...*Group) *GroupUpdateOne {
-	ids := make([]int64, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return guo.RemoveSubgroupIDs(ids...)
-}
-
 // Where appends a list predicates to the GroupUpdate builder.
 func (guo *GroupUpdateOne) Where(ps ...predicate.Group) *GroupUpdateOne {
 	guo.mutation.Where(ps...)
@@ -842,18 +666,7 @@ func (guo *GroupUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (guo *GroupUpdateOne) check() error {
-	if _, ok := guo.mutation.RootGroupID(); guo.mutation.RootGroupCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Group.root_group"`)
-	}
-	return nil
-}
-
 func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error) {
-	if err := guo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64))
 	id, ok := guo.mutation.ID()
 	if !ok {
@@ -881,6 +694,9 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 	}
 	if value, ok := guo.mutation.GroupName(); ok {
 		_spec.SetField(group.FieldGroupName, field.TypeString, value)
+	}
+	if value, ok := guo.mutation.IsRoot(); ok {
+		_spec.SetField(group.FieldIsRoot, field.TypeBool, value)
 	}
 	if guo.mutation.ManageCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1055,80 +871,6 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if guo.mutation.RootGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   group.RootGroupTable,
-			Columns: []string{group.RootGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := guo.mutation.RootGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   group.RootGroupTable,
-			Columns: []string{group.RootGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if guo.mutation.SubgroupsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := guo.mutation.RemovedSubgroupsIDs(); len(nodes) > 0 && !guo.mutation.SubgroupsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := guo.mutation.SubgroupsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

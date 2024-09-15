@@ -74,24 +74,17 @@ func (uu *UserUpdate) SetNillableSalt(s *string) *UserUpdate {
 	return uu
 }
 
-// SetStatus sets the "status" field.
-func (uu *UserUpdate) SetStatus(i int16) *UserUpdate {
-	uu.mutation.ResetStatus()
-	uu.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (uu *UserUpdate) SetState(u user.State) *UserUpdate {
+	uu.mutation.SetState(u)
 	return uu
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableStatus(i *int16) *UserUpdate {
-	if i != nil {
-		uu.SetStatus(*i)
+// SetNillableState sets the "state" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableState(u *user.State) *UserUpdate {
+	if u != nil {
+		uu.SetState(*u)
 	}
-	return uu
-}
-
-// AddStatus adds i to the "status" field.
-func (uu *UserUpdate) AddStatus(i int16) *UserUpdate {
-	uu.mutation.AddStatus(i)
 	return uu
 }
 
@@ -309,9 +302,9 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
-	if v, ok := uu.mutation.Status(); ok {
-		if err := user.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
+	if v, ok := uu.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "User.state": %w`, err)}
 		}
 	}
 	return nil
@@ -338,11 +331,8 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Salt(); ok {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 	}
-	if value, ok := uu.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
-	}
-	if value, ok := uu.mutation.AddedStatus(); ok {
-		_spec.AddField(user.FieldStatus, field.TypeInt16, value)
+	if value, ok := uu.mutation.State(); ok {
+		_spec.SetField(user.FieldState, field.TypeEnum, value)
 	}
 	if uu.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -631,24 +621,17 @@ func (uuo *UserUpdateOne) SetNillableSalt(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// SetStatus sets the "status" field.
-func (uuo *UserUpdateOne) SetStatus(i int16) *UserUpdateOne {
-	uuo.mutation.ResetStatus()
-	uuo.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (uuo *UserUpdateOne) SetState(u user.State) *UserUpdateOne {
+	uuo.mutation.SetState(u)
 	return uuo
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableStatus(i *int16) *UserUpdateOne {
-	if i != nil {
-		uuo.SetStatus(*i)
+// SetNillableState sets the "state" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableState(u *user.State) *UserUpdateOne {
+	if u != nil {
+		uuo.SetState(*u)
 	}
-	return uuo
-}
-
-// AddStatus adds i to the "status" field.
-func (uuo *UserUpdateOne) AddStatus(i int16) *UserUpdateOne {
-	uuo.mutation.AddStatus(i)
 	return uuo
 }
 
@@ -879,9 +862,9 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uuo *UserUpdateOne) check() error {
-	if v, ok := uuo.mutation.Status(); ok {
-		if err := user.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
+	if v, ok := uuo.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "User.state": %w`, err)}
 		}
 	}
 	return nil
@@ -925,11 +908,8 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Salt(); ok {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 	}
-	if value, ok := uuo.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
-	}
-	if value, ok := uuo.mutation.AddedStatus(); ok {
-		_spec.AddField(user.FieldStatus, field.TypeInt16, value)
+	if value, ok := uuo.mutation.State(); ok {
+		_spec.SetField(user.FieldState, field.TypeEnum, value)
 	}
 	if uuo.mutation.SubmissionCleared() {
 		edge := &sqlgraph.EdgeSpec{

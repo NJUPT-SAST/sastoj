@@ -38,16 +38,16 @@ func (gc *GroupCreate) SetNillableGroupName(s *string) *GroupCreate {
 	return gc
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (gc *GroupCreate) SetRootGroupID(i int64) *GroupCreate {
-	gc.mutation.SetRootGroupID(i)
+// SetIsRoot sets the "is_root" field.
+func (gc *GroupCreate) SetIsRoot(b bool) *GroupCreate {
+	gc.mutation.SetIsRoot(b)
 	return gc
 }
 
-// SetNillableRootGroupID sets the "root_group_id" field if the given value is not nil.
-func (gc *GroupCreate) SetNillableRootGroupID(i *int64) *GroupCreate {
-	if i != nil {
-		gc.SetRootGroupID(*i)
+// SetNillableIsRoot sets the "is_root" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableIsRoot(b *bool) *GroupCreate {
+	if b != nil {
+		gc.SetIsRoot(*b)
 	}
 	return gc
 }
@@ -118,26 +118,6 @@ func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
 	return gc.AddUserIDs(ids...)
 }
 
-// SetRootGroup sets the "root_group" edge to the Group entity.
-func (gc *GroupCreate) SetRootGroup(g *Group) *GroupCreate {
-	return gc.SetRootGroupID(g.ID)
-}
-
-// AddSubgroupIDs adds the "subgroups" edge to the Group entity by IDs.
-func (gc *GroupCreate) AddSubgroupIDs(ids ...int64) *GroupCreate {
-	gc.mutation.AddSubgroupIDs(ids...)
-	return gc
-}
-
-// AddSubgroups adds the "subgroups" edges to the Group entity.
-func (gc *GroupCreate) AddSubgroups(g ...*Group) *GroupCreate {
-	ids := make([]int64, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return gc.AddSubgroupIDs(ids...)
-}
-
 // Mutation returns the GroupMutation object of the builder.
 func (gc *GroupCreate) Mutation() *GroupMutation {
 	return gc.mutation
@@ -177,9 +157,9 @@ func (gc *GroupCreate) defaults() {
 		v := group.DefaultGroupName
 		gc.mutation.SetGroupName(v)
 	}
-	if _, ok := gc.mutation.RootGroupID(); !ok {
-		v := group.DefaultRootGroupID
-		gc.mutation.SetRootGroupID(v)
+	if _, ok := gc.mutation.IsRoot(); !ok {
+		v := group.DefaultIsRoot
+		gc.mutation.SetIsRoot(v)
 	}
 }
 
@@ -188,11 +168,8 @@ func (gc *GroupCreate) check() error {
 	if _, ok := gc.mutation.GroupName(); !ok {
 		return &ValidationError{Name: "group_name", err: errors.New(`ent: missing required field "Group.group_name"`)}
 	}
-	if _, ok := gc.mutation.RootGroupID(); !ok {
-		return &ValidationError{Name: "root_group_id", err: errors.New(`ent: missing required field "Group.root_group_id"`)}
-	}
-	if _, ok := gc.mutation.RootGroupID(); !ok {
-		return &ValidationError{Name: "root_group", err: errors.New(`ent: missing required edge "Group.root_group"`)}
+	if _, ok := gc.mutation.IsRoot(); !ok {
+		return &ValidationError{Name: "is_root", err: errors.New(`ent: missing required field "Group.is_root"`)}
 	}
 	return nil
 }
@@ -230,6 +207,10 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	if value, ok := gc.mutation.GroupName(); ok {
 		_spec.SetField(group.FieldGroupName, field.TypeString, value)
 		_node.GroupName = value
+	}
+	if value, ok := gc.mutation.IsRoot(); ok {
+		_spec.SetField(group.FieldIsRoot, field.TypeBool, value)
+		_node.IsRoot = value
 	}
 	if nodes := gc.mutation.ManageIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -288,39 +269,6 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := gc.mutation.RootGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   group.RootGroupTable,
-			Columns: []string{group.RootGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.RootGroupID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := gc.mutation.SubgroupsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.SubgroupsTable,
-			Columns: []string{group.SubgroupsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -392,15 +340,15 @@ func (u *GroupUpsert) UpdateGroupName() *GroupUpsert {
 	return u
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (u *GroupUpsert) SetRootGroupID(v int64) *GroupUpsert {
-	u.Set(group.FieldRootGroupID, v)
+// SetIsRoot sets the "is_root" field.
+func (u *GroupUpsert) SetIsRoot(v bool) *GroupUpsert {
+	u.Set(group.FieldIsRoot, v)
 	return u
 }
 
-// UpdateRootGroupID sets the "root_group_id" field to the value that was provided on create.
-func (u *GroupUpsert) UpdateRootGroupID() *GroupUpsert {
-	u.SetExcluded(group.FieldRootGroupID)
+// UpdateIsRoot sets the "is_root" field to the value that was provided on create.
+func (u *GroupUpsert) UpdateIsRoot() *GroupUpsert {
+	u.SetExcluded(group.FieldIsRoot)
 	return u
 }
 
@@ -466,17 +414,17 @@ func (u *GroupUpsertOne) UpdateGroupName() *GroupUpsertOne {
 	})
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (u *GroupUpsertOne) SetRootGroupID(v int64) *GroupUpsertOne {
+// SetIsRoot sets the "is_root" field.
+func (u *GroupUpsertOne) SetIsRoot(v bool) *GroupUpsertOne {
 	return u.Update(func(s *GroupUpsert) {
-		s.SetRootGroupID(v)
+		s.SetIsRoot(v)
 	})
 }
 
-// UpdateRootGroupID sets the "root_group_id" field to the value that was provided on create.
-func (u *GroupUpsertOne) UpdateRootGroupID() *GroupUpsertOne {
+// UpdateIsRoot sets the "is_root" field to the value that was provided on create.
+func (u *GroupUpsertOne) UpdateIsRoot() *GroupUpsertOne {
 	return u.Update(func(s *GroupUpsert) {
-		s.UpdateRootGroupID()
+		s.UpdateIsRoot()
 	})
 }
 
@@ -708,17 +656,17 @@ func (u *GroupUpsertBulk) UpdateGroupName() *GroupUpsertBulk {
 	})
 }
 
-// SetRootGroupID sets the "root_group_id" field.
-func (u *GroupUpsertBulk) SetRootGroupID(v int64) *GroupUpsertBulk {
+// SetIsRoot sets the "is_root" field.
+func (u *GroupUpsertBulk) SetIsRoot(v bool) *GroupUpsertBulk {
 	return u.Update(func(s *GroupUpsert) {
-		s.SetRootGroupID(v)
+		s.SetIsRoot(v)
 	})
 }
 
-// UpdateRootGroupID sets the "root_group_id" field to the value that was provided on create.
-func (u *GroupUpsertBulk) UpdateRootGroupID() *GroupUpsertBulk {
+// UpdateIsRoot sets the "is_root" field to the value that was provided on create.
+func (u *GroupUpsertBulk) UpdateIsRoot() *GroupUpsertBulk {
 	return u.Update(func(s *GroupUpsert) {
-		s.UpdateRootGroupID()
+		s.UpdateIsRoot()
 	})
 }
 
