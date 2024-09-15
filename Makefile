@@ -38,7 +38,7 @@ config:
 # generate protobuf api go code
 api:
 	@cd api && \
-	buf generate
+	buf generate -o sastoj
 .PHONY: errors
 # generate error proto
 errors:

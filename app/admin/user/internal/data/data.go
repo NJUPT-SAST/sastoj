@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"sastoj/app/admin/user/internal/conf"
 	"sastoj/ent"
+	"sastoj/pkg/util"
 )
 
 // ProviderSet is data providers.
@@ -53,6 +54,15 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	// Run the auto migration tool.
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Errorf("failed creating schema resources: %v", err)
+		return nil, nil, err
+	}
+	// Set default root group and root user if it does not exist in the database.
+	rootGroup, err := util.InsertDefaultGroup(context.TODO(), client)
+	if err != nil {
+		return nil, nil, err
+	}
+	err = util.InsertDefaultUser(context.TODO(), client, rootGroup, c.Auth.RootName, c.Auth.RootPassword)
+	if err != nil {
 		return nil, nil, err
 	}
 	return &Data{db: client}, cleanup, nil

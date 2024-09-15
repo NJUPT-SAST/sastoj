@@ -26,8 +26,8 @@ func (r *userRepo) Save(ctx context.Context, user *biz.User) (*biz.User, error) 
 		SetUsername(user.Username).
 		SetPassword(user.Password).
 		SetSalt(user.Salt).
-		SetStatus(int16(user.Status)).
-		SetGroupID(user.GroupID).
+		//SetStatus(int16(user.Status)).
+		//SetGroupID(user.GroupID).
 		Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
@@ -81,9 +81,9 @@ func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]st
 	createdUsers, err := r.data.db.User.MapCreateBulk(users, func(c *ent.UserCreate, i int) {
 		c.SetUsername(users[i].Username).
 			SetSalt(users[i].Salt).
-			SetPassword(users[i].Password).
-			SetGroupID(users[i].GroupID).
-			SetStatus(0)
+			SetPassword(users[i].Password)
+		//SetGroupID(users[i].GroupID).
+		//SetStatus(0)
 	}).Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
