@@ -246,21 +246,12 @@ var (
 		{Name: "password", Type: field.TypeString},
 		{Name: "salt", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt16},
-		{Name: "group_id", Type: field.TypeInt64},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "users_groups_users",
-				Columns:    []*schema.Column{UsersColumns[5]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
 	}
 	// ContestContestantsColumns holds the columns for the "contest_contestants" table.
 	ContestContestantsColumns = []*schema.Column{
@@ -308,6 +299,31 @@ var (
 				Symbol:     "contest_managers_group_id",
 				Columns:    []*schema.Column{ContestManagersColumns[1]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// GroupUsersColumns holds the columns for the "group_users" table.
+	GroupUsersColumns = []*schema.Column{
+		{Name: "group_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
+	}
+	// GroupUsersTable holds the schema information for the "group_users" table.
+	GroupUsersTable = &schema.Table{
+		Name:       "group_users",
+		Columns:    GroupUsersColumns,
+		PrimaryKey: []*schema.Column{GroupUsersColumns[0], GroupUsersColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "group_users_group_id",
+				Columns:    []*schema.Column{GroupUsersColumns[0]},
+				RefColumns: []*schema.Column{GroupsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "group_users_user_id",
+				Columns:    []*schema.Column{GroupUsersColumns[1]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -376,6 +392,7 @@ var (
 		UsersTable,
 		ContestContestantsTable,
 		ContestManagersTable,
+		GroupUsersTable,
 		ProblemJudgersTable,
 		SubmissionContestResultsTable,
 	}
@@ -405,11 +422,12 @@ func init() {
 	SubmissionSubtasksTable.Annotation = &entsql.Annotation{
 		Table: "submission_subtasks",
 	}
-	UsersTable.ForeignKeys[0].RefTable = GroupsTable
 	ContestContestantsTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestContestantsTable.ForeignKeys[1].RefTable = GroupsTable
 	ContestManagersTable.ForeignKeys[0].RefTable = ContestsTable
 	ContestManagersTable.ForeignKeys[1].RefTable = GroupsTable
+	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable
+	GroupUsersTable.ForeignKeys[1].RefTable = UsersTable
 	ProblemJudgersTable.ForeignKeys[0].RefTable = ProblemsTable
 	ProblemJudgersTable.ForeignKeys[1].RefTable = GroupsTable
 	SubmissionContestResultsTable.ForeignKeys[0].RefTable = SubmissionsTable

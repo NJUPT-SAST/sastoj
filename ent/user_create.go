@@ -58,12 +58,6 @@ func (uc *UserCreate) SetStatus(i int16) *UserCreate {
 	return uc
 }
 
-// SetGroupID sets the "group_id" field.
-func (uc *UserCreate) SetGroupID(i int64) *UserCreate {
-	uc.mutation.SetGroupID(i)
-	return uc
-}
-
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(i int64) *UserCreate {
 	uc.mutation.SetID(i)
@@ -115,15 +109,19 @@ func (uc *UserCreate) AddOwnedProblems(p ...*Problem) *UserCreate {
 	return uc.AddOwnedProblemIDs(ids...)
 }
 
-// SetGroupsID sets the "groups" edge to the Group entity by ID.
-func (uc *UserCreate) SetGroupsID(id int64) *UserCreate {
-	uc.mutation.SetGroupsID(id)
+// AddGroupIDs adds the "groups" edge to the Group entity by IDs.
+func (uc *UserCreate) AddGroupIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddGroupIDs(ids...)
 	return uc
 }
 
-// SetGroups sets the "groups" edge to the Group entity.
-func (uc *UserCreate) SetGroups(g *Group) *UserCreate {
-	return uc.SetGroupsID(g.ID)
+// AddGroups adds the "groups" edges to the Group entity.
+func (uc *UserCreate) AddGroups(g ...*Group) *UserCreate {
+	ids := make([]int64, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uc.AddGroupIDs(ids...)
 }
 
 // AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
@@ -200,12 +198,6 @@ func (uc *UserCreate) check() error {
 		if err := user.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
-	}
-	if _, ok := uc.mutation.GroupID(); !ok {
-		return &ValidationError{Name: "group_id", err: errors.New(`ent: missing required field "User.group_id"`)}
-	}
-	if _, ok := uc.mutation.GroupsID(); !ok {
-		return &ValidationError{Name: "groups", err: errors.New(`ent: missing required edge "User.groups"`)}
 	}
 	return nil
 }
@@ -306,10 +298,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.GroupsTable,
-			Columns: []string{user.GroupsColumn},
+			Columns: user.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
@@ -318,7 +310,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.GroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.ContestResultsIDs(); len(nodes) > 0 {
@@ -443,18 +434,6 @@ func (u *UserUpsert) AddStatus(v int16) *UserUpsert {
 	return u
 }
 
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsert) SetGroupID(v int64) *UserUpsert {
-	u.Set(user.FieldGroupID, v)
-	return u
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsert) UpdateGroupID() *UserUpsert {
-	u.SetExcluded(user.FieldGroupID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -563,20 +542,6 @@ func (u *UserUpsertOne) AddStatus(v int16) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateStatus() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateStatus()
-	})
-}
-
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsertOne) SetGroupID(v int64) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.SetGroupID(v)
-	})
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateGroupID() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateGroupID()
 	})
 }
 
@@ -854,20 +819,6 @@ func (u *UserUpsertBulk) AddStatus(v int16) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateStatus() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateStatus()
-	})
-}
-
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsertBulk) SetGroupID(v int64) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.SetGroupID(v)
-	})
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateGroupID() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateGroupID()
 	})
 }
 

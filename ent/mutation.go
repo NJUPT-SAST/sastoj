@@ -8577,7 +8577,8 @@ type UserMutation struct {
 	owned_problems         map[int64]struct{}
 	removedowned_problems  map[int64]struct{}
 	clearedowned_problems  bool
-	groups                 *int64
+	groups                 map[int64]struct{}
+	removedgroups          map[int64]struct{}
 	clearedgroups          bool
 	contest_results        map[int]struct{}
 	removedcontest_results map[int]struct{}
@@ -8855,42 +8856,6 @@ func (m *UserMutation) ResetStatus() {
 	m.addstatus = nil
 }
 
-// SetGroupID sets the "group_id" field.
-func (m *UserMutation) SetGroupID(i int64) {
-	m.groups = &i
-}
-
-// GroupID returns the value of the "group_id" field in the mutation.
-func (m *UserMutation) GroupID() (r int64, exists bool) {
-	v := m.groups
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGroupID returns the old "group_id" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldGroupID(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGroupID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGroupID: %w", err)
-	}
-	return oldValue.GroupID, nil
-}
-
-// ResetGroupID resets all changes to the "group_id" field.
-func (m *UserMutation) ResetGroupID() {
-	m.groups = nil
-}
-
 // AddSubmissionIDs adds the "submission" edge to the Submission entity by ids.
 func (m *UserMutation) AddSubmissionIDs(ids ...int64) {
 	if m.submission == nil {
@@ -9053,15 +9018,19 @@ func (m *UserMutation) ResetOwnedProblems() {
 	m.removedowned_problems = nil
 }
 
-// SetGroupsID sets the "groups" edge to the Group entity by id.
-func (m *UserMutation) SetGroupsID(id int64) {
-	m.groups = &id
+// AddGroupIDs adds the "groups" edge to the Group entity by ids.
+func (m *UserMutation) AddGroupIDs(ids ...int64) {
+	if m.groups == nil {
+		m.groups = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.groups[ids[i]] = struct{}{}
+	}
 }
 
 // ClearGroups clears the "groups" edge to the Group entity.
 func (m *UserMutation) ClearGroups() {
 	m.clearedgroups = true
-	m.clearedFields[user.FieldGroupID] = struct{}{}
 }
 
 // GroupsCleared reports if the "groups" edge to the Group entity was cleared.
@@ -9069,20 +9038,29 @@ func (m *UserMutation) GroupsCleared() bool {
 	return m.clearedgroups
 }
 
-// GroupsID returns the "groups" edge ID in the mutation.
-func (m *UserMutation) GroupsID() (id int64, exists bool) {
-	if m.groups != nil {
-		return *m.groups, true
+// RemoveGroupIDs removes the "groups" edge to the Group entity by IDs.
+func (m *UserMutation) RemoveGroupIDs(ids ...int64) {
+	if m.removedgroups == nil {
+		m.removedgroups = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.groups, ids[i])
+		m.removedgroups[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedGroups returns the removed IDs of the "groups" edge to the Group entity.
+func (m *UserMutation) RemovedGroupsIDs() (ids []int64) {
+	for id := range m.removedgroups {
+		ids = append(ids, id)
 	}
 	return
 }
 
 // GroupsIDs returns the "groups" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// GroupsID instead. It exists only for internal usage by the builders.
 func (m *UserMutation) GroupsIDs() (ids []int64) {
-	if id := m.groups; id != nil {
-		ids = append(ids, *id)
+	for id := range m.groups {
+		ids = append(ids, id)
 	}
 	return
 }
@@ -9091,6 +9069,7 @@ func (m *UserMutation) GroupsIDs() (ids []int64) {
 func (m *UserMutation) ResetGroups() {
 	m.groups = nil
 	m.clearedgroups = false
+	m.removedgroups = nil
 }
 
 // AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by ids.
@@ -9181,7 +9160,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.username != nil {
 		fields = append(fields, user.FieldUsername)
 	}
@@ -9193,9 +9172,6 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, user.FieldStatus)
-	}
-	if m.groups != nil {
-		fields = append(fields, user.FieldGroupID)
 	}
 	return fields
 }
@@ -9213,8 +9189,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Salt()
 	case user.FieldStatus:
 		return m.Status()
-	case user.FieldGroupID:
-		return m.GroupID()
 	}
 	return nil, false
 }
@@ -9232,8 +9206,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSalt(ctx)
 	case user.FieldStatus:
 		return m.OldStatus(ctx)
-	case user.FieldGroupID:
-		return m.OldGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -9270,13 +9242,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
-		return nil
-	case user.FieldGroupID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGroupID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -9354,9 +9319,6 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldStatus:
 		m.ResetStatus()
 		return nil
-	case user.FieldGroupID:
-		m.ResetGroupID()
-		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -9405,9 +9367,11 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 		}
 		return ids
 	case user.EdgeGroups:
-		if id := m.groups; id != nil {
-			return []ent.Value{*id}
+		ids := make([]ent.Value, 0, len(m.groups))
+		for id := range m.groups {
+			ids = append(ids, id)
 		}
+		return ids
 	case user.EdgeContestResults:
 		ids := make([]ent.Value, 0, len(m.contest_results))
 		for id := range m.contest_results {
@@ -9429,6 +9393,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedowned_problems != nil {
 		edges = append(edges, user.EdgeOwnedProblems)
+	}
+	if m.removedgroups != nil {
+		edges = append(edges, user.EdgeGroups)
 	}
 	if m.removedcontest_results != nil {
 		edges = append(edges, user.EdgeContestResults)
@@ -9455,6 +9422,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 	case user.EdgeOwnedProblems:
 		ids := make([]ent.Value, 0, len(m.removedowned_problems))
 		for id := range m.removedowned_problems {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeGroups:
+		ids := make([]ent.Value, 0, len(m.removedgroups))
+		for id := range m.removedgroups {
 			ids = append(ids, id)
 		}
 		return ids
@@ -9511,9 +9484,6 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
-	case user.EdgeGroups:
-		m.ClearGroups()
-		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }

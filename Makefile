@@ -72,7 +72,6 @@ all:
 # generate db
 db:
 	go generate ./ent/
-	go run ./test/generatedb/main.go
 
 .PHONY: docker
 # build docker image
