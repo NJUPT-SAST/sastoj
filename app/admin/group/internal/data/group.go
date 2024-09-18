@@ -21,7 +21,6 @@ func NewGroupRepo(data *Data, logger log.Logger) biz.GroupRepo {
 }
 
 func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) {
-
 	po, err := r.data.db.Group.
 		Create().
 		SetGroupName(g.Name).

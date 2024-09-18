@@ -28,9 +28,9 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
 		Password: md5Password,
-		GroupID:  req.GroupId,
+		GroupIds: req.GroupIds,
 		Salt:     salt,
-		Status:   0,
+		State:    0,
 	})
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 }
 func (s *UserService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUserRequest) (*pb.BatchCreateUserReply, error) {
 
-	resMap, err := s.uc.BatchSave(ctx, int32(req.Number), req.GroupId)
+	resMap, err := s.uc.BatchSave(ctx, int32(req.Number), req.GroupIds)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +62,8 @@ func (s *UserService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 	rv, err := s.uc.UpdateUser(ctx, &biz.User{
 		ID:       req.Id,
 		Username: req.Username,
+		State:    int16(req.State),
+		GroupIds: req.GroupIds,
 	})
 	if err != nil {
 		return nil, err
@@ -86,6 +88,8 @@ func (s *UserService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*p
 		users = append(users, &pb.ListUserReply_User{
 			Id:       v.ID,
 			Username: v.Username,
+			GroupIds: v.GroupIds,
+			State:    int32(v.State),
 		})
 	}
 	return &pb.ListUserReply{

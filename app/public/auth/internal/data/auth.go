@@ -6,6 +6,7 @@ import (
 	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
+	"sastoj/pkg/util"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -15,8 +16,8 @@ type authRepo struct {
 	log  *log.Helper
 }
 
-func (a *authRepo) GetContests(ctx context.Context, groupID int64) ([]int64, error) {
-	contests, err := a.data.db.Contest.Query().Select(contest.FieldID).Where(contest.HasContestantsWith(group.IDEQ(groupID))).All(ctx)
+func (a *authRepo) GetContests(ctx context.Context, groupIds []int64) ([]int64, error) {
+	contests, err := a.data.db.Contest.Query().Select(contest.FieldID).Where(contest.HasContestantsWith(group.IDIn(groupIds...))).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +40,8 @@ func (a *authRepo) FindUserByName(ctx context.Context, username string) (*biz.Us
 		Username:  po.Username,
 		Password:  po.Password,
 		Salt:      po.Salt,
-		Status:    po.Status,
-		GroupID:   po.GroupID,
+		Status:    util.UserStateToInt(po.State),
+		GroupIds:  po.QueryGroups().IDsX(ctx),
 		GroupName: g.GroupName,
 	}, nil
 }

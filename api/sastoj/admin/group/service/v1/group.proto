@@ -55,6 +55,10 @@ enum ErrorReason {
 }
 message CreateGroupRequest {
   string name = 1;
+  bool is_root = 2;
+  repeated int64 manage = 3;
+  repeated int64 contests = 4;
+  repeated int64 problems = 5;
 }
 message CreateGroupReply {
   int64 id = 1;
@@ -63,6 +67,10 @@ message CreateGroupReply {
 message UpdateGroupRequest {
   int64 id = 1;
   string name = 2;
+  bool is_root = 3;
+  repeated int64 manage = 4;
+  repeated int64 contests = 5;
+  repeated int64 problems = 6;
 }
 message UpdateGroupReply {
   bool success = 1;
@@ -81,6 +89,10 @@ message GetGroupRequest {
 message GetGroupReply {
   int64 id = 1;
   string name = 2;
+  bool is_root = 3;
+  repeated int64 manage = 4;
+  repeated int64 contests = 5;
+  repeated int64 problems = 6;
 }
 
 message ListGroupRequest {
@@ -91,6 +103,10 @@ message ListGroupReply {
   message Group {
     int64 id = 1;
     string name = 2;
+    bool is_root = 3;
+    repeated int64 manage = 4;
+    repeated int64 contests = 5;
+    repeated int64 problems = 6;
   }
   repeated Group groups = 1;
 }

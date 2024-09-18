@@ -19,12 +19,12 @@ type User struct {
 	Password  string
 	Salt      string
 	Status    int16
-	GroupID   int64
+	GroupIds  []int64
 	GroupName string
 }
 type MyCustomClaims struct {
 	UserId     int64   `json:"user_id"`
-	GroupId    int64   `json:"group_id"`
+	GroupIds   []int64 `json:"group_ids"`
 	GroupName  string  `json:"group_name"`
 	ContestIds []int64 `json:"contest_ids"`
 	jwt.RegisteredClaims
@@ -33,7 +33,7 @@ type MyCustomClaims struct {
 // AuthRepo is a user and contest repo.
 type AuthRepo interface {
 	FindUserByName(context.Context, string) (*User, error)
-	GetContests(ctx context.Context, groupID int64) ([]int64, error)
+	GetContests(ctx context.Context, groupIds []int64) ([]int64, error)
 }
 
 type jwtConfig struct {
@@ -78,7 +78,7 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	if !verifyPassword(password, user.Salt, user.Password) {
 		return "", errors.New("user or password is wrong")
 	}
-	contestIDs, err := uc.repo.GetContests(ctx, user.GroupID)
+	contestIDs, err := uc.repo.GetContests(ctx, user.GroupIds)
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +112,7 @@ func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, erro
 	}
 	claims := MyCustomClaims{
 		UserId:           user.ID,
-		GroupId:          user.GroupID,
+		GroupIds:         user.GroupIds,
 		GroupName:        user.GroupName,
 		ContestIds:       contestIds,
 		RegisteredClaims: registeredClaims,

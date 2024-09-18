@@ -6,6 +6,7 @@ import (
 	"sastoj/app/admin/user/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/user"
+	"sastoj/pkg/util"
 )
 
 type userRepo struct {
@@ -21,25 +22,36 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) Save(ctx context.Context, user *biz.User) (*biz.User, error) {
+func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
+	entState, err := util.UserStateToEnt(u.State)
+	if err != nil {
+		return nil, err
+	}
 	res, err := r.data.db.User.Create().
-		SetUsername(user.Username).
-		SetPassword(user.Password).
-		SetSalt(user.Salt).
-		//SetStatus(int16(user.Status)).
-		//SetGroupID(user.GroupID).
+		SetUsername(u.Username).
+		SetPassword(u.Password).
+		SetSalt(u.Salt).
+		SetState(entState).
+		AddGroupIDs(u.GroupIds...).
 		Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
 		return nil, err
 	}
-	user.ID = res.ID
-	return user, nil
+	u.ID = res.ID
+	return u, nil
 }
 
 func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
+	entState, err := util.UserStateToEnt(u.State)
+	if err != nil {
+		return nil, err
+	}
 	res, err := r.data.db.User.Update().
 		SetUsername(u.Username).
+		ClearGroups().
+		AddGroupIDs(u.GroupIds...).
+		SetState(entState).
 		Where(user.ID(u.ID)).
 		Save(ctx)
 	if err != nil {
@@ -59,6 +71,8 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	return &biz.User{
 		ID:       res.ID,
 		Username: res.Username,
+		GroupIds: res.QueryGroups().IDsX(ctx),
+		State:    util.UserStateToInt(res.State),
 	}, nil
 }
 
@@ -73,6 +87,8 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64) ([]
 		rv = append(rv, &biz.User{
 			ID:       u.ID,
 			Username: u.Username,
+			GroupIds: u.QueryGroups().IDsX(ctx),
+			State:    util.UserStateToInt(u.State),
 		})
 	}
 	return rv, nil
@@ -81,9 +97,8 @@ func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]st
 	createdUsers, err := r.data.db.User.MapCreateBulk(users, func(c *ent.UserCreate, i int) {
 		c.SetUsername(users[i].Username).
 			SetSalt(users[i].Salt).
-			SetPassword(users[i].Password)
-		//SetGroupID(users[i].GroupID).
-		//SetStatus(0)
+			SetPassword(users[i].Password).
+			AddGroupIDs(users[i].GroupIds...)
 	}).Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)

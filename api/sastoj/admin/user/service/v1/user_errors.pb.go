@@ -72,3 +72,15 @@ func IsUserExisted(err error) bool {
 func ErrorUserExisted(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ErrorReason_USER_EXISTED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsUserInvalid(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_USER_INVALID.String() && e.Code == 400
+}
+
+func ErrorUserInvalid(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_USER_INVALID.String(), fmt.Sprintf(format, args...))
+}
