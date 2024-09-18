@@ -30,7 +30,7 @@ func InsertDefaultUser(ctx context.Context, client *ent.Client, rootGroup *ent.G
 	salt := GenerateRandomString(5, "")
 	_, err := client.User.Create().
 		SetUsername(rootName).
-		SetPassword(GenerateMD5Password(salt, rootPassword)).
+		SetPassword(GenerateMD5Password(rootPassword, salt)).
 		SetSalt(salt).
 		AddGroups(rootGroup).
 		Save(ctx)
