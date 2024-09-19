@@ -4,6 +4,7 @@ import (
 	"context"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
@@ -61,9 +62,14 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	err = util.InsertDefaultUser(context.TODO(), client, rootGroup, c.Auth.RootName, c.Auth.RootPassword)
-	if err != nil {
-		return nil, nil, err
+	if !util.ExistRootUser(context.TODO(), client) {
+		if c.Auth == nil || c.Auth.RootName == "" || c.Auth.RootPassword == "" {
+			return nil, nil, errors.New("unable to get root user in database and unable to read root user in the config. please have at least one root user")
+		}
+		err = util.InsertDefaultUser(context.TODO(), client, rootGroup, &c.Auth.RootName, &c.Auth.RootPassword)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	return &Data{db: client}, cleanup, nil
 }

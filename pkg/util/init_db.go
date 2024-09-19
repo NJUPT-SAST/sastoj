@@ -22,15 +22,14 @@ func InsertDefaultGroup(ctx context.Context, client *ent.Client) (*ent.Group, er
 	return rootGroup, err
 }
 
-func InsertDefaultUser(ctx context.Context, client *ent.Client, rootGroup *ent.Group, rootName string, rootPassword string) error {
-	rootUser := client.User.Query().Where(user.HasGroupsWith(group.IsRootEQ(true))).FirstX(ctx)
-	if rootUser != nil {
+func InsertDefaultUser(ctx context.Context, client *ent.Client, rootGroup *ent.Group, rootName *string, rootPassword *string) error {
+	if ExistRootUser(ctx, client) {
 		return nil
 	}
 	salt := GenerateRandomString(5, "")
 	_, err := client.User.Create().
-		SetUsername(rootName).
-		SetPassword(GenerateMD5Password(rootPassword, salt)).
+		SetUsername(*rootName).
+		SetPassword(GenerateMD5Password(*rootPassword, salt)).
 		SetSalt(salt).
 		AddGroups(rootGroup).
 		Save(ctx)
@@ -39,4 +38,12 @@ func InsertDefaultUser(ctx context.Context, client *ent.Client, rootGroup *ent.G
 		return err
 	}
 	return nil
+}
+
+func ExistRootUser(ctx context.Context, client *ent.Client) bool {
+	rootUser := client.User.Query().Where(user.HasGroupsWith(group.IsRootEQ(true))).FirstX(ctx)
+	if rootUser != nil {
+		return true
+	}
+	return false
 }
