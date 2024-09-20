@@ -10,7 +10,7 @@ import (
 
 func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
 	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserID
+	userID := claim.UserId
 	rv, err := s.contestUc.ListContest(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsReque
 }
 func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
 	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserID
+	userID := claim.UserId
 	err := s.contestUc.JoinContest(ctx, userID, req.GetContestId(), req.Body.IsJoin)
 	if err != nil {
 		return nil, err

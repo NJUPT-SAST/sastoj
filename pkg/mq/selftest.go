@@ -18,7 +18,7 @@ type SelfTest struct {
 
 func (s SelfTest) String() string {
 	return fmt.Sprintf(
-		"SelfTest{ID: %s, UserID: %d, Code: %s, Language: %s, Input: %s, IsCompiled: %t, Stdout: %s, Stderr: %s, Time: %d, Memory: %d, Token: %s}",
+		"SelfTest{ID: %s, UserId: %d, Code: %s, Language: %s, Input: %s, IsCompiled: %t, Stdout: %s, Stderr: %s, Time: %d, Memory: %d, Token: %s}",
 		s.ID,
 		s.UserID,
 		s.Code,

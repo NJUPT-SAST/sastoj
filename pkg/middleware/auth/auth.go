@@ -24,10 +24,9 @@ var (
 )
 
 type Claims struct {
-	UserID     int64   `json:"user_id"`
-	GroupID    int64   `json:"group_id"`
-	GroupName  string  `json:"group_name"`
-	ContestIDs []int64 `json:"contest_ids"`
+	UserId    int64   `json:"user_id"`
+	GroupIds  []int64 `json:"group_ids"`
+	GroupName string  `json:"group_name"`
 }
 
 // Authorization
@@ -63,14 +62,14 @@ func Auth(secret string, defaultRule string, customApiMap map[string]string) mid
 			if err != nil {
 				return nil, err
 			}
-			log.Infof("receive request from user: %d", claimsInfo.UserID)
+			log.Infof("receive request from user: %d", claimsInfo.UserId)
 
 			//put claims into context so that other service could retrieve it
 			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
 
 			// if the user is an admin, then return directly
 			if strings.HasPrefix(claimsInfo.GroupName, AdminGroup) {
-				log.Infof("receive request from admin: %d", claimsInfo.UserID)
+				log.Infof("receive request from admin: %d", claimsInfo.UserId)
 				return handler(ctx, req)
 			}
 
@@ -136,7 +135,15 @@ func parseClaims(claims jwt.Claims) (*Claims, error) {
 	if err != nil {
 		return nil, ErrMissingClaims
 	}
-	groupID, err := claims.(jwt.MapClaims)["group_id"].(json.Number).Int64()
+	groupIds := make([]int64, 0)
+	for _, id := range claims.(jwt.MapClaims)["group_ids"].([]interface{}) {
+		groupID, err := id.(json.Number).Int64()
+		if err != nil {
+			return nil, ErrMissingClaims
+		}
+		groupIds = append(groupIds, groupID)
+	}
+	log.Info(groupIds)
 	if err != nil {
 		return nil, ErrMissingClaims
 	}
@@ -144,18 +151,9 @@ func parseClaims(claims jwt.Claims) (*Claims, error) {
 	if !ok {
 		return nil, ErrMissingClaims
 	}
-	contestIDs := make([]int64, 0)
-	for _, id := range claims.(jwt.MapClaims)["contest_ids"].([]interface{}) {
-		contestID, err := id.(json.Number).Int64()
-		if err != nil {
-			return nil, ErrMissingClaims
-		}
-		contestIDs = append(contestIDs, contestID)
-	}
 	return &Claims{
-		UserID:     userID,
-		GroupID:    groupID,
-		GroupName:  groupName,
-		ContestIDs: contestIDs,
+		UserId:    userID,
+		GroupIds:  groupIds,
+		GroupName: groupName,
 	}, nil
 }
