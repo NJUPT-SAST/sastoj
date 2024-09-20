@@ -23,10 +23,9 @@ type User struct {
 	GroupName string
 }
 type MyCustomClaims struct {
-	UserId     int64   `json:"user_id"`
-	GroupIds   []int64 `json:"group_ids"`
-	GroupName  string  `json:"group_name"`
-	ContestIds []int64 `json:"contest_ids"`
+	UserId    int64   `json:"user_id"`
+	GroupIds  []int64 `json:"group_ids"`
+	GroupName string  `json:"group_name"`
 	jwt.RegisteredClaims
 }
 
@@ -78,11 +77,10 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	if !verifyPassword(password, user.Salt, user.Password) {
 		return "", errors.New("user or password is wrong")
 	}
-	contestIDs, err := uc.repo.GetContests(ctx, user.GroupIds)
 	if err != nil {
 		return "", err
 	}
-	j, err := uc.generateJWT(user, contestIDs)
+	j, err := uc.generateJWT(user)
 	if err != nil {
 		return "", err
 	}
@@ -100,7 +98,7 @@ func generateMD5Password(password string, salt string) string {
 func verifyPassword(password string, salt string, hash string) bool {
 	return generateMD5Password(password, salt) == hash
 }
-func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, error) {
+func (uc *AuthUsecase) generateJWT(user *User) (string, error) {
 	// 设置声明（Claims）
 	registeredClaims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(uc.jwtConf.expiration)),
@@ -114,7 +112,6 @@ func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, erro
 		UserId:           user.ID,
 		GroupIds:         user.GroupIds,
 		GroupName:        user.GroupName,
-		ContestIds:       contestIds,
 		RegisteredClaims: registeredClaims,
 	}
 	// 使用密钥对 Token 进行签名，生成最终的 JWT
