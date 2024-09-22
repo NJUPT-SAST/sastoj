@@ -29,7 +29,12 @@ func (Problem) Fields() []ent.Field {
 		field.Int16("score").NonNegative(),
 		field.Int16("case_version").Default(1),
 		field.Int16("index").Positive(),
-		field.JSON("lf_compare", LfCompare{}),
+		field.JSON("lf_compare", LfCompare{}).Default(LfCompare{
+			IgnoreLineEndSpace:      false,
+			IgnoreLineEndEnter:      false,
+			IgnoreTextTrailingSpace: false,
+			IgnoreTextTrailingEnter: false,
+		}),
 		field.Bool("is_deleted").Default(false),
 		field.Int64("contest_id"),
 		field.Int64("user_id"),
@@ -42,9 +47,9 @@ func (Problem) Fields() []ent.Field {
 func (Problem) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("submission", Submission.Type),
-		edge.From("contests", Contest.Type).Ref("problems").Field("contest_id").Unique().Required(),
+		edge.From("contest", Contest.Type).Ref("problems").Field("contest_id").Unique().Required(),
 		edge.From("owner", User.Type).Ref("owned_problems").Field("user_id").Unique().Required(),
-		edge.From("problem_types", ProblemType.Type).Ref("problems").Field("problem_type_id").Unique().Required(),
+		edge.From("problem_type", ProblemType.Type).Ref("problems").Field("problem_type_id").Unique().Required(),
 		edge.To("judgers", Group.Type),
 	}
 }

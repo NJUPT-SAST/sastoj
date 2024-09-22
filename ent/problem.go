@@ -55,12 +55,12 @@ type Problem struct {
 type ProblemEdges struct {
 	// Submission holds the value of the submission edge.
 	Submission []*Submission `json:"submission,omitempty"`
-	// Contests holds the value of the contests edge.
-	Contests *Contest `json:"contests,omitempty"`
+	// Contest holds the value of the contest edge.
+	Contest *Contest `json:"contest,omitempty"`
 	// Owner holds the value of the owner edge.
 	Owner *User `json:"owner,omitempty"`
-	// ProblemTypes holds the value of the problem_types edge.
-	ProblemTypes *ProblemType `json:"problem_types,omitempty"`
+	// ProblemType holds the value of the problem_type edge.
+	ProblemType *ProblemType `json:"problem_type,omitempty"`
 	// Judgers holds the value of the judgers edge.
 	Judgers []*Group `json:"judgers,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -77,17 +77,17 @@ func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
 	return nil, &NotLoadedError{edge: "submission"}
 }
 
-// ContestsOrErr returns the Contests value or an error if the edge
+// ContestOrErr returns the Contest value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
+func (e ProblemEdges) ContestOrErr() (*Contest, error) {
 	if e.loadedTypes[1] {
-		if e.Contests == nil {
+		if e.Contest == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: contest.Label}
 		}
-		return e.Contests, nil
+		return e.Contest, nil
 	}
-	return nil, &NotLoadedError{edge: "contests"}
+	return nil, &NotLoadedError{edge: "contest"}
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -103,17 +103,17 @@ func (e ProblemEdges) OwnerOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "owner"}
 }
 
-// ProblemTypesOrErr returns the ProblemTypes value or an error if the edge
+// ProblemTypeOrErr returns the ProblemType value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemEdges) ProblemTypesOrErr() (*ProblemType, error) {
+func (e ProblemEdges) ProblemTypeOrErr() (*ProblemType, error) {
 	if e.loadedTypes[3] {
-		if e.ProblemTypes == nil {
+		if e.ProblemType == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: problemtype.Label}
 		}
-		return e.ProblemTypes, nil
+		return e.ProblemType, nil
 	}
-	return nil, &NotLoadedError{edge: "problem_types"}
+	return nil, &NotLoadedError{edge: "problem_type"}
 }
 
 // JudgersOrErr returns the Judgers value or an error if the edge
@@ -253,9 +253,9 @@ func (pr *Problem) QuerySubmission() *SubmissionQuery {
 	return NewProblemClient(pr.config).QuerySubmission(pr)
 }
 
-// QueryContests queries the "contests" edge of the Problem entity.
-func (pr *Problem) QueryContests() *ContestQuery {
-	return NewProblemClient(pr.config).QueryContests(pr)
+// QueryContest queries the "contest" edge of the Problem entity.
+func (pr *Problem) QueryContest() *ContestQuery {
+	return NewProblemClient(pr.config).QueryContest(pr)
 }
 
 // QueryOwner queries the "owner" edge of the Problem entity.
@@ -263,9 +263,9 @@ func (pr *Problem) QueryOwner() *UserQuery {
 	return NewProblemClient(pr.config).QueryOwner(pr)
 }
 
-// QueryProblemTypes queries the "problem_types" edge of the Problem entity.
-func (pr *Problem) QueryProblemTypes() *ProblemTypeQuery {
-	return NewProblemClient(pr.config).QueryProblemTypes(pr)
+// QueryProblemType queries the "problem_type" edge of the Problem entity.
+func (pr *Problem) QueryProblemType() *ProblemTypeQuery {
+	return NewProblemClient(pr.config).QueryProblemType(pr)
 }
 
 // QueryJudgers queries the "judgers" edge of the Problem entity.

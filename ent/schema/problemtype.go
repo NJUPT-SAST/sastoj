@@ -23,10 +23,11 @@ func (ProblemType) Annotations() []schema.Annotation {
 func (ProblemType) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique(),
-		field.String("slug_name"),
+		field.String("slug_name").Unique(),
 		field.String("display_name"),
-		field.String("description"),
-		field.String("channel_name"),
+		field.String("description").Default(""),
+		field.String("submission_channel_name").Default("submission"),
+		field.String("self_test_channel_name").Default("self-test"),
 		field.String("judge").Default("default"),
 	}
 }

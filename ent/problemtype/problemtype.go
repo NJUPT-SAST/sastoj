@@ -18,8 +18,10 @@ const (
 	FieldDisplayName = "display_name"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldChannelName holds the string denoting the channel_name field in the database.
-	FieldChannelName = "channel_name"
+	// FieldSubmissionChannelName holds the string denoting the submission_channel_name field in the database.
+	FieldSubmissionChannelName = "submission_channel_name"
+	// FieldSelfTestChannelName holds the string denoting the self_test_channel_name field in the database.
+	FieldSelfTestChannelName = "self_test_channel_name"
 	// FieldJudge holds the string denoting the judge field in the database.
 	FieldJudge = "judge"
 	// EdgeProblems holds the string denoting the problems edge name in mutations.
@@ -41,7 +43,8 @@ var Columns = []string{
 	FieldSlugName,
 	FieldDisplayName,
 	FieldDescription,
-	FieldChannelName,
+	FieldSubmissionChannelName,
+	FieldSelfTestChannelName,
 	FieldJudge,
 }
 
@@ -56,6 +59,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultDescription holds the default value on creation for the "description" field.
+	DefaultDescription string
+	// DefaultSubmissionChannelName holds the default value on creation for the "submission_channel_name" field.
+	DefaultSubmissionChannelName string
+	// DefaultSelfTestChannelName holds the default value on creation for the "self_test_channel_name" field.
+	DefaultSelfTestChannelName string
 	// DefaultJudge holds the default value on creation for the "judge" field.
 	DefaultJudge string
 )
@@ -83,9 +92,14 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByChannelName orders the results by the channel_name field.
-func ByChannelName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldChannelName, opts...).ToFunc()
+// BySubmissionChannelName orders the results by the submission_channel_name field.
+func BySubmissionChannelName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubmissionChannelName, opts...).ToFunc()
+}
+
+// BySelfTestChannelName orders the results by the self_test_channel_name field.
+func BySelfTestChannelName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSelfTestChannelName, opts...).ToFunc()
 }
 
 // ByJudge orders the results by the judge field.

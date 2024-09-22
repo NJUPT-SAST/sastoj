@@ -77,6 +77,14 @@ func (pc *ProblemCreate) SetLfCompare(sc schema.LfCompare) *ProblemCreate {
 	return pc
 }
 
+// SetNillableLfCompare sets the "lf_compare" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableLfCompare(sc *schema.LfCompare) *ProblemCreate {
+	if sc != nil {
+		pc.SetLfCompare(*sc)
+	}
+	return pc
+}
+
 // SetIsDeleted sets the "is_deleted" field.
 func (pc *ProblemCreate) SetIsDeleted(b bool) *ProblemCreate {
 	pc.mutation.SetIsDeleted(b)
@@ -144,15 +152,9 @@ func (pc *ProblemCreate) AddSubmission(s ...*Submission) *ProblemCreate {
 	return pc.AddSubmissionIDs(ids...)
 }
 
-// SetContestsID sets the "contests" edge to the Contest entity by ID.
-func (pc *ProblemCreate) SetContestsID(id int64) *ProblemCreate {
-	pc.mutation.SetContestsID(id)
-	return pc
-}
-
-// SetContests sets the "contests" edge to the Contest entity.
-func (pc *ProblemCreate) SetContests(c *Contest) *ProblemCreate {
-	return pc.SetContestsID(c.ID)
+// SetContest sets the "contest" edge to the Contest entity.
+func (pc *ProblemCreate) SetContest(c *Contest) *ProblemCreate {
+	return pc.SetContestID(c.ID)
 }
 
 // SetOwnerID sets the "owner" edge to the User entity by ID.
@@ -166,15 +168,9 @@ func (pc *ProblemCreate) SetOwner(u *User) *ProblemCreate {
 	return pc.SetOwnerID(u.ID)
 }
 
-// SetProblemTypesID sets the "problem_types" edge to the ProblemType entity by ID.
-func (pc *ProblemCreate) SetProblemTypesID(id int64) *ProblemCreate {
-	pc.mutation.SetProblemTypesID(id)
-	return pc
-}
-
-// SetProblemTypes sets the "problem_types" edge to the ProblemType entity.
-func (pc *ProblemCreate) SetProblemTypes(p *ProblemType) *ProblemCreate {
-	return pc.SetProblemTypesID(p.ID)
+// SetProblemType sets the "problem_type" edge to the ProblemType entity.
+func (pc *ProblemCreate) SetProblemType(p *ProblemType) *ProblemCreate {
+	return pc.SetProblemTypeID(p.ID)
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
@@ -230,6 +226,10 @@ func (pc *ProblemCreate) defaults() {
 	if _, ok := pc.mutation.CaseVersion(); !ok {
 		v := problem.DefaultCaseVersion
 		pc.mutation.SetCaseVersion(v)
+	}
+	if _, ok := pc.mutation.LfCompare(); !ok {
+		v := problem.DefaultLfCompare
+		pc.mutation.SetLfCompare(v)
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		v := problem.DefaultIsDeleted
@@ -298,14 +298,14 @@ func (pc *ProblemCreate) check() error {
 	if _, ok := pc.mutation.Metadata(); !ok {
 		return &ValidationError{Name: "metadata", err: errors.New(`ent: missing required field "Problem.metadata"`)}
 	}
-	if _, ok := pc.mutation.ContestsID(); !ok {
-		return &ValidationError{Name: "contests", err: errors.New(`ent: missing required edge "Problem.contests"`)}
+	if _, ok := pc.mutation.ContestID(); !ok {
+		return &ValidationError{Name: "contest", err: errors.New(`ent: missing required edge "Problem.contest"`)}
 	}
 	if _, ok := pc.mutation.OwnerID(); !ok {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "Problem.owner"`)}
 	}
-	if _, ok := pc.mutation.ProblemTypesID(); !ok {
-		return &ValidationError{Name: "problem_types", err: errors.New(`ent: missing required edge "Problem.problem_types"`)}
+	if _, ok := pc.mutation.ProblemTypeID(); !ok {
+		return &ValidationError{Name: "problem_type", err: errors.New(`ent: missing required edge "Problem.problem_type"`)}
 	}
 	return nil
 }
@@ -392,12 +392,12 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.ContestsIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.ContestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   problem.ContestsTable,
-			Columns: []string{problem.ContestsColumn},
+			Table:   problem.ContestTable,
+			Columns: []string{problem.ContestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(contest.FieldID, field.TypeInt64),
@@ -426,12 +426,12 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.ProblemTypesIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.ProblemTypeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   problem.ProblemTypesTable,
-			Columns: []string{problem.ProblemTypesColumn},
+			Table:   problem.ProblemTypeTable,
+			Columns: []string{problem.ProblemTypeColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(problemtype.FieldID, field.TypeInt64),

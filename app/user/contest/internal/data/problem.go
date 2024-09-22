@@ -3,8 +3,10 @@ package data
 import (
 	"context"
 	"sastoj/app/user/contest/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/problemtype"
 	"strconv"
 	"time"
 
@@ -33,7 +35,7 @@ func (p problemRepo) GetProblemCaseVer(ctx context.Context, problemId int64) (in
 func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.Problem, error) {
 	po, err := p.data.db.Problem.Query().
 		Select(problem.FieldID, problem.FieldTitle, problem.FieldScore, problem.FieldIndex).
-		Where(problem.HasContestsWith(contest.IDEQ(contestID))).
+		Where(problem.HasContestWith(contest.IDEQ(contestID))).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -53,6 +55,9 @@ func (p problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.P
 func (p problemRepo) GetProblem(ctx context.Context, problemID, contestID int64) (*biz.Problem, error) {
 	po, err := p.data.db.Problem.Query().
 		Select(problem.FieldID, problem.FieldTitle, problem.FieldContent, problem.FieldScore).
+		WithProblemType(func(q *ent.ProblemTypeQuery) {
+			q.Select(problemtype.FieldDisplayName)
+		}).
 		Where(problem.IDEQ(problemID), problem.ContestIDEQ(contestID)).
 		Only(ctx)
 	if err != nil {
@@ -61,6 +66,7 @@ func (p problemRepo) GetProblem(ctx context.Context, problemID, contestID int64)
 	return &biz.Problem{
 		ID:      po.ID,
 		Title:   po.Title,
+		Type:    po.Edges.ProblemType.DisplayName,
 		Content: po.Content,
 		Index:   po.Index,
 	}, nil

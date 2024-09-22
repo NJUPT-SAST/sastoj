@@ -3324,37 +3324,37 @@ func (m *LoginSessionMutation) ResetEdge(name string) error {
 // ProblemMutation represents an operation that mutates the Problem nodes in the graph.
 type ProblemMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *int64
-	title                *string
-	content              *string
-	score                *int16
-	addscore             *int16
-	case_version         *int16
-	addcase_version      *int16
-	index                *int16
-	addindex             *int16
-	lf_compare           *schema.LfCompare
-	is_deleted           *bool
-	visibility           *problem.Visibility
-	metadata             *map[string]string
-	clearedFields        map[string]struct{}
-	submission           map[int64]struct{}
-	removedsubmission    map[int64]struct{}
-	clearedsubmission    bool
-	contests             *int64
-	clearedcontests      bool
-	owner                *int64
-	clearedowner         bool
-	problem_types        *int64
-	clearedproblem_types bool
-	judgers              map[int64]struct{}
-	removedjudgers       map[int64]struct{}
-	clearedjudgers       bool
-	done                 bool
-	oldValue             func(context.Context) (*Problem, error)
-	predicates           []predicate.Problem
+	op                  Op
+	typ                 string
+	id                  *int64
+	title               *string
+	content             *string
+	score               *int16
+	addscore            *int16
+	case_version        *int16
+	addcase_version     *int16
+	index               *int16
+	addindex            *int16
+	lf_compare          *schema.LfCompare
+	is_deleted          *bool
+	visibility          *problem.Visibility
+	metadata            *map[string]string
+	clearedFields       map[string]struct{}
+	submission          map[int64]struct{}
+	removedsubmission   map[int64]struct{}
+	clearedsubmission   bool
+	contest             *int64
+	clearedcontest      bool
+	owner               *int64
+	clearedowner        bool
+	problem_type        *int64
+	clearedproblem_type bool
+	judgers             map[int64]struct{}
+	removedjudgers      map[int64]struct{}
+	clearedjudgers      bool
+	done                bool
+	oldValue            func(context.Context) (*Problem, error)
+	predicates          []predicate.Problem
 }
 
 var _ ent.Mutation = (*ProblemMutation)(nil)
@@ -3463,12 +3463,12 @@ func (m *ProblemMutation) IDs(ctx context.Context) ([]int64, error) {
 
 // SetProblemTypeID sets the "problem_type_id" field.
 func (m *ProblemMutation) SetProblemTypeID(i int64) {
-	m.problem_types = &i
+	m.problem_type = &i
 }
 
 // ProblemTypeID returns the value of the "problem_type_id" field in the mutation.
 func (m *ProblemMutation) ProblemTypeID() (r int64, exists bool) {
-	v := m.problem_types
+	v := m.problem_type
 	if v == nil {
 		return
 	}
@@ -3494,7 +3494,7 @@ func (m *ProblemMutation) OldProblemTypeID(ctx context.Context) (v int64, err er
 
 // ResetProblemTypeID resets all changes to the "problem_type_id" field.
 func (m *ProblemMutation) ResetProblemTypeID() {
-	m.problem_types = nil
+	m.problem_type = nil
 }
 
 // SetTitle sets the "title" field.
@@ -3811,12 +3811,12 @@ func (m *ProblemMutation) ResetIsDeleted() {
 
 // SetContestID sets the "contest_id" field.
 func (m *ProblemMutation) SetContestID(i int64) {
-	m.contests = &i
+	m.contest = &i
 }
 
 // ContestID returns the value of the "contest_id" field in the mutation.
 func (m *ProblemMutation) ContestID() (r int64, exists bool) {
-	v := m.contests
+	v := m.contest
 	if v == nil {
 		return
 	}
@@ -3842,7 +3842,7 @@ func (m *ProblemMutation) OldContestID(ctx context.Context) (v int64, err error)
 
 // ResetContestID resets all changes to the "contest_id" field.
 func (m *ProblemMutation) ResetContestID() {
-	m.contests = nil
+	m.contest = nil
 }
 
 // SetUserID sets the "user_id" field.
@@ -4007,44 +4007,31 @@ func (m *ProblemMutation) ResetSubmission() {
 	m.removedsubmission = nil
 }
 
-// SetContestsID sets the "contests" edge to the Contest entity by id.
-func (m *ProblemMutation) SetContestsID(id int64) {
-	m.contests = &id
-}
-
-// ClearContests clears the "contests" edge to the Contest entity.
-func (m *ProblemMutation) ClearContests() {
-	m.clearedcontests = true
+// ClearContest clears the "contest" edge to the Contest entity.
+func (m *ProblemMutation) ClearContest() {
+	m.clearedcontest = true
 	m.clearedFields[problem.FieldContestID] = struct{}{}
 }
 
-// ContestsCleared reports if the "contests" edge to the Contest entity was cleared.
-func (m *ProblemMutation) ContestsCleared() bool {
-	return m.clearedcontests
+// ContestCleared reports if the "contest" edge to the Contest entity was cleared.
+func (m *ProblemMutation) ContestCleared() bool {
+	return m.clearedcontest
 }
 
-// ContestsID returns the "contests" edge ID in the mutation.
-func (m *ProblemMutation) ContestsID() (id int64, exists bool) {
-	if m.contests != nil {
-		return *m.contests, true
-	}
-	return
-}
-
-// ContestsIDs returns the "contests" edge IDs in the mutation.
+// ContestIDs returns the "contest" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ContestsID instead. It exists only for internal usage by the builders.
-func (m *ProblemMutation) ContestsIDs() (ids []int64) {
-	if id := m.contests; id != nil {
+// ContestID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) ContestIDs() (ids []int64) {
+	if id := m.contest; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetContests resets all changes to the "contests" edge.
-func (m *ProblemMutation) ResetContests() {
-	m.contests = nil
-	m.clearedcontests = false
+// ResetContest resets all changes to the "contest" edge.
+func (m *ProblemMutation) ResetContest() {
+	m.contest = nil
+	m.clearedcontest = false
 }
 
 // SetOwnerID sets the "owner" edge to the User entity by id.
@@ -4087,44 +4074,31 @@ func (m *ProblemMutation) ResetOwner() {
 	m.clearedowner = false
 }
 
-// SetProblemTypesID sets the "problem_types" edge to the ProblemType entity by id.
-func (m *ProblemMutation) SetProblemTypesID(id int64) {
-	m.problem_types = &id
-}
-
-// ClearProblemTypes clears the "problem_types" edge to the ProblemType entity.
-func (m *ProblemMutation) ClearProblemTypes() {
-	m.clearedproblem_types = true
+// ClearProblemType clears the "problem_type" edge to the ProblemType entity.
+func (m *ProblemMutation) ClearProblemType() {
+	m.clearedproblem_type = true
 	m.clearedFields[problem.FieldProblemTypeID] = struct{}{}
 }
 
-// ProblemTypesCleared reports if the "problem_types" edge to the ProblemType entity was cleared.
-func (m *ProblemMutation) ProblemTypesCleared() bool {
-	return m.clearedproblem_types
+// ProblemTypeCleared reports if the "problem_type" edge to the ProblemType entity was cleared.
+func (m *ProblemMutation) ProblemTypeCleared() bool {
+	return m.clearedproblem_type
 }
 
-// ProblemTypesID returns the "problem_types" edge ID in the mutation.
-func (m *ProblemMutation) ProblemTypesID() (id int64, exists bool) {
-	if m.problem_types != nil {
-		return *m.problem_types, true
-	}
-	return
-}
-
-// ProblemTypesIDs returns the "problem_types" edge IDs in the mutation.
+// ProblemTypeIDs returns the "problem_type" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProblemTypesID instead. It exists only for internal usage by the builders.
-func (m *ProblemMutation) ProblemTypesIDs() (ids []int64) {
-	if id := m.problem_types; id != nil {
+// ProblemTypeID instead. It exists only for internal usage by the builders.
+func (m *ProblemMutation) ProblemTypeIDs() (ids []int64) {
+	if id := m.problem_type; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProblemTypes resets all changes to the "problem_types" edge.
-func (m *ProblemMutation) ResetProblemTypes() {
-	m.problem_types = nil
-	m.clearedproblem_types = false
+// ResetProblemType resets all changes to the "problem_type" edge.
+func (m *ProblemMutation) ResetProblemType() {
+	m.problem_type = nil
+	m.clearedproblem_type = false
 }
 
 // AddJudgerIDs adds the "judgers" edge to the Group entity by ids.
@@ -4216,7 +4190,7 @@ func (m *ProblemMutation) Type() string {
 // AddedFields().
 func (m *ProblemMutation) Fields() []string {
 	fields := make([]string, 0, 12)
-	if m.problem_types != nil {
+	if m.problem_type != nil {
 		fields = append(fields, problem.FieldProblemTypeID)
 	}
 	if m.title != nil {
@@ -4240,7 +4214,7 @@ func (m *ProblemMutation) Fields() []string {
 	if m.is_deleted != nil {
 		fields = append(fields, problem.FieldIsDeleted)
 	}
-	if m.contests != nil {
+	if m.contest != nil {
 		fields = append(fields, problem.FieldContestID)
 	}
 	if m.owner != nil {
@@ -4544,14 +4518,14 @@ func (m *ProblemMutation) AddedEdges() []string {
 	if m.submission != nil {
 		edges = append(edges, problem.EdgeSubmission)
 	}
-	if m.contests != nil {
-		edges = append(edges, problem.EdgeContests)
+	if m.contest != nil {
+		edges = append(edges, problem.EdgeContest)
 	}
 	if m.owner != nil {
 		edges = append(edges, problem.EdgeOwner)
 	}
-	if m.problem_types != nil {
-		edges = append(edges, problem.EdgeProblemTypes)
+	if m.problem_type != nil {
+		edges = append(edges, problem.EdgeProblemType)
 	}
 	if m.judgers != nil {
 		edges = append(edges, problem.EdgeJudgers)
@@ -4569,16 +4543,16 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case problem.EdgeContests:
-		if id := m.contests; id != nil {
+	case problem.EdgeContest:
+		if id := m.contest; id != nil {
 			return []ent.Value{*id}
 		}
 	case problem.EdgeOwner:
 		if id := m.owner; id != nil {
 			return []ent.Value{*id}
 		}
-	case problem.EdgeProblemTypes:
-		if id := m.problem_types; id != nil {
+	case problem.EdgeProblemType:
+		if id := m.problem_type; id != nil {
 			return []ent.Value{*id}
 		}
 	case problem.EdgeJudgers:
@@ -4629,14 +4603,14 @@ func (m *ProblemMutation) ClearedEdges() []string {
 	if m.clearedsubmission {
 		edges = append(edges, problem.EdgeSubmission)
 	}
-	if m.clearedcontests {
-		edges = append(edges, problem.EdgeContests)
+	if m.clearedcontest {
+		edges = append(edges, problem.EdgeContest)
 	}
 	if m.clearedowner {
 		edges = append(edges, problem.EdgeOwner)
 	}
-	if m.clearedproblem_types {
-		edges = append(edges, problem.EdgeProblemTypes)
+	if m.clearedproblem_type {
+		edges = append(edges, problem.EdgeProblemType)
 	}
 	if m.clearedjudgers {
 		edges = append(edges, problem.EdgeJudgers)
@@ -4650,12 +4624,12 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 	switch name {
 	case problem.EdgeSubmission:
 		return m.clearedsubmission
-	case problem.EdgeContests:
-		return m.clearedcontests
+	case problem.EdgeContest:
+		return m.clearedcontest
 	case problem.EdgeOwner:
 		return m.clearedowner
-	case problem.EdgeProblemTypes:
-		return m.clearedproblem_types
+	case problem.EdgeProblemType:
+		return m.clearedproblem_type
 	case problem.EdgeJudgers:
 		return m.clearedjudgers
 	}
@@ -4666,14 +4640,14 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ProblemMutation) ClearEdge(name string) error {
 	switch name {
-	case problem.EdgeContests:
-		m.ClearContests()
+	case problem.EdgeContest:
+		m.ClearContest()
 		return nil
 	case problem.EdgeOwner:
 		m.ClearOwner()
 		return nil
-	case problem.EdgeProblemTypes:
-		m.ClearProblemTypes()
+	case problem.EdgeProblemType:
+		m.ClearProblemType()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem unique edge %s", name)
@@ -4686,14 +4660,14 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 	case problem.EdgeSubmission:
 		m.ResetSubmission()
 		return nil
-	case problem.EdgeContests:
-		m.ResetContests()
+	case problem.EdgeContest:
+		m.ResetContest()
 		return nil
 	case problem.EdgeOwner:
 		m.ResetOwner()
 		return nil
-	case problem.EdgeProblemTypes:
-		m.ResetProblemTypes()
+	case problem.EdgeProblemType:
+		m.ResetProblemType()
 		return nil
 	case problem.EdgeJudgers:
 		m.ResetJudgers()
@@ -4705,21 +4679,22 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 // ProblemTypeMutation represents an operation that mutates the ProblemType nodes in the graph.
 type ProblemTypeMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int64
-	slug_name       *string
-	display_name    *string
-	description     *string
-	channel_name    *string
-	judge           *string
-	clearedFields   map[string]struct{}
-	problems        map[int64]struct{}
-	removedproblems map[int64]struct{}
-	clearedproblems bool
-	done            bool
-	oldValue        func(context.Context) (*ProblemType, error)
-	predicates      []predicate.ProblemType
+	op                      Op
+	typ                     string
+	id                      *int64
+	slug_name               *string
+	display_name            *string
+	description             *string
+	submission_channel_name *string
+	self_test_channel_name  *string
+	judge                   *string
+	clearedFields           map[string]struct{}
+	problems                map[int64]struct{}
+	removedproblems         map[int64]struct{}
+	clearedproblems         bool
+	done                    bool
+	oldValue                func(context.Context) (*ProblemType, error)
+	predicates              []predicate.ProblemType
 }
 
 var _ ent.Mutation = (*ProblemTypeMutation)(nil)
@@ -4934,40 +4909,76 @@ func (m *ProblemTypeMutation) ResetDescription() {
 	m.description = nil
 }
 
-// SetChannelName sets the "channel_name" field.
-func (m *ProblemTypeMutation) SetChannelName(s string) {
-	m.channel_name = &s
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (m *ProblemTypeMutation) SetSubmissionChannelName(s string) {
+	m.submission_channel_name = &s
 }
 
-// ChannelName returns the value of the "channel_name" field in the mutation.
-func (m *ProblemTypeMutation) ChannelName() (r string, exists bool) {
-	v := m.channel_name
+// SubmissionChannelName returns the value of the "submission_channel_name" field in the mutation.
+func (m *ProblemTypeMutation) SubmissionChannelName() (r string, exists bool) {
+	v := m.submission_channel_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldChannelName returns the old "channel_name" field's value of the ProblemType entity.
+// OldSubmissionChannelName returns the old "submission_channel_name" field's value of the ProblemType entity.
 // If the ProblemType object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemTypeMutation) OldChannelName(ctx context.Context) (v string, err error) {
+func (m *ProblemTypeMutation) OldSubmissionChannelName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldChannelName is only allowed on UpdateOne operations")
+		return v, errors.New("OldSubmissionChannelName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldChannelName requires an ID field in the mutation")
+		return v, errors.New("OldSubmissionChannelName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldChannelName: %w", err)
+		return v, fmt.Errorf("querying old value for OldSubmissionChannelName: %w", err)
 	}
-	return oldValue.ChannelName, nil
+	return oldValue.SubmissionChannelName, nil
 }
 
-// ResetChannelName resets all changes to the "channel_name" field.
-func (m *ProblemTypeMutation) ResetChannelName() {
-	m.channel_name = nil
+// ResetSubmissionChannelName resets all changes to the "submission_channel_name" field.
+func (m *ProblemTypeMutation) ResetSubmissionChannelName() {
+	m.submission_channel_name = nil
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (m *ProblemTypeMutation) SetSelfTestChannelName(s string) {
+	m.self_test_channel_name = &s
+}
+
+// SelfTestChannelName returns the value of the "self_test_channel_name" field in the mutation.
+func (m *ProblemTypeMutation) SelfTestChannelName() (r string, exists bool) {
+	v := m.self_test_channel_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSelfTestChannelName returns the old "self_test_channel_name" field's value of the ProblemType entity.
+// If the ProblemType object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProblemTypeMutation) OldSelfTestChannelName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSelfTestChannelName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSelfTestChannelName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSelfTestChannelName: %w", err)
+	}
+	return oldValue.SelfTestChannelName, nil
+}
+
+// ResetSelfTestChannelName resets all changes to the "self_test_channel_name" field.
+func (m *ProblemTypeMutation) ResetSelfTestChannelName() {
+	m.self_test_channel_name = nil
 }
 
 // SetJudge sets the "judge" field.
@@ -5094,7 +5105,7 @@ func (m *ProblemTypeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProblemTypeMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.slug_name != nil {
 		fields = append(fields, problemtype.FieldSlugName)
 	}
@@ -5104,8 +5115,11 @@ func (m *ProblemTypeMutation) Fields() []string {
 	if m.description != nil {
 		fields = append(fields, problemtype.FieldDescription)
 	}
-	if m.channel_name != nil {
-		fields = append(fields, problemtype.FieldChannelName)
+	if m.submission_channel_name != nil {
+		fields = append(fields, problemtype.FieldSubmissionChannelName)
+	}
+	if m.self_test_channel_name != nil {
+		fields = append(fields, problemtype.FieldSelfTestChannelName)
 	}
 	if m.judge != nil {
 		fields = append(fields, problemtype.FieldJudge)
@@ -5124,8 +5138,10 @@ func (m *ProblemTypeMutation) Field(name string) (ent.Value, bool) {
 		return m.DisplayName()
 	case problemtype.FieldDescription:
 		return m.Description()
-	case problemtype.FieldChannelName:
-		return m.ChannelName()
+	case problemtype.FieldSubmissionChannelName:
+		return m.SubmissionChannelName()
+	case problemtype.FieldSelfTestChannelName:
+		return m.SelfTestChannelName()
 	case problemtype.FieldJudge:
 		return m.Judge()
 	}
@@ -5143,8 +5159,10 @@ func (m *ProblemTypeMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldDisplayName(ctx)
 	case problemtype.FieldDescription:
 		return m.OldDescription(ctx)
-	case problemtype.FieldChannelName:
-		return m.OldChannelName(ctx)
+	case problemtype.FieldSubmissionChannelName:
+		return m.OldSubmissionChannelName(ctx)
+	case problemtype.FieldSelfTestChannelName:
+		return m.OldSelfTestChannelName(ctx)
 	case problemtype.FieldJudge:
 		return m.OldJudge(ctx)
 	}
@@ -5177,12 +5195,19 @@ func (m *ProblemTypeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case problemtype.FieldChannelName:
+	case problemtype.FieldSubmissionChannelName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetChannelName(v)
+		m.SetSubmissionChannelName(v)
+		return nil
+	case problemtype.FieldSelfTestChannelName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSelfTestChannelName(v)
 		return nil
 	case problemtype.FieldJudge:
 		v, ok := value.(string)
@@ -5249,8 +5274,11 @@ func (m *ProblemTypeMutation) ResetField(name string) error {
 	case problemtype.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case problemtype.FieldChannelName:
-		m.ResetChannelName()
+	case problemtype.FieldSubmissionChannelName:
+		m.ResetSubmissionChannelName()
+		return nil
+	case problemtype.FieldSelfTestChannelName:
+		m.ResetSelfTestChannelName()
 		return nil
 	case problemtype.FieldJudge:
 		m.ResetJudge()

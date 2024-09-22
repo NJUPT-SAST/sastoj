@@ -36,9 +36,15 @@ service Problem {
       get: "/problem/{id}",
     };
   };
+  rpc GetProblemTypes (GetProblemTypesRequest) returns (GetProblemTypesReply){
+    option (google.api.http) = {
+      get: "/problem-types",
+    };
+  };
 }
 
 message CreateProblemRequest {
+  int64 type_id = 1;
   string title = 2;
   string content = 3;
   int32 point =4;
@@ -62,15 +68,16 @@ message CreateProblemReply {
 
 message UpdateProblemRequest {
   int64 id = 1;
-  string title = 2;
-  string content = 3;
-  int32 point =4;
-  int64 contestId = 5;
-  int32 caseVersion = 6;
-  int32 index = 7;
-  string config = 8;
-  int64 ownerId = 9;
-  Visibility visibility = 10;
+  int64 type_id = 2;
+  string title = 3;
+  string content = 4;
+  int32 point = 5;
+  int64 contestId = 6;
+  int32 caseVersion = 7;
+  int32 index = 8;
+  string config = 9;
+  int64 ownerId = 10;
+  Visibility visibility = 11;
 }
 message UpdateProblemReply {
   bool success = 1;
@@ -88,15 +95,16 @@ message GetProblemRequest {
 }
 message GetProblemReply {
   int64 id = 1;
-  string title = 2;
-  string content = 3;
-  int32 point =4;
-  int64 contestId = 5;
-  int32 caseVersion = 6;
-  int32 index = 7;
-  string config = 8;
-  int64 ownerId = 9;
-  Visibility visibility = 10;
+  int64 type_id = 2;
+  string title = 3;
+  string content = 4;
+  int32 point = 5;
+  int64 contestId = 6;
+  int32 caseVersion = 7;
+  int32 index = 8;
+  string config = 9;
+  int64 ownerId = 10;
+  Visibility visibility = 11;
 }
 
 message ListProblemRequest {
@@ -107,17 +115,31 @@ message ListProblemRequest {
 message ListProblemReply {
   message Problem {
     int64 id = 1;
-    string title = 2;
-    string content = 3;
-    int32 point =4;
-    int64 contestId = 5;
-    int32 caseVersion = 6;
-    int32 index = 7;
-    string config = 8;
-    int64 ownerId = 9;
-    Visibility visibility = 10;
+    int64 type_id = 2;
+    string title = 3;
+    string content = 4;
+    int32 point = 5;
+    int64 contestId = 6;
+    int32 caseVersion = 7;
+    int32 index = 8;
+    string config = 9;
+    int64 ownerId = 10;
+    Visibility visibility = 11;
   }
   int32 currency = 2;
   int32 total = 1;
   repeated Problem problems = 3;
+}
+
+message GetProblemTypesRequest {
+}
+message GetProblemTypesReply {
+  message ProblemType {
+    int64 id = 1;
+    string name = 2;
+    string slug = 3;
+    string description = 4;
+    string judge = 5;
+  }
+  repeated ProblemType types = 1;
 }

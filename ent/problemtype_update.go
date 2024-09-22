@@ -70,16 +70,30 @@ func (ptu *ProblemTypeUpdate) SetNillableDescription(s *string) *ProblemTypeUpda
 	return ptu
 }
 
-// SetChannelName sets the "channel_name" field.
-func (ptu *ProblemTypeUpdate) SetChannelName(s string) *ProblemTypeUpdate {
-	ptu.mutation.SetChannelName(s)
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (ptu *ProblemTypeUpdate) SetSubmissionChannelName(s string) *ProblemTypeUpdate {
+	ptu.mutation.SetSubmissionChannelName(s)
 	return ptu
 }
 
-// SetNillableChannelName sets the "channel_name" field if the given value is not nil.
-func (ptu *ProblemTypeUpdate) SetNillableChannelName(s *string) *ProblemTypeUpdate {
+// SetNillableSubmissionChannelName sets the "submission_channel_name" field if the given value is not nil.
+func (ptu *ProblemTypeUpdate) SetNillableSubmissionChannelName(s *string) *ProblemTypeUpdate {
 	if s != nil {
-		ptu.SetChannelName(*s)
+		ptu.SetSubmissionChannelName(*s)
+	}
+	return ptu
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (ptu *ProblemTypeUpdate) SetSelfTestChannelName(s string) *ProblemTypeUpdate {
+	ptu.mutation.SetSelfTestChannelName(s)
+	return ptu
+}
+
+// SetNillableSelfTestChannelName sets the "self_test_channel_name" field if the given value is not nil.
+func (ptu *ProblemTypeUpdate) SetNillableSelfTestChannelName(s *string) *ProblemTypeUpdate {
+	if s != nil {
+		ptu.SetSelfTestChannelName(*s)
 	}
 	return ptu
 }
@@ -184,8 +198,11 @@ func (ptu *ProblemTypeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ptu.mutation.Description(); ok {
 		_spec.SetField(problemtype.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := ptu.mutation.ChannelName(); ok {
-		_spec.SetField(problemtype.FieldChannelName, field.TypeString, value)
+	if value, ok := ptu.mutation.SubmissionChannelName(); ok {
+		_spec.SetField(problemtype.FieldSubmissionChannelName, field.TypeString, value)
+	}
+	if value, ok := ptu.mutation.SelfTestChannelName(); ok {
+		_spec.SetField(problemtype.FieldSelfTestChannelName, field.TypeString, value)
 	}
 	if value, ok := ptu.mutation.Judge(); ok {
 		_spec.SetField(problemtype.FieldJudge, field.TypeString, value)
@@ -297,16 +314,30 @@ func (ptuo *ProblemTypeUpdateOne) SetNillableDescription(s *string) *ProblemType
 	return ptuo
 }
 
-// SetChannelName sets the "channel_name" field.
-func (ptuo *ProblemTypeUpdateOne) SetChannelName(s string) *ProblemTypeUpdateOne {
-	ptuo.mutation.SetChannelName(s)
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (ptuo *ProblemTypeUpdateOne) SetSubmissionChannelName(s string) *ProblemTypeUpdateOne {
+	ptuo.mutation.SetSubmissionChannelName(s)
 	return ptuo
 }
 
-// SetNillableChannelName sets the "channel_name" field if the given value is not nil.
-func (ptuo *ProblemTypeUpdateOne) SetNillableChannelName(s *string) *ProblemTypeUpdateOne {
+// SetNillableSubmissionChannelName sets the "submission_channel_name" field if the given value is not nil.
+func (ptuo *ProblemTypeUpdateOne) SetNillableSubmissionChannelName(s *string) *ProblemTypeUpdateOne {
 	if s != nil {
-		ptuo.SetChannelName(*s)
+		ptuo.SetSubmissionChannelName(*s)
+	}
+	return ptuo
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (ptuo *ProblemTypeUpdateOne) SetSelfTestChannelName(s string) *ProblemTypeUpdateOne {
+	ptuo.mutation.SetSelfTestChannelName(s)
+	return ptuo
+}
+
+// SetNillableSelfTestChannelName sets the "self_test_channel_name" field if the given value is not nil.
+func (ptuo *ProblemTypeUpdateOne) SetNillableSelfTestChannelName(s *string) *ProblemTypeUpdateOne {
+	if s != nil {
+		ptuo.SetSelfTestChannelName(*s)
 	}
 	return ptuo
 }
@@ -441,8 +472,11 @@ func (ptuo *ProblemTypeUpdateOne) sqlSave(ctx context.Context) (_node *ProblemTy
 	if value, ok := ptuo.mutation.Description(); ok {
 		_spec.SetField(problemtype.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := ptuo.mutation.ChannelName(); ok {
-		_spec.SetField(problemtype.FieldChannelName, field.TypeString, value)
+	if value, ok := ptuo.mutation.SubmissionChannelName(); ok {
+		_spec.SetField(problemtype.FieldSubmissionChannelName, field.TypeString, value)
+	}
+	if value, ok := ptuo.mutation.SelfTestChannelName(); ok {
+		_spec.SetField(problemtype.FieldSelfTestChannelName, field.TypeString, value)
 	}
 	if value, ok := ptuo.mutation.Judge(); ok {
 		_spec.SetField(problemtype.FieldJudge, field.TypeString, value)

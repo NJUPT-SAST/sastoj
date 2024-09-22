@@ -65,6 +65,10 @@ func init() {
 	problemDescIndex := problemFields[6].Descriptor()
 	// problem.IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	problem.IndexValidator = problemDescIndex.Validators[0].(func(int16) error)
+	// problemDescLfCompare is the schema descriptor for lf_compare field.
+	problemDescLfCompare := problemFields[7].Descriptor()
+	// problem.DefaultLfCompare holds the default value on creation for the lf_compare field.
+	problem.DefaultLfCompare = problemDescLfCompare.Default.(schema.LfCompare)
 	// problemDescIsDeleted is the schema descriptor for is_deleted field.
 	problemDescIsDeleted := problemFields[8].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.
@@ -75,8 +79,20 @@ func init() {
 	problem.DefaultMetadata = problemDescMetadata.Default.(map[string]string)
 	problemtypeFields := schema.ProblemType{}.Fields()
 	_ = problemtypeFields
+	// problemtypeDescDescription is the schema descriptor for description field.
+	problemtypeDescDescription := problemtypeFields[3].Descriptor()
+	// problemtype.DefaultDescription holds the default value on creation for the description field.
+	problemtype.DefaultDescription = problemtypeDescDescription.Default.(string)
+	// problemtypeDescSubmissionChannelName is the schema descriptor for submission_channel_name field.
+	problemtypeDescSubmissionChannelName := problemtypeFields[4].Descriptor()
+	// problemtype.DefaultSubmissionChannelName holds the default value on creation for the submission_channel_name field.
+	problemtype.DefaultSubmissionChannelName = problemtypeDescSubmissionChannelName.Default.(string)
+	// problemtypeDescSelfTestChannelName is the schema descriptor for self_test_channel_name field.
+	problemtypeDescSelfTestChannelName := problemtypeFields[5].Descriptor()
+	// problemtype.DefaultSelfTestChannelName holds the default value on creation for the self_test_channel_name field.
+	problemtype.DefaultSelfTestChannelName = problemtypeDescSelfTestChannelName.Default.(string)
 	// problemtypeDescJudge is the schema descriptor for judge field.
-	problemtypeDescJudge := problemtypeFields[5].Descriptor()
+	problemtypeDescJudge := problemtypeFields[6].Descriptor()
 	// problemtype.DefaultJudge holds the default value on creation for the judge field.
 	problemtype.DefaultJudge = problemtypeDescJudge.Default.(string)
 	submissionFields := schema.Submission{}.Fields()

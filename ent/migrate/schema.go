@@ -135,10 +135,11 @@ var (
 	// ProblemTypesColumns holds the columns for the "problem_types" table.
 	ProblemTypesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
-		{Name: "slug_name", Type: field.TypeString},
+		{Name: "slug_name", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString},
-		{Name: "channel_name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Default: ""},
+		{Name: "submission_channel_name", Type: field.TypeString, Default: "submission"},
+		{Name: "self_test_channel_name", Type: field.TypeString, Default: "self-test"},
 		{Name: "judge", Type: field.TypeString, Default: "default"},
 	}
 	// ProblemTypesTable holds the schema information for the "problem_types" table.

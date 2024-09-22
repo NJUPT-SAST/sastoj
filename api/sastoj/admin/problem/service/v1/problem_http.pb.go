@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-http v2.8.0
 // - protoc             (unknown)
-// source: sastoj/admin/problem/service/v1/problem.proto
+// source: admin/problem/service/v1/problem.proto
 
-package problem
+package v1
 
 import (
 	context "context"
@@ -19,11 +19,11 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationProblemCreateProblem = "/api.sastoj.admin.problem.Problem/CreateProblem"
-const OperationProblemDeleteProblem = "/api.sastoj.admin.problem.Problem/DeleteProblem"
-const OperationProblemGetProblem = "/api.sastoj.admin.problem.Problem/GetProblem"
-const OperationProblemListProblem = "/api.sastoj.admin.problem.Problem/ListProblem"
-const OperationProblemUpdateProblem = "/api.sastoj.admin.problem.Problem/UpdateProblem"
+const OperationProblemCreateProblem = "/api.sastoj.admin.problem.service.v1.Problem/CreateProblem"
+const OperationProblemDeleteProblem = "/api.sastoj.admin.problem.service.v1.Problem/DeleteProblem"
+const OperationProblemGetProblem = "/api.sastoj.admin.problem.service.v1.Problem/GetProblem"
+const OperationProblemListProblem = "/api.sastoj.admin.problem.service.v1.Problem/ListProblem"
+const OperationProblemUpdateProblem = "/api.sastoj.admin.problem.service.v1.Problem/UpdateProblem"
 
 type ProblemHTTPServer interface {
 	CreateProblem(context.Context, *CreateProblemRequest) (*CreateProblemReply, error)

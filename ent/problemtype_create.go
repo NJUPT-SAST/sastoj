@@ -40,9 +40,39 @@ func (ptc *ProblemTypeCreate) SetDescription(s string) *ProblemTypeCreate {
 	return ptc
 }
 
-// SetChannelName sets the "channel_name" field.
-func (ptc *ProblemTypeCreate) SetChannelName(s string) *ProblemTypeCreate {
-	ptc.mutation.SetChannelName(s)
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ptc *ProblemTypeCreate) SetNillableDescription(s *string) *ProblemTypeCreate {
+	if s != nil {
+		ptc.SetDescription(*s)
+	}
+	return ptc
+}
+
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (ptc *ProblemTypeCreate) SetSubmissionChannelName(s string) *ProblemTypeCreate {
+	ptc.mutation.SetSubmissionChannelName(s)
+	return ptc
+}
+
+// SetNillableSubmissionChannelName sets the "submission_channel_name" field if the given value is not nil.
+func (ptc *ProblemTypeCreate) SetNillableSubmissionChannelName(s *string) *ProblemTypeCreate {
+	if s != nil {
+		ptc.SetSubmissionChannelName(*s)
+	}
+	return ptc
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (ptc *ProblemTypeCreate) SetSelfTestChannelName(s string) *ProblemTypeCreate {
+	ptc.mutation.SetSelfTestChannelName(s)
+	return ptc
+}
+
+// SetNillableSelfTestChannelName sets the "self_test_channel_name" field if the given value is not nil.
+func (ptc *ProblemTypeCreate) SetNillableSelfTestChannelName(s *string) *ProblemTypeCreate {
+	if s != nil {
+		ptc.SetSelfTestChannelName(*s)
+	}
 	return ptc
 }
 
@@ -116,6 +146,18 @@ func (ptc *ProblemTypeCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (ptc *ProblemTypeCreate) defaults() {
+	if _, ok := ptc.mutation.Description(); !ok {
+		v := problemtype.DefaultDescription
+		ptc.mutation.SetDescription(v)
+	}
+	if _, ok := ptc.mutation.SubmissionChannelName(); !ok {
+		v := problemtype.DefaultSubmissionChannelName
+		ptc.mutation.SetSubmissionChannelName(v)
+	}
+	if _, ok := ptc.mutation.SelfTestChannelName(); !ok {
+		v := problemtype.DefaultSelfTestChannelName
+		ptc.mutation.SetSelfTestChannelName(v)
+	}
 	if _, ok := ptc.mutation.Judge(); !ok {
 		v := problemtype.DefaultJudge
 		ptc.mutation.SetJudge(v)
@@ -133,8 +175,11 @@ func (ptc *ProblemTypeCreate) check() error {
 	if _, ok := ptc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "ProblemType.description"`)}
 	}
-	if _, ok := ptc.mutation.ChannelName(); !ok {
-		return &ValidationError{Name: "channel_name", err: errors.New(`ent: missing required field "ProblemType.channel_name"`)}
+	if _, ok := ptc.mutation.SubmissionChannelName(); !ok {
+		return &ValidationError{Name: "submission_channel_name", err: errors.New(`ent: missing required field "ProblemType.submission_channel_name"`)}
+	}
+	if _, ok := ptc.mutation.SelfTestChannelName(); !ok {
+		return &ValidationError{Name: "self_test_channel_name", err: errors.New(`ent: missing required field "ProblemType.self_test_channel_name"`)}
 	}
 	if _, ok := ptc.mutation.Judge(); !ok {
 		return &ValidationError{Name: "judge", err: errors.New(`ent: missing required field "ProblemType.judge"`)}
@@ -184,9 +229,13 @@ func (ptc *ProblemTypeCreate) createSpec() (*ProblemType, *sqlgraph.CreateSpec) 
 		_spec.SetField(problemtype.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := ptc.mutation.ChannelName(); ok {
-		_spec.SetField(problemtype.FieldChannelName, field.TypeString, value)
-		_node.ChannelName = value
+	if value, ok := ptc.mutation.SubmissionChannelName(); ok {
+		_spec.SetField(problemtype.FieldSubmissionChannelName, field.TypeString, value)
+		_node.SubmissionChannelName = value
+	}
+	if value, ok := ptc.mutation.SelfTestChannelName(); ok {
+		_spec.SetField(problemtype.FieldSelfTestChannelName, field.TypeString, value)
+		_node.SelfTestChannelName = value
 	}
 	if value, ok := ptc.mutation.Judge(); ok {
 		_spec.SetField(problemtype.FieldJudge, field.TypeString, value)
@@ -296,15 +345,27 @@ func (u *ProblemTypeUpsert) UpdateDescription() *ProblemTypeUpsert {
 	return u
 }
 
-// SetChannelName sets the "channel_name" field.
-func (u *ProblemTypeUpsert) SetChannelName(v string) *ProblemTypeUpsert {
-	u.Set(problemtype.FieldChannelName, v)
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (u *ProblemTypeUpsert) SetSubmissionChannelName(v string) *ProblemTypeUpsert {
+	u.Set(problemtype.FieldSubmissionChannelName, v)
 	return u
 }
 
-// UpdateChannelName sets the "channel_name" field to the value that was provided on create.
-func (u *ProblemTypeUpsert) UpdateChannelName() *ProblemTypeUpsert {
-	u.SetExcluded(problemtype.FieldChannelName)
+// UpdateSubmissionChannelName sets the "submission_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsert) UpdateSubmissionChannelName() *ProblemTypeUpsert {
+	u.SetExcluded(problemtype.FieldSubmissionChannelName)
+	return u
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (u *ProblemTypeUpsert) SetSelfTestChannelName(v string) *ProblemTypeUpsert {
+	u.Set(problemtype.FieldSelfTestChannelName, v)
+	return u
+}
+
+// UpdateSelfTestChannelName sets the "self_test_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsert) UpdateSelfTestChannelName() *ProblemTypeUpsert {
+	u.SetExcluded(problemtype.FieldSelfTestChannelName)
 	return u
 }
 
@@ -410,17 +471,31 @@ func (u *ProblemTypeUpsertOne) UpdateDescription() *ProblemTypeUpsertOne {
 	})
 }
 
-// SetChannelName sets the "channel_name" field.
-func (u *ProblemTypeUpsertOne) SetChannelName(v string) *ProblemTypeUpsertOne {
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (u *ProblemTypeUpsertOne) SetSubmissionChannelName(v string) *ProblemTypeUpsertOne {
 	return u.Update(func(s *ProblemTypeUpsert) {
-		s.SetChannelName(v)
+		s.SetSubmissionChannelName(v)
 	})
 }
 
-// UpdateChannelName sets the "channel_name" field to the value that was provided on create.
-func (u *ProblemTypeUpsertOne) UpdateChannelName() *ProblemTypeUpsertOne {
+// UpdateSubmissionChannelName sets the "submission_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsertOne) UpdateSubmissionChannelName() *ProblemTypeUpsertOne {
 	return u.Update(func(s *ProblemTypeUpsert) {
-		s.UpdateChannelName()
+		s.UpdateSubmissionChannelName()
+	})
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (u *ProblemTypeUpsertOne) SetSelfTestChannelName(v string) *ProblemTypeUpsertOne {
+	return u.Update(func(s *ProblemTypeUpsert) {
+		s.SetSelfTestChannelName(v)
+	})
+}
+
+// UpdateSelfTestChannelName sets the "self_test_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsertOne) UpdateSelfTestChannelName() *ProblemTypeUpsertOne {
+	return u.Update(func(s *ProblemTypeUpsert) {
+		s.UpdateSelfTestChannelName()
 	})
 }
 
@@ -694,17 +769,31 @@ func (u *ProblemTypeUpsertBulk) UpdateDescription() *ProblemTypeUpsertBulk {
 	})
 }
 
-// SetChannelName sets the "channel_name" field.
-func (u *ProblemTypeUpsertBulk) SetChannelName(v string) *ProblemTypeUpsertBulk {
+// SetSubmissionChannelName sets the "submission_channel_name" field.
+func (u *ProblemTypeUpsertBulk) SetSubmissionChannelName(v string) *ProblemTypeUpsertBulk {
 	return u.Update(func(s *ProblemTypeUpsert) {
-		s.SetChannelName(v)
+		s.SetSubmissionChannelName(v)
 	})
 }
 
-// UpdateChannelName sets the "channel_name" field to the value that was provided on create.
-func (u *ProblemTypeUpsertBulk) UpdateChannelName() *ProblemTypeUpsertBulk {
+// UpdateSubmissionChannelName sets the "submission_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsertBulk) UpdateSubmissionChannelName() *ProblemTypeUpsertBulk {
 	return u.Update(func(s *ProblemTypeUpsert) {
-		s.UpdateChannelName()
+		s.UpdateSubmissionChannelName()
+	})
+}
+
+// SetSelfTestChannelName sets the "self_test_channel_name" field.
+func (u *ProblemTypeUpsertBulk) SetSelfTestChannelName(v string) *ProblemTypeUpsertBulk {
+	return u.Update(func(s *ProblemTypeUpsert) {
+		s.SetSelfTestChannelName(v)
+	})
+}
+
+// UpdateSelfTestChannelName sets the "self_test_channel_name" field to the value that was provided on create.
+func (u *ProblemTypeUpsertBulk) UpdateSelfTestChannelName() *ProblemTypeUpsertBulk {
+	return u.Update(func(s *ProblemTypeUpsert) {
+		s.UpdateSelfTestChannelName()
 	})
 }
 

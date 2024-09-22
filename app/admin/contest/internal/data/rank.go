@@ -266,7 +266,7 @@ func (r *RankRepo) ListPage(ctx context.Context, contest *biz.Contest, current i
 
 func (r *RankRepo) FindNewSubmissions(ctx context.Context, contestId int64, startTime time.Time) (map[int64]*biz.UserContestResult, error) {
 	res, err := r.data.db.Submission.Query().
-		Where(submission.HasProblemsWith(problem.HasContestsWith(contest.ID(contestId))), submission.CreateTimeGT(startTime)).
+		Where(submission.HasProblemsWith(problem.HasContestWith(contest.ID(contestId))), submission.CreateTimeGT(startTime)).
 		WithUsers().WithProblems().
 		All(ctx)
 	if err != nil {

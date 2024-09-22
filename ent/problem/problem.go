@@ -4,6 +4,7 @@ package problem
 
 import (
 	"fmt"
+	"sastoj/ent/schema"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -40,12 +41,12 @@ const (
 	FieldMetadata = "metadata"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
-	// EdgeContests holds the string denoting the contests edge name in mutations.
-	EdgeContests = "contests"
+	// EdgeContest holds the string denoting the contest edge name in mutations.
+	EdgeContest = "contest"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
-	// EdgeProblemTypes holds the string denoting the problem_types edge name in mutations.
-	EdgeProblemTypes = "problem_types"
+	// EdgeProblemType holds the string denoting the problem_type edge name in mutations.
+	EdgeProblemType = "problem_type"
 	// EdgeJudgers holds the string denoting the judgers edge name in mutations.
 	EdgeJudgers = "judgers"
 	// Table holds the table name of the problem in the database.
@@ -57,13 +58,13 @@ const (
 	SubmissionInverseTable = "submissions"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
 	SubmissionColumn = "problem_id"
-	// ContestsTable is the table that holds the contests relation/edge.
-	ContestsTable = "problems"
-	// ContestsInverseTable is the table name for the Contest entity.
+	// ContestTable is the table that holds the contest relation/edge.
+	ContestTable = "problems"
+	// ContestInverseTable is the table name for the Contest entity.
 	// It exists in this package in order to avoid circular dependency with the "contest" package.
-	ContestsInverseTable = "contests"
-	// ContestsColumn is the table column denoting the contests relation/edge.
-	ContestsColumn = "contest_id"
+	ContestInverseTable = "contests"
+	// ContestColumn is the table column denoting the contest relation/edge.
+	ContestColumn = "contest_id"
 	// OwnerTable is the table that holds the owner relation/edge.
 	OwnerTable = "problems"
 	// OwnerInverseTable is the table name for the User entity.
@@ -71,13 +72,13 @@ const (
 	OwnerInverseTable = "users"
 	// OwnerColumn is the table column denoting the owner relation/edge.
 	OwnerColumn = "user_id"
-	// ProblemTypesTable is the table that holds the problem_types relation/edge.
-	ProblemTypesTable = "problems"
-	// ProblemTypesInverseTable is the table name for the ProblemType entity.
+	// ProblemTypeTable is the table that holds the problem_type relation/edge.
+	ProblemTypeTable = "problems"
+	// ProblemTypeInverseTable is the table name for the ProblemType entity.
 	// It exists in this package in order to avoid circular dependency with the "problemtype" package.
-	ProblemTypesInverseTable = "problem_types"
-	// ProblemTypesColumn is the table column denoting the problem_types relation/edge.
-	ProblemTypesColumn = "problem_type_id"
+	ProblemTypeInverseTable = "problem_types"
+	// ProblemTypeColumn is the table column denoting the problem_type relation/edge.
+	ProblemTypeColumn = "problem_type_id"
 	// JudgersTable is the table that holds the judgers relation/edge. The primary key declared below.
 	JudgersTable = "problem_judgers"
 	// JudgersInverseTable is the table name for the Group entity.
@@ -125,6 +126,8 @@ var (
 	DefaultCaseVersion int16
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	IndexValidator func(int16) error
+	// DefaultLfCompare holds the default value on creation for the "lf_compare" field.
+	DefaultLfCompare schema.LfCompare
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
 	// DefaultMetadata holds the default value on creation for the "metadata" field.
@@ -230,10 +233,10 @@ func BySubmission(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByContestsField orders the results by contests field.
-func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByContestField orders the results by contest field.
+func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -244,10 +247,10 @@ func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByProblemTypesField orders the results by problem_types field.
-func ByProblemTypesField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByProblemTypeField orders the results by problem_type field.
+func ByProblemTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemTypesStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newProblemTypeStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -271,11 +274,11 @@ func newSubmissionStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionTable, SubmissionColumn),
 	)
 }
-func newContestsStep() *sqlgraph.Step {
+func newContestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+		sqlgraph.To(ContestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
 	)
 }
 func newOwnerStep() *sqlgraph.Step {
@@ -285,11 +288,11 @@ func newOwnerStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
 	)
 }
-func newProblemTypesStep() *sqlgraph.Step {
+func newProblemTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemTypesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTypesTable, ProblemTypesColumn),
+		sqlgraph.To(ProblemTypeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTypeTable, ProblemTypeColumn),
 	)
 }
 func newJudgersStep() *sqlgraph.Step {

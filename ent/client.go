@@ -1128,15 +1128,15 @@ func (c *ProblemClient) QuerySubmission(pr *Problem) *SubmissionQuery {
 	return query
 }
 
-// QueryContests queries the contests edge of a Problem.
-func (c *ProblemClient) QueryContests(pr *Problem) *ContestQuery {
+// QueryContest queries the contest edge of a Problem.
+func (c *ProblemClient) QueryContest(pr *Problem) *ContestQuery {
 	query := (&ContestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(contest.Table, contest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestsTable, problem.ContestsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ContestTable, problem.ContestColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1160,15 +1160,15 @@ func (c *ProblemClient) QueryOwner(pr *Problem) *UserQuery {
 	return query
 }
 
-// QueryProblemTypes queries the problem_types edge of a Problem.
-func (c *ProblemClient) QueryProblemTypes(pr *Problem) *ProblemTypeQuery {
+// QueryProblemType queries the problem_type edge of a Problem.
+func (c *ProblemClient) QueryProblemType(pr *Problem) *ProblemTypeQuery {
 	query := (&ProblemTypeClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(problemtype.Table, problemtype.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, problem.ProblemTypesTable, problem.ProblemTypesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, problem.ProblemTypeTable, problem.ProblemTypeColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil

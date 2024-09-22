@@ -69,9 +69,14 @@ func Description(v string) predicate.ProblemType {
 	return predicate.ProblemType(sql.FieldEQ(FieldDescription, v))
 }
 
-// ChannelName applies equality check predicate on the "channel_name" field. It's identical to ChannelNameEQ.
-func ChannelName(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldEQ(FieldChannelName, v))
+// SubmissionChannelName applies equality check predicate on the "submission_channel_name" field. It's identical to SubmissionChannelNameEQ.
+func SubmissionChannelName(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEQ(FieldSubmissionChannelName, v))
+}
+
+// SelfTestChannelName applies equality check predicate on the "self_test_channel_name" field. It's identical to SelfTestChannelNameEQ.
+func SelfTestChannelName(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEQ(FieldSelfTestChannelName, v))
 }
 
 // Judge applies equality check predicate on the "judge" field. It's identical to JudgeEQ.
@@ -274,69 +279,134 @@ func DescriptionContainsFold(v string) predicate.ProblemType {
 	return predicate.ProblemType(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// ChannelNameEQ applies the EQ predicate on the "channel_name" field.
-func ChannelNameEQ(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldEQ(FieldChannelName, v))
+// SubmissionChannelNameEQ applies the EQ predicate on the "submission_channel_name" field.
+func SubmissionChannelNameEQ(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEQ(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameNEQ applies the NEQ predicate on the "channel_name" field.
-func ChannelNameNEQ(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldNEQ(FieldChannelName, v))
+// SubmissionChannelNameNEQ applies the NEQ predicate on the "submission_channel_name" field.
+func SubmissionChannelNameNEQ(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldNEQ(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameIn applies the In predicate on the "channel_name" field.
-func ChannelNameIn(vs ...string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldIn(FieldChannelName, vs...))
+// SubmissionChannelNameIn applies the In predicate on the "submission_channel_name" field.
+func SubmissionChannelNameIn(vs ...string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldIn(FieldSubmissionChannelName, vs...))
 }
 
-// ChannelNameNotIn applies the NotIn predicate on the "channel_name" field.
-func ChannelNameNotIn(vs ...string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldNotIn(FieldChannelName, vs...))
+// SubmissionChannelNameNotIn applies the NotIn predicate on the "submission_channel_name" field.
+func SubmissionChannelNameNotIn(vs ...string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldNotIn(FieldSubmissionChannelName, vs...))
 }
 
-// ChannelNameGT applies the GT predicate on the "channel_name" field.
-func ChannelNameGT(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldGT(FieldChannelName, v))
+// SubmissionChannelNameGT applies the GT predicate on the "submission_channel_name" field.
+func SubmissionChannelNameGT(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldGT(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameGTE applies the GTE predicate on the "channel_name" field.
-func ChannelNameGTE(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldGTE(FieldChannelName, v))
+// SubmissionChannelNameGTE applies the GTE predicate on the "submission_channel_name" field.
+func SubmissionChannelNameGTE(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldGTE(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameLT applies the LT predicate on the "channel_name" field.
-func ChannelNameLT(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldLT(FieldChannelName, v))
+// SubmissionChannelNameLT applies the LT predicate on the "submission_channel_name" field.
+func SubmissionChannelNameLT(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldLT(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameLTE applies the LTE predicate on the "channel_name" field.
-func ChannelNameLTE(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldLTE(FieldChannelName, v))
+// SubmissionChannelNameLTE applies the LTE predicate on the "submission_channel_name" field.
+func SubmissionChannelNameLTE(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldLTE(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameContains applies the Contains predicate on the "channel_name" field.
-func ChannelNameContains(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldContains(FieldChannelName, v))
+// SubmissionChannelNameContains applies the Contains predicate on the "submission_channel_name" field.
+func SubmissionChannelNameContains(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldContains(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameHasPrefix applies the HasPrefix predicate on the "channel_name" field.
-func ChannelNameHasPrefix(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldHasPrefix(FieldChannelName, v))
+// SubmissionChannelNameHasPrefix applies the HasPrefix predicate on the "submission_channel_name" field.
+func SubmissionChannelNameHasPrefix(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldHasPrefix(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameHasSuffix applies the HasSuffix predicate on the "channel_name" field.
-func ChannelNameHasSuffix(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldHasSuffix(FieldChannelName, v))
+// SubmissionChannelNameHasSuffix applies the HasSuffix predicate on the "submission_channel_name" field.
+func SubmissionChannelNameHasSuffix(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldHasSuffix(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameEqualFold applies the EqualFold predicate on the "channel_name" field.
-func ChannelNameEqualFold(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldEqualFold(FieldChannelName, v))
+// SubmissionChannelNameEqualFold applies the EqualFold predicate on the "submission_channel_name" field.
+func SubmissionChannelNameEqualFold(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEqualFold(FieldSubmissionChannelName, v))
 }
 
-// ChannelNameContainsFold applies the ContainsFold predicate on the "channel_name" field.
-func ChannelNameContainsFold(v string) predicate.ProblemType {
-	return predicate.ProblemType(sql.FieldContainsFold(FieldChannelName, v))
+// SubmissionChannelNameContainsFold applies the ContainsFold predicate on the "submission_channel_name" field.
+func SubmissionChannelNameContainsFold(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldContainsFold(FieldSubmissionChannelName, v))
+}
+
+// SelfTestChannelNameEQ applies the EQ predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameEQ(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEQ(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameNEQ applies the NEQ predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameNEQ(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldNEQ(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameIn applies the In predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameIn(vs ...string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldIn(FieldSelfTestChannelName, vs...))
+}
+
+// SelfTestChannelNameNotIn applies the NotIn predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameNotIn(vs ...string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldNotIn(FieldSelfTestChannelName, vs...))
+}
+
+// SelfTestChannelNameGT applies the GT predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameGT(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldGT(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameGTE applies the GTE predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameGTE(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldGTE(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameLT applies the LT predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameLT(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldLT(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameLTE applies the LTE predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameLTE(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldLTE(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameContains applies the Contains predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameContains(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldContains(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameHasPrefix applies the HasPrefix predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameHasPrefix(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldHasPrefix(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameHasSuffix applies the HasSuffix predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameHasSuffix(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldHasSuffix(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameEqualFold applies the EqualFold predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameEqualFold(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldEqualFold(FieldSelfTestChannelName, v))
+}
+
+// SelfTestChannelNameContainsFold applies the ContainsFold predicate on the "self_test_channel_name" field.
+func SelfTestChannelNameContainsFold(v string) predicate.ProblemType {
+	return predicate.ProblemType(sql.FieldContainsFold(FieldSelfTestChannelName, v))
 }
 
 // JudgeEQ applies the EQ predicate on the "judge" field.

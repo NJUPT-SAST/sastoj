@@ -2,8 +2,9 @@ package data
 
 import (
 	"context"
-	problem2 "sastoj/api/sastoj/admin/problem/service/v1"
+	pb "sastoj/api/sastoj/admin/problem/service/v1"
 	"sastoj/ent/problem"
+	"sastoj/pkg/middleware/auth"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -21,33 +22,35 @@ func NewProblemRepo(data *Data, logger log.Logger) *ProblemRepo {
 	}
 }
 
-func (r *ProblemRepo) Save(ctx context.Context, g *problem2.CreateProblemRequest) (*problem2.CreateProblemReply, error) {
+func (r *ProblemRepo) Save(ctx context.Context, g *pb.CreateProblemRequest) (*pb.CreateProblemReply, error) {
 	res, err := r.data.db.Problem.Create().
+		SetProblemTypeID(g.TypeId).
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetScore(int16(g.Point)).
-		SetContestsID(g.ContestId).
-		SetCaseVersion(int16(g.CaseVersion)).
+		SetContestID(g.ContestId).
+		SetCaseVersion(1).
 		SetIndex(int16(g.Index)).
-		SetOwnerID(g.OwnerId).
-		SetVisibility(problem.Visibility(g.Visibility)).
+		SetOwnerID(getUserID(ctx)).
+		SetVisibility(pb2vis(g.Visibility)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &problem2.CreateProblemReply{Id: res.ID}, nil
+	return &pb.CreateProblemReply{Id: res.ID}, nil
 }
 
-func (r *ProblemRepo) Update(ctx context.Context, g *problem2.UpdateProblemRequest) (*int, error) {
+func (r *ProblemRepo) Update(ctx context.Context, g *pb.UpdateProblemRequest) (*int, error) {
 	res, err := r.data.db.Problem.Update().
+		SetProblemTypeID(g.TypeId).
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetScore(int16(g.Point)).
-		SetContestsID(g.ContestId).
+		SetContestID(g.ContestId).
 		SetCaseVersion(int16(g.CaseVersion)).
 		SetIndex(int16(g.Index)).
-		SetOwnerID(g.OwnerId).
-		SetVisibility(problem.Visibility(g.Visibility)).
+		SetOwnerID(getUserID(ctx)).
+		SetVisibility(pb2vis(g.Visibility)).
 		Where(problem.ID(g.Id)).
 		Where(problem.IsDeleted(false)).
 		Save(ctx)
@@ -57,7 +60,7 @@ func (r *ProblemRepo) Update(ctx context.Context, g *problem2.UpdateProblemReque
 	return &res, nil
 }
 
-func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*problem2.GetProblemReply, error) {
+func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*pb.GetProblemReply, error) {
 	p, err := r.data.db.Problem.Query().
 		Where(problem.ID(id)).
 		Where(problem.IsDeleted(false)).
@@ -70,16 +73,8 @@ func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*problem2.GetProb
 	if err != nil {
 		return nil, err
 	}
-	var vis problem2.Visibility
-	switch n := p.Visibility; n {
-	case problem.VisibilityPRIVATE:
-		vis = problem2.Visibility_Private
-	case problem.VisibilityPUBLIC:
-		vis = problem2.Visibility_Public
-	case problem.VisibilityCONTEST:
-		vis = problem2.Visibility_Contest
-	}
-	return &problem2.GetProblemReply{
+	vis := vis2pb(p.Visibility)
+	return &pb.GetProblemReply{
 		Id:          p.ID,
 		Title:       p.Title,
 		Content:     p.Content,
@@ -89,7 +84,6 @@ func (r *ProblemRepo) FindByID(ctx context.Context, id int64) (*problem2.GetProb
 		Index:       int32(p.Index),
 		OwnerId:     owner.ID,
 		Visibility:  vis,
-		Config:      "",
 	}, nil
 }
 
@@ -104,7 +98,7 @@ func (r *ProblemRepo) Delete(ctx context.Context, id int64) (*int, error) {
 	return &res, nil
 }
 
-func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*problem2.ListProblemReply_Problem, error) {
+func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*pb.ListProblemReply_Problem, error) {
 	res, err := r.data.db.Problem.Query().
 		Limit(int(size)).Offset(int((currency - 1) * size)).
 		WithOwner().
@@ -112,23 +106,16 @@ func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*problem2.ListProblemReply_Problem, 0)
+	list := make([]*pb.ListProblemReply_Problem, 0)
 	for _, v := range res {
-		var vis problem2.Visibility
-		switch n := v.Visibility; n {
-		case problem.VisibilityPRIVATE:
-			vis = problem2.Visibility_Private
-		case problem.VisibilityPUBLIC:
-			vis = problem2.Visibility_Public
-		case problem.VisibilityCONTEST:
-			vis = problem2.Visibility_Contest
-		}
+		vis := vis2pb(v.Visibility)
 		owner, err := v.QueryOwner().First(ctx)
 		if err != nil {
 			return nil, err
 		}
-		list = append(list, &problem2.ListProblemReply_Problem{
+		list = append(list, &pb.ListProblemReply_Problem{
 			Id:          v.ID,
+			TypeId:      v.ProblemTypeID,
 			Title:       v.Title,
 			Content:     v.Content,
 			Point:       int32(v.Score),
@@ -137,8 +124,38 @@ func (r *ProblemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			Index:       int32(v.Index),
 			OwnerId:     owner.ID,
 			Visibility:  vis,
-			Config:      "",
 		})
 	}
 	return list, nil
+}
+
+func vis2pb(v problem.Visibility) pb.Visibility {
+	switch v {
+	case problem.VisibilityPRIVATE:
+		return pb.Visibility_Private
+	case problem.VisibilityPUBLIC:
+		return pb.Visibility_Public
+	case problem.VisibilityCONTEST:
+		return pb.Visibility_Contest
+	default:
+		return pb.Visibility_Private
+	}
+}
+
+func pb2vis(v pb.Visibility) problem.Visibility {
+	switch v {
+	case pb.Visibility_Private:
+		return problem.VisibilityPRIVATE
+	case pb.Visibility_Public:
+		return problem.VisibilityPUBLIC
+	case pb.Visibility_Contest:
+		return problem.VisibilityCONTEST
+	default:
+		return problem.VisibilityPRIVATE
+	}
+}
+
+func getUserID(ctx context.Context) int64 {
+	claim := ctx.Value("userInfo").(*auth.Claims)
+	return claim.UserId
 }

@@ -22,8 +22,10 @@ type ProblemType struct {
 	DisplayName string `json:"display_name,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// ChannelName holds the value of the "channel_name" field.
-	ChannelName string `json:"channel_name,omitempty"`
+	// SubmissionChannelName holds the value of the "submission_channel_name" field.
+	SubmissionChannelName string `json:"submission_channel_name,omitempty"`
+	// SelfTestChannelName holds the value of the "self_test_channel_name" field.
+	SelfTestChannelName string `json:"self_test_channel_name,omitempty"`
 	// Judge holds the value of the "judge" field.
 	Judge string `json:"judge,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -57,7 +59,7 @@ func (*ProblemType) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case problemtype.FieldID:
 			values[i] = new(sql.NullInt64)
-		case problemtype.FieldSlugName, problemtype.FieldDisplayName, problemtype.FieldDescription, problemtype.FieldChannelName, problemtype.FieldJudge:
+		case problemtype.FieldSlugName, problemtype.FieldDisplayName, problemtype.FieldDescription, problemtype.FieldSubmissionChannelName, problemtype.FieldSelfTestChannelName, problemtype.FieldJudge:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -98,11 +100,17 @@ func (pt *ProblemType) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pt.Description = value.String
 			}
-		case problemtype.FieldChannelName:
+		case problemtype.FieldSubmissionChannelName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field channel_name", values[i])
+				return fmt.Errorf("unexpected type %T for field submission_channel_name", values[i])
 			} else if value.Valid {
-				pt.ChannelName = value.String
+				pt.SubmissionChannelName = value.String
+			}
+		case problemtype.FieldSelfTestChannelName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field self_test_channel_name", values[i])
+			} else if value.Valid {
+				pt.SelfTestChannelName = value.String
 			}
 		case problemtype.FieldJudge:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -160,8 +168,11 @@ func (pt *ProblemType) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(pt.Description)
 	builder.WriteString(", ")
-	builder.WriteString("channel_name=")
-	builder.WriteString(pt.ChannelName)
+	builder.WriteString("submission_channel_name=")
+	builder.WriteString(pt.SubmissionChannelName)
+	builder.WriteString(", ")
+	builder.WriteString("self_test_channel_name=")
+	builder.WriteString(pt.SelfTestChannelName)
 	builder.WriteString(", ")
 	builder.WriteString("judge=")
 	builder.WriteString(pt.Judge)
