@@ -14,7 +14,7 @@ func InsertDefaultGroup(ctx context.Context, client *ent.Client) (*ent.Group, er
 		return rootGroup, nil
 	}
 	rootGroup, err := client.Group.Create().
-		SetGroupName("root").SetIsRoot(true).Save(ctx)
+		SetGroupName("admin").SetIsRoot(true).Save(ctx)
 	if err != nil {
 		return rootGroup, err
 	}
