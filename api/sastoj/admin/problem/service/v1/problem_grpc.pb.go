@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Problem_CreateProblem_FullMethodName = "/api.sastoj.admin.problem.service.v1.Problem/CreateProblem"
-	Problem_UpdateProblem_FullMethodName = "/api.sastoj.admin.problem.service.v1.Problem/UpdateProblem"
-	Problem_DeleteProblem_FullMethodName = "/api.sastoj.admin.problem.service.v1.Problem/DeleteProblem"
-	Problem_ListProblem_FullMethodName   = "/api.sastoj.admin.problem.service.v1.Problem/ListProblem"
-	Problem_GetProblem_FullMethodName    = "/api.sastoj.admin.problem.service.v1.Problem/GetProblem"
+	Problem_CreateProblem_FullMethodName   = "/api.sastoj.admin.problem.service.v1.Problem/CreateProblem"
+	Problem_UpdateProblem_FullMethodName   = "/api.sastoj.admin.problem.service.v1.Problem/UpdateProblem"
+	Problem_DeleteProblem_FullMethodName   = "/api.sastoj.admin.problem.service.v1.Problem/DeleteProblem"
+	Problem_ListProblem_FullMethodName     = "/api.sastoj.admin.problem.service.v1.Problem/ListProblem"
+	Problem_GetProblem_FullMethodName      = "/api.sastoj.admin.problem.service.v1.Problem/GetProblem"
+	Problem_GetProblemTypes_FullMethodName = "/api.sastoj.admin.problem.service.v1.Problem/GetProblemTypes"
 )
 
 // ProblemClient is the client API for Problem service.
@@ -35,6 +36,7 @@ type ProblemClient interface {
 	DeleteProblem(ctx context.Context, in *DeleteProblemRequest, opts ...grpc.CallOption) (*DeleteProblemReply, error)
 	ListProblem(ctx context.Context, in *ListProblemRequest, opts ...grpc.CallOption) (*ListProblemReply, error)
 	GetProblem(ctx context.Context, in *GetProblemRequest, opts ...grpc.CallOption) (*GetProblemReply, error)
+	GetProblemTypes(ctx context.Context, in *GetProblemTypesRequest, opts ...grpc.CallOption) (*GetProblemTypesReply, error)
 }
 
 type problemClient struct {
@@ -95,6 +97,16 @@ func (c *problemClient) GetProblem(ctx context.Context, in *GetProblemRequest, o
 	return out, nil
 }
 
+func (c *problemClient) GetProblemTypes(ctx context.Context, in *GetProblemTypesRequest, opts ...grpc.CallOption) (*GetProblemTypesReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProblemTypesReply)
+	err := c.cc.Invoke(ctx, Problem_GetProblemTypes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProblemServer is the server API for Problem service.
 // All implementations must embed UnimplementedProblemServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type ProblemServer interface {
 	DeleteProblem(context.Context, *DeleteProblemRequest) (*DeleteProblemReply, error)
 	ListProblem(context.Context, *ListProblemRequest) (*ListProblemReply, error)
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
+	GetProblemTypes(context.Context, *GetProblemTypesRequest) (*GetProblemTypesReply, error)
 	mustEmbedUnimplementedProblemServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedProblemServer) ListProblem(context.Context, *ListProblemReque
 }
 func (UnimplementedProblemServer) GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProblem not implemented")
+}
+func (UnimplementedProblemServer) GetProblemTypes(context.Context, *GetProblemTypesRequest) (*GetProblemTypesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProblemTypes not implemented")
 }
 func (UnimplementedProblemServer) mustEmbedUnimplementedProblemServer() {}
 func (UnimplementedProblemServer) testEmbeddedByValue()                 {}
@@ -240,6 +256,24 @@ func _Problem_GetProblem_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Problem_GetProblemTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProblemTypesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProblemServer).GetProblemTypes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Problem_GetProblemTypes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProblemServer).GetProblemTypes(ctx, req.(*GetProblemTypesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Problem_ServiceDesc is the grpc.ServiceDesc for Problem service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var Problem_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProblem",
 			Handler:    _Problem_GetProblem_Handler,
+		},
+		{
+			MethodName: "GetProblemTypes",
+			Handler:    _Problem_GetProblemTypes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

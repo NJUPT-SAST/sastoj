@@ -49,11 +49,10 @@ message CreateProblemRequest {
   string content = 3;
   int32 point =4;
   int64 contestId = 5;
-  int32 caseVersion = 6;
-  int32 index = 7;
-  string config = 8;
-  int64 ownerId = 9;
-  Visibility visibility = 10;
+  int32 index = 6;
+  string config = 7;
+  int64 ownerId = 8;
+  Visibility visibility = 9;
 }
 
 enum Visibility{

@@ -67,8 +67,6 @@ func (m *CreateProblemRequest) validate(all bool) error {
 
 	// no validation rules for ContestId
 
-	// no validation rules for CaseVersion
-
 	// no validation rules for Index
 
 	// no validation rules for Config
@@ -1167,6 +1165,244 @@ var _ interface {
 	ErrorName() string
 } = ListProblemReplyValidationError{}
 
+// Validate checks the field values on GetProblemTypesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetProblemTypesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetProblemTypesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetProblemTypesRequestMultiError, or nil if none found.
+func (m *GetProblemTypesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetProblemTypesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetProblemTypesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetProblemTypesRequestMultiError is an error wrapping multiple validation
+// errors returned by GetProblemTypesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetProblemTypesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetProblemTypesRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetProblemTypesRequestMultiError) AllErrors() []error { return m }
+
+// GetProblemTypesRequestValidationError is the validation error returned by
+// GetProblemTypesRequest.Validate if the designated constraints aren't met.
+type GetProblemTypesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetProblemTypesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetProblemTypesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetProblemTypesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetProblemTypesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetProblemTypesRequestValidationError) ErrorName() string {
+	return "GetProblemTypesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetProblemTypesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetProblemTypesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetProblemTypesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetProblemTypesRequestValidationError{}
+
+// Validate checks the field values on GetProblemTypesReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetProblemTypesReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetProblemTypesReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetProblemTypesReplyMultiError, or nil if none found.
+func (m *GetProblemTypesReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetProblemTypesReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetTypes() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetProblemTypesReplyValidationError{
+						field:  fmt.Sprintf("Types[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetProblemTypesReplyValidationError{
+						field:  fmt.Sprintf("Types[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetProblemTypesReplyValidationError{
+					field:  fmt.Sprintf("Types[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetProblemTypesReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetProblemTypesReplyMultiError is an error wrapping multiple validation
+// errors returned by GetProblemTypesReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetProblemTypesReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetProblemTypesReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetProblemTypesReplyMultiError) AllErrors() []error { return m }
+
+// GetProblemTypesReplyValidationError is the validation error returned by
+// GetProblemTypesReply.Validate if the designated constraints aren't met.
+type GetProblemTypesReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetProblemTypesReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetProblemTypesReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetProblemTypesReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetProblemTypesReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetProblemTypesReplyValidationError) ErrorName() string {
+	return "GetProblemTypesReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetProblemTypesReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetProblemTypesReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetProblemTypesReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetProblemTypesReplyValidationError{}
+
 // Validate checks the field values on ListProblemReply_Problem with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1290,3 +1526,118 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListProblemReply_ProblemValidationError{}
+
+// Validate checks the field values on GetProblemTypesReply_ProblemType with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *GetProblemTypesReply_ProblemType) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetProblemTypesReply_ProblemType with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetProblemTypesReply_ProblemTypeMultiError, or nil if none found.
+func (m *GetProblemTypesReply_ProblemType) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetProblemTypesReply_ProblemType) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Slug
+
+	// no validation rules for Description
+
+	// no validation rules for Judge
+
+	if len(errors) > 0 {
+		return GetProblemTypesReply_ProblemTypeMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetProblemTypesReply_ProblemTypeMultiError is an error wrapping multiple
+// validation errors returned by
+// GetProblemTypesReply_ProblemType.ValidateAll() if the designated
+// constraints aren't met.
+type GetProblemTypesReply_ProblemTypeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetProblemTypesReply_ProblemTypeMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetProblemTypesReply_ProblemTypeMultiError) AllErrors() []error { return m }
+
+// GetProblemTypesReply_ProblemTypeValidationError is the validation error
+// returned by GetProblemTypesReply_ProblemType.Validate if the designated
+// constraints aren't met.
+type GetProblemTypesReply_ProblemTypeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetProblemTypesReply_ProblemTypeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetProblemTypesReply_ProblemTypeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetProblemTypesReply_ProblemTypeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetProblemTypesReply_ProblemTypeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetProblemTypesReply_ProblemTypeValidationError) ErrorName() string {
+	return "GetProblemTypesReply_ProblemTypeValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetProblemTypesReply_ProblemTypeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetProblemTypesReply_ProblemType.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetProblemTypesReply_ProblemTypeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetProblemTypesReply_ProblemTypeValidationError{}

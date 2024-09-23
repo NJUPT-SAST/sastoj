@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	problem "sastoj/api/sastoj/admin/problem/service/v1"
 	"sastoj/app/admin/problem/internal/data"
@@ -22,9 +21,6 @@ func NewProblemUsecase(repo *data.ProblemRepo, contestRepo *data.ContestRepo, lo
 // CreateProblem creates a Problem, and returns the new Problem.
 func (uc *ProblemUsecase) CreateProblem(ctx context.Context, g *problem.CreateProblemRequest) (*problem.CreateProblemReply, error) {
 	uc.log.WithContext(ctx).Infof("CreateProblem: %v", g)
-	if g.CaseVersion != 1 {
-		return nil, fmt.Errorf("CaseVersion should be 1, not %d (before the contest start)", g.CaseVersion)
-	}
 	rv, err := uc.repo.Save(ctx, g)
 	if err != nil {
 		return nil, err
