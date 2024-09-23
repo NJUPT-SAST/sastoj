@@ -6,6 +6,7 @@ import (
 	"os"
 	u "sastoj/pkg/util"
 	"strconv"
+	"sync"
 )
 
 type Manager struct {
@@ -77,42 +78,37 @@ func (m *Manager) CompressAndArchive(problemId int64) error {
 // CaseCrlfToLf set .in and .out files crlf to lf
 func (m *Manager) CaseCrlfToLf(problemId int64, config *u.JudgeConfig) error {
 	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
-	caseNum := len(config.Task.Cases)
-	type Empty interface{}
-	var empty Empty
-	sem := make(chan Empty, caseNum)
-	for i := 0; i < len(config.Task.Cases); i++ {
-		go func(i int) {
-			in, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Input)
+	wg := sync.WaitGroup{}
+	wg.Add(len(config.Task.Cases))
+	errChannel := make(chan error)
+	for _, c := range config.Task.Cases {
+		go func() {
+			defer wg.Done()
+			in, err := os.ReadFile(location + "testdata" + "/" + c.Input)
 			if err != nil {
-				sem <- err
+				errChannel <- err
 				return
 			}
-			out, err := os.ReadFile(location + "testdata" + "/" + config.Task.Cases[i].Answer)
+			out, err := os.ReadFile(location + "testdata" + "/" + c.Answer)
 			if err != nil {
-				sem <- err
+				errChannel <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Input, []byte(u.Crlf2lf(string(in[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+c.Input, []byte(u.Crlf2lf(string(in[:]))), os.ModePerm)
 			if err != nil {
-				sem <- err
+				errChannel <- err
 				return
 			}
-			err = os.WriteFile(location+"testdata"+"/"+config.Task.Cases[i].Answer, []byte(u.Crlf2lf(string(out[:]))), os.ModePerm)
+			err = os.WriteFile(location+"testdata"+"/"+c.Answer, []byte(u.Crlf2lf(string(out[:]))), os.ModePerm)
 			if err != nil {
-				sem <- err
+				errChannel <- err
 				return
 			}
-			sem <- empty
-		}(i)
+		}()
 	}
-	for i := 0; i < len(config.Task.Cases); i++ {
-		select {
-		case r := <-sem:
-			if err, ok := r.(error); ok {
-				return err
-			}
-		}
+	wg.Wait()
+	if len(errChannel) != 0 {
+		return <-errChannel
 	}
 	return nil
 }
