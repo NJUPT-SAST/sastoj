@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"sastoj/app/admin/case/internal/conf"
 	"sastoj/ent"
+	"sastoj/pkg/file"
 )
 
 // ProviderSet is data providers.
@@ -20,8 +21,8 @@ var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo)
 
 // Data .
 type Data struct {
-	db                   *ent.Client
-	problemCasesLocation string
+	db *ent.Client
+	fm *file.Manager
 }
 
 // NewData .
@@ -56,5 +57,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client, problemCasesLocation: c.Load.GetProblemCasesLocation()}, cleanup, nil
+	return &Data{db: client, fm: file.NewManager(c.Load.GetProblemCasesLocation())}, cleanup, nil
 }

@@ -56,20 +56,19 @@ func WriteTomlFile(problemId int64, baseLocation string, tomlFile []byte) error 
 	return nil
 }
 
-func GetConfig(problemId int64, baseLocation string) (*JudgeConfig, error) {
+func GetConfig(problemId int64, baseLocation string) (config *JudgeConfig, err error) {
 	tomlFile, err := ReadTomlFile(problemId, baseLocation)
 	if err != nil {
 		return nil, err
 	}
-	var config JudgeConfig
 	err = toml.Unmarshal(tomlFile, &config)
 	if err != nil {
 		return nil, err
 	}
-	return &config, nil
+	return
 }
 
-func SetConfig(problemId int64, baseLocation string, config JudgeConfig) error {
+func SetConfig(problemId int64, baseLocation string, config *JudgeConfig) error {
 	tomlFile, err := toml.Marshal(config)
 	if err != nil {
 		return err
