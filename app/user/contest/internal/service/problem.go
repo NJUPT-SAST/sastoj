@@ -14,8 +14,9 @@ func (s *ContestService) GetProblems(ctx context.Context, req *pb.GetProblemsReq
 	for _, p := range rv {
 		reply.Problems = append(reply.Problems, &pb.GetProblemsReply_Problem{
 			Id:    p.ID,
+			Type:  p.Type,
 			Title: p.Title,
-			Point: int32(p.Point),
+			Score: p.Score,
 			Index: int32(p.Index),
 		})
 	}
@@ -29,9 +30,10 @@ func (s *ContestService) GetProblem(ctx context.Context, req *pb.GetProblemReque
 	}
 	return &pb.GetProblemReply{
 		Id:      rv.ID,
+		Type:    rv.Type,
 		Title:   rv.Title,
 		Content: rv.Content,
-		Point:   int32(rv.Point),
+		Score:   rv.Score,
 	}, nil
 }
 

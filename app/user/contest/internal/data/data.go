@@ -24,10 +24,9 @@ var ProviderSet = wire.NewSet(NewData, NewContestRepo, NewProblemRepo, NewSubmit
 
 // Data .
 type Data struct {
-	db    *ent.Client
-	redis *redis.Client
-	sCh   *mq.OjChannel
-	stCh  *mq.OjChannel
+	db      *ent.Client
+	redis   *redis.Client
+	chanMap map[string]*mq.OjChannel
 }
 
 // NewData .
@@ -76,18 +75,25 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	conn, err := amqp.Dial(c.Mq)
 	if err != nil {
 		log.Errorf("failed connecting to mq: %v", err)
+		return nil, nil, err
 	}
 	ch, err := conn.Channel()
 	if err != nil {
 		log.Errorf("failed opening a channel")
+		return nil, nil, err
 	}
 	sCh, err := mq.NewSubmissionChannel(ch)
 	if err != nil {
 		log.Errorf("failed creating a submission channel")
+		return nil, nil, err
 	}
+	chanMap := make(map[string]*mq.OjChannel)
+	chanMap[mq.SubmissionQueue] = sCh
 	stCh, err := mq.NewSelfTestChannel(ch)
 	if err != nil {
 		log.Errorf("failed creating a self-test channel")
+		return nil, nil, err
 	}
-	return &Data{client, redisClient, sCh, stCh}, cleanup, nil
+	chanMap[mq.SelfTestQueue] = stCh
+	return &Data{client, redisClient, chanMap}, cleanup, nil
 }

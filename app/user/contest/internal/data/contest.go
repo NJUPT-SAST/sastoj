@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/contest"
@@ -18,6 +19,8 @@ type contestRepo struct {
 	log  *log.Helper
 }
 
+const redisPrefix = "user:contest:contest:"
+
 func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Contest, error) {
 	var (
 		po  []*ent.Contest
@@ -32,6 +35,7 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 						user.IDEQ(userID),
 					),
 				),
+				contest.StateEQ(contest.StateNORMAL),
 			).
 			Order(ent.Desc(contest.FieldStartTime)).
 			All(ctx)
@@ -39,13 +43,25 @@ func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Con
 		po, err = c.data.db.Contest.
 			Query().
 			Where(
-				contest.StartTimeGT(time.Now()),
 				contest.StartTimeLT(time.Now().Add(24*time.Hour)),
+				contest.EndTimeGT(time.Now()),
+				contest.StateEQ(contest.StateNORMAL),
 			).
 			All(ctx)
 	}
 	if err != nil {
 		return nil, err
+	}
+	// cache contest
+	for _, v := range po {
+		marshal, err := json.Marshal(v)
+		if err != nil {
+			c.log.Errorf("marshal contest failed: %v", err)
+		}
+		_, err = c.data.redis.SetNX(ctx, redisPrefix+strconv.FormatInt(v.ID, 10), marshal, 2*time.Hour).Result()
+		if err != nil {
+			c.log.Errorf("cache contest failed: %v", err)
+		}
 	}
 	var ret []*biz.Contest
 	for _, v := range po {

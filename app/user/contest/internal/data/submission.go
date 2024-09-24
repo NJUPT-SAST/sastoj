@@ -9,9 +9,9 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissionsubtask"
-	"sastoj/pkg/middleware/auth"
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
+	"slices"
 	"strconv"
 	"time"
 
@@ -24,8 +24,7 @@ type submissionRepo struct {
 }
 
 func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*biz.SelfTest, error) {
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserId
 	var res *biz.SelfTest
 	// get from redis
 	var po *mq.SelfTest
@@ -53,8 +52,7 @@ func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*b
 
 func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserId
 	var cases []*biz.Case
 	if err != nil {
 		// get from redis
@@ -96,7 +94,22 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 }
 
 func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfTest) error {
-	return s.data.stCh.Publish(ctx, &mq.SelfTest{
+	result, err := s.data.redis.Get(ctx, ProblemPrefix+strconv.FormatInt(selfTest.ProblemID, 10)).Result()
+	if err != nil {
+		return fmt.Errorf("problem %d is not exist", selfTest.ProblemID)
+	}
+	var po *ent.Problem
+	err = json.Unmarshal([]byte(result), &po)
+	if err != nil {
+		return fmt.Errorf("problem %d is not exist", selfTest.ProblemID)
+	}
+
+	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIds, po) {
+		return errors.New("permission denied")
+	}
+
+	channel := s.data.chanMap[po.Edges.ProblemType.SelfTestChannelName]
+	return channel.Publish(ctx, &mq.SelfTest{
 		ID:         selfTest.ID,
 		UserID:     selfTest.UserID,
 		Code:       selfTest.Code,
@@ -113,8 +126,7 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 
 func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserId
 	var res *biz.Submission
 	if err != nil {
 		// get from redis
@@ -169,11 +181,11 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 }
 
 func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserId
+
 	po, err := s.data.db.Submission.Query().
 		Select(submission.FieldID, submission.FieldState, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime, submission.FieldLanguage).
-		Where(submission.UserIDEQ(int64(userID)), submission.ProblemIDEQ(problemId)).
+		Where(submission.UserIDEQ(userID), submission.ProblemIDEQ(problemId)).
 		Order(ent.Desc(submission.FieldCreateTime)).
 		All(ctx)
 	if err != nil {
@@ -195,6 +207,22 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 }
 
 func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.Submission) error {
+	result, err := s.data.redis.Get(ctx, ProblemPrefix+strconv.FormatInt(submission.ProblemID, 10)).Result()
+	if err != nil {
+		return fmt.Errorf("problem %d is not exist", submission.ProblemID)
+	}
+	var po *ent.Problem
+	err = json.Unmarshal([]byte(result), &po)
+	if err != nil {
+		s.log.Errorf("unmarshal problem failed: %v", err)
+		return fmt.Errorf("problem %d is not exist", submission.ProblemID)
+	}
+	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIds, po) {
+		return errors.New("permission denied")
+	}
+
+	channel := s.data.chanMap[po.Edges.ProblemType.SubmissionChannelName]
+
 	m := &mq.Submission{
 		ID:         submission.ID,
 		UserID:     submission.UserID,
@@ -208,7 +236,7 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 		Language:   submission.Language,
 		Token:      "",
 	}
-	err := s.data.sCh.Publish(ctx, m)
+	err = channel.Publish(ctx, m)
 	if err != nil {
 		return err
 	}
@@ -238,6 +266,16 @@ func (s *submissionRepo) UpdateSubmission(ctx context.Context, submission *biz.S
 		SetMaxMemory(submission.MaxMemory).
 		Save(ctx)
 	return err
+}
+
+func contestValidator(groupIDs []int64, problem *ent.Problem) bool {
+	groups := problem.Edges.Contest.Edges.Contestants
+	for _, v := range groups {
+		if slices.Contains(groupIDs, v.ID) {
+			return true
+		}
+	}
+	return false
 }
 
 func NewSubmitRepo(data *Data, logger log.Logger) biz.SubmissionRepo {

@@ -11,7 +11,7 @@ type Problem struct {
 	Title   string
 	Type    string
 	Content string
-	Point   int16
+	Score   int32
 	Index   int16
 }
 

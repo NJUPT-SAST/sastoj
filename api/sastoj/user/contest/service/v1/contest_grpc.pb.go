@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: sastoj/user/contest/service/v1/contest.proto
+// source: user/contest/service/v1/contest.proto
 
 package v1
 
@@ -611,5 +611,5 @@ var Contest_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/user/contest/service/v1/contest.proto",
+	Metadata: "user/contest/service/v1/contest.proto",
 }

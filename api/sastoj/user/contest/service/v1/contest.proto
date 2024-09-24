@@ -108,9 +108,10 @@ message GetProblemsRequest {
 message GetProblemsReply {
 	message Problem {
 		int64 id = 1;
-		string title = 2;
-		int32 point = 3;
-		int32 index = 4;
+		string type = 2;
+		string title = 3;
+		int32 score = 4;
+		int32 index = 5;
 	}
 	repeated Problem problems = 1;
 }
@@ -121,9 +122,10 @@ message GetProblemRequest {
 }
 message GetProblemReply {
 	int64 id = 1;
-	string title = 2;
-	string content = 3;
-	int32 point = 4;
+	string type = 2;
+	string title = 3;
+	string content = 4;
+	int32 score = 5;
 }
 
 message SubmitRequest {
