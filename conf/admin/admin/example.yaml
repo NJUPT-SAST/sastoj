@@ -14,6 +14,11 @@ data:
     addr: rd:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
+  auth:
+    root_name: sastoj
+    root_password: 123456
+  load:
+    problem_cases_location: /data/cases
 job:
   ranking_cron: true
   duration: 60

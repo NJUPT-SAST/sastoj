@@ -10,8 +10,7 @@ RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && cd app/admin/admin && make build && cd ../.. \
         && cd user/contest && make build && cd ../.. \
         && cd public/auth && make build && cd ../.. \
-        && cd ..
-#        && cd gojudge && make build && cd ..
+        && cd gojudge && make build && cd ..
 
 
 FROM alpine:edge AS admin
