@@ -82,6 +82,7 @@ func (m *Manager) CaseCrlfToLf(problemId int64, config *u.JudgeConfig) error {
 	wg.Add(len(config.Task.Cases))
 	errChannel := make(chan error)
 	for _, c := range config.Task.Cases {
+		c := c
 		go func() {
 			defer wg.Done()
 			in, err := os.ReadFile(location + "testdata" + "/" + c.Input)

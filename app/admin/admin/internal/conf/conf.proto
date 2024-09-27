@@ -1,0 +1,56 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "sastoj/app/admin/admin/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  Job job = 3;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+  string jwt_secret = 3;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string addr = 1;
+    int32 db = 2;
+    string password = 3;
+  }
+  message Auth {
+    string root_name = 1;
+    string root_password = 2;
+  }
+  message Load {
+    string problem_cases_location = 1;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  Auth auth = 3;
+  Load load = 4;
+}
+
+message Job {
+  bool ranking_cron = 1;
+  int32 duration = 2;
+}

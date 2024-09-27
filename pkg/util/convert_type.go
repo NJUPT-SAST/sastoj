@@ -1,9 +1,10 @@
 package util
 
 import (
-	contestApi "sastoj/api/sastoj/admin/contest/service/v1"
-	userApi "sastoj/api/sastoj/admin/user/service/v1"
+	api "sastoj/api/sastoj/admin/admin/service/v1"
+	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/ent/contest"
+	"sastoj/ent/problem"
 	"sastoj/ent/user"
 	"time"
 )
@@ -42,7 +43,7 @@ func ContestStateToEnt(state int32) (contest.State, error) {
 	case 5:
 		return contest.StateDELETED, nil
 	default:
-		return "", contestApi.ErrorContestInvalid("contest state invalid")
+		return "", api.ErrorContestInvalid("contest state invalid")
 	}
 }
 
@@ -68,6 +69,32 @@ func UserStateToEnt(state int16) (user.State, error) {
 	case 2:
 		return user.StateINACTIVE, nil
 	default:
-		return "", userApi.ErrorUserInvalid("user state invalid")
+		return "", api.ErrorUserInvalid("user state invalid")
+	}
+}
+
+func VisToPb(v problem.Visibility) pb.Visibility {
+	switch v {
+	case problem.VisibilityPRIVATE:
+		return pb.Visibility_Private
+	case problem.VisibilityPUBLIC:
+		return pb.Visibility_Public
+	case problem.VisibilityCONTEST:
+		return pb.Visibility_Contest
+	default:
+		return pb.Visibility_Private
+	}
+}
+
+func VisToEnt(v pb.Visibility) problem.Visibility {
+	switch v {
+	case pb.Visibility_Private:
+		return problem.VisibilityPRIVATE
+	case pb.Visibility_Public:
+		return problem.VisibilityPUBLIC
+	case pb.Visibility_Contest:
+		return problem.VisibilityCONTEST
+	default:
+		return problem.VisibilityPRIVATE
 	}
 }

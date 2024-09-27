@@ -1,0 +1,561 @@
+syntax = "proto3";
+
+package api.sastoj.admin.admin.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "errors/errors.proto";
+import "validate/validate.proto";
+option go_package = "sastoj/api/sastoj/admin/admin/service/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.sastoj.admin.admin.service.v1";
+
+service Admin {
+  rpc DeleteCasesByProblemId(DeleteCasesByProblemIdRequest) returns (DeleteCasesByProblemIdReply){
+    option (google.api.http) = {delete: "/case/{problem_id}"};
+  };
+
+  rpc CreateContest (CreateContestRequest) returns (CreateContestReply){
+    option (google.api.http) = {
+      post: "/contest"
+      body: "*"
+    };
+  };
+  rpc UpdateContest (UpdateContestRequest) returns (UpdateContestReply){
+    option (google.api.http) = {
+      put: "/contest"
+      body: "*"
+    };
+  };
+  rpc DeleteContest (DeleteContestRequest) returns (DeleteContestReply){
+    option (google.api.http) = {
+      delete: "/contest/{id}"
+    };
+  };
+  rpc GetContest (GetContestRequest) returns (GetContestReply){
+    option (google.api.http) = {
+      get: "/contest/{id}"
+    };
+  };
+  rpc ListContest (ListContestRequest) returns (ListContestReply){
+    option (google.api.http) = {
+      get: "/contest"
+    };
+  };
+  rpc AddContestants (AddContestantsRequest) returns (AddContestantsReply){
+    option (google.api.http) = {
+      post: "/contest/contestants"
+      body: "*"
+    };
+  };
+  rpc ManualRanking (ManualRankingRequest) returns (ManualRankingReply){
+    option (google.api.http) = {
+      post: "/contest/rank"
+      body: "*"
+    };
+  };
+
+  rpc CreateGroup (CreateGroupRequest) returns (CreateGroupReply) {
+    option (google.api.http) = {
+      post: "/group",
+      body: "*"
+    };
+  };
+  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupReply){
+    option (google.api.http) = {
+      put: "/group",
+      body: "*"
+    };
+  };
+  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupReply){
+    option (google.api.http) = {
+      delete: "/group/{id}";
+    };
+  };
+  rpc GetGroup (GetGroupRequest) returns (GetGroupReply) {
+    option (google.api.http) = {
+      get: "/group/{id}"
+    };
+  };
+  rpc ListGroup (ListGroupRequest) returns (ListGroupReply){
+    option (google.api.http) = {
+      get: "/group"
+    };
+  };
+
+  rpc SubmitJudge (SubmitJudgeRequest) returns (SubmitJudgeReply){
+    option (google.api.http) = {post: "/judge/{submission_id}" body: "*"};
+  };
+  rpc GetJudgableProblems (GetJudgableProblemsRequest) returns (GetJudgableProblemsReply){
+    option (google.api.http) = {get: "/judge"};
+  };
+  rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply){
+    option (google.api.http) = {get: "/judge/{problem_id}"};
+  };
+
+  rpc UpdateJudger (UpdateJudgerRequest) returns (UpdateJudgerReply){
+    option (google.api.http) = {
+      post: "/judger/{problem_id}"
+      body: "*"
+    };
+  };
+  rpc GetJudger (GetJudgerRequest) returns (GetJudgerReply){
+    option (google.api.http) = {
+      get: "/judger/{problem_id}"
+    };
+  };
+
+  rpc CreateProblem (CreateProblemRequest) returns (CreateProblemReply){
+    option (google.api.http) = {
+      post: "/problem",
+      body: "*"
+    };
+  };
+  rpc UpdateProblem (UpdateProblemRequest) returns (UpdateProblemReply){
+    option (google.api.http) = {
+      put: "/problem",
+      body: "*"
+    };
+  };
+  rpc DeleteProblem (DeleteProblemRequest) returns (DeleteProblemReply){
+    option (google.api.http) = {
+      delete: "/problem/{id}",
+    };
+  };
+  rpc ListProblem (ListProblemRequest) returns (ListProblemReply){
+    option (google.api.http) = {
+      get: "/problem/list",
+    };
+  };
+  rpc GetProblem (GetProblemRequest) returns (GetProblemReply){
+    option (google.api.http) = {
+      get: "/problem/{id}",
+    };
+  };
+  rpc GetProblemTypes (GetProblemTypesRequest) returns (GetProblemTypesReply){
+    option (google.api.http) = {
+      get: "/problem-types",
+    };
+  };
+
+  rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
+    option (google.api.http) = {
+      post: "/users"
+      body: "*"
+    };
+  };
+  rpc BatchCreateUser ( BatchCreateUserRequest) returns (BatchCreateUserReply) {
+    option (google.api.http) = {
+      post: "/users/batch"
+      body: "*"
+    };
+  };
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply){
+    option (google.api.http) = {
+      put: "/users"
+      body: "*"
+    };
+  };
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply){
+    option (google.api.http) = {
+      delete: "/users/{id}"
+    };
+  };
+  rpc GetUser (GetUserRequest) returns (GetUserReply){
+    option (google.api.http) = {
+      get: "/users/{id}"
+    };
+  };
+  rpc ListUser (ListUserRequest) returns (ListUserReply){
+    option (google.api.http) = {
+      get: "/users"
+    };
+  };
+}
+enum ErrorReason {
+  // 设置缺省错误码
+  option (errors.default_code) = 500;
+
+  // 为某个枚举单独设置错误码
+  SERVER_ERROR = 0 [(errors.code) = 500];
+  INVALID_ARGUMENT = 1 [(errors.code) = 400];
+  CONTENT_MISSING = 2 [(errors.code) = 400];
+
+  CONTEST_NOT_FOUND = 3 [(errors.code) = 404];
+  CONTEST_INVALID = 4 [(errors.code) = 400];
+  CONTEST_EXISTED = 5 [(errors.code) = 400];
+
+  GROUP_NOT_FOUND = 6 [(errors.code) = 404];
+  GROUP_INVALID = 7 [(errors.code) = 400];
+  GROUP_EXISTED = 8 [(errors.code) = 400];
+
+  USER_NOT_FOUND = 9 [(errors.code) = 404];
+  USER_EXISTED = 10 [(errors.code) = 400];
+  USER_INVALID = 11 [(errors.code) = 400];
+
+}
+
+message Case {
+  int64 id = 1;
+  int32 point = 2;
+  int32 index = 3;
+  bool is_auto = 4;
+}
+message DeleteCasesByProblemIdRequest{
+  int64 problem_id = 1;
+}
+message DeleteCasesByProblemIdReply{}
+
+message CreateContestRequest {
+  string title = 1;
+  string description = 2;
+  int32 status = 3 ;
+  int32 type = 4;
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp end_time = 6;
+  string language = 7;
+  int32 extra_time = 8;
+  google.protobuf.Timestamp create_time = 9;
+
+}
+message CreateContestReply {
+  int64 id = 1;
+}
+
+message UpdateContestRequest {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  int32 status = 4;
+  int32 type = 5;
+  google.protobuf.Timestamp start_time = 6;
+  google.protobuf.Timestamp end_time = 7;
+  string language = 8;
+  int32 extra_time = 9;
+  google.protobuf.Timestamp create_time = 10;
+}
+message UpdateContestReply {
+  bool success = 1;
+}
+
+message DeleteContestRequest {
+  int64 id = 1;
+}
+message DeleteContestReply {
+  bool success = 1;
+}
+
+message GetContestRequest {
+  int64 id = 1 ;
+}
+message GetContestReply {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  int32 status = 4;
+  int32 type = 5;
+  google.protobuf.Timestamp start_time = 6;
+  google.protobuf.Timestamp end_time = 7;
+  string language = 8;
+  int32 extra_time = 9;
+  google.protobuf.Timestamp create_time = 10;
+}
+
+message ListContestRequest {
+  int64 size = 1 [(validate.rules).int64 = {gt: -1}];
+  int64 current = 2[(validate.rules).int64 = {gt: -1}];
+}
+message ListContestReply {
+  message Contest{
+    int64 id = 1;
+    string title = 2;
+    string description = 3;
+    int32 status = 4;
+    int32 type = 5;
+    google.protobuf.Timestamp start_time = 6;
+    google.protobuf.Timestamp end_time = 7;
+    string language = 8;
+    int32 extra_time = 9;
+    google.protobuf.Timestamp create_time = 10;
+  }
+  repeated Contest contests = 1;
+}
+
+message AddContestantsRequest {
+  int64 group_id = 1;
+  int64 contest_id = 2;
+  int32 role = 3 [(validate.rules).int32 =  {in: [0,1]}];
+}
+message AddContestantsReply {
+  bool success = 1;
+}
+
+message ManualRankingRequest {
+  int64 contest_id = 1;
+}
+message ManualRankingReply {
+  bool success = 1;
+}
+
+message CreateGroupRequest {
+  string name = 1;
+  bool is_root = 2;
+  repeated int64 manage = 3;
+  repeated int64 contests = 4;
+  repeated int64 problems = 5;
+}
+message CreateGroupReply {
+  int64 id = 1;
+}
+message UpdateGroupRequest {
+  int64 id = 1;
+  string name = 2;
+  bool is_root = 3;
+  repeated int64 manage = 4;
+  repeated int64 contests = 5;
+  repeated int64 problems = 6;
+}
+message UpdateGroupReply {
+  bool success = 1;
+}
+message DeleteGroupRequest {
+  int64 id = 1;
+}
+message DeleteGroupReply {
+  bool success = 1;
+}
+message GetGroupRequest {
+  int64 id = 1;
+}
+message GetGroupReply {
+  int64 id = 1;
+  string name = 2;
+  bool is_root = 3;
+  repeated int64 manage = 4;
+  repeated int64 contests = 5;
+  repeated int64 problems = 6;
+}
+message ListGroupRequest {
+  int64 size = 1 [(validate.rules).int64 = {gt: -1}];
+  int64 current = 2 [(validate.rules).int64 = {gt: -1}];
+}
+message ListGroupReply {
+  message Group {
+    int64 id = 1;
+    string name = 2;
+    bool is_root = 3;
+    repeated int64 manage = 4;
+    repeated int64 contests = 5;
+    repeated int64 problems = 6;
+  }
+  repeated Group groups = 1;
+}
+
+message Problem {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  int32 point = 4;
+  int64 contest_id = 5;
+  int32 case_version = 6;
+  int32 index = 7;
+  string config = 8;
+}
+message Submission {
+  int64 id = 1;
+  string code = 2;
+  int32 status = 3;
+  int32 point = 4;
+  google.protobuf.Timestamp create_time = 5;
+}
+message SubmitJudgeRequest {
+  int64 submission_id = 1;
+  int32 point = 2;
+}
+message SubmitJudgeReply {
+}
+message GetJudgableProblemsRequest {
+}
+message GetJudgableProblemsReply {
+  repeated Problem results = 1;
+}
+message GetSubmissionsRequest{
+  int64 problem_id = 1;
+  int32 status = 2;
+}
+message GetSubmissionsReply {
+  repeated Submission submissions = 1;
+}
+
+message CreateProblemRequest {
+  int64 type_id = 1;
+  string title = 2;
+  string content = 3;
+  int32 point =4;
+  int64 contestId = 5;
+  int32 index = 6;
+  string config = 7;
+  int64 ownerId = 8;
+  Visibility visibility = 9;
+}
+
+enum Visibility{
+  Private = 0;
+  Public = 1;
+  Contest = 2;
+}
+
+message CreateProblemReply {
+  int64 id = 1;
+}
+
+message UpdateProblemRequest {
+  int64 id = 1;
+  int64 type_id = 2;
+  string title = 3;
+  string content = 4;
+  int32 point = 5;
+  int64 contestId = 6;
+  int32 caseVersion = 7;
+  int32 index = 8;
+  string config = 9;
+  int64 ownerId = 10;
+  Visibility visibility = 11;
+}
+message UpdateProblemReply {
+  bool success = 1;
+}
+
+message DeleteProblemRequest {
+  int64 id = 1;
+}
+message DeleteProblemReply {
+  bool success = 1;
+}
+
+message GetProblemRequest {
+  int64 id = 1;
+}
+message GetProblemReply {
+  int64 id = 1;
+  int64 type_id = 2;
+  string title = 3;
+  string content = 4;
+  int32 point = 5;
+  int64 contestId = 6;
+  int32 caseVersion = 7;
+  int32 index = 8;
+  string config = 9;
+  int64 ownerId = 10;
+  Visibility visibility = 11;
+}
+message ListProblemRequest {
+  int32 size = 1;
+  int32 currency = 2;
+}
+message ListProblemReply {
+  message Problem {
+    int64 id = 1;
+    int64 type_id = 2;
+    string title = 3;
+    string content = 4;
+    int32 point = 5;
+    int64 contestId = 6;
+    int32 caseVersion = 7;
+    int32 index = 8;
+    string config = 9;
+    int64 ownerId = 10;
+    Visibility visibility = 11;
+  }
+  int32 currency = 2;
+  int32 total = 1;
+  repeated Problem problems = 3;
+}
+message GetProblemTypesRequest {
+}
+message GetProblemTypesReply {
+  message ProblemType {
+    int64 id = 1;
+    string name = 2;
+    string slug = 3;
+    string description = 4;
+    string judge = 5;
+  }
+  repeated ProblemType types = 1;
+}
+
+message UpdateJudgerRequest {
+  int64 problem_id = 1;
+  repeated int64 judger_group_ids = 2;
+}
+message UpdateJudgerReply {
+  bool success = 1;
+}
+message GetJudgerRequest {
+  int64 problem_id = 1;
+}
+message GetJudgerReply {
+  message Group {
+    int64 id = 1;
+    string name = 2;
+  }
+  repeated Group groups = 1;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  repeated int64 group_ids = 3;
+}
+message CreateUserReply {
+  int64 id = 1;
+}
+message BatchCreateUserRequest {
+  repeated int64 group_ids = 1;
+  int64 number = 2 [(validate.rules).int64 = {gt: 0}];
+}
+message BatchCreateUserReply {
+  message User {
+    string username = 1;
+    string password = 2;
+  }
+  repeated User users = 1;
+}
+message UpdateUserRequest {
+  int64 id = 1;
+  string username = 2;
+  string password = 3;
+  repeated int64 group_ids = 4;
+  int32 state = 5;
+}
+message UpdateUserReply {
+  bool success = 1;
+}
+message DeleteUserRequest {
+  int64 id = 1;
+}
+message DeleteUserReply {
+  bool success = 1;
+}
+message GetUserRequest {
+  int64 id = 1;
+}
+message GetUserReply {
+  int64 id = 1;
+  string username = 2;
+  repeated int64 group_ids = 3;
+  int32 state = 4;
+}
+message ListUserRequest {
+  int64 size = 1;
+  int64 current = 2;
+}
+message ListUserReply {
+  message User {
+    int64 id = 1;
+    string username = 2;
+    repeated int64 group_ids = 3;
+    int32 state = 4;
+  }
+  repeated User users = 1;
+}
