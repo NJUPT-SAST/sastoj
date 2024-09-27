@@ -9,8 +9,7 @@ RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && apk add --no-cache make git\
         && cd app/admin/admin && make build && cd ../.. \
         && cd user/contest && make build && cd ../.. \
-        && cd public/auth && make build && cd ../.. \
-        && cd gojudge && make build && cd ..
+        && cd public/auth && make build && cd ../..
 
 
 FROM alpine:edge AS admin
