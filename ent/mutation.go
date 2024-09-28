@@ -13,7 +13,6 @@ import (
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemtype"
-	"sastoj/ent/schema"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
 	"sastoj/ent/submissionsubtask"
@@ -3335,7 +3334,7 @@ type ProblemMutation struct {
 	addcase_version     *int16
 	index               *int16
 	addindex            *int16
-	lf_compare          *schema.LfCompare
+	compare_type        *problem.CompareType
 	is_deleted          *bool
 	visibility          *problem.Visibility
 	metadata            *map[string]string
@@ -3349,9 +3348,9 @@ type ProblemMutation struct {
 	clearedowner        bool
 	problem_type        *int64
 	clearedproblem_type bool
-	judgers             map[int64]struct{}
-	removedjudgers      map[int64]struct{}
-	clearedjudgers      bool
+	adjudicators        map[int64]struct{}
+	removedadjudicators map[int64]struct{}
+	clearedadjudicators bool
 	done                bool
 	oldValue            func(context.Context) (*Problem, error)
 	predicates          []predicate.Problem
@@ -3737,40 +3736,40 @@ func (m *ProblemMutation) ResetIndex() {
 	m.addindex = nil
 }
 
-// SetLfCompare sets the "lf_compare" field.
-func (m *ProblemMutation) SetLfCompare(sc schema.LfCompare) {
-	m.lf_compare = &sc
+// SetCompareType sets the "compare_type" field.
+func (m *ProblemMutation) SetCompareType(pt problem.CompareType) {
+	m.compare_type = &pt
 }
 
-// LfCompare returns the value of the "lf_compare" field in the mutation.
-func (m *ProblemMutation) LfCompare() (r schema.LfCompare, exists bool) {
-	v := m.lf_compare
+// CompareType returns the value of the "compare_type" field in the mutation.
+func (m *ProblemMutation) CompareType() (r problem.CompareType, exists bool) {
+	v := m.compare_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldLfCompare returns the old "lf_compare" field's value of the Problem entity.
+// OldCompareType returns the old "compare_type" field's value of the Problem entity.
 // If the Problem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProblemMutation) OldLfCompare(ctx context.Context) (v schema.LfCompare, err error) {
+func (m *ProblemMutation) OldCompareType(ctx context.Context) (v problem.CompareType, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLfCompare is only allowed on UpdateOne operations")
+		return v, errors.New("OldCompareType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLfCompare requires an ID field in the mutation")
+		return v, errors.New("OldCompareType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLfCompare: %w", err)
+		return v, fmt.Errorf("querying old value for OldCompareType: %w", err)
 	}
-	return oldValue.LfCompare, nil
+	return oldValue.CompareType, nil
 }
 
-// ResetLfCompare resets all changes to the "lf_compare" field.
-func (m *ProblemMutation) ResetLfCompare() {
-	m.lf_compare = nil
+// ResetCompareType resets all changes to the "compare_type" field.
+func (m *ProblemMutation) ResetCompareType() {
+	m.compare_type = nil
 }
 
 // SetIsDeleted sets the "is_deleted" field.
@@ -4101,58 +4100,58 @@ func (m *ProblemMutation) ResetProblemType() {
 	m.clearedproblem_type = false
 }
 
-// AddJudgerIDs adds the "judgers" edge to the Group entity by ids.
-func (m *ProblemMutation) AddJudgerIDs(ids ...int64) {
-	if m.judgers == nil {
-		m.judgers = make(map[int64]struct{})
+// AddAdjudicatorIDs adds the "adjudicators" edge to the Group entity by ids.
+func (m *ProblemMutation) AddAdjudicatorIDs(ids ...int64) {
+	if m.adjudicators == nil {
+		m.adjudicators = make(map[int64]struct{})
 	}
 	for i := range ids {
-		m.judgers[ids[i]] = struct{}{}
+		m.adjudicators[ids[i]] = struct{}{}
 	}
 }
 
-// ClearJudgers clears the "judgers" edge to the Group entity.
-func (m *ProblemMutation) ClearJudgers() {
-	m.clearedjudgers = true
+// ClearAdjudicators clears the "adjudicators" edge to the Group entity.
+func (m *ProblemMutation) ClearAdjudicators() {
+	m.clearedadjudicators = true
 }
 
-// JudgersCleared reports if the "judgers" edge to the Group entity was cleared.
-func (m *ProblemMutation) JudgersCleared() bool {
-	return m.clearedjudgers
+// AdjudicatorsCleared reports if the "adjudicators" edge to the Group entity was cleared.
+func (m *ProblemMutation) AdjudicatorsCleared() bool {
+	return m.clearedadjudicators
 }
 
-// RemoveJudgerIDs removes the "judgers" edge to the Group entity by IDs.
-func (m *ProblemMutation) RemoveJudgerIDs(ids ...int64) {
-	if m.removedjudgers == nil {
-		m.removedjudgers = make(map[int64]struct{})
+// RemoveAdjudicatorIDs removes the "adjudicators" edge to the Group entity by IDs.
+func (m *ProblemMutation) RemoveAdjudicatorIDs(ids ...int64) {
+	if m.removedadjudicators == nil {
+		m.removedadjudicators = make(map[int64]struct{})
 	}
 	for i := range ids {
-		delete(m.judgers, ids[i])
-		m.removedjudgers[ids[i]] = struct{}{}
+		delete(m.adjudicators, ids[i])
+		m.removedadjudicators[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedJudgers returns the removed IDs of the "judgers" edge to the Group entity.
-func (m *ProblemMutation) RemovedJudgersIDs() (ids []int64) {
-	for id := range m.removedjudgers {
+// RemovedAdjudicators returns the removed IDs of the "adjudicators" edge to the Group entity.
+func (m *ProblemMutation) RemovedAdjudicatorsIDs() (ids []int64) {
+	for id := range m.removedadjudicators {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// JudgersIDs returns the "judgers" edge IDs in the mutation.
-func (m *ProblemMutation) JudgersIDs() (ids []int64) {
-	for id := range m.judgers {
+// AdjudicatorsIDs returns the "adjudicators" edge IDs in the mutation.
+func (m *ProblemMutation) AdjudicatorsIDs() (ids []int64) {
+	for id := range m.adjudicators {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetJudgers resets all changes to the "judgers" edge.
-func (m *ProblemMutation) ResetJudgers() {
-	m.judgers = nil
-	m.clearedjudgers = false
-	m.removedjudgers = nil
+// ResetAdjudicators resets all changes to the "adjudicators" edge.
+func (m *ProblemMutation) ResetAdjudicators() {
+	m.adjudicators = nil
+	m.clearedadjudicators = false
+	m.removedadjudicators = nil
 }
 
 // Where appends a list predicates to the ProblemMutation builder.
@@ -4208,8 +4207,8 @@ func (m *ProblemMutation) Fields() []string {
 	if m.index != nil {
 		fields = append(fields, problem.FieldIndex)
 	}
-	if m.lf_compare != nil {
-		fields = append(fields, problem.FieldLfCompare)
+	if m.compare_type != nil {
+		fields = append(fields, problem.FieldCompareType)
 	}
 	if m.is_deleted != nil {
 		fields = append(fields, problem.FieldIsDeleted)
@@ -4246,8 +4245,8 @@ func (m *ProblemMutation) Field(name string) (ent.Value, bool) {
 		return m.CaseVersion()
 	case problem.FieldIndex:
 		return m.Index()
-	case problem.FieldLfCompare:
-		return m.LfCompare()
+	case problem.FieldCompareType:
+		return m.CompareType()
 	case problem.FieldIsDeleted:
 		return m.IsDeleted()
 	case problem.FieldContestID:
@@ -4279,8 +4278,8 @@ func (m *ProblemMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCaseVersion(ctx)
 	case problem.FieldIndex:
 		return m.OldIndex(ctx)
-	case problem.FieldLfCompare:
-		return m.OldLfCompare(ctx)
+	case problem.FieldCompareType:
+		return m.OldCompareType(ctx)
 	case problem.FieldIsDeleted:
 		return m.OldIsDeleted(ctx)
 	case problem.FieldContestID:
@@ -4342,12 +4341,12 @@ func (m *ProblemMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIndex(v)
 		return nil
-	case problem.FieldLfCompare:
-		v, ok := value.(schema.LfCompare)
+	case problem.FieldCompareType:
+		v, ok := value.(problem.CompareType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetLfCompare(v)
+		m.SetCompareType(v)
 		return nil
 	case problem.FieldIsDeleted:
 		v, ok := value.(bool)
@@ -4490,8 +4489,8 @@ func (m *ProblemMutation) ResetField(name string) error {
 	case problem.FieldIndex:
 		m.ResetIndex()
 		return nil
-	case problem.FieldLfCompare:
-		m.ResetLfCompare()
+	case problem.FieldCompareType:
+		m.ResetCompareType()
 		return nil
 	case problem.FieldIsDeleted:
 		m.ResetIsDeleted()
@@ -4527,8 +4526,8 @@ func (m *ProblemMutation) AddedEdges() []string {
 	if m.problem_type != nil {
 		edges = append(edges, problem.EdgeProblemType)
 	}
-	if m.judgers != nil {
-		edges = append(edges, problem.EdgeJudgers)
+	if m.adjudicators != nil {
+		edges = append(edges, problem.EdgeAdjudicators)
 	}
 	return edges
 }
@@ -4555,9 +4554,9 @@ func (m *ProblemMutation) AddedIDs(name string) []ent.Value {
 		if id := m.problem_type; id != nil {
 			return []ent.Value{*id}
 		}
-	case problem.EdgeJudgers:
-		ids := make([]ent.Value, 0, len(m.judgers))
-		for id := range m.judgers {
+	case problem.EdgeAdjudicators:
+		ids := make([]ent.Value, 0, len(m.adjudicators))
+		for id := range m.adjudicators {
 			ids = append(ids, id)
 		}
 		return ids
@@ -4571,8 +4570,8 @@ func (m *ProblemMutation) RemovedEdges() []string {
 	if m.removedsubmission != nil {
 		edges = append(edges, problem.EdgeSubmission)
 	}
-	if m.removedjudgers != nil {
-		edges = append(edges, problem.EdgeJudgers)
+	if m.removedadjudicators != nil {
+		edges = append(edges, problem.EdgeAdjudicators)
 	}
 	return edges
 }
@@ -4587,9 +4586,9 @@ func (m *ProblemMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case problem.EdgeJudgers:
-		ids := make([]ent.Value, 0, len(m.removedjudgers))
-		for id := range m.removedjudgers {
+	case problem.EdgeAdjudicators:
+		ids := make([]ent.Value, 0, len(m.removedadjudicators))
+		for id := range m.removedadjudicators {
 			ids = append(ids, id)
 		}
 		return ids
@@ -4612,8 +4611,8 @@ func (m *ProblemMutation) ClearedEdges() []string {
 	if m.clearedproblem_type {
 		edges = append(edges, problem.EdgeProblemType)
 	}
-	if m.clearedjudgers {
-		edges = append(edges, problem.EdgeJudgers)
+	if m.clearedadjudicators {
+		edges = append(edges, problem.EdgeAdjudicators)
 	}
 	return edges
 }
@@ -4630,8 +4629,8 @@ func (m *ProblemMutation) EdgeCleared(name string) bool {
 		return m.clearedowner
 	case problem.EdgeProblemType:
 		return m.clearedproblem_type
-	case problem.EdgeJudgers:
-		return m.clearedjudgers
+	case problem.EdgeAdjudicators:
+		return m.clearedadjudicators
 	}
 	return false
 }
@@ -4669,8 +4668,8 @@ func (m *ProblemMutation) ResetEdge(name string) error {
 	case problem.EdgeProblemType:
 		m.ResetProblemType()
 		return nil
-	case problem.EdgeJudgers:
-		m.ResetJudgers()
+	case problem.EdgeAdjudicators:
+		m.ResetAdjudicators()
 		return nil
 	}
 	return fmt.Errorf("unknown Problem edge %s", name)

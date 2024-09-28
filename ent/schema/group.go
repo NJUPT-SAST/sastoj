@@ -25,7 +25,7 @@ func (Group) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("manage", Contest.Type).Ref("managers"),
 		edge.From("contests", Contest.Type).Ref("contestants"),
-		edge.From("problems", Problem.Type).Ref("judgers"),
+		edge.From("problems", Problem.Type).Ref("adjudicators"),
 		edge.To("users", User.Type),
 	}
 }

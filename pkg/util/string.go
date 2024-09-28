@@ -1,6 +1,9 @@
 package util
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 func BytesMatchIgnoringSpacesAndNewlines(a, b []byte) bool {
 	skipWhitespace := func(c byte) bool {
@@ -47,4 +50,21 @@ func GetCaseIndex(s string) int {
 		}
 	}
 	return res
+}
+
+func StringCompareIgnoreLineEndSpaceAndTextEndEnter(a, b string) bool {
+	a = strings.TrimRight(a, " \n\t\r")
+	b = strings.TrimRight(b, " \n\t\r")
+	a = StringRemoveLineEndSpace(a)
+	b = StringRemoveLineEndSpace(b)
+	return a == b
+}
+
+func StringRemoveLineEndSpace(a string) string {
+	for i := len(a) - 1; i >= 0; i-- {
+		if a[i] == '\n' {
+			a = strings.TrimRight(a[:i], " ") + a[i:]
+		}
+	}
+	return a
 }

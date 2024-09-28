@@ -37,7 +37,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "contest" package.
 	ContestsInverseTable = "contests"
 	// ProblemsTable is the table that holds the problems relation/edge. The primary key declared below.
-	ProblemsTable = "problem_judgers"
+	ProblemsTable = "problem_adjudicators"
 	// ProblemsInverseTable is the table name for the Problem entity.
 	// It exists in this package in order to avoid circular dependency with the "problem" package.
 	ProblemsInverseTable = "problems"

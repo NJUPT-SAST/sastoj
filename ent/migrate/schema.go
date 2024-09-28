@@ -98,7 +98,7 @@ var (
 		{Name: "score", Type: field.TypeInt16},
 		{Name: "case_version", Type: field.TypeInt16, Default: 1},
 		{Name: "index", Type: field.TypeInt16},
-		{Name: "lf_compare", Type: field.TypeJSON},
+		{Name: "compare_type", Type: field.TypeEnum, Enums: []string{"STRICT", "IGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER"}, Default: "STRICT"},
 		{Name: "is_deleted", Type: field.TypeBool, Default: false},
 		{Name: "visibility", Type: field.TypeEnum, Enums: []string{"PRIVATE", "PUBLIC", "CONTEST"}, Default: "PRIVATE"},
 		{Name: "metadata", Type: field.TypeJSON},
@@ -321,26 +321,26 @@ var (
 			},
 		},
 	}
-	// ProblemJudgersColumns holds the columns for the "problem_judgers" table.
-	ProblemJudgersColumns = []*schema.Column{
+	// ProblemAdjudicatorsColumns holds the columns for the "problem_adjudicators" table.
+	ProblemAdjudicatorsColumns = []*schema.Column{
 		{Name: "problem_id", Type: field.TypeInt64},
 		{Name: "group_id", Type: field.TypeInt64},
 	}
-	// ProblemJudgersTable holds the schema information for the "problem_judgers" table.
-	ProblemJudgersTable = &schema.Table{
-		Name:       "problem_judgers",
-		Columns:    ProblemJudgersColumns,
-		PrimaryKey: []*schema.Column{ProblemJudgersColumns[0], ProblemJudgersColumns[1]},
+	// ProblemAdjudicatorsTable holds the schema information for the "problem_adjudicators" table.
+	ProblemAdjudicatorsTable = &schema.Table{
+		Name:       "problem_adjudicators",
+		Columns:    ProblemAdjudicatorsColumns,
+		PrimaryKey: []*schema.Column{ProblemAdjudicatorsColumns[0], ProblemAdjudicatorsColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "problem_judgers_problem_id",
-				Columns:    []*schema.Column{ProblemJudgersColumns[0]},
+				Symbol:     "problem_adjudicators_problem_id",
+				Columns:    []*schema.Column{ProblemAdjudicatorsColumns[0]},
 				RefColumns: []*schema.Column{ProblemsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "problem_judgers_group_id",
-				Columns:    []*schema.Column{ProblemJudgersColumns[1]},
+				Symbol:     "problem_adjudicators_group_id",
+				Columns:    []*schema.Column{ProblemAdjudicatorsColumns[1]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -386,7 +386,7 @@ var (
 		ContestContestantsTable,
 		ContestManagersTable,
 		GroupUsersTable,
-		ProblemJudgersTable,
+		ProblemAdjudicatorsTable,
 		SubmissionContestResultsTable,
 	}
 )
@@ -420,8 +420,8 @@ func init() {
 	ContestManagersTable.ForeignKeys[1].RefTable = GroupsTable
 	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable
 	GroupUsersTable.ForeignKeys[1].RefTable = UsersTable
-	ProblemJudgersTable.ForeignKeys[0].RefTable = ProblemsTable
-	ProblemJudgersTable.ForeignKeys[1].RefTable = GroupsTable
+	ProblemAdjudicatorsTable.ForeignKeys[0].RefTable = ProblemsTable
+	ProblemAdjudicatorsTable.ForeignKeys[1].RefTable = GroupsTable
 	SubmissionContestResultsTable.ForeignKeys[0].RefTable = SubmissionsTable
 	SubmissionContestResultsTable.ForeignKeys[1].RefTable = ContestResultsTable
 }

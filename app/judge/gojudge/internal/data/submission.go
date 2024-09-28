@@ -271,9 +271,22 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				state := gojudge.Convert(result.Status)
 
 				if out := result.Files["stdout"]; state == util.Accepted && out != nil {
-					// TODO: support more compare method with LfCompare in the problem
-					if !bytes.Equal(out, ans) {
-						state = util.WrongAnswer
+					switch p.CompareType {
+					case problem.CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER:
+						if !util.StringCompareIgnoreLineEndSpaceAndTextEndEnter(string(out), string(ans)) {
+							state = util.WrongAnswer
+						}
+					case problem.CompareTypeSTRICT:
+						if !bytes.Equal(out, ans) {
+							if util.BytesMatchIgnoringSpacesAndNewlines(out, ans) {
+								state = util.PresentationError
+							} else {
+								state = util.WrongAnswer
+							}
+						}
+					default:
+						state = util.SystemError
+						r.log.Errorf("unsupported compare type: %v", p.CompareType)
 					}
 				}
 
@@ -282,7 +295,6 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				builder.SetTime(result.Time)
 				builder.SetMemory(result.Memory)
 				// TODO: support more contest type
-				builder.SetPoint(c.Score)
 
 				// set subtask info
 				totalTime += result.Time
@@ -292,8 +304,9 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				s.TotalTime += result.Time
 				s.MaxMemory = max(s.MaxMemory, result.Memory)
 
-				// set status
+				// set status and point
 				if state != util.Accepted {
+					builder.SetPoint(0)
 					if s.Status == util.Accepted {
 						s.Status = state
 					}
@@ -306,10 +319,10 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 					} else {
 						builder.SetStdout(result.Error)
 					}
+				} else {
+					builder.SetPoint(c.Score)
+					casesResult[fileIndex-1] = true
 				}
-
-				// set result when AC
-				casesResult[fileIndex-1] = true
 
 				return nil
 			}()

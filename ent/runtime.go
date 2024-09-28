@@ -65,10 +65,6 @@ func init() {
 	problemDescIndex := problemFields[6].Descriptor()
 	// problem.IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	problem.IndexValidator = problemDescIndex.Validators[0].(func(int16) error)
-	// problemDescLfCompare is the schema descriptor for lf_compare field.
-	problemDescLfCompare := problemFields[7].Descriptor()
-	// problem.DefaultLfCompare holds the default value on creation for the lf_compare field.
-	problem.DefaultLfCompare = problemDescLfCompare.Default.(schema.LfCompare)
 	// problemDescIsDeleted is the schema descriptor for is_deleted field.
 	problemDescIsDeleted := problemFields[8].Descriptor()
 	// problem.DefaultIsDeleted holds the default value on creation for the is_deleted field.

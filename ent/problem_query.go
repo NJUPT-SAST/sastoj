@@ -23,15 +23,15 @@ import (
 // ProblemQuery is the builder for querying Problem entities.
 type ProblemQuery struct {
 	config
-	ctx             *QueryContext
-	order           []problem.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.Problem
-	withSubmission  *SubmissionQuery
-	withContest     *ContestQuery
-	withOwner       *UserQuery
-	withProblemType *ProblemTypeQuery
-	withJudgers     *GroupQuery
+	ctx              *QueryContext
+	order            []problem.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Problem
+	withSubmission   *SubmissionQuery
+	withContest      *ContestQuery
+	withOwner        *UserQuery
+	withProblemType  *ProblemTypeQuery
+	withAdjudicators *GroupQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -156,8 +156,8 @@ func (pq *ProblemQuery) QueryProblemType() *ProblemTypeQuery {
 	return query
 }
 
-// QueryJudgers chains the current query on the "judgers" edge.
-func (pq *ProblemQuery) QueryJudgers() *GroupQuery {
+// QueryAdjudicators chains the current query on the "adjudicators" edge.
+func (pq *ProblemQuery) QueryAdjudicators() *GroupQuery {
 	query := (&GroupClient{config: pq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -170,7 +170,7 @@ func (pq *ProblemQuery) QueryJudgers() *GroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, problem.JudgersTable, problem.JudgersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, problem.AdjudicatorsTable, problem.AdjudicatorsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -365,16 +365,16 @@ func (pq *ProblemQuery) Clone() *ProblemQuery {
 		return nil
 	}
 	return &ProblemQuery{
-		config:          pq.config,
-		ctx:             pq.ctx.Clone(),
-		order:           append([]problem.OrderOption{}, pq.order...),
-		inters:          append([]Interceptor{}, pq.inters...),
-		predicates:      append([]predicate.Problem{}, pq.predicates...),
-		withSubmission:  pq.withSubmission.Clone(),
-		withContest:     pq.withContest.Clone(),
-		withOwner:       pq.withOwner.Clone(),
-		withProblemType: pq.withProblemType.Clone(),
-		withJudgers:     pq.withJudgers.Clone(),
+		config:           pq.config,
+		ctx:              pq.ctx.Clone(),
+		order:            append([]problem.OrderOption{}, pq.order...),
+		inters:           append([]Interceptor{}, pq.inters...),
+		predicates:       append([]predicate.Problem{}, pq.predicates...),
+		withSubmission:   pq.withSubmission.Clone(),
+		withContest:      pq.withContest.Clone(),
+		withOwner:        pq.withOwner.Clone(),
+		withProblemType:  pq.withProblemType.Clone(),
+		withAdjudicators: pq.withAdjudicators.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
@@ -425,14 +425,14 @@ func (pq *ProblemQuery) WithProblemType(opts ...func(*ProblemTypeQuery)) *Proble
 	return pq
 }
 
-// WithJudgers tells the query-builder to eager-load the nodes that are connected to
-// the "judgers" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProblemQuery) WithJudgers(opts ...func(*GroupQuery)) *ProblemQuery {
+// WithAdjudicators tells the query-builder to eager-load the nodes that are connected to
+// the "adjudicators" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProblemQuery) WithAdjudicators(opts ...func(*GroupQuery)) *ProblemQuery {
 	query := (&GroupClient{config: pq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withJudgers = query
+	pq.withAdjudicators = query
 	return pq
 }
 
@@ -519,7 +519,7 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			pq.withContest != nil,
 			pq.withOwner != nil,
 			pq.withProblemType != nil,
-			pq.withJudgers != nil,
+			pq.withAdjudicators != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -565,10 +565,10 @@ func (pq *ProblemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prob
 			return nil, err
 		}
 	}
-	if query := pq.withJudgers; query != nil {
-		if err := pq.loadJudgers(ctx, query, nodes,
-			func(n *Problem) { n.Edges.Judgers = []*Group{} },
-			func(n *Problem, e *Group) { n.Edges.Judgers = append(n.Edges.Judgers, e) }); err != nil {
+	if query := pq.withAdjudicators; query != nil {
+		if err := pq.loadAdjudicators(ctx, query, nodes,
+			func(n *Problem) { n.Edges.Adjudicators = []*Group{} },
+			func(n *Problem, e *Group) { n.Edges.Adjudicators = append(n.Edges.Adjudicators, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -692,7 +692,7 @@ func (pq *ProblemQuery) loadProblemType(ctx context.Context, query *ProblemTypeQ
 	}
 	return nil
 }
-func (pq *ProblemQuery) loadJudgers(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
+func (pq *ProblemQuery) loadAdjudicators(ctx context.Context, query *GroupQuery, nodes []*Problem, init func(*Problem), assign func(*Problem, *Group)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int64]*Problem)
 	nids := make(map[int64]map[*Problem]struct{})
@@ -704,11 +704,11 @@ func (pq *ProblemQuery) loadJudgers(ctx context.Context, query *GroupQuery, node
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(problem.JudgersTable)
-		s.Join(joinT).On(s.C(group.FieldID), joinT.C(problem.JudgersPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(problem.JudgersPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(problem.AdjudicatorsTable)
+		s.Join(joinT).On(s.C(group.FieldID), joinT.C(problem.AdjudicatorsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(problem.AdjudicatorsPrimaryKey[0]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(problem.JudgersPrimaryKey[0]))
+		s.Select(joinT.C(problem.AdjudicatorsPrimaryKey[0]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -745,7 +745,7 @@ func (pq *ProblemQuery) loadJudgers(ctx context.Context, query *GroupQuery, node
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "judgers" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "adjudicators" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

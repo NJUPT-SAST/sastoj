@@ -8,7 +8,6 @@ import (
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemtype"
-	"sastoj/ent/schema"
 	"sastoj/ent/user"
 	"strings"
 
@@ -33,8 +32,8 @@ type Problem struct {
 	CaseVersion int16 `json:"case_version,omitempty"`
 	// Index holds the value of the "index" field.
 	Index int16 `json:"index,omitempty"`
-	// LfCompare holds the value of the "lf_compare" field.
-	LfCompare schema.LfCompare `json:"lf_compare,omitempty"`
+	// CompareType holds the value of the "compare_type" field.
+	CompareType problem.CompareType `json:"compare_type,omitempty"`
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
@@ -61,8 +60,8 @@ type ProblemEdges struct {
 	Owner *User `json:"owner,omitempty"`
 	// ProblemType holds the value of the problem_type edge.
 	ProblemType *ProblemType `json:"problem_type,omitempty"`
-	// Judgers holds the value of the judgers edge.
-	Judgers []*Group `json:"judgers,omitempty"`
+	// Adjudicators holds the value of the adjudicators edge.
+	Adjudicators []*Group `json:"adjudicators,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [5]bool
@@ -116,13 +115,13 @@ func (e ProblemEdges) ProblemTypeOrErr() (*ProblemType, error) {
 	return nil, &NotLoadedError{edge: "problem_type"}
 }
 
-// JudgersOrErr returns the Judgers value or an error if the edge
+// AdjudicatorsOrErr returns the Adjudicators value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProblemEdges) JudgersOrErr() ([]*Group, error) {
+func (e ProblemEdges) AdjudicatorsOrErr() ([]*Group, error) {
 	if e.loadedTypes[4] {
-		return e.Judgers, nil
+		return e.Adjudicators, nil
 	}
-	return nil, &NotLoadedError{edge: "judgers"}
+	return nil, &NotLoadedError{edge: "adjudicators"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -130,13 +129,13 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldLfCompare, problem.FieldMetadata:
+		case problem.FieldMetadata:
 			values[i] = new([]byte)
 		case problem.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
 		case problem.FieldID, problem.FieldProblemTypeID, problem.FieldScore, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID, problem.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldTitle, problem.FieldContent, problem.FieldVisibility:
+		case problem.FieldTitle, problem.FieldContent, problem.FieldCompareType, problem.FieldVisibility:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -195,13 +194,11 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Index = int16(value.Int64)
 			}
-		case problem.FieldLfCompare:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field lf_compare", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pr.LfCompare); err != nil {
-					return fmt.Errorf("unmarshal field lf_compare: %w", err)
-				}
+		case problem.FieldCompareType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field compare_type", values[i])
+			} else if value.Valid {
+				pr.CompareType = problem.CompareType(value.String)
 			}
 		case problem.FieldIsDeleted:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -268,9 +265,9 @@ func (pr *Problem) QueryProblemType() *ProblemTypeQuery {
 	return NewProblemClient(pr.config).QueryProblemType(pr)
 }
 
-// QueryJudgers queries the "judgers" edge of the Problem entity.
-func (pr *Problem) QueryJudgers() *GroupQuery {
-	return NewProblemClient(pr.config).QueryJudgers(pr)
+// QueryAdjudicators queries the "adjudicators" edge of the Problem entity.
+func (pr *Problem) QueryAdjudicators() *GroupQuery {
+	return NewProblemClient(pr.config).QueryAdjudicators(pr)
 }
 
 // Update returns a builder for updating this Problem.
@@ -314,8 +311,8 @@ func (pr *Problem) String() string {
 	builder.WriteString("index=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Index))
 	builder.WriteString(", ")
-	builder.WriteString("lf_compare=")
-	builder.WriteString(fmt.Sprintf("%v", pr.LfCompare))
+	builder.WriteString("compare_type=")
+	builder.WriteString(fmt.Sprintf("%v", pr.CompareType))
 	builder.WriteString(", ")
 	builder.WriteString("is_deleted=")
 	builder.WriteString(fmt.Sprintf("%v", pr.IsDeleted))

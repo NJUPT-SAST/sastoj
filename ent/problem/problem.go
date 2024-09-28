@@ -4,7 +4,6 @@ package problem
 
 import (
 	"fmt"
-	"sastoj/ent/schema"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,8 +26,8 @@ const (
 	FieldCaseVersion = "case_version"
 	// FieldIndex holds the string denoting the index field in the database.
 	FieldIndex = "index"
-	// FieldLfCompare holds the string denoting the lf_compare field in the database.
-	FieldLfCompare = "lf_compare"
+	// FieldCompareType holds the string denoting the compare_type field in the database.
+	FieldCompareType = "compare_type"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
 	// FieldContestID holds the string denoting the contest_id field in the database.
@@ -47,8 +46,8 @@ const (
 	EdgeOwner = "owner"
 	// EdgeProblemType holds the string denoting the problem_type edge name in mutations.
 	EdgeProblemType = "problem_type"
-	// EdgeJudgers holds the string denoting the judgers edge name in mutations.
-	EdgeJudgers = "judgers"
+	// EdgeAdjudicators holds the string denoting the adjudicators edge name in mutations.
+	EdgeAdjudicators = "adjudicators"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
 	// SubmissionTable is the table that holds the submission relation/edge.
@@ -79,11 +78,11 @@ const (
 	ProblemTypeInverseTable = "problem_types"
 	// ProblemTypeColumn is the table column denoting the problem_type relation/edge.
 	ProblemTypeColumn = "problem_type_id"
-	// JudgersTable is the table that holds the judgers relation/edge. The primary key declared below.
-	JudgersTable = "problem_judgers"
-	// JudgersInverseTable is the table name for the Group entity.
+	// AdjudicatorsTable is the table that holds the adjudicators relation/edge. The primary key declared below.
+	AdjudicatorsTable = "problem_adjudicators"
+	// AdjudicatorsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	JudgersInverseTable = "groups"
+	AdjudicatorsInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for problem fields.
@@ -95,7 +94,7 @@ var Columns = []string{
 	FieldScore,
 	FieldCaseVersion,
 	FieldIndex,
-	FieldLfCompare,
+	FieldCompareType,
 	FieldIsDeleted,
 	FieldContestID,
 	FieldUserID,
@@ -104,9 +103,9 @@ var Columns = []string{
 }
 
 var (
-	// JudgersPrimaryKey and JudgersColumn2 are the table columns denoting the
-	// primary key for the judgers relation (M2M).
-	JudgersPrimaryKey = []string{"problem_id", "group_id"}
+	// AdjudicatorsPrimaryKey and AdjudicatorsColumn2 are the table columns denoting the
+	// primary key for the adjudicators relation (M2M).
+	AdjudicatorsPrimaryKey = []string{"problem_id", "group_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -126,13 +125,37 @@ var (
 	DefaultCaseVersion int16
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	IndexValidator func(int16) error
-	// DefaultLfCompare holds the default value on creation for the "lf_compare" field.
-	DefaultLfCompare schema.LfCompare
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
 	// DefaultMetadata holds the default value on creation for the "metadata" field.
 	DefaultMetadata map[string]string
 )
+
+// CompareType defines the type for the "compare_type" enum field.
+type CompareType string
+
+// CompareTypeSTRICT is the default value of the CompareType enum.
+const DefaultCompareType = CompareTypeSTRICT
+
+// CompareType values.
+const (
+	CompareTypeSTRICT                                   CompareType = "STRICT"
+	CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER CompareType = "IGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER"
+)
+
+func (ct CompareType) String() string {
+	return string(ct)
+}
+
+// CompareTypeValidator is a validator for the "compare_type" field enum values. It is called by the builders before save.
+func CompareTypeValidator(ct CompareType) error {
+	switch ct {
+	case CompareTypeSTRICT, CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for compare_type field: %q", ct)
+	}
+}
 
 // Visibility defines the type for the "visibility" enum field.
 type Visibility string
@@ -199,6 +222,11 @@ func ByIndex(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIndex, opts...).ToFunc()
 }
 
+// ByCompareType orders the results by the compare_type field.
+func ByCompareType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompareType, opts...).ToFunc()
+}
+
 // ByIsDeleted orders the results by the is_deleted field.
 func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDeleted, opts...).ToFunc()
@@ -254,17 +282,17 @@ func ByProblemTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByJudgersCount orders the results by judgers count.
-func ByJudgersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByAdjudicatorsCount orders the results by adjudicators count.
+func ByAdjudicatorsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newJudgersStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newAdjudicatorsStep(), opts...)
 	}
 }
 
-// ByJudgers orders the results by judgers terms.
-func ByJudgers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByAdjudicators orders the results by adjudicators terms.
+func ByAdjudicators(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newJudgersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newAdjudicatorsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newSubmissionStep() *sqlgraph.Step {
@@ -295,10 +323,10 @@ func newProblemTypeStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTypeTable, ProblemTypeColumn),
 	)
 }
-func newJudgersStep() *sqlgraph.Step {
+func newAdjudicatorsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(JudgersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, JudgersTable, JudgersPrimaryKey...),
+		sqlgraph.To(AdjudicatorsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, AdjudicatorsTable, AdjudicatorsPrimaryKey...),
 	)
 }

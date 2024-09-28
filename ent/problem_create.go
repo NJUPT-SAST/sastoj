@@ -10,7 +10,6 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"sastoj/ent/problemtype"
-	"sastoj/ent/schema"
 	"sastoj/ent/submission"
 	"sastoj/ent/user"
 
@@ -71,16 +70,16 @@ func (pc *ProblemCreate) SetIndex(i int16) *ProblemCreate {
 	return pc
 }
 
-// SetLfCompare sets the "lf_compare" field.
-func (pc *ProblemCreate) SetLfCompare(sc schema.LfCompare) *ProblemCreate {
-	pc.mutation.SetLfCompare(sc)
+// SetCompareType sets the "compare_type" field.
+func (pc *ProblemCreate) SetCompareType(pt problem.CompareType) *ProblemCreate {
+	pc.mutation.SetCompareType(pt)
 	return pc
 }
 
-// SetNillableLfCompare sets the "lf_compare" field if the given value is not nil.
-func (pc *ProblemCreate) SetNillableLfCompare(sc *schema.LfCompare) *ProblemCreate {
-	if sc != nil {
-		pc.SetLfCompare(*sc)
+// SetNillableCompareType sets the "compare_type" field if the given value is not nil.
+func (pc *ProblemCreate) SetNillableCompareType(pt *problem.CompareType) *ProblemCreate {
+	if pt != nil {
+		pc.SetCompareType(*pt)
 	}
 	return pc
 }
@@ -173,19 +172,19 @@ func (pc *ProblemCreate) SetProblemType(p *ProblemType) *ProblemCreate {
 	return pc.SetProblemTypeID(p.ID)
 }
 
-// AddJudgerIDs adds the "judgers" edge to the Group entity by IDs.
-func (pc *ProblemCreate) AddJudgerIDs(ids ...int64) *ProblemCreate {
-	pc.mutation.AddJudgerIDs(ids...)
+// AddAdjudicatorIDs adds the "adjudicators" edge to the Group entity by IDs.
+func (pc *ProblemCreate) AddAdjudicatorIDs(ids ...int64) *ProblemCreate {
+	pc.mutation.AddAdjudicatorIDs(ids...)
 	return pc
 }
 
-// AddJudgers adds the "judgers" edges to the Group entity.
-func (pc *ProblemCreate) AddJudgers(g ...*Group) *ProblemCreate {
+// AddAdjudicators adds the "adjudicators" edges to the Group entity.
+func (pc *ProblemCreate) AddAdjudicators(g ...*Group) *ProblemCreate {
 	ids := make([]int64, len(g))
 	for i := range g {
 		ids[i] = g[i].ID
 	}
-	return pc.AddJudgerIDs(ids...)
+	return pc.AddAdjudicatorIDs(ids...)
 }
 
 // Mutation returns the ProblemMutation object of the builder.
@@ -227,9 +226,9 @@ func (pc *ProblemCreate) defaults() {
 		v := problem.DefaultCaseVersion
 		pc.mutation.SetCaseVersion(v)
 	}
-	if _, ok := pc.mutation.LfCompare(); !ok {
-		v := problem.DefaultLfCompare
-		pc.mutation.SetLfCompare(v)
+	if _, ok := pc.mutation.CompareType(); !ok {
+		v := problem.DefaultCompareType
+		pc.mutation.SetCompareType(v)
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		v := problem.DefaultIsDeleted
@@ -275,8 +274,13 @@ func (pc *ProblemCreate) check() error {
 			return &ValidationError{Name: "index", err: fmt.Errorf(`ent: validator failed for field "Problem.index": %w`, err)}
 		}
 	}
-	if _, ok := pc.mutation.LfCompare(); !ok {
-		return &ValidationError{Name: "lf_compare", err: errors.New(`ent: missing required field "Problem.lf_compare"`)}
+	if _, ok := pc.mutation.CompareType(); !ok {
+		return &ValidationError{Name: "compare_type", err: errors.New(`ent: missing required field "Problem.compare_type"`)}
+	}
+	if v, ok := pc.mutation.CompareType(); ok {
+		if err := problem.CompareTypeValidator(v); err != nil {
+			return &ValidationError{Name: "compare_type", err: fmt.Errorf(`ent: validator failed for field "Problem.compare_type": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.IsDeleted(); !ok {
 		return &ValidationError{Name: "is_deleted", err: errors.New(`ent: missing required field "Problem.is_deleted"`)}
@@ -360,9 +364,9 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_spec.SetField(problem.FieldIndex, field.TypeInt16, value)
 		_node.Index = value
 	}
-	if value, ok := pc.mutation.LfCompare(); ok {
-		_spec.SetField(problem.FieldLfCompare, field.TypeJSON, value)
-		_node.LfCompare = value
+	if value, ok := pc.mutation.CompareType(); ok {
+		_spec.SetField(problem.FieldCompareType, field.TypeEnum, value)
+		_node.CompareType = value
 	}
 	if value, ok := pc.mutation.IsDeleted(); ok {
 		_spec.SetField(problem.FieldIsDeleted, field.TypeBool, value)
@@ -443,12 +447,12 @@ func (pc *ProblemCreate) createSpec() (*Problem, *sqlgraph.CreateSpec) {
 		_node.ProblemTypeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := pc.mutation.JudgersIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.AdjudicatorsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   problem.JudgersTable,
-			Columns: problem.JudgersPrimaryKey,
+			Table:   problem.AdjudicatorsTable,
+			Columns: problem.AdjudicatorsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
@@ -601,15 +605,15 @@ func (u *ProblemUpsert) AddIndex(v int16) *ProblemUpsert {
 	return u
 }
 
-// SetLfCompare sets the "lf_compare" field.
-func (u *ProblemUpsert) SetLfCompare(v schema.LfCompare) *ProblemUpsert {
-	u.Set(problem.FieldLfCompare, v)
+// SetCompareType sets the "compare_type" field.
+func (u *ProblemUpsert) SetCompareType(v problem.CompareType) *ProblemUpsert {
+	u.Set(problem.FieldCompareType, v)
 	return u
 }
 
-// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
-func (u *ProblemUpsert) UpdateLfCompare() *ProblemUpsert {
-	u.SetExcluded(problem.FieldLfCompare)
+// UpdateCompareType sets the "compare_type" field to the value that was provided on create.
+func (u *ProblemUpsert) UpdateCompareType() *ProblemUpsert {
+	u.SetExcluded(problem.FieldCompareType)
 	return u
 }
 
@@ -826,17 +830,17 @@ func (u *ProblemUpsertOne) UpdateIndex() *ProblemUpsertOne {
 	})
 }
 
-// SetLfCompare sets the "lf_compare" field.
-func (u *ProblemUpsertOne) SetLfCompare(v schema.LfCompare) *ProblemUpsertOne {
+// SetCompareType sets the "compare_type" field.
+func (u *ProblemUpsertOne) SetCompareType(v problem.CompareType) *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetLfCompare(v)
+		s.SetCompareType(v)
 	})
 }
 
-// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
-func (u *ProblemUpsertOne) UpdateLfCompare() *ProblemUpsertOne {
+// UpdateCompareType sets the "compare_type" field to the value that was provided on create.
+func (u *ProblemUpsertOne) UpdateCompareType() *ProblemUpsertOne {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateLfCompare()
+		s.UpdateCompareType()
 	})
 }
 
@@ -1229,17 +1233,17 @@ func (u *ProblemUpsertBulk) UpdateIndex() *ProblemUpsertBulk {
 	})
 }
 
-// SetLfCompare sets the "lf_compare" field.
-func (u *ProblemUpsertBulk) SetLfCompare(v schema.LfCompare) *ProblemUpsertBulk {
+// SetCompareType sets the "compare_type" field.
+func (u *ProblemUpsertBulk) SetCompareType(v problem.CompareType) *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.SetLfCompare(v)
+		s.SetCompareType(v)
 	})
 }
 
-// UpdateLfCompare sets the "lf_compare" field to the value that was provided on create.
-func (u *ProblemUpsertBulk) UpdateLfCompare() *ProblemUpsertBulk {
+// UpdateCompareType sets the "compare_type" field to the value that was provided on create.
+func (u *ProblemUpsertBulk) UpdateCompareType() *ProblemUpsertBulk {
 	return u.Update(func(s *ProblemUpsert) {
-		s.UpdateLfCompare()
+		s.UpdateCompareType()
 	})
 }
 

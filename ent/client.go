@@ -1176,15 +1176,15 @@ func (c *ProblemClient) QueryProblemType(pr *Problem) *ProblemTypeQuery {
 	return query
 }
 
-// QueryJudgers queries the judgers edge of a Problem.
-func (c *ProblemClient) QueryJudgers(pr *Problem) *GroupQuery {
+// QueryAdjudicators queries the adjudicators edge of a Problem.
+func (c *ProblemClient) QueryAdjudicators(pr *Problem) *GroupQuery {
 	query := (&GroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(problem.Table, problem.FieldID, id),
 			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, problem.JudgersTable, problem.JudgersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, problem.AdjudicatorsTable, problem.AdjudicatorsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil

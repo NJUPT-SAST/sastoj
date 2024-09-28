@@ -369,6 +369,26 @@ func IndexLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldIndex, v))
 }
 
+// CompareTypeEQ applies the EQ predicate on the "compare_type" field.
+func CompareTypeEQ(v CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldCompareType, v))
+}
+
+// CompareTypeNEQ applies the NEQ predicate on the "compare_type" field.
+func CompareTypeNEQ(v CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldCompareType, v))
+}
+
+// CompareTypeIn applies the In predicate on the "compare_type" field.
+func CompareTypeIn(vs ...CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldCompareType, vs...))
+}
+
+// CompareTypeNotIn applies the NotIn predicate on the "compare_type" field.
+func CompareTypeNotIn(vs ...CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldCompareType, vs...))
+}
+
 // IsDeletedEQ applies the EQ predicate on the "is_deleted" field.
 func IsDeletedEQ(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIsDeleted, v))
@@ -531,21 +551,21 @@ func HasProblemTypeWith(preds ...predicate.ProblemType) predicate.Problem {
 	})
 }
 
-// HasJudgers applies the HasEdge predicate on the "judgers" edge.
-func HasJudgers() predicate.Problem {
+// HasAdjudicators applies the HasEdge predicate on the "adjudicators" edge.
+func HasAdjudicators() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, JudgersTable, JudgersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, AdjudicatorsTable, AdjudicatorsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasJudgersWith applies the HasEdge predicate on the "judgers" edge with a given conditions (other predicates).
-func HasJudgersWith(preds ...predicate.Group) predicate.Problem {
+// HasAdjudicatorsWith applies the HasEdge predicate on the "adjudicators" edge with a given conditions (other predicates).
+func HasAdjudicatorsWith(preds ...predicate.Group) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
-		step := newJudgersStep()
+		step := newAdjudicatorsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
