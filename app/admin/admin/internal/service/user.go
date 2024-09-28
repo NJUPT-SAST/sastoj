@@ -12,8 +12,6 @@ import (
 func (s *AdminService) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
 	var salt = util.GenerateRandomString(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	var md5Password = util.GenerateMD5Password(req.Password, salt)
-	//var b = verifyPassword(req.Password, salt, md5Password)
-	//print(b)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
 		Password: md5Password,
