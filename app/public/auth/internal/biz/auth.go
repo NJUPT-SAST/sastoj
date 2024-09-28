@@ -2,10 +2,9 @@ package biz
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"sastoj/app/public/auth/internal/conf"
+	"sastoj/pkg/util"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -74,11 +73,8 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	if err != nil {
 		return "", errors.New("user or password is wrong")
 	}
-	if !verifyPassword(password, user.Salt, user.Password) {
+	if !util.VerifyPassword(password, user.Salt, user.Password) {
 		return "", errors.New("user or password is wrong")
-	}
-	if err != nil {
-		return "", err
 	}
 	j, err := uc.generateJWT(user)
 	if err != nil {
@@ -87,17 +83,6 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	return j, nil
 }
 
-func generateMD5Password(password string, salt string) string {
-	hash := md5.New()
-	hash.Write([]byte(password + salt))
-	hashBytes := hash.Sum(nil)
-	hashString := hex.EncodeToString(hashBytes)
-	return hashString
-}
-
-func verifyPassword(password string, salt string, hash string) bool {
-	return generateMD5Password(password, salt) == hash
-}
 func (uc *AuthUsecase) generateJWT(user *User) (string, error) {
 	// 设置声明（Claims）
 	registeredClaims := jwt.RegisteredClaims{
