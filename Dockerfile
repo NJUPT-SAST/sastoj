@@ -9,7 +9,8 @@ RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && apk add --no-cache make git\
         && cd app/admin/admin && make build && cd ../.. \
         && cd user/contest && make build && cd ../.. \
-        && cd public/auth && make build && cd ../..
+        && cd public/auth && make build && cd ../.. \
+        && cd judge/gojudge && make build && cd ../..
 
 
 FROM alpine:edge AS admin
@@ -41,6 +42,6 @@ CMD ["/auth", "-conf", "/data/conf"]
 
 FROM alpine:edge AS gojudge-server
 
-COPY --from=builder /src/app/gojudge/bin/gojudge /
+COPY --from=builder /src/app/judge/gojudge/bin/gojudge /
 VOLUME /data/conf
 CMD ["/gojudge", "-conf", "/data/conf"]

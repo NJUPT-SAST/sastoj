@@ -1,7 +1,7 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-PROJECTS=case group judge problem user contest user-contest
+PROJECTS=admin user-contest public-auth gojudge-server
 
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
