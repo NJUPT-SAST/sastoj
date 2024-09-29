@@ -54,6 +54,11 @@ service Admin {
       body: "*"
     };
   };
+  rpc GetRanking (GetRankingRequest) returns (GetRankingReply){
+    option (google.api.http) = {
+      get: "/contest/rank/{contest_id}"
+    };
+  }
 
   rpc CreateGroup (CreateGroupRequest) returns (CreateGroupReply) {
     option (google.api.http) = {
@@ -295,6 +300,28 @@ message ManualRankingRequest {
 }
 message ManualRankingReply {
   bool success = 1;
+}
+
+message GetRankingRequest {
+  int64 contest_id = 1;
+}
+
+message GetRankingReply {
+  message UserResult {
+    message ProblemResult {
+      int64 problem_id = 1;
+      int32 state = 2;
+      int32 point = 3;
+      int32 tried_times = 4;
+      google.protobuf.Timestamp score_achieved_time = 5;
+    }
+    repeated ProblemResult problems = 1;
+    string username = 2;
+    int32 total_score = 3;
+    int32 rank = 4;
+    int32 penalty = 5;
+  }
+  repeated UserResult users = 1;
 }
 
 message CreateGroupRequest {

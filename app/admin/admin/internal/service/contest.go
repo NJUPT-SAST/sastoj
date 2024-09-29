@@ -134,19 +134,53 @@ func (s *AdminService) ManualRanking(ctx context.Context, req *v1.ManualRankingR
 		}
 		return nil, err
 	}
-	rank, err := s.rc.FindRank(ctx, contest)
-	if err != nil && rank != nil {
+	rank, err := s.rc.Update(ctx, contest)
+	if err != nil {
 		return nil, err
 	}
-	rank, err = s.rc.RefreshRank(ctx, contest, rank)
-	if err != nil && rank != nil {
-		return nil, err
-	}
-	err = s.rc.SaveRank(ctx, contest, rank)
+	err = s.rc.Save(ctx, contest, rank)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.ManualRankingReply{Success: true}, nil
+}
+
+func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest) (*v1.GetRankingReply, error) {
+	contest, err := s.ctsc.FindContest(ctx, req.ContestId)
+	if err != nil {
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+		}
+		return nil, err
+	}
+	rv, err := s.rc.Find(ctx, contest)
+	if err != nil {
+		return nil, err
+	}
+	list := make([]*v1.GetRankingReply_UserResult, 0)
+	for _, v := range rv.UserRank {
+		problems := make([]*v1.GetRankingReply_UserResult_ProblemResult, 0)
+		for _, p := range v.Problems {
+			problems = append(problems, &v1.GetRankingReply_UserResult_ProblemResult{
+				ProblemId:         p.ProblemId,
+				State:             p.State,
+				Point:             p.Point,
+				TriedTimes:        p.TriedCount,
+				ScoreAchievedTime: convertTimeToTimeStamp(p.SubmitTime),
+			})
+		}
+		list = append(list, &v1.GetRankingReply_UserResult{
+			Username:   v.UserName,
+			TotalScore: v.TotalPoint,
+			Rank:       v.Rank,
+			Penalty:    v.Penalty,
+			Problems:   problems,
+		})
+	}
+	return &v1.GetRankingReply{
+		Users: list,
+	}, nil
 }
 
 func convertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {

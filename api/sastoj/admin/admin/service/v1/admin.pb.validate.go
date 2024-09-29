@@ -2166,6 +2166,244 @@ var _ interface {
 	ErrorName() string
 } = ManualRankingReplyValidationError{}
 
+// Validate checks the field values on GetRankingRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetRankingRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetRankingRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetRankingRequestMultiError, or nil if none found.
+func (m *GetRankingRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetRankingRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ContestId
+
+	if len(errors) > 0 {
+		return GetRankingRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetRankingRequestMultiError is an error wrapping multiple validation errors
+// returned by GetRankingRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetRankingRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetRankingRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetRankingRequestMultiError) AllErrors() []error { return m }
+
+// GetRankingRequestValidationError is the validation error returned by
+// GetRankingRequest.Validate if the designated constraints aren't met.
+type GetRankingRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRankingRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRankingRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRankingRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRankingRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRankingRequestValidationError) ErrorName() string {
+	return "GetRankingRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetRankingRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRankingRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRankingRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRankingRequestValidationError{}
+
+// Validate checks the field values on GetRankingReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetRankingReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetRankingReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetRankingReplyMultiError, or nil if none found.
+func (m *GetRankingReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetRankingReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetUsers() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetRankingReplyValidationError{
+						field:  fmt.Sprintf("Users[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetRankingReplyValidationError{
+						field:  fmt.Sprintf("Users[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetRankingReplyValidationError{
+					field:  fmt.Sprintf("Users[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetRankingReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetRankingReplyMultiError is an error wrapping multiple validation errors
+// returned by GetRankingReply.ValidateAll() if the designated constraints
+// aren't met.
+type GetRankingReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetRankingReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetRankingReplyMultiError) AllErrors() []error { return m }
+
+// GetRankingReplyValidationError is the validation error returned by
+// GetRankingReply.Validate if the designated constraints aren't met.
+type GetRankingReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRankingReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRankingReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRankingReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRankingReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRankingReplyValidationError) ErrorName() string { return "GetRankingReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetRankingReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRankingReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRankingReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRankingReplyValidationError{}
+
 // Validate checks the field values on CreateGroupRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -7524,6 +7762,293 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListContestReply_ContestValidationError{}
+
+// Validate checks the field values on GetRankingReply_UserResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetRankingReply_UserResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetRankingReply_UserResult with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetRankingReply_UserResultMultiError, or nil if none found.
+func (m *GetRankingReply_UserResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetRankingReply_UserResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetProblems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetRankingReply_UserResultValidationError{
+						field:  fmt.Sprintf("Problems[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetRankingReply_UserResultValidationError{
+						field:  fmt.Sprintf("Problems[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetRankingReply_UserResultValidationError{
+					field:  fmt.Sprintf("Problems[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for TotalScore
+
+	// no validation rules for Rank
+
+	// no validation rules for Penalty
+
+	if len(errors) > 0 {
+		return GetRankingReply_UserResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetRankingReply_UserResultMultiError is an error wrapping multiple
+// validation errors returned by GetRankingReply_UserResult.ValidateAll() if
+// the designated constraints aren't met.
+type GetRankingReply_UserResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetRankingReply_UserResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetRankingReply_UserResultMultiError) AllErrors() []error { return m }
+
+// GetRankingReply_UserResultValidationError is the validation error returned
+// by GetRankingReply_UserResult.Validate if the designated constraints aren't met.
+type GetRankingReply_UserResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRankingReply_UserResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRankingReply_UserResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRankingReply_UserResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRankingReply_UserResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRankingReply_UserResultValidationError) ErrorName() string {
+	return "GetRankingReply_UserResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetRankingReply_UserResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRankingReply_UserResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRankingReply_UserResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRankingReply_UserResultValidationError{}
+
+// Validate checks the field values on GetRankingReply_UserResult_ProblemResult
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetRankingReply_UserResult_ProblemResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// GetRankingReply_UserResult_ProblemResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// GetRankingReply_UserResult_ProblemResultMultiError, or nil if none found.
+func (m *GetRankingReply_UserResult_ProblemResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetRankingReply_UserResult_ProblemResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ProblemId
+
+	// no validation rules for State
+
+	// no validation rules for Point
+
+	// no validation rules for TriedTimes
+
+	if all {
+		switch v := interface{}(m.GetScoreAchievedTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetRankingReply_UserResult_ProblemResultValidationError{
+					field:  "ScoreAchievedTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetRankingReply_UserResult_ProblemResultValidationError{
+					field:  "ScoreAchievedTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetScoreAchievedTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetRankingReply_UserResult_ProblemResultValidationError{
+				field:  "ScoreAchievedTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetRankingReply_UserResult_ProblemResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetRankingReply_UserResult_ProblemResultMultiError is an error wrapping
+// multiple validation errors returned by
+// GetRankingReply_UserResult_ProblemResult.ValidateAll() if the designated
+// constraints aren't met.
+type GetRankingReply_UserResult_ProblemResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetRankingReply_UserResult_ProblemResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetRankingReply_UserResult_ProblemResultMultiError) AllErrors() []error { return m }
+
+// GetRankingReply_UserResult_ProblemResultValidationError is the validation
+// error returned by GetRankingReply_UserResult_ProblemResult.Validate if the
+// designated constraints aren't met.
+type GetRankingReply_UserResult_ProblemResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRankingReply_UserResult_ProblemResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRankingReply_UserResult_ProblemResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRankingReply_UserResult_ProblemResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRankingReply_UserResult_ProblemResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRankingReply_UserResult_ProblemResultValidationError) ErrorName() string {
+	return "GetRankingReply_UserResult_ProblemResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetRankingReply_UserResult_ProblemResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRankingReply_UserResult_ProblemResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRankingReply_UserResult_ProblemResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRankingReply_UserResult_ProblemResultValidationError{}
 
 // Validate checks the field values on ListGroupReply_Group with the rules
 // defined in the proto definition for this message. If any rules are

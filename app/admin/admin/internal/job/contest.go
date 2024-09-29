@@ -31,20 +31,15 @@ func (s *ContestJob) Ranking(ctx context.Context) {
 		log.Warn(err.Error())
 	}
 	for _, contest := range contests {
-		rank, err := s.rc.FindRank(ctx, contest)
-		if err != nil && rank != nil {
-			log.Warn(err.Error())
-			return
-		}
-		rank, err = s.rc.RefreshRank(ctx, contest, rank)
+		rank, err := s.rc.Update(ctx, contest)
 		if err != nil {
 			log.Warn(err.Error())
-			return
+			continue
 		}
-		err = s.rc.SaveRank(ctx, contest, rank)
+		err = s.rc.Save(ctx, contest, rank)
 		if err != nil {
 			log.Warn(err.Error())
-			return
+			continue
 		}
 		log.Info("cron ranking contest " + contest.Title + " successfully.")
 	}

@@ -27,6 +27,7 @@ const (
 	Admin_ListContest_FullMethodName            = "/api.sastoj.admin.admin.service.v1.Admin/ListContest"
 	Admin_AddContestants_FullMethodName         = "/api.sastoj.admin.admin.service.v1.Admin/AddContestants"
 	Admin_ManualRanking_FullMethodName          = "/api.sastoj.admin.admin.service.v1.Admin/ManualRanking"
+	Admin_GetRanking_FullMethodName             = "/api.sastoj.admin.admin.service.v1.Admin/GetRanking"
 	Admin_CreateGroup_FullMethodName            = "/api.sastoj.admin.admin.service.v1.Admin/CreateGroup"
 	Admin_UpdateGroup_FullMethodName            = "/api.sastoj.admin.admin.service.v1.Admin/UpdateGroup"
 	Admin_DeleteGroup_FullMethodName            = "/api.sastoj.admin.admin.service.v1.Admin/DeleteGroup"
@@ -63,6 +64,7 @@ type AdminClient interface {
 	ListContest(ctx context.Context, in *ListContestRequest, opts ...grpc.CallOption) (*ListContestReply, error)
 	AddContestants(ctx context.Context, in *AddContestantsRequest, opts ...grpc.CallOption) (*AddContestantsReply, error)
 	ManualRanking(ctx context.Context, in *ManualRankingRequest, opts ...grpc.CallOption) (*ManualRankingReply, error)
+	GetRanking(ctx context.Context, in *GetRankingRequest, opts ...grpc.CallOption) (*GetRankingReply, error)
 	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*CreateGroupReply, error)
 	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*UpdateGroupReply, error)
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*DeleteGroupReply, error)
@@ -169,6 +171,16 @@ func (c *adminClient) ManualRanking(ctx context.Context, in *ManualRankingReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ManualRankingReply)
 	err := c.cc.Invoke(ctx, Admin_ManualRanking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminClient) GetRanking(ctx context.Context, in *GetRankingRequest, opts ...grpc.CallOption) (*GetRankingReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRankingReply)
+	err := c.cc.Invoke(ctx, Admin_GetRanking_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -407,6 +419,7 @@ type AdminServer interface {
 	ListContest(context.Context, *ListContestRequest) (*ListContestReply, error)
 	AddContestants(context.Context, *AddContestantsRequest) (*AddContestantsReply, error)
 	ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error)
+	GetRanking(context.Context, *GetRankingRequest) (*GetRankingReply, error)
 	CreateGroup(context.Context, *CreateGroupRequest) (*CreateGroupReply, error)
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*UpdateGroupReply, error)
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*DeleteGroupReply, error)
@@ -462,6 +475,9 @@ func (UnimplementedAdminServer) AddContestants(context.Context, *AddContestantsR
 }
 func (UnimplementedAdminServer) ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ManualRanking not implemented")
+}
+func (UnimplementedAdminServer) GetRanking(context.Context, *GetRankingRequest) (*GetRankingReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRanking not implemented")
 }
 func (UnimplementedAdminServer) CreateGroup(context.Context, *CreateGroupRequest) (*CreateGroupReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
@@ -690,6 +706,24 @@ func _Admin_ManualRanking_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdminServer).ManualRanking(ctx, req.(*ManualRankingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Admin_GetRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRankingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServer).GetRanking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Admin_GetRanking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServer).GetRanking(ctx, req.(*GetRankingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1128,6 +1162,10 @@ var Admin_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ManualRanking",
 			Handler:    _Admin_ManualRanking_Handler,
+		},
+		{
+			MethodName: "GetRanking",
+			Handler:    _Admin_GetRanking_Handler,
 		},
 		{
 			MethodName: "CreateGroup",
