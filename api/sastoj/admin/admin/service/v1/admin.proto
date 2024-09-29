@@ -98,15 +98,15 @@ service Admin {
     option (google.api.http) = {get: "/judge/{problem_id}"};
   };
 
-  rpc UpdateJudger (UpdateJudgerRequest) returns (UpdateJudgerReply){
+  rpc UpdateAdjudicator (UpdateAdjudicatorRequest) returns (UpdateAdjudicatorReply){
     option (google.api.http) = {
-      post: "/judger/{problem_id}"
+      post: "/adjudicator/{problem_id}"
       body: "*"
     };
   };
-  rpc GetJudger (GetJudgerRequest) returns (GetJudgerReply){
+  rpc GetAdjudicator (GetAdjudicatorRequest) returns (GetAdjudicatorReply){
     option (google.api.http) = {
-      get: "/judger/{problem_id}"
+      get: "/adjudicator/{problem_id}"
     };
   };
 
@@ -511,17 +511,17 @@ message GetProblemTypesReply {
   repeated ProblemType types = 1;
 }
 
-message UpdateJudgerRequest {
+message UpdateAdjudicatorRequest {
   int64 problem_id = 1;
-  repeated int64 judger_group_ids = 2;
+  repeated int64 adjudicator_group_ids = 2;
 }
-message UpdateJudgerReply {
+message UpdateAdjudicatorReply {
   bool success = 1;
 }
-message GetJudgerRequest {
+message GetAdjudicatorRequest {
   int64 problem_id = 1;
 }
-message GetJudgerReply {
+message GetAdjudicatorReply {
   message Group {
     int64 id = 1;
     string name = 2;

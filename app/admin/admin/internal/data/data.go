@@ -2,10 +2,15 @@ package data
 
 import (
 	"context"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"errors"
 	"fmt"
+	"sastoj/app/admin/admin/internal/conf"
+	"sastoj/ent"
+	"sastoj/pkg/file"
+	"sastoj/pkg/util"
+
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
@@ -13,14 +18,10 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"sastoj/app/admin/admin/internal/conf"
-	"sastoj/ent"
-	"sastoj/pkg/file"
-	"sastoj/pkg/util"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJudgeRepo, NewjudgerRepo, NewProblemRepo, NewRankRepo, NewUserRepo, NewGroupRepo)
+var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJudgeRepo, NewAdjudicatorRepo, NewProblemRepo, NewRankRepo, NewUserRepo, NewGroupRepo)
 
 // Data .
 type Data struct {

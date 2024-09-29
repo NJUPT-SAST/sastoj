@@ -30,10 +30,10 @@ const OperationAdminDeleteContest = "/api.sastoj.admin.admin.service.v1.Admin/De
 const OperationAdminDeleteGroup = "/api.sastoj.admin.admin.service.v1.Admin/DeleteGroup"
 const OperationAdminDeleteProblem = "/api.sastoj.admin.admin.service.v1.Admin/DeleteProblem"
 const OperationAdminDeleteUser = "/api.sastoj.admin.admin.service.v1.Admin/DeleteUser"
+const OperationAdminGetAdjudicator = "/api.sastoj.admin.admin.service.v1.Admin/GetAdjudicator"
 const OperationAdminGetContest = "/api.sastoj.admin.admin.service.v1.Admin/GetContest"
 const OperationAdminGetGroup = "/api.sastoj.admin.admin.service.v1.Admin/GetGroup"
 const OperationAdminGetJudgableProblems = "/api.sastoj.admin.admin.service.v1.Admin/GetJudgableProblems"
-const OperationAdminGetJudger = "/api.sastoj.admin.admin.service.v1.Admin/GetJudger"
 const OperationAdminGetProblem = "/api.sastoj.admin.admin.service.v1.Admin/GetProblem"
 const OperationAdminGetProblemTypes = "/api.sastoj.admin.admin.service.v1.Admin/GetProblemTypes"
 const OperationAdminGetRanking = "/api.sastoj.admin.admin.service.v1.Admin/GetRanking"
@@ -45,9 +45,9 @@ const OperationAdminListProblem = "/api.sastoj.admin.admin.service.v1.Admin/List
 const OperationAdminListUser = "/api.sastoj.admin.admin.service.v1.Admin/ListUser"
 const OperationAdminManualRanking = "/api.sastoj.admin.admin.service.v1.Admin/ManualRanking"
 const OperationAdminSubmitJudge = "/api.sastoj.admin.admin.service.v1.Admin/SubmitJudge"
+const OperationAdminUpdateAdjudicator = "/api.sastoj.admin.admin.service.v1.Admin/UpdateAdjudicator"
 const OperationAdminUpdateContest = "/api.sastoj.admin.admin.service.v1.Admin/UpdateContest"
 const OperationAdminUpdateGroup = "/api.sastoj.admin.admin.service.v1.Admin/UpdateGroup"
-const OperationAdminUpdateJudger = "/api.sastoj.admin.admin.service.v1.Admin/UpdateJudger"
 const OperationAdminUpdateProblem = "/api.sastoj.admin.admin.service.v1.Admin/UpdateProblem"
 const OperationAdminUpdateUser = "/api.sastoj.admin.admin.service.v1.Admin/UpdateUser"
 
@@ -63,10 +63,10 @@ type AdminHTTPServer interface {
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*DeleteGroupReply, error)
 	DeleteProblem(context.Context, *DeleteProblemRequest) (*DeleteProblemReply, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
+	GetAdjudicator(context.Context, *GetAdjudicatorRequest) (*GetAdjudicatorReply, error)
 	GetContest(context.Context, *GetContestRequest) (*GetContestReply, error)
 	GetGroup(context.Context, *GetGroupRequest) (*GetGroupReply, error)
 	GetJudgableProblems(context.Context, *GetJudgableProblemsRequest) (*GetJudgableProblemsReply, error)
-	GetJudger(context.Context, *GetJudgerRequest) (*GetJudgerReply, error)
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	GetProblemTypes(context.Context, *GetProblemTypesRequest) (*GetProblemTypesReply, error)
 	GetRanking(context.Context, *GetRankingRequest) (*GetRankingReply, error)
@@ -78,9 +78,9 @@ type AdminHTTPServer interface {
 	ListUser(context.Context, *ListUserRequest) (*ListUserReply, error)
 	ManualRanking(context.Context, *ManualRankingRequest) (*ManualRankingReply, error)
 	SubmitJudge(context.Context, *SubmitJudgeRequest) (*SubmitJudgeReply, error)
+	UpdateAdjudicator(context.Context, *UpdateAdjudicatorRequest) (*UpdateAdjudicatorReply, error)
 	UpdateContest(context.Context, *UpdateContestRequest) (*UpdateContestReply, error)
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*UpdateGroupReply, error)
-	UpdateJudger(context.Context, *UpdateJudgerRequest) (*UpdateJudgerReply, error)
 	UpdateProblem(context.Context, *UpdateProblemRequest) (*UpdateProblemReply, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserReply, error)
 }
@@ -104,8 +104,8 @@ func RegisterAdminHTTPServer(s *http.Server, srv AdminHTTPServer) {
 	r.POST("/judge/{submission_id}", _Admin_SubmitJudge0_HTTP_Handler(srv))
 	r.GET("/judge", _Admin_GetJudgableProblems0_HTTP_Handler(srv))
 	r.GET("/judge/{problem_id}", _Admin_GetSubmissions0_HTTP_Handler(srv))
-	r.POST("/judger/{problem_id}", _Admin_UpdateJudger0_HTTP_Handler(srv))
-	r.GET("/judger/{problem_id}", _Admin_GetJudger0_HTTP_Handler(srv))
+	r.POST("/adjudicator/{problem_id}", _Admin_UpdateAdjudicator0_HTTP_Handler(srv))
+	r.GET("/adjudicator/{problem_id}", _Admin_GetAdjudicator0_HTTP_Handler(srv))
 	r.POST("/problem", _Admin_CreateProblem0_HTTP_Handler(srv))
 	r.PUT("/problem", _Admin_UpdateProblem0_HTTP_Handler(srv))
 	r.DELETE("/problem/{id}", _Admin_DeleteProblem0_HTTP_Handler(srv))
@@ -488,9 +488,9 @@ func _Admin_GetSubmissions0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Cont
 	}
 }
 
-func _Admin_UpdateJudger0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
+func _Admin_UpdateAdjudicator0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateJudgerRequest
+		var in UpdateAdjudicatorRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -500,37 +500,37 @@ func _Admin_UpdateJudger0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Contex
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAdminUpdateJudger)
+		http.SetOperation(ctx, OperationAdminUpdateAdjudicator)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateJudger(ctx, req.(*UpdateJudgerRequest))
+			return srv.UpdateAdjudicator(ctx, req.(*UpdateAdjudicatorRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*UpdateJudgerReply)
+		reply := out.(*UpdateAdjudicatorReply)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _Admin_GetJudger0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
+func _Admin_GetAdjudicator0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetJudgerRequest
+		var in GetAdjudicatorRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAdminGetJudger)
+		http.SetOperation(ctx, OperationAdminGetAdjudicator)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetJudger(ctx, req.(*GetJudgerRequest))
+			return srv.GetAdjudicator(ctx, req.(*GetAdjudicatorRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetJudgerReply)
+		reply := out.(*GetAdjudicatorReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -802,10 +802,10 @@ type AdminHTTPClient interface {
 	DeleteGroup(ctx context.Context, req *DeleteGroupRequest, opts ...http.CallOption) (rsp *DeleteGroupReply, err error)
 	DeleteProblem(ctx context.Context, req *DeleteProblemRequest, opts ...http.CallOption) (rsp *DeleteProblemReply, err error)
 	DeleteUser(ctx context.Context, req *DeleteUserRequest, opts ...http.CallOption) (rsp *DeleteUserReply, err error)
+	GetAdjudicator(ctx context.Context, req *GetAdjudicatorRequest, opts ...http.CallOption) (rsp *GetAdjudicatorReply, err error)
 	GetContest(ctx context.Context, req *GetContestRequest, opts ...http.CallOption) (rsp *GetContestReply, err error)
 	GetGroup(ctx context.Context, req *GetGroupRequest, opts ...http.CallOption) (rsp *GetGroupReply, err error)
 	GetJudgableProblems(ctx context.Context, req *GetJudgableProblemsRequest, opts ...http.CallOption) (rsp *GetJudgableProblemsReply, err error)
-	GetJudger(ctx context.Context, req *GetJudgerRequest, opts ...http.CallOption) (rsp *GetJudgerReply, err error)
 	GetProblem(ctx context.Context, req *GetProblemRequest, opts ...http.CallOption) (rsp *GetProblemReply, err error)
 	GetProblemTypes(ctx context.Context, req *GetProblemTypesRequest, opts ...http.CallOption) (rsp *GetProblemTypesReply, err error)
 	GetRanking(ctx context.Context, req *GetRankingRequest, opts ...http.CallOption) (rsp *GetRankingReply, err error)
@@ -817,9 +817,9 @@ type AdminHTTPClient interface {
 	ListUser(ctx context.Context, req *ListUserRequest, opts ...http.CallOption) (rsp *ListUserReply, err error)
 	ManualRanking(ctx context.Context, req *ManualRankingRequest, opts ...http.CallOption) (rsp *ManualRankingReply, err error)
 	SubmitJudge(ctx context.Context, req *SubmitJudgeRequest, opts ...http.CallOption) (rsp *SubmitJudgeReply, err error)
+	UpdateAdjudicator(ctx context.Context, req *UpdateAdjudicatorRequest, opts ...http.CallOption) (rsp *UpdateAdjudicatorReply, err error)
 	UpdateContest(ctx context.Context, req *UpdateContestRequest, opts ...http.CallOption) (rsp *UpdateContestReply, err error)
 	UpdateGroup(ctx context.Context, req *UpdateGroupRequest, opts ...http.CallOption) (rsp *UpdateGroupReply, err error)
-	UpdateJudger(ctx context.Context, req *UpdateJudgerRequest, opts ...http.CallOption) (rsp *UpdateJudgerReply, err error)
 	UpdateProblem(ctx context.Context, req *UpdateProblemRequest, opts ...http.CallOption) (rsp *UpdateProblemReply, err error)
 	UpdateUser(ctx context.Context, req *UpdateUserRequest, opts ...http.CallOption) (rsp *UpdateUserReply, err error)
 }
@@ -975,6 +975,19 @@ func (c *AdminHTTPClientImpl) DeleteUser(ctx context.Context, in *DeleteUserRequ
 	return &out, nil
 }
 
+func (c *AdminHTTPClientImpl) GetAdjudicator(ctx context.Context, in *GetAdjudicatorRequest, opts ...http.CallOption) (*GetAdjudicatorReply, error) {
+	var out GetAdjudicatorReply
+	pattern := "/adjudicator/{problem_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAdminGetAdjudicator))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *AdminHTTPClientImpl) GetContest(ctx context.Context, in *GetContestRequest, opts ...http.CallOption) (*GetContestReply, error) {
 	var out GetContestReply
 	pattern := "/contest/{id}"
@@ -1006,19 +1019,6 @@ func (c *AdminHTTPClientImpl) GetJudgableProblems(ctx context.Context, in *GetJu
 	pattern := "/judge"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAdminGetJudgableProblems))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *AdminHTTPClientImpl) GetJudger(ctx context.Context, in *GetJudgerRequest, opts ...http.CallOption) (*GetJudgerReply, error) {
-	var out GetJudgerReply
-	pattern := "/judger/{problem_id}"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAdminGetJudger))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -1170,6 +1170,19 @@ func (c *AdminHTTPClientImpl) SubmitJudge(ctx context.Context, in *SubmitJudgeRe
 	return &out, nil
 }
 
+func (c *AdminHTTPClientImpl) UpdateAdjudicator(ctx context.Context, in *UpdateAdjudicatorRequest, opts ...http.CallOption) (*UpdateAdjudicatorReply, error) {
+	var out UpdateAdjudicatorReply
+	pattern := "/adjudicator/{problem_id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAdminUpdateAdjudicator))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *AdminHTTPClientImpl) UpdateContest(ctx context.Context, in *UpdateContestRequest, opts ...http.CallOption) (*UpdateContestReply, error) {
 	var out UpdateContestReply
 	pattern := "/contest"
@@ -1190,19 +1203,6 @@ func (c *AdminHTTPClientImpl) UpdateGroup(ctx context.Context, in *UpdateGroupRe
 	opts = append(opts, http.Operation(OperationAdminUpdateGroup))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *AdminHTTPClientImpl) UpdateJudger(ctx context.Context, in *UpdateJudgerRequest, opts ...http.CallOption) (*UpdateJudgerReply, error) {
-	var out UpdateJudgerReply
-	pattern := "/judger/{problem_id}"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAdminUpdateJudger))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

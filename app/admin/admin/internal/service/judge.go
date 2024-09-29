@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *AdminService) SubmitJudge(ctx context.Context, req *pb.SubmitJudgeRequest) (*pb.SubmitJudgeReply, error) {

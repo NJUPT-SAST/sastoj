@@ -7,14 +7,15 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/app/admin/admin/internal/conf"
 	"sastoj/app/admin/admin/internal/data"
 	"sastoj/app/admin/admin/internal/job"
 	"sastoj/app/admin/admin/internal/server"
 	"sastoj/app/admin/admin/internal/service"
+
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 import (
@@ -38,15 +39,15 @@ func wireApp(confServer *conf.Server, confData *conf.Data, confJob *conf.Job, lo
 	rankUsecase := biz.NewRankUsecase(rankRepo, logger)
 	judgeRepo := data.NewJudgeRepo(dataData, logger)
 	judgeUsecase := biz.NewJudgeUsecase(judgeRepo, logger)
-	judgerRepo := data.NewjudgerRepo(dataData, logger)
-	judgerUsecase := biz.NewJudgerUsecase(judgerRepo, logger)
+	adjudicatorRepo := data.NewAdjudicatorRepo(dataData, logger)
+	adjudicatorUsecase := biz.NewAdjudicatorUsecase(adjudicatorRepo, logger)
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := biz.NewUserUsecase(userRepo, logger)
 	groupRepo := data.NewGroupRepo(dataData, logger)
 	groupUsecase := biz.NewGroupUsecase(groupRepo, logger)
 	problemRepo := data.NewProblemRepo(dataData, logger)
 	problemUsecase := biz.NewProblemUsecase(problemRepo, logger)
-	adminService := service.NewAdminService(caseUsecase, contestUsecase, rankUsecase, judgeUsecase, judgerUsecase, userUsecase, groupUsecase, problemUsecase)
+	adminService := service.NewAdminService(caseUsecase, contestUsecase, rankUsecase, judgeUsecase, adjudicatorUsecase, userUsecase, groupUsecase, problemUsecase)
 	grpcServer := server.NewGRPCServer(confServer, adminService, logger)
 	httpServer := server.NewHTTPServer(confServer, adminService, logger)
 	contestJob := job.NewContestJob(contestUsecase, rankUsecase)

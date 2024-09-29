@@ -2,27 +2,28 @@ package error
 
 import (
 	"errors"
+
 	kerr "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
 // FromError : Convert kratos error to Local-error , mainly add customized error code
 func FromError(err error) *LocalError {
-	var kerror *kerr.Error
-	kerror = kerr.FromError(err)
-	if kerror.Status.Reason == "VALIDATOR" {
+	var kratosError *kerr.Error
+	kratosError = kerr.FromError(err)
+	if kratosError.Status.Reason == "VALIDATOR" {
 		return &LocalError{
 			Code:    InvalidParamError.Code,
-			Message: kerror.Message,
+			Message: kratosError.Message,
 			Reason:  InvalidParamError.Reason,
-			Err:     kerror,
+			Err:     kratosError,
 		}
 	}
-	if _, ok := errorMap[kerror.Reason]; ok {
+	if _, ok := errorMap[kratosError.Reason]; ok {
 		return &LocalError{
-			Code:    errorMap[kerror.Reason],
-			Message: kerror.Message,
-			Reason:  kerror.Reason,
+			Code:    errorMap[kratosError.Reason],
+			Message: kratosError.Message,
+			Reason:  kratosError.Reason,
 			Err:     err,
 		}
 	}
@@ -43,9 +44,9 @@ func (e *LocalError) Wrap(err error) LocalError {
 
 // Is : determine whether the error is equal
 func (e *LocalError) Is(err error) bool {
-	var lerr LocalError
-	if errors.As(err, &lerr) {
-		return lerr.Code == e.Code
+	var localError LocalError
+	if errors.As(err, &localError) {
+		return localError.Code == e.Code
 	}
 	return false
 }
@@ -55,8 +56,8 @@ func (e *LocalError) Is(err error) bool {
 // instead of using if-else to determine them one by one,
 // use this function to get the errors.
 func HandleError(err error) LocalError {
-	var lerr LocalError
-	if errors.As(err, &lerr) {
+	var localError LocalError
+	if errors.As(err, &localError) {
 		return err.(LocalError)
 	}
 	// if not exist, return default error

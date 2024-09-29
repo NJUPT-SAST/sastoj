@@ -33,7 +33,7 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point i
 }
 
 func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*biz.Problem, error) {
-	problems, err := r.data.db.Problem.Query().Where(problem.HasJudgersWith(group.HasUsersWith(user.IDEQ(userId)))).All(ctx)
+	problems, err := r.data.db.Problem.Query().Where(problem.HasAdjudicatorsWith(group.HasUsersWith(user.IDEQ(userId)))).All(ctx)
 	if err != nil {
 		return nil, err
 	}

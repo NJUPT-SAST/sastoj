@@ -31,11 +31,6 @@ func (m *Manager) FetchCase(problemId int64, fileIn string, fileAns string) (in 
 	return
 }
 
-// NewManager create a new file manager
-func NewManager(fileLocation string) *Manager {
-	return &Manager{location: fileLocation}
-}
-
 // DeleteCase delete case from file system
 func (m *Manager) DeleteCase(problemId int64) error {
 	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
@@ -135,4 +130,9 @@ func (m *Manager) SaveAndExtractCase(casesFile multipart.File, filename string, 
 		return err
 	}
 	return nil
+}
+
+// NewManager create a new file manager
+func NewManager(fileLocation string) *Manager {
+	return &Manager{location: fileLocation}
 }

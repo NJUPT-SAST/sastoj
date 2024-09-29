@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
@@ -12,21 +11,23 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
-type RankRepo struct {
+type rankRepo struct {
 	data *Data
 	log  *log.Helper
 }
 
 func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
-	return &RankRepo{
+	return &rankRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
+func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
 	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
@@ -45,7 +46,7 @@ func (r *RankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 	}
 }
 
-func (r *RankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
+func (r *rankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
 	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
@@ -63,7 +64,7 @@ func (r *RankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Ran
 	return nil
 }
 
-func (r *RankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int64]*biz.UserRank, error) {
+func (r *rankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int64]*biz.UserRank, error) {
 	submissions, err := r.data.db.Submission.Query().
 		Where(submission.HasProblemsWith(problem.HasContestWith(contest.ID(contestId)))).
 		WithUsers().

@@ -2,9 +2,10 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent/group"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type groupRepo struct {
@@ -61,10 +62,10 @@ func (r *groupRepo) ListByPage(ctx context.Context, current int64, size int64) (
 		return nil, err
 	}
 	var groups []*biz.Group
-	for _, group := range res {
+	for _, g := range res {
 		groups = append(groups, &biz.Group{
-			Id:   group.ID,
-			Name: group.GroupName,
+			Id:   g.ID,
+			Name: g.GroupName,
 		})
 	}
 	return groups, nil

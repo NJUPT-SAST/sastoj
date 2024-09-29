@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"fmt"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"strconv"
+
+	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
 func (s *AdminService) DeleteCasesByProblemId(ctx context.Context, req *pb.DeleteCasesByProblemIdRequest) (*pb.DeleteCasesByProblemIdReply, error) {
@@ -30,5 +32,5 @@ func (s *AdminService) UploadCases(ctx http.Context) error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return ctx.String(200, fmt.Sprintf("Upload %s cases for problem %s successfully", casesType, problemId))
 }

@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"errors"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	v1 "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *AdminService) CreateContest(ctx context.Context, req *v1.CreateContestRequest) (*v1.CreateContestReply, error) {

@@ -2,8 +2,9 @@ package job
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type ContestJob struct {

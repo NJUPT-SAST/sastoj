@@ -2,9 +2,9 @@ package biz
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
-	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 // Problem is a Problem model.
@@ -31,9 +31,8 @@ type ProblemRepo interface {
 }
 
 type ProblemUsecase struct {
-	repo        ProblemRepo
-	contestRepo ContestRepo
-	log         *log.Helper
+	repo ProblemRepo
+	log  *log.Helper
 }
 
 func NewProblemUsecase(repo ProblemRepo, logger log.Logger) *ProblemUsecase {
@@ -51,18 +50,6 @@ func (uc *ProblemUsecase) CreateProblem(ctx context.Context, p *Problem) (*int64
 }
 
 func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, g *Problem) (bool, error) {
-	contest, err := uc.contestRepo.FindByID(ctx, g.ContestId)
-	if err != nil {
-		return false, err
-	}
-	old, err := uc.repo.FindByID(ctx, g.Id)
-	if err != nil {
-		return false, err
-	}
-	if contest.StartTime.Before(time.Now()) {
-		g.CaseVersion = old.CaseVersion + 1
-	}
-	uc.log.WithContext(ctx).Infof("UpdateProblem: %v", g)
 	rv, err := uc.repo.Update(ctx, g)
 	if err != nil || *rv == 0 {
 		return false, err

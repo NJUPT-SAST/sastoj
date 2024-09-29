@@ -3,9 +3,10 @@ package biz
 import (
 	"context"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
 	"sort"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type Rank struct {

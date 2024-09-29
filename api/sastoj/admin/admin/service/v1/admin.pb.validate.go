@@ -5796,22 +5796,22 @@ var _ interface {
 	ErrorName() string
 } = GetProblemTypesReplyValidationError{}
 
-// Validate checks the field values on UpdateJudgerRequest with the rules
+// Validate checks the field values on UpdateAdjudicatorRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateJudgerRequest) Validate() error {
+func (m *UpdateAdjudicatorRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateJudgerRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on UpdateAdjudicatorRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateJudgerRequestMultiError, or nil if none found.
-func (m *UpdateJudgerRequest) ValidateAll() error {
+// UpdateAdjudicatorRequestMultiError, or nil if none found.
+func (m *UpdateAdjudicatorRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateJudgerRequest) validate(all bool) error {
+func (m *UpdateAdjudicatorRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5821,19 +5821,19 @@ func (m *UpdateJudgerRequest) validate(all bool) error {
 	// no validation rules for ProblemId
 
 	if len(errors) > 0 {
-		return UpdateJudgerRequestMultiError(errors)
+		return UpdateAdjudicatorRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// UpdateJudgerRequestMultiError is an error wrapping multiple validation
-// errors returned by UpdateJudgerRequest.ValidateAll() if the designated
+// UpdateAdjudicatorRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdateAdjudicatorRequest.ValidateAll() if the designated
 // constraints aren't met.
-type UpdateJudgerRequestMultiError []error
+type UpdateAdjudicatorRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateJudgerRequestMultiError) Error() string {
+func (m UpdateAdjudicatorRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5842,11 +5842,11 @@ func (m UpdateJudgerRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateJudgerRequestMultiError) AllErrors() []error { return m }
+func (m UpdateAdjudicatorRequestMultiError) AllErrors() []error { return m }
 
-// UpdateJudgerRequestValidationError is the validation error returned by
-// UpdateJudgerRequest.Validate if the designated constraints aren't met.
-type UpdateJudgerRequestValidationError struct {
+// UpdateAdjudicatorRequestValidationError is the validation error returned by
+// UpdateAdjudicatorRequest.Validate if the designated constraints aren't met.
+type UpdateAdjudicatorRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5854,24 +5854,24 @@ type UpdateJudgerRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateJudgerRequestValidationError) Field() string { return e.field }
+func (e UpdateAdjudicatorRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateJudgerRequestValidationError) Reason() string { return e.reason }
+func (e UpdateAdjudicatorRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateJudgerRequestValidationError) Cause() error { return e.cause }
+func (e UpdateAdjudicatorRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateJudgerRequestValidationError) Key() bool { return e.key }
+func (e UpdateAdjudicatorRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateJudgerRequestValidationError) ErrorName() string {
-	return "UpdateJudgerRequestValidationError"
+func (e UpdateAdjudicatorRequestValidationError) ErrorName() string {
+	return "UpdateAdjudicatorRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateJudgerRequestValidationError) Error() string {
+func (e UpdateAdjudicatorRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5883,14 +5883,14 @@ func (e UpdateJudgerRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateJudgerRequest.%s: %s%s",
+		"invalid %sUpdateAdjudicatorRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateJudgerRequestValidationError{}
+var _ error = UpdateAdjudicatorRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -5898,24 +5898,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateJudgerRequestValidationError{}
+} = UpdateAdjudicatorRequestValidationError{}
 
-// Validate checks the field values on UpdateJudgerReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *UpdateJudgerReply) Validate() error {
+// Validate checks the field values on UpdateAdjudicatorReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateAdjudicatorReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateJudgerReply with the rules
+// ValidateAll checks the field values on UpdateAdjudicatorReply with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateJudgerReplyMultiError, or nil if none found.
-func (m *UpdateJudgerReply) ValidateAll() error {
+// UpdateAdjudicatorReplyMultiError, or nil if none found.
+func (m *UpdateAdjudicatorReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateJudgerReply) validate(all bool) error {
+func (m *UpdateAdjudicatorReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5925,19 +5925,19 @@ func (m *UpdateJudgerReply) validate(all bool) error {
 	// no validation rules for Success
 
 	if len(errors) > 0 {
-		return UpdateJudgerReplyMultiError(errors)
+		return UpdateAdjudicatorReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// UpdateJudgerReplyMultiError is an error wrapping multiple validation errors
-// returned by UpdateJudgerReply.ValidateAll() if the designated constraints
-// aren't met.
-type UpdateJudgerReplyMultiError []error
+// UpdateAdjudicatorReplyMultiError is an error wrapping multiple validation
+// errors returned by UpdateAdjudicatorReply.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateAdjudicatorReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateJudgerReplyMultiError) Error() string {
+func (m UpdateAdjudicatorReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5946,11 +5946,11 @@ func (m UpdateJudgerReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateJudgerReplyMultiError) AllErrors() []error { return m }
+func (m UpdateAdjudicatorReplyMultiError) AllErrors() []error { return m }
 
-// UpdateJudgerReplyValidationError is the validation error returned by
-// UpdateJudgerReply.Validate if the designated constraints aren't met.
-type UpdateJudgerReplyValidationError struct {
+// UpdateAdjudicatorReplyValidationError is the validation error returned by
+// UpdateAdjudicatorReply.Validate if the designated constraints aren't met.
+type UpdateAdjudicatorReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5958,24 +5958,24 @@ type UpdateJudgerReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateJudgerReplyValidationError) Field() string { return e.field }
+func (e UpdateAdjudicatorReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateJudgerReplyValidationError) Reason() string { return e.reason }
+func (e UpdateAdjudicatorReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateJudgerReplyValidationError) Cause() error { return e.cause }
+func (e UpdateAdjudicatorReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateJudgerReplyValidationError) Key() bool { return e.key }
+func (e UpdateAdjudicatorReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateJudgerReplyValidationError) ErrorName() string {
-	return "UpdateJudgerReplyValidationError"
+func (e UpdateAdjudicatorReplyValidationError) ErrorName() string {
+	return "UpdateAdjudicatorReplyValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateJudgerReplyValidationError) Error() string {
+func (e UpdateAdjudicatorReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5987,14 +5987,14 @@ func (e UpdateJudgerReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateJudgerReply.%s: %s%s",
+		"invalid %sUpdateAdjudicatorReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateJudgerReplyValidationError{}
+var _ error = UpdateAdjudicatorReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -6002,24 +6002,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateJudgerReplyValidationError{}
+} = UpdateAdjudicatorReplyValidationError{}
 
-// Validate checks the field values on GetJudgerRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *GetJudgerRequest) Validate() error {
+// Validate checks the field values on GetAdjudicatorRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAdjudicatorRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetJudgerRequest with the rules
+// ValidateAll checks the field values on GetAdjudicatorRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetJudgerRequestMultiError, or nil if none found.
-func (m *GetJudgerRequest) ValidateAll() error {
+// GetAdjudicatorRequestMultiError, or nil if none found.
+func (m *GetAdjudicatorRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetJudgerRequest) validate(all bool) error {
+func (m *GetAdjudicatorRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -6029,19 +6029,19 @@ func (m *GetJudgerRequest) validate(all bool) error {
 	// no validation rules for ProblemId
 
 	if len(errors) > 0 {
-		return GetJudgerRequestMultiError(errors)
+		return GetAdjudicatorRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetJudgerRequestMultiError is an error wrapping multiple validation errors
-// returned by GetJudgerRequest.ValidateAll() if the designated constraints
-// aren't met.
-type GetJudgerRequestMultiError []error
+// GetAdjudicatorRequestMultiError is an error wrapping multiple validation
+// errors returned by GetAdjudicatorRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetAdjudicatorRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetJudgerRequestMultiError) Error() string {
+func (m GetAdjudicatorRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -6050,11 +6050,11 @@ func (m GetJudgerRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetJudgerRequestMultiError) AllErrors() []error { return m }
+func (m GetAdjudicatorRequestMultiError) AllErrors() []error { return m }
 
-// GetJudgerRequestValidationError is the validation error returned by
-// GetJudgerRequest.Validate if the designated constraints aren't met.
-type GetJudgerRequestValidationError struct {
+// GetAdjudicatorRequestValidationError is the validation error returned by
+// GetAdjudicatorRequest.Validate if the designated constraints aren't met.
+type GetAdjudicatorRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -6062,22 +6062,24 @@ type GetJudgerRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetJudgerRequestValidationError) Field() string { return e.field }
+func (e GetAdjudicatorRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetJudgerRequestValidationError) Reason() string { return e.reason }
+func (e GetAdjudicatorRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetJudgerRequestValidationError) Cause() error { return e.cause }
+func (e GetAdjudicatorRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetJudgerRequestValidationError) Key() bool { return e.key }
+func (e GetAdjudicatorRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetJudgerRequestValidationError) ErrorName() string { return "GetJudgerRequestValidationError" }
+func (e GetAdjudicatorRequestValidationError) ErrorName() string {
+	return "GetAdjudicatorRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e GetJudgerRequestValidationError) Error() string {
+func (e GetAdjudicatorRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -6089,14 +6091,14 @@ func (e GetJudgerRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetJudgerRequest.%s: %s%s",
+		"invalid %sGetAdjudicatorRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetJudgerRequestValidationError{}
+var _ error = GetAdjudicatorRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -6104,24 +6106,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetJudgerRequestValidationError{}
+} = GetAdjudicatorRequestValidationError{}
 
-// Validate checks the field values on GetJudgerReply with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetJudgerReply) Validate() error {
+// Validate checks the field values on GetAdjudicatorReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAdjudicatorReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetJudgerReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetJudgerReplyMultiError,
-// or nil if none found.
-func (m *GetJudgerReply) ValidateAll() error {
+// ValidateAll checks the field values on GetAdjudicatorReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAdjudicatorReplyMultiError, or nil if none found.
+func (m *GetAdjudicatorReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetJudgerReply) validate(all bool) error {
+func (m *GetAdjudicatorReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -6135,7 +6137,7 @@ func (m *GetJudgerReply) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetJudgerReplyValidationError{
+					errors = append(errors, GetAdjudicatorReplyValidationError{
 						field:  fmt.Sprintf("Groups[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -6143,7 +6145,7 @@ func (m *GetJudgerReply) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, GetJudgerReplyValidationError{
+					errors = append(errors, GetAdjudicatorReplyValidationError{
 						field:  fmt.Sprintf("Groups[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -6152,7 +6154,7 @@ func (m *GetJudgerReply) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return GetJudgerReplyValidationError{
+				return GetAdjudicatorReplyValidationError{
 					field:  fmt.Sprintf("Groups[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -6163,19 +6165,19 @@ func (m *GetJudgerReply) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return GetJudgerReplyMultiError(errors)
+		return GetAdjudicatorReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetJudgerReplyMultiError is an error wrapping multiple validation errors
-// returned by GetJudgerReply.ValidateAll() if the designated constraints
-// aren't met.
-type GetJudgerReplyMultiError []error
+// GetAdjudicatorReplyMultiError is an error wrapping multiple validation
+// errors returned by GetAdjudicatorReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetAdjudicatorReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetJudgerReplyMultiError) Error() string {
+func (m GetAdjudicatorReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -6184,11 +6186,11 @@ func (m GetJudgerReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetJudgerReplyMultiError) AllErrors() []error { return m }
+func (m GetAdjudicatorReplyMultiError) AllErrors() []error { return m }
 
-// GetJudgerReplyValidationError is the validation error returned by
-// GetJudgerReply.Validate if the designated constraints aren't met.
-type GetJudgerReplyValidationError struct {
+// GetAdjudicatorReplyValidationError is the validation error returned by
+// GetAdjudicatorReply.Validate if the designated constraints aren't met.
+type GetAdjudicatorReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -6196,22 +6198,24 @@ type GetJudgerReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetJudgerReplyValidationError) Field() string { return e.field }
+func (e GetAdjudicatorReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetJudgerReplyValidationError) Reason() string { return e.reason }
+func (e GetAdjudicatorReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetJudgerReplyValidationError) Cause() error { return e.cause }
+func (e GetAdjudicatorReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetJudgerReplyValidationError) Key() bool { return e.key }
+func (e GetAdjudicatorReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetJudgerReplyValidationError) ErrorName() string { return "GetJudgerReplyValidationError" }
+func (e GetAdjudicatorReplyValidationError) ErrorName() string {
+	return "GetAdjudicatorReplyValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e GetJudgerReplyValidationError) Error() string {
+func (e GetAdjudicatorReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -6223,14 +6227,14 @@ func (e GetJudgerReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetJudgerReply.%s: %s%s",
+		"invalid %sGetAdjudicatorReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetJudgerReplyValidationError{}
+var _ error = GetAdjudicatorReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -6238,7 +6242,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetJudgerReplyValidationError{}
+} = GetAdjudicatorReplyValidationError{}
 
 // Validate checks the field values on CreateUserRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -8397,22 +8401,22 @@ var _ interface {
 	ErrorName() string
 } = GetProblemTypesReply_ProblemTypeValidationError{}
 
-// Validate checks the field values on GetJudgerReply_Group with the rules
+// Validate checks the field values on GetAdjudicatorReply_Group with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetJudgerReply_Group) Validate() error {
+func (m *GetAdjudicatorReply_Group) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetJudgerReply_Group with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetAdjudicatorReply_Group with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetJudgerReply_GroupMultiError, or nil if none found.
-func (m *GetJudgerReply_Group) ValidateAll() error {
+// GetAdjudicatorReply_GroupMultiError, or nil if none found.
+func (m *GetAdjudicatorReply_Group) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetJudgerReply_Group) validate(all bool) error {
+func (m *GetAdjudicatorReply_Group) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -8424,19 +8428,19 @@ func (m *GetJudgerReply_Group) validate(all bool) error {
 	// no validation rules for Name
 
 	if len(errors) > 0 {
-		return GetJudgerReply_GroupMultiError(errors)
+		return GetAdjudicatorReply_GroupMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetJudgerReply_GroupMultiError is an error wrapping multiple validation
-// errors returned by GetJudgerReply_Group.ValidateAll() if the designated
-// constraints aren't met.
-type GetJudgerReply_GroupMultiError []error
+// GetAdjudicatorReply_GroupMultiError is an error wrapping multiple validation
+// errors returned by GetAdjudicatorReply_Group.ValidateAll() if the
+// designated constraints aren't met.
+type GetAdjudicatorReply_GroupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetJudgerReply_GroupMultiError) Error() string {
+func (m GetAdjudicatorReply_GroupMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -8445,11 +8449,11 @@ func (m GetJudgerReply_GroupMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetJudgerReply_GroupMultiError) AllErrors() []error { return m }
+func (m GetAdjudicatorReply_GroupMultiError) AllErrors() []error { return m }
 
-// GetJudgerReply_GroupValidationError is the validation error returned by
-// GetJudgerReply_Group.Validate if the designated constraints aren't met.
-type GetJudgerReply_GroupValidationError struct {
+// GetAdjudicatorReply_GroupValidationError is the validation error returned by
+// GetAdjudicatorReply_Group.Validate if the designated constraints aren't met.
+type GetAdjudicatorReply_GroupValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -8457,24 +8461,24 @@ type GetJudgerReply_GroupValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetJudgerReply_GroupValidationError) Field() string { return e.field }
+func (e GetAdjudicatorReply_GroupValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetJudgerReply_GroupValidationError) Reason() string { return e.reason }
+func (e GetAdjudicatorReply_GroupValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetJudgerReply_GroupValidationError) Cause() error { return e.cause }
+func (e GetAdjudicatorReply_GroupValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetJudgerReply_GroupValidationError) Key() bool { return e.key }
+func (e GetAdjudicatorReply_GroupValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetJudgerReply_GroupValidationError) ErrorName() string {
-	return "GetJudgerReply_GroupValidationError"
+func (e GetAdjudicatorReply_GroupValidationError) ErrorName() string {
+	return "GetAdjudicatorReply_GroupValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetJudgerReply_GroupValidationError) Error() string {
+func (e GetAdjudicatorReply_GroupValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -8486,14 +8490,14 @@ func (e GetJudgerReply_GroupValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetJudgerReply_Group.%s: %s%s",
+		"invalid %sGetAdjudicatorReply_Group.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetJudgerReply_GroupValidationError{}
+var _ error = GetAdjudicatorReply_GroupValidationError{}
 
 var _ interface {
 	Field() string
@@ -8501,7 +8505,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetJudgerReply_GroupValidationError{}
+} = GetAdjudicatorReply_GroupValidationError{}
 
 // Validate checks the field values on BatchCreateUserReply_User with the rules
 // defined in the proto definition for this message. If any rules are

@@ -36,8 +36,8 @@ const (
 	Admin_SubmitJudge_FullMethodName            = "/api.sastoj.admin.admin.service.v1.Admin/SubmitJudge"
 	Admin_GetJudgableProblems_FullMethodName    = "/api.sastoj.admin.admin.service.v1.Admin/GetJudgableProblems"
 	Admin_GetSubmissions_FullMethodName         = "/api.sastoj.admin.admin.service.v1.Admin/GetSubmissions"
-	Admin_UpdateJudger_FullMethodName           = "/api.sastoj.admin.admin.service.v1.Admin/UpdateJudger"
-	Admin_GetJudger_FullMethodName              = "/api.sastoj.admin.admin.service.v1.Admin/GetJudger"
+	Admin_UpdateAdjudicator_FullMethodName      = "/api.sastoj.admin.admin.service.v1.Admin/UpdateAdjudicator"
+	Admin_GetAdjudicator_FullMethodName         = "/api.sastoj.admin.admin.service.v1.Admin/GetAdjudicator"
 	Admin_CreateProblem_FullMethodName          = "/api.sastoj.admin.admin.service.v1.Admin/CreateProblem"
 	Admin_UpdateProblem_FullMethodName          = "/api.sastoj.admin.admin.service.v1.Admin/UpdateProblem"
 	Admin_DeleteProblem_FullMethodName          = "/api.sastoj.admin.admin.service.v1.Admin/DeleteProblem"
@@ -73,8 +73,8 @@ type AdminClient interface {
 	SubmitJudge(ctx context.Context, in *SubmitJudgeRequest, opts ...grpc.CallOption) (*SubmitJudgeReply, error)
 	GetJudgableProblems(ctx context.Context, in *GetJudgableProblemsRequest, opts ...grpc.CallOption) (*GetJudgableProblemsReply, error)
 	GetSubmissions(ctx context.Context, in *GetSubmissionsRequest, opts ...grpc.CallOption) (*GetSubmissionsReply, error)
-	UpdateJudger(ctx context.Context, in *UpdateJudgerRequest, opts ...grpc.CallOption) (*UpdateJudgerReply, error)
-	GetJudger(ctx context.Context, in *GetJudgerRequest, opts ...grpc.CallOption) (*GetJudgerReply, error)
+	UpdateAdjudicator(ctx context.Context, in *UpdateAdjudicatorRequest, opts ...grpc.CallOption) (*UpdateAdjudicatorReply, error)
+	GetAdjudicator(ctx context.Context, in *GetAdjudicatorRequest, opts ...grpc.CallOption) (*GetAdjudicatorReply, error)
 	CreateProblem(ctx context.Context, in *CreateProblemRequest, opts ...grpc.CallOption) (*CreateProblemReply, error)
 	UpdateProblem(ctx context.Context, in *UpdateProblemRequest, opts ...grpc.CallOption) (*UpdateProblemReply, error)
 	DeleteProblem(ctx context.Context, in *DeleteProblemRequest, opts ...grpc.CallOption) (*DeleteProblemReply, error)
@@ -267,20 +267,20 @@ func (c *adminClient) GetSubmissions(ctx context.Context, in *GetSubmissionsRequ
 	return out, nil
 }
 
-func (c *adminClient) UpdateJudger(ctx context.Context, in *UpdateJudgerRequest, opts ...grpc.CallOption) (*UpdateJudgerReply, error) {
+func (c *adminClient) UpdateAdjudicator(ctx context.Context, in *UpdateAdjudicatorRequest, opts ...grpc.CallOption) (*UpdateAdjudicatorReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateJudgerReply)
-	err := c.cc.Invoke(ctx, Admin_UpdateJudger_FullMethodName, in, out, cOpts...)
+	out := new(UpdateAdjudicatorReply)
+	err := c.cc.Invoke(ctx, Admin_UpdateAdjudicator_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *adminClient) GetJudger(ctx context.Context, in *GetJudgerRequest, opts ...grpc.CallOption) (*GetJudgerReply, error) {
+func (c *adminClient) GetAdjudicator(ctx context.Context, in *GetAdjudicatorRequest, opts ...grpc.CallOption) (*GetAdjudicatorReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetJudgerReply)
-	err := c.cc.Invoke(ctx, Admin_GetJudger_FullMethodName, in, out, cOpts...)
+	out := new(GetAdjudicatorReply)
+	err := c.cc.Invoke(ctx, Admin_GetAdjudicator_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -428,8 +428,8 @@ type AdminServer interface {
 	SubmitJudge(context.Context, *SubmitJudgeRequest) (*SubmitJudgeReply, error)
 	GetJudgableProblems(context.Context, *GetJudgableProblemsRequest) (*GetJudgableProblemsReply, error)
 	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
-	UpdateJudger(context.Context, *UpdateJudgerRequest) (*UpdateJudgerReply, error)
-	GetJudger(context.Context, *GetJudgerRequest) (*GetJudgerReply, error)
+	UpdateAdjudicator(context.Context, *UpdateAdjudicatorRequest) (*UpdateAdjudicatorReply, error)
+	GetAdjudicator(context.Context, *GetAdjudicatorRequest) (*GetAdjudicatorReply, error)
 	CreateProblem(context.Context, *CreateProblemRequest) (*CreateProblemReply, error)
 	UpdateProblem(context.Context, *UpdateProblemRequest) (*UpdateProblemReply, error)
 	DeleteProblem(context.Context, *DeleteProblemRequest) (*DeleteProblemReply, error)
@@ -503,11 +503,11 @@ func (UnimplementedAdminServer) GetJudgableProblems(context.Context, *GetJudgabl
 func (UnimplementedAdminServer) GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubmissions not implemented")
 }
-func (UnimplementedAdminServer) UpdateJudger(context.Context, *UpdateJudgerRequest) (*UpdateJudgerReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateJudger not implemented")
+func (UnimplementedAdminServer) UpdateAdjudicator(context.Context, *UpdateAdjudicatorRequest) (*UpdateAdjudicatorReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdjudicator not implemented")
 }
-func (UnimplementedAdminServer) GetJudger(context.Context, *GetJudgerRequest) (*GetJudgerReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetJudger not implemented")
+func (UnimplementedAdminServer) GetAdjudicator(context.Context, *GetAdjudicatorRequest) (*GetAdjudicatorReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdjudicator not implemented")
 }
 func (UnimplementedAdminServer) CreateProblem(context.Context, *CreateProblemRequest) (*CreateProblemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProblem not implemented")
@@ -872,38 +872,38 @@ func _Admin_GetSubmissions_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Admin_UpdateJudger_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateJudgerRequest)
+func _Admin_UpdateAdjudicator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdjudicatorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServer).UpdateJudger(ctx, in)
+		return srv.(AdminServer).UpdateAdjudicator(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Admin_UpdateJudger_FullMethodName,
+		FullMethod: Admin_UpdateAdjudicator_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServer).UpdateJudger(ctx, req.(*UpdateJudgerRequest))
+		return srv.(AdminServer).UpdateAdjudicator(ctx, req.(*UpdateAdjudicatorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Admin_GetJudger_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetJudgerRequest)
+func _Admin_GetAdjudicator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdjudicatorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServer).GetJudger(ctx, in)
+		return srv.(AdminServer).GetAdjudicator(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Admin_GetJudger_FullMethodName,
+		FullMethod: Admin_GetAdjudicator_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServer).GetJudger(ctx, req.(*GetJudgerRequest))
+		return srv.(AdminServer).GetAdjudicator(ctx, req.(*GetAdjudicatorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1200,12 +1200,12 @@ var Admin_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Admin_GetSubmissions_Handler,
 		},
 		{
-			MethodName: "UpdateJudger",
-			Handler:    _Admin_UpdateJudger_Handler,
+			MethodName: "UpdateAdjudicator",
+			Handler:    _Admin_UpdateAdjudicator_Handler,
 		},
 		{
-			MethodName: "GetJudger",
-			Handler:    _Admin_GetJudger_Handler,
+			MethodName: "GetAdjudicator",
+			Handler:    _Admin_GetAdjudicator_Handler,
 		},
 		{
 			MethodName: "CreateProblem",

@@ -6,17 +6,13 @@ import (
 	_ "encoding/hex"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/app/admin/admin/internal/biz"
-	"sastoj/pkg/util"
 )
 
 func (s *AdminService) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserReply, error) {
-	var salt = util.GenerateRandomString(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	var md5Password = util.GenerateMD5Password(req.Password, salt)
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
-		Password: md5Password,
+		Password: req.Password,
 		GroupIds: req.GroupIds,
-		Salt:     salt,
 		State:    0,
 	})
 	if err != nil {
@@ -27,7 +23,6 @@ func (s *AdminService) CreateUser(ctx context.Context, req *pb.CreateUserRequest
 	}, nil
 }
 func (s *AdminService) BatchCreateUser(ctx context.Context, req *pb.BatchCreateUserRequest) (*pb.BatchCreateUserReply, error) {
-
 	resMap, err := s.uc.BatchSave(ctx, int32(req.Number), req.GroupIds)
 	if err != nil {
 		return nil, err

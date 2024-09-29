@@ -2,10 +2,11 @@ package util
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/ent"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 func InsertDefaultGroup(ctx context.Context, client *ent.Client) (*ent.Group, error) {

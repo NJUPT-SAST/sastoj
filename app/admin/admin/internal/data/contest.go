@@ -11,19 +11,19 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
-type ContestRepo struct {
+type contestRepo struct {
 	data *Data
 	log  *log.Helper
 }
 
 func NewContestRepo(data *Data, logger log.Logger) biz.ContestRepo {
-	return &ContestRepo{
+	return &contestRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (r *ContestRepo) Save(ctx context.Context, g *biz.Contest) (*biz.Contest, error) {
+func (r *contestRepo) Save(ctx context.Context, g *biz.Contest) (*biz.Contest, error) {
 	entState, err := util.ContestStateToEnt(g.Status)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *ContestRepo) Save(ctx context.Context, g *biz.Contest) (*biz.Contest, e
 	return g, nil
 }
 
-func (r *ContestRepo) Update(ctx context.Context, g *biz.Contest) error {
+func (r *contestRepo) Update(ctx context.Context, g *biz.Contest) error {
 	entState, err := util.ContestStateToEnt(g.Status)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (r *ContestRepo) Update(ctx context.Context, g *biz.Contest) error {
 	return nil
 }
 
-func (r *ContestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, error) {
+func (r *contestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, error) {
 	po, err := r.data.db.Contest.Get(ctx, id)
 	if err != nil {
 		log.Debug("err : ", err)
@@ -88,7 +88,7 @@ func (r *ContestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, err
 		CreateTime:  po.CreateTime,
 	}, nil
 }
-func (r *ContestRepo) Delete(ctx context.Context, id int64) error {
+func (r *contestRepo) Delete(ctx context.Context, id int64) error {
 	err := r.data.db.Contest.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func (r *ContestRepo) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *ContestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, error) {
+func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, error) {
 	res, err := r.data.db.Contest.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
 	if err != nil {
 		log.Debug(" error :", err)
@@ -119,7 +119,7 @@ func (r *ContestRepo) ListPages(ctx context.Context, current int64, size int64) 
 	}
 	return rv, nil
 }
-func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+func (r *contestRepo) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
 	switch role {
 	case 0:
 		_, err := r.data.db.Contest.UpdateOneID(contestId).AddContestantIDs(groupId).Save(ctx)
@@ -141,7 +141,7 @@ func (r *ContestRepo) AddContestants(ctx context.Context, contestId int64, group
 
 }
 
-func (r *ContestRepo) GetRacingContests(ctx context.Context) ([]*biz.Contest, error) {
+func (r *contestRepo) GetRacingContests(ctx context.Context) ([]*biz.Contest, error) {
 	cs, err := r.data.db.Contest.Query().Where(
 		contest.StartTimeLTE(time.Now()),
 		contest.EndTimeGTE(time.Now().Add(time.Hour)),

@@ -2,10 +2,11 @@ package data
 
 import (
 	"context"
-	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/app/admin/admin/internal/biz"
+	"sastoj/ent/contest"
 	"sastoj/ent/problem"
-	"sastoj/pkg/middleware/auth"
+	"sastoj/pkg/util"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -33,7 +34,7 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 		SetCaseVersion(1).
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
-		SetVisibility(pb2vis(g.Visibility)).
+		SetVisibility(util.VisToEnt(g.Visibility)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -48,12 +49,14 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error
 		SetContent(g.Content).
 		SetScore(int16(g.Point)).
 		SetContestID(g.ContestId).
-		SetCaseVersion(int16(g.CaseVersion)).
+		AddCaseVersion(1).
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
-		SetVisibility(pb2vis(g.Visibility)).
+		SetVisibility(util.VisToEnt(g.Visibility)).
 		Where(problem.ID(g.Id)).
 		Where(problem.IsDeleted(false)).
+		Where(problem.HasContestWith(
+			contest.IDEQ(g.ContestId), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +78,7 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 	if err != nil {
 		return nil, err
 	}
-	vis := vis2pb(p.Visibility)
+	vis := util.VisToPb(p.Visibility)
 	return &biz.Problem{
 		Id:          p.ID,
 		Title:       p.Title,
@@ -111,7 +114,7 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	}
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
-		vis := vis2pb(v.Visibility)
+		vis := util.VisToPb(v.Visibility)
 		owner, err := v.QueryOwner().First(ctx)
 		if err != nil {
 			return nil, err
@@ -132,33 +135,6 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	return list, nil
 }
 
-func vis2pb(v problem.Visibility) pb.Visibility {
-	switch v {
-	case problem.VisibilityPRIVATE:
-		return pb.Visibility_Private
-	case problem.VisibilityPUBLIC:
-		return pb.Visibility_Public
-	case problem.VisibilityCONTEST:
-		return pb.Visibility_Contest
-	default:
-		return pb.Visibility_Private
-	}
-}
-
-func pb2vis(v pb.Visibility) problem.Visibility {
-	switch v {
-	case pb.Visibility_Private:
-		return problem.VisibilityPRIVATE
-	case pb.Visibility_Public:
-		return problem.VisibilityPUBLIC
-	case pb.Visibility_Contest:
-		return problem.VisibilityCONTEST
-	default:
-		return problem.VisibilityPRIVATE
-	}
-}
-
 func getUserID(ctx context.Context) int64 {
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	return claim.UserId
+	return util.GetUserInfoFromCtx(ctx).UserId
 }
