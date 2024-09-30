@@ -11,7 +11,6 @@ import (
 	"sastoj/ent/schema"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
-	"sastoj/ent/user"
 	"time"
 )
 
@@ -117,8 +116,4 @@ func init() {
 	submissioncase.DefaultStderr = submissioncaseDescStderr.Default.(string)
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescUsername is the schema descriptor for username field.
-	userDescUsername := userFields[1].Descriptor()
-	// user.DefaultUsername holds the default value on creation for the username field.
-	user.DefaultUsername = userDescUsername.Default.(string)
 }
