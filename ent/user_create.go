@@ -52,15 +52,17 @@ func (uc *UserCreate) SetSalt(s string) *UserCreate {
 	return uc
 }
 
-// SetStatus sets the "status" field.
-func (uc *UserCreate) SetStatus(i int16) *UserCreate {
-	uc.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (uc *UserCreate) SetState(u user.State) *UserCreate {
+	uc.mutation.SetState(u)
 	return uc
 }
 
-// SetGroupID sets the "group_id" field.
-func (uc *UserCreate) SetGroupID(i int64) *UserCreate {
-	uc.mutation.SetGroupID(i)
+// SetNillableState sets the "state" field if the given value is not nil.
+func (uc *UserCreate) SetNillableState(u *user.State) *UserCreate {
+	if u != nil {
+		uc.SetState(*u)
+	}
 	return uc
 }
 
@@ -115,15 +117,19 @@ func (uc *UserCreate) AddOwnedProblems(p ...*Problem) *UserCreate {
 	return uc.AddOwnedProblemIDs(ids...)
 }
 
-// SetGroupsID sets the "groups" edge to the Group entity by ID.
-func (uc *UserCreate) SetGroupsID(id int64) *UserCreate {
-	uc.mutation.SetGroupsID(id)
+// AddGroupIDs adds the "groups" edge to the Group entity by IDs.
+func (uc *UserCreate) AddGroupIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddGroupIDs(ids...)
 	return uc
 }
 
-// SetGroups sets the "groups" edge to the Group entity.
-func (uc *UserCreate) SetGroups(g *Group) *UserCreate {
-	return uc.SetGroupsID(g.ID)
+// AddGroups adds the "groups" edges to the Group entity.
+func (uc *UserCreate) AddGroups(g ...*Group) *UserCreate {
+	ids := make([]int64, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uc.AddGroupIDs(ids...)
 }
 
 // AddContestResultIDs adds the "contest_results" edge to the ContestResult entity by IDs.
@@ -180,6 +186,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUsername
 		uc.mutation.SetUsername(v)
 	}
+	if _, ok := uc.mutation.State(); !ok {
+		v := user.DefaultState
+		uc.mutation.SetState(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -193,19 +203,13 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Salt(); !ok {
 		return &ValidationError{Name: "salt", err: errors.New(`ent: missing required field "User.salt"`)}
 	}
-	if _, ok := uc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "User.status"`)}
+	if _, ok := uc.mutation.State(); !ok {
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "User.state"`)}
 	}
-	if v, ok := uc.mutation.Status(); ok {
-		if err := user.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
+	if v, ok := uc.mutation.State(); ok {
+		if err := user.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "User.state": %w`, err)}
 		}
-	}
-	if _, ok := uc.mutation.GroupID(); !ok {
-		return &ValidationError{Name: "group_id", err: errors.New(`ent: missing required field "User.group_id"`)}
-	}
-	if _, ok := uc.mutation.GroupsID(); !ok {
-		return &ValidationError{Name: "groups", err: errors.New(`ent: missing required edge "User.groups"`)}
 	}
 	return nil
 }
@@ -252,9 +256,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldSalt, field.TypeString, value)
 		_node.Salt = value
 	}
-	if value, ok := uc.mutation.Status(); ok {
-		_spec.SetField(user.FieldStatus, field.TypeInt16, value)
-		_node.Status = value
+	if value, ok := uc.mutation.State(); ok {
+		_spec.SetField(user.FieldState, field.TypeEnum, value)
+		_node.State = value
 	}
 	if nodes := uc.mutation.SubmissionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -306,10 +310,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   user.GroupsTable,
-			Columns: []string{user.GroupsColumn},
+			Columns: user.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt64),
@@ -318,7 +322,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.GroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.ContestResultsIDs(); len(nodes) > 0 {
@@ -425,33 +428,15 @@ func (u *UserUpsert) UpdateSalt() *UserUpsert {
 	return u
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsert) SetStatus(v int16) *UserUpsert {
-	u.Set(user.FieldStatus, v)
+// SetState sets the "state" field.
+func (u *UserUpsert) SetState(v user.State) *UserUpsert {
+	u.Set(user.FieldState, v)
 	return u
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsert) UpdateStatus() *UserUpsert {
-	u.SetExcluded(user.FieldStatus)
-	return u
-}
-
-// AddStatus adds v to the "status" field.
-func (u *UserUpsert) AddStatus(v int16) *UserUpsert {
-	u.Add(user.FieldStatus, v)
-	return u
-}
-
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsert) SetGroupID(v int64) *UserUpsert {
-	u.Set(user.FieldGroupID, v)
-	return u
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsert) UpdateGroupID() *UserUpsert {
-	u.SetExcluded(user.FieldGroupID)
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsert) UpdateState() *UserUpsert {
+	u.SetExcluded(user.FieldState)
 	return u
 }
 
@@ -545,38 +530,17 @@ func (u *UserUpsertOne) UpdateSalt() *UserUpsertOne {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsertOne) SetStatus(v int16) *UserUpsertOne {
+// SetState sets the "state" field.
+func (u *UserUpsertOne) SetState(v user.State) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *UserUpsertOne) AddStatus(v int16) *UserUpsertOne {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateState() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateStatus() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsertOne) SetGroupID(v int64) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.SetGroupID(v)
-	})
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateGroupID() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateGroupID()
+		s.UpdateState()
 	})
 }
 
@@ -836,38 +800,17 @@ func (u *UserUpsertBulk) UpdateSalt() *UserUpsertBulk {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *UserUpsertBulk) SetStatus(v int16) *UserUpsertBulk {
+// SetState sets the "state" field.
+func (u *UserUpsertBulk) SetState(v user.State) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *UserUpsertBulk) AddStatus(v int16) *UserUpsertBulk {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateState() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateStatus() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetGroupID sets the "group_id" field.
-func (u *UserUpsertBulk) SetGroupID(v int64) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.SetGroupID(v)
-	})
-}
-
-// UpdateGroupID sets the "group_id" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateGroupID() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateGroupID()
+		s.UpdateState()
 	})
 }
 

@@ -4,9 +4,8 @@ package ent
 
 import (
 	"fmt"
-	"sastoj/ent/problemcase"
-	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"strings"
 
 	"entgo.io/ent"
@@ -22,16 +21,16 @@ type SubmissionCase struct {
 	State int16 `json:"state,omitempty"`
 	// Point holds the value of the "point" field.
 	Point int16 `json:"point,omitempty"`
-	// Message holds the value of the "message" field.
-	Message string `json:"message,omitempty"`
 	// Time holds the value of the "time" field.
-	Time int32 `json:"time,omitempty"`
+	Time uint64 `json:"time,omitempty"`
 	// Memory holds the value of the "memory" field.
-	Memory int32 `json:"memory,omitempty"`
-	// SubmissionID holds the value of the "submission_id" field.
-	SubmissionID int64 `json:"submission_id,omitempty"`
-	// ProblemCaseID holds the value of the "problem_case_id" field.
-	ProblemCaseID int64 `json:"problem_case_id,omitempty"`
+	Memory uint64 `json:"memory,omitempty"`
+	// Stdout holds the value of the "stdout" field.
+	Stdout string `json:"stdout,omitempty"`
+	// Stderr holds the value of the "stderr" field.
+	Stderr string `json:"stderr,omitempty"`
+	// SubmissionSubtaskID holds the value of the "submission_subtask_id" field.
+	SubmissionSubtaskID int64 `json:"submission_subtask_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SubmissionCaseQuery when eager-loading is set.
 	Edges        SubmissionCaseEdges `json:"edges"`
@@ -40,39 +39,24 @@ type SubmissionCase struct {
 
 // SubmissionCaseEdges holds the relations/edges for other nodes in the graph.
 type SubmissionCaseEdges struct {
-	// Submission holds the value of the submission edge.
-	Submission *Submission `json:"submission,omitempty"`
-	// ProblemCases holds the value of the problem_cases edge.
-	ProblemCases *ProblemCase `json:"problem_cases,omitempty"`
+	// SubmissionSubtasks holds the value of the submission_subtasks edge.
+	SubmissionSubtasks *SubmissionSubtask `json:"submission_subtasks,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
-// SubmissionOrErr returns the Submission value or an error if the edge
+// SubmissionSubtasksOrErr returns the SubmissionSubtasks value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SubmissionCaseEdges) SubmissionOrErr() (*Submission, error) {
+func (e SubmissionCaseEdges) SubmissionSubtasksOrErr() (*SubmissionSubtask, error) {
 	if e.loadedTypes[0] {
-		if e.Submission == nil {
+		if e.SubmissionSubtasks == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: submission.Label}
+			return nil, &NotFoundError{label: submissionsubtask.Label}
 		}
-		return e.Submission, nil
+		return e.SubmissionSubtasks, nil
 	}
-	return nil, &NotLoadedError{edge: "submission"}
-}
-
-// ProblemCasesOrErr returns the ProblemCases value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SubmissionCaseEdges) ProblemCasesOrErr() (*ProblemCase, error) {
-	if e.loadedTypes[1] {
-		if e.ProblemCases == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: problemcase.Label}
-		}
-		return e.ProblemCases, nil
-	}
-	return nil, &NotLoadedError{edge: "problem_cases"}
+	return nil, &NotLoadedError{edge: "submission_subtasks"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -80,9 +64,9 @@ func (*SubmissionCase) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submissioncase.FieldID, submissioncase.FieldState, submissioncase.FieldPoint, submissioncase.FieldTime, submissioncase.FieldMemory, submissioncase.FieldSubmissionID, submissioncase.FieldProblemCaseID:
+		case submissioncase.FieldID, submissioncase.FieldState, submissioncase.FieldPoint, submissioncase.FieldTime, submissioncase.FieldMemory, submissioncase.FieldSubmissionSubtaskID:
 			values[i] = new(sql.NullInt64)
-		case submissioncase.FieldMessage:
+		case submissioncase.FieldStdout, submissioncase.FieldStderr:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -117,35 +101,35 @@ func (sc *SubmissionCase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				sc.Point = int16(value.Int64)
 			}
-		case submissioncase.FieldMessage:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field message", values[i])
-			} else if value.Valid {
-				sc.Message = value.String
-			}
 		case submissioncase.FieldTime:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field time", values[i])
 			} else if value.Valid {
-				sc.Time = int32(value.Int64)
+				sc.Time = uint64(value.Int64)
 			}
 		case submissioncase.FieldMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field memory", values[i])
 			} else if value.Valid {
-				sc.Memory = int32(value.Int64)
+				sc.Memory = uint64(value.Int64)
 			}
-		case submissioncase.FieldSubmissionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field submission_id", values[i])
+		case submissioncase.FieldStdout:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field stdout", values[i])
 			} else if value.Valid {
-				sc.SubmissionID = value.Int64
+				sc.Stdout = value.String
 			}
-		case submissioncase.FieldProblemCaseID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field problem_case_id", values[i])
+		case submissioncase.FieldStderr:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field stderr", values[i])
 			} else if value.Valid {
-				sc.ProblemCaseID = value.Int64
+				sc.Stderr = value.String
+			}
+		case submissioncase.FieldSubmissionSubtaskID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field submission_subtask_id", values[i])
+			} else if value.Valid {
+				sc.SubmissionSubtaskID = value.Int64
 			}
 		default:
 			sc.selectValues.Set(columns[i], values[i])
@@ -160,14 +144,9 @@ func (sc *SubmissionCase) Value(name string) (ent.Value, error) {
 	return sc.selectValues.Get(name)
 }
 
-// QuerySubmission queries the "submission" edge of the SubmissionCase entity.
-func (sc *SubmissionCase) QuerySubmission() *SubmissionQuery {
-	return NewSubmissionCaseClient(sc.config).QuerySubmission(sc)
-}
-
-// QueryProblemCases queries the "problem_cases" edge of the SubmissionCase entity.
-func (sc *SubmissionCase) QueryProblemCases() *ProblemCaseQuery {
-	return NewSubmissionCaseClient(sc.config).QueryProblemCases(sc)
+// QuerySubmissionSubtasks queries the "submission_subtasks" edge of the SubmissionCase entity.
+func (sc *SubmissionCase) QuerySubmissionSubtasks() *SubmissionSubtaskQuery {
+	return NewSubmissionCaseClient(sc.config).QuerySubmissionSubtasks(sc)
 }
 
 // Update returns a builder for updating this SubmissionCase.
@@ -199,20 +178,20 @@ func (sc *SubmissionCase) String() string {
 	builder.WriteString("point=")
 	builder.WriteString(fmt.Sprintf("%v", sc.Point))
 	builder.WriteString(", ")
-	builder.WriteString("message=")
-	builder.WriteString(sc.Message)
-	builder.WriteString(", ")
 	builder.WriteString("time=")
 	builder.WriteString(fmt.Sprintf("%v", sc.Time))
 	builder.WriteString(", ")
 	builder.WriteString("memory=")
 	builder.WriteString(fmt.Sprintf("%v", sc.Memory))
 	builder.WriteString(", ")
-	builder.WriteString("submission_id=")
-	builder.WriteString(fmt.Sprintf("%v", sc.SubmissionID))
+	builder.WriteString("stdout=")
+	builder.WriteString(sc.Stdout)
 	builder.WriteString(", ")
-	builder.WriteString("problem_case_id=")
-	builder.WriteString(fmt.Sprintf("%v", sc.ProblemCaseID))
+	builder.WriteString("stderr=")
+	builder.WriteString(sc.Stderr)
+	builder.WriteString(", ")
+	builder.WriteString("submission_subtask_id=")
+	builder.WriteString(fmt.Sprintf("%v", sc.SubmissionSubtaskID))
 	builder.WriteByte(')')
 	return builder.String()
 }

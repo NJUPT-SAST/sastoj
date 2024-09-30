@@ -3,14 +3,13 @@ package service
 import (
 	"context"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
-	"sastoj/pkg/middleware/auth"
+	"sastoj/pkg/util"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserID
+	userID := util.GetUserInfoFromCtx(ctx).UserId
 	rv, err := s.contestUc.ListContest(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -33,8 +32,7 @@ func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsReque
 	return reply, nil
 }
 func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
-	claim := ctx.Value("userInfo").(*auth.Claims)
-	userID := claim.UserID
+	userID := util.GetUserInfoFromCtx(ctx).UserId
 	err := s.contestUc.JoinContest(ctx, userID, req.GetContestId(), req.Body.IsJoin)
 	if err != nil {
 		return nil, err

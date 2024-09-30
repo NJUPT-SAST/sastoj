@@ -6,9 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sastoj/ent/problemcase"
-	"sastoj/ent/submission"
 	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -35,33 +34,49 @@ func (scc *SubmissionCaseCreate) SetPoint(i int16) *SubmissionCaseCreate {
 	return scc
 }
 
-// SetMessage sets the "message" field.
-func (scc *SubmissionCaseCreate) SetMessage(s string) *SubmissionCaseCreate {
-	scc.mutation.SetMessage(s)
-	return scc
-}
-
 // SetTime sets the "time" field.
-func (scc *SubmissionCaseCreate) SetTime(i int32) *SubmissionCaseCreate {
-	scc.mutation.SetTime(i)
+func (scc *SubmissionCaseCreate) SetTime(u uint64) *SubmissionCaseCreate {
+	scc.mutation.SetTime(u)
 	return scc
 }
 
 // SetMemory sets the "memory" field.
-func (scc *SubmissionCaseCreate) SetMemory(i int32) *SubmissionCaseCreate {
-	scc.mutation.SetMemory(i)
+func (scc *SubmissionCaseCreate) SetMemory(u uint64) *SubmissionCaseCreate {
+	scc.mutation.SetMemory(u)
 	return scc
 }
 
-// SetSubmissionID sets the "submission_id" field.
-func (scc *SubmissionCaseCreate) SetSubmissionID(i int64) *SubmissionCaseCreate {
-	scc.mutation.SetSubmissionID(i)
+// SetStdout sets the "stdout" field.
+func (scc *SubmissionCaseCreate) SetStdout(s string) *SubmissionCaseCreate {
+	scc.mutation.SetStdout(s)
 	return scc
 }
 
-// SetProblemCaseID sets the "problem_case_id" field.
-func (scc *SubmissionCaseCreate) SetProblemCaseID(i int64) *SubmissionCaseCreate {
-	scc.mutation.SetProblemCaseID(i)
+// SetNillableStdout sets the "stdout" field if the given value is not nil.
+func (scc *SubmissionCaseCreate) SetNillableStdout(s *string) *SubmissionCaseCreate {
+	if s != nil {
+		scc.SetStdout(*s)
+	}
+	return scc
+}
+
+// SetStderr sets the "stderr" field.
+func (scc *SubmissionCaseCreate) SetStderr(s string) *SubmissionCaseCreate {
+	scc.mutation.SetStderr(s)
+	return scc
+}
+
+// SetNillableStderr sets the "stderr" field if the given value is not nil.
+func (scc *SubmissionCaseCreate) SetNillableStderr(s *string) *SubmissionCaseCreate {
+	if s != nil {
+		scc.SetStderr(*s)
+	}
+	return scc
+}
+
+// SetSubmissionSubtaskID sets the "submission_subtask_id" field.
+func (scc *SubmissionCaseCreate) SetSubmissionSubtaskID(i int64) *SubmissionCaseCreate {
+	scc.mutation.SetSubmissionSubtaskID(i)
 	return scc
 }
 
@@ -71,20 +86,15 @@ func (scc *SubmissionCaseCreate) SetID(i int64) *SubmissionCaseCreate {
 	return scc
 }
 
-// SetSubmission sets the "submission" edge to the Submission entity.
-func (scc *SubmissionCaseCreate) SetSubmission(s *Submission) *SubmissionCaseCreate {
-	return scc.SetSubmissionID(s.ID)
-}
-
-// SetProblemCasesID sets the "problem_cases" edge to the ProblemCase entity by ID.
-func (scc *SubmissionCaseCreate) SetProblemCasesID(id int64) *SubmissionCaseCreate {
-	scc.mutation.SetProblemCasesID(id)
+// SetSubmissionSubtasksID sets the "submission_subtasks" edge to the SubmissionSubtask entity by ID.
+func (scc *SubmissionCaseCreate) SetSubmissionSubtasksID(id int64) *SubmissionCaseCreate {
+	scc.mutation.SetSubmissionSubtasksID(id)
 	return scc
 }
 
-// SetProblemCases sets the "problem_cases" edge to the ProblemCase entity.
-func (scc *SubmissionCaseCreate) SetProblemCases(p *ProblemCase) *SubmissionCaseCreate {
-	return scc.SetProblemCasesID(p.ID)
+// SetSubmissionSubtasks sets the "submission_subtasks" edge to the SubmissionSubtask entity.
+func (scc *SubmissionCaseCreate) SetSubmissionSubtasks(s *SubmissionSubtask) *SubmissionCaseCreate {
+	return scc.SetSubmissionSubtasksID(s.ID)
 }
 
 // Mutation returns the SubmissionCaseMutation object of the builder.
@@ -94,6 +104,7 @@ func (scc *SubmissionCaseCreate) Mutation() *SubmissionCaseMutation {
 
 // Save creates the SubmissionCase in the database.
 func (scc *SubmissionCaseCreate) Save(ctx context.Context) (*SubmissionCase, error) {
+	scc.defaults()
 	return withHooks(ctx, scc.sqlSave, scc.mutation, scc.hooks)
 }
 
@@ -119,6 +130,18 @@ func (scc *SubmissionCaseCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (scc *SubmissionCaseCreate) defaults() {
+	if _, ok := scc.mutation.Stdout(); !ok {
+		v := submissioncase.DefaultStdout
+		scc.mutation.SetStdout(v)
+	}
+	if _, ok := scc.mutation.Stderr(); !ok {
+		v := submissioncase.DefaultStderr
+		scc.mutation.SetStderr(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (scc *SubmissionCaseCreate) check() error {
 	if _, ok := scc.mutation.State(); !ok {
@@ -127,26 +150,23 @@ func (scc *SubmissionCaseCreate) check() error {
 	if _, ok := scc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "SubmissionCase.point"`)}
 	}
-	if _, ok := scc.mutation.Message(); !ok {
-		return &ValidationError{Name: "message", err: errors.New(`ent: missing required field "SubmissionCase.message"`)}
-	}
 	if _, ok := scc.mutation.Time(); !ok {
 		return &ValidationError{Name: "time", err: errors.New(`ent: missing required field "SubmissionCase.time"`)}
 	}
 	if _, ok := scc.mutation.Memory(); !ok {
 		return &ValidationError{Name: "memory", err: errors.New(`ent: missing required field "SubmissionCase.memory"`)}
 	}
-	if _, ok := scc.mutation.SubmissionID(); !ok {
-		return &ValidationError{Name: "submission_id", err: errors.New(`ent: missing required field "SubmissionCase.submission_id"`)}
+	if _, ok := scc.mutation.Stdout(); !ok {
+		return &ValidationError{Name: "stdout", err: errors.New(`ent: missing required field "SubmissionCase.stdout"`)}
 	}
-	if _, ok := scc.mutation.ProblemCaseID(); !ok {
-		return &ValidationError{Name: "problem_case_id", err: errors.New(`ent: missing required field "SubmissionCase.problem_case_id"`)}
+	if _, ok := scc.mutation.Stderr(); !ok {
+		return &ValidationError{Name: "stderr", err: errors.New(`ent: missing required field "SubmissionCase.stderr"`)}
 	}
-	if _, ok := scc.mutation.SubmissionID(); !ok {
-		return &ValidationError{Name: "submission", err: errors.New(`ent: missing required edge "SubmissionCase.submission"`)}
+	if _, ok := scc.mutation.SubmissionSubtaskID(); !ok {
+		return &ValidationError{Name: "submission_subtask_id", err: errors.New(`ent: missing required field "SubmissionCase.submission_subtask_id"`)}
 	}
-	if _, ok := scc.mutation.ProblemCasesID(); !ok {
-		return &ValidationError{Name: "problem_cases", err: errors.New(`ent: missing required edge "SubmissionCase.problem_cases"`)}
+	if _, ok := scc.mutation.SubmissionSubtasksID(); !ok {
+		return &ValidationError{Name: "submission_subtasks", err: errors.New(`ent: missing required edge "SubmissionCase.submission_subtasks"`)}
 	}
 	return nil
 }
@@ -189,50 +209,37 @@ func (scc *SubmissionCaseCreate) createSpec() (*SubmissionCase, *sqlgraph.Create
 		_spec.SetField(submissioncase.FieldPoint, field.TypeInt16, value)
 		_node.Point = value
 	}
-	if value, ok := scc.mutation.Message(); ok {
-		_spec.SetField(submissioncase.FieldMessage, field.TypeString, value)
-		_node.Message = value
-	}
 	if value, ok := scc.mutation.Time(); ok {
-		_spec.SetField(submissioncase.FieldTime, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldTime, field.TypeUint64, value)
 		_node.Time = value
 	}
 	if value, ok := scc.mutation.Memory(); ok {
-		_spec.SetField(submissioncase.FieldMemory, field.TypeInt32, value)
+		_spec.SetField(submissioncase.FieldMemory, field.TypeUint64, value)
 		_node.Memory = value
 	}
-	if nodes := scc.mutation.SubmissionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   submissioncase.SubmissionTable,
-			Columns: []string{submissioncase.SubmissionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submission.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.SubmissionID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := scc.mutation.Stdout(); ok {
+		_spec.SetField(submissioncase.FieldStdout, field.TypeString, value)
+		_node.Stdout = value
 	}
-	if nodes := scc.mutation.ProblemCasesIDs(); len(nodes) > 0 {
+	if value, ok := scc.mutation.Stderr(); ok {
+		_spec.SetField(submissioncase.FieldStderr, field.TypeString, value)
+		_node.Stderr = value
+	}
+	if nodes := scc.mutation.SubmissionSubtasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   submissioncase.ProblemCasesTable,
-			Columns: []string{submissioncase.ProblemCasesColumn},
+			Table:   submissioncase.SubmissionSubtasksTable,
+			Columns: []string{submissioncase.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(problemcase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.ProblemCaseID = nodes[0]
+		_node.SubmissionSubtaskID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -323,20 +330,8 @@ func (u *SubmissionCaseUpsert) AddPoint(v int16) *SubmissionCaseUpsert {
 	return u
 }
 
-// SetMessage sets the "message" field.
-func (u *SubmissionCaseUpsert) SetMessage(v string) *SubmissionCaseUpsert {
-	u.Set(submissioncase.FieldMessage, v)
-	return u
-}
-
-// UpdateMessage sets the "message" field to the value that was provided on create.
-func (u *SubmissionCaseUpsert) UpdateMessage() *SubmissionCaseUpsert {
-	u.SetExcluded(submissioncase.FieldMessage)
-	return u
-}
-
 // SetTime sets the "time" field.
-func (u *SubmissionCaseUpsert) SetTime(v int32) *SubmissionCaseUpsert {
+func (u *SubmissionCaseUpsert) SetTime(v uint64) *SubmissionCaseUpsert {
 	u.Set(submissioncase.FieldTime, v)
 	return u
 }
@@ -348,13 +343,13 @@ func (u *SubmissionCaseUpsert) UpdateTime() *SubmissionCaseUpsert {
 }
 
 // AddTime adds v to the "time" field.
-func (u *SubmissionCaseUpsert) AddTime(v int32) *SubmissionCaseUpsert {
+func (u *SubmissionCaseUpsert) AddTime(v uint64) *SubmissionCaseUpsert {
 	u.Add(submissioncase.FieldTime, v)
 	return u
 }
 
 // SetMemory sets the "memory" field.
-func (u *SubmissionCaseUpsert) SetMemory(v int32) *SubmissionCaseUpsert {
+func (u *SubmissionCaseUpsert) SetMemory(v uint64) *SubmissionCaseUpsert {
 	u.Set(submissioncase.FieldMemory, v)
 	return u
 }
@@ -366,32 +361,44 @@ func (u *SubmissionCaseUpsert) UpdateMemory() *SubmissionCaseUpsert {
 }
 
 // AddMemory adds v to the "memory" field.
-func (u *SubmissionCaseUpsert) AddMemory(v int32) *SubmissionCaseUpsert {
+func (u *SubmissionCaseUpsert) AddMemory(v uint64) *SubmissionCaseUpsert {
 	u.Add(submissioncase.FieldMemory, v)
 	return u
 }
 
-// SetSubmissionID sets the "submission_id" field.
-func (u *SubmissionCaseUpsert) SetSubmissionID(v int64) *SubmissionCaseUpsert {
-	u.Set(submissioncase.FieldSubmissionID, v)
+// SetStdout sets the "stdout" field.
+func (u *SubmissionCaseUpsert) SetStdout(v string) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldStdout, v)
 	return u
 }
 
-// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsert) UpdateSubmissionID() *SubmissionCaseUpsert {
-	u.SetExcluded(submissioncase.FieldSubmissionID)
+// UpdateStdout sets the "stdout" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateStdout() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldStdout)
 	return u
 }
 
-// SetProblemCaseID sets the "problem_case_id" field.
-func (u *SubmissionCaseUpsert) SetProblemCaseID(v int64) *SubmissionCaseUpsert {
-	u.Set(submissioncase.FieldProblemCaseID, v)
+// SetStderr sets the "stderr" field.
+func (u *SubmissionCaseUpsert) SetStderr(v string) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldStderr, v)
 	return u
 }
 
-// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsert) UpdateProblemCaseID() *SubmissionCaseUpsert {
-	u.SetExcluded(submissioncase.FieldProblemCaseID)
+// UpdateStderr sets the "stderr" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateStderr() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldStderr)
+	return u
+}
+
+// SetSubmissionSubtaskID sets the "submission_subtask_id" field.
+func (u *SubmissionCaseUpsert) SetSubmissionSubtaskID(v int64) *SubmissionCaseUpsert {
+	u.Set(submissioncase.FieldSubmissionSubtaskID, v)
+	return u
+}
+
+// UpdateSubmissionSubtaskID sets the "submission_subtask_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsert) UpdateSubmissionSubtaskID() *SubmissionCaseUpsert {
+	u.SetExcluded(submissioncase.FieldSubmissionSubtaskID)
 	return u
 }
 
@@ -485,29 +492,15 @@ func (u *SubmissionCaseUpsertOne) UpdatePoint() *SubmissionCaseUpsertOne {
 	})
 }
 
-// SetMessage sets the "message" field.
-func (u *SubmissionCaseUpsertOne) SetMessage(v string) *SubmissionCaseUpsertOne {
-	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetMessage(v)
-	})
-}
-
-// UpdateMessage sets the "message" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertOne) UpdateMessage() *SubmissionCaseUpsertOne {
-	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateMessage()
-	})
-}
-
 // SetTime sets the "time" field.
-func (u *SubmissionCaseUpsertOne) SetTime(v int32) *SubmissionCaseUpsertOne {
+func (u *SubmissionCaseUpsertOne) SetTime(v uint64) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.SetTime(v)
 	})
 }
 
 // AddTime adds v to the "time" field.
-func (u *SubmissionCaseUpsertOne) AddTime(v int32) *SubmissionCaseUpsertOne {
+func (u *SubmissionCaseUpsertOne) AddTime(v uint64) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.AddTime(v)
 	})
@@ -521,14 +514,14 @@ func (u *SubmissionCaseUpsertOne) UpdateTime() *SubmissionCaseUpsertOne {
 }
 
 // SetMemory sets the "memory" field.
-func (u *SubmissionCaseUpsertOne) SetMemory(v int32) *SubmissionCaseUpsertOne {
+func (u *SubmissionCaseUpsertOne) SetMemory(v uint64) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.SetMemory(v)
 	})
 }
 
 // AddMemory adds v to the "memory" field.
-func (u *SubmissionCaseUpsertOne) AddMemory(v int32) *SubmissionCaseUpsertOne {
+func (u *SubmissionCaseUpsertOne) AddMemory(v uint64) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.AddMemory(v)
 	})
@@ -541,31 +534,45 @@ func (u *SubmissionCaseUpsertOne) UpdateMemory() *SubmissionCaseUpsertOne {
 	})
 }
 
-// SetSubmissionID sets the "submission_id" field.
-func (u *SubmissionCaseUpsertOne) SetSubmissionID(v int64) *SubmissionCaseUpsertOne {
+// SetStdout sets the "stdout" field.
+func (u *SubmissionCaseUpsertOne) SetStdout(v string) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetSubmissionID(v)
+		s.SetStdout(v)
 	})
 }
 
-// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertOne) UpdateSubmissionID() *SubmissionCaseUpsertOne {
+// UpdateStdout sets the "stdout" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateStdout() *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateSubmissionID()
+		s.UpdateStdout()
 	})
 }
 
-// SetProblemCaseID sets the "problem_case_id" field.
-func (u *SubmissionCaseUpsertOne) SetProblemCaseID(v int64) *SubmissionCaseUpsertOne {
+// SetStderr sets the "stderr" field.
+func (u *SubmissionCaseUpsertOne) SetStderr(v string) *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetProblemCaseID(v)
+		s.SetStderr(v)
 	})
 }
 
-// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertOne) UpdateProblemCaseID() *SubmissionCaseUpsertOne {
+// UpdateStderr sets the "stderr" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateStderr() *SubmissionCaseUpsertOne {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateProblemCaseID()
+		s.UpdateStderr()
+	})
+}
+
+// SetSubmissionSubtaskID sets the "submission_subtask_id" field.
+func (u *SubmissionCaseUpsertOne) SetSubmissionSubtaskID(v int64) *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetSubmissionSubtaskID(v)
+	})
+}
+
+// UpdateSubmissionSubtaskID sets the "submission_subtask_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertOne) UpdateSubmissionSubtaskID() *SubmissionCaseUpsertOne {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateSubmissionSubtaskID()
 	})
 }
 
@@ -621,6 +628,7 @@ func (sccb *SubmissionCaseCreateBulk) Save(ctx context.Context) ([]*SubmissionCa
 	for i := range sccb.builders {
 		func(i int, root context.Context) {
 			builder := sccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SubmissionCaseMutation)
 				if !ok {
@@ -824,29 +832,15 @@ func (u *SubmissionCaseUpsertBulk) UpdatePoint() *SubmissionCaseUpsertBulk {
 	})
 }
 
-// SetMessage sets the "message" field.
-func (u *SubmissionCaseUpsertBulk) SetMessage(v string) *SubmissionCaseUpsertBulk {
-	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetMessage(v)
-	})
-}
-
-// UpdateMessage sets the "message" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertBulk) UpdateMessage() *SubmissionCaseUpsertBulk {
-	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateMessage()
-	})
-}
-
 // SetTime sets the "time" field.
-func (u *SubmissionCaseUpsertBulk) SetTime(v int32) *SubmissionCaseUpsertBulk {
+func (u *SubmissionCaseUpsertBulk) SetTime(v uint64) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.SetTime(v)
 	})
 }
 
 // AddTime adds v to the "time" field.
-func (u *SubmissionCaseUpsertBulk) AddTime(v int32) *SubmissionCaseUpsertBulk {
+func (u *SubmissionCaseUpsertBulk) AddTime(v uint64) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.AddTime(v)
 	})
@@ -860,14 +854,14 @@ func (u *SubmissionCaseUpsertBulk) UpdateTime() *SubmissionCaseUpsertBulk {
 }
 
 // SetMemory sets the "memory" field.
-func (u *SubmissionCaseUpsertBulk) SetMemory(v int32) *SubmissionCaseUpsertBulk {
+func (u *SubmissionCaseUpsertBulk) SetMemory(v uint64) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.SetMemory(v)
 	})
 }
 
 // AddMemory adds v to the "memory" field.
-func (u *SubmissionCaseUpsertBulk) AddMemory(v int32) *SubmissionCaseUpsertBulk {
+func (u *SubmissionCaseUpsertBulk) AddMemory(v uint64) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
 		s.AddMemory(v)
 	})
@@ -880,31 +874,45 @@ func (u *SubmissionCaseUpsertBulk) UpdateMemory() *SubmissionCaseUpsertBulk {
 	})
 }
 
-// SetSubmissionID sets the "submission_id" field.
-func (u *SubmissionCaseUpsertBulk) SetSubmissionID(v int64) *SubmissionCaseUpsertBulk {
+// SetStdout sets the "stdout" field.
+func (u *SubmissionCaseUpsertBulk) SetStdout(v string) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetSubmissionID(v)
+		s.SetStdout(v)
 	})
 }
 
-// UpdateSubmissionID sets the "submission_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertBulk) UpdateSubmissionID() *SubmissionCaseUpsertBulk {
+// UpdateStdout sets the "stdout" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateStdout() *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateSubmissionID()
+		s.UpdateStdout()
 	})
 }
 
-// SetProblemCaseID sets the "problem_case_id" field.
-func (u *SubmissionCaseUpsertBulk) SetProblemCaseID(v int64) *SubmissionCaseUpsertBulk {
+// SetStderr sets the "stderr" field.
+func (u *SubmissionCaseUpsertBulk) SetStderr(v string) *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.SetProblemCaseID(v)
+		s.SetStderr(v)
 	})
 }
 
-// UpdateProblemCaseID sets the "problem_case_id" field to the value that was provided on create.
-func (u *SubmissionCaseUpsertBulk) UpdateProblemCaseID() *SubmissionCaseUpsertBulk {
+// UpdateStderr sets the "stderr" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateStderr() *SubmissionCaseUpsertBulk {
 	return u.Update(func(s *SubmissionCaseUpsert) {
-		s.UpdateProblemCaseID()
+		s.UpdateStderr()
+	})
+}
+
+// SetSubmissionSubtaskID sets the "submission_subtask_id" field.
+func (u *SubmissionCaseUpsertBulk) SetSubmissionSubtaskID(v int64) *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.SetSubmissionSubtaskID(v)
+	})
+}
+
+// UpdateSubmissionSubtaskID sets the "submission_subtask_id" field to the value that was provided on create.
+func (u *SubmissionCaseUpsertBulk) UpdateSubmissionSubtaskID() *SubmissionCaseUpsertBulk {
+	return u.Update(func(s *SubmissionCaseUpsert) {
+		s.UpdateSubmissionSubtaskID()
 	})
 }
 

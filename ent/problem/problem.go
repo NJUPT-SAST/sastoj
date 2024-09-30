@@ -3,6 +3,8 @@
 package problem
 
 import (
+	"fmt"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -12,47 +14,42 @@ const (
 	Label = "problem"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldProblemTypeID holds the string denoting the problem_type_id field in the database.
+	FieldProblemTypeID = "problem_type_id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// FieldPoint holds the string denoting the point field in the database.
-	FieldPoint = "point"
+	// FieldScore holds the string denoting the score field in the database.
+	FieldScore = "score"
 	// FieldCaseVersion holds the string denoting the case_version field in the database.
 	FieldCaseVersion = "case_version"
 	// FieldIndex holds the string denoting the index field in the database.
 	FieldIndex = "index"
-	// FieldRestrictPresentation holds the string denoting the restrict_presentation field in the database.
-	FieldRestrictPresentation = "restrict_presentation"
+	// FieldCompareType holds the string denoting the compare_type field in the database.
+	FieldCompareType = "compare_type"
 	// FieldIsDeleted holds the string denoting the is_deleted field in the database.
 	FieldIsDeleted = "is_deleted"
-	// FieldConfig holds the string denoting the config field in the database.
-	FieldConfig = "config"
 	// FieldContestID holds the string denoting the contest_id field in the database.
 	FieldContestID = "contest_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldVisibility holds the string denoting the visibility field in the database.
 	FieldVisibility = "visibility"
-	// EdgeProblemCases holds the string denoting the problem_cases edge name in mutations.
-	EdgeProblemCases = "problem_cases"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// EdgeSubmission holds the string denoting the submission edge name in mutations.
 	EdgeSubmission = "submission"
-	// EdgeContests holds the string denoting the contests edge name in mutations.
-	EdgeContests = "contests"
+	// EdgeContest holds the string denoting the contest edge name in mutations.
+	EdgeContest = "contest"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
-	// EdgeJudgers holds the string denoting the judgers edge name in mutations.
-	EdgeJudgers = "judgers"
+	// EdgeProblemType holds the string denoting the problem_type edge name in mutations.
+	EdgeProblemType = "problem_type"
+	// EdgeAdjudicators holds the string denoting the adjudicators edge name in mutations.
+	EdgeAdjudicators = "adjudicators"
 	// Table holds the table name of the problem in the database.
 	Table = "problems"
-	// ProblemCasesTable is the table that holds the problem_cases relation/edge.
-	ProblemCasesTable = "problem_cases"
-	// ProblemCasesInverseTable is the table name for the ProblemCase entity.
-	// It exists in this package in order to avoid circular dependency with the "problemcase" package.
-	ProblemCasesInverseTable = "problem_cases"
-	// ProblemCasesColumn is the table column denoting the problem_cases relation/edge.
-	ProblemCasesColumn = "problem_id"
 	// SubmissionTable is the table that holds the submission relation/edge.
 	SubmissionTable = "submissions"
 	// SubmissionInverseTable is the table name for the Submission entity.
@@ -60,13 +57,13 @@ const (
 	SubmissionInverseTable = "submissions"
 	// SubmissionColumn is the table column denoting the submission relation/edge.
 	SubmissionColumn = "problem_id"
-	// ContestsTable is the table that holds the contests relation/edge.
-	ContestsTable = "problems"
-	// ContestsInverseTable is the table name for the Contest entity.
+	// ContestTable is the table that holds the contest relation/edge.
+	ContestTable = "problems"
+	// ContestInverseTable is the table name for the Contest entity.
 	// It exists in this package in order to avoid circular dependency with the "contest" package.
-	ContestsInverseTable = "contests"
-	// ContestsColumn is the table column denoting the contests relation/edge.
-	ContestsColumn = "contest_id"
+	ContestInverseTable = "contests"
+	// ContestColumn is the table column denoting the contest relation/edge.
+	ContestColumn = "contest_id"
 	// OwnerTable is the table that holds the owner relation/edge.
 	OwnerTable = "problems"
 	// OwnerInverseTable is the table name for the User entity.
@@ -74,33 +71,41 @@ const (
 	OwnerInverseTable = "users"
 	// OwnerColumn is the table column denoting the owner relation/edge.
 	OwnerColumn = "user_id"
-	// JudgersTable is the table that holds the judgers relation/edge. The primary key declared below.
-	JudgersTable = "problem_judgers"
-	// JudgersInverseTable is the table name for the Group entity.
+	// ProblemTypeTable is the table that holds the problem_type relation/edge.
+	ProblemTypeTable = "problems"
+	// ProblemTypeInverseTable is the table name for the ProblemType entity.
+	// It exists in this package in order to avoid circular dependency with the "problemtype" package.
+	ProblemTypeInverseTable = "problem_types"
+	// ProblemTypeColumn is the table column denoting the problem_type relation/edge.
+	ProblemTypeColumn = "problem_type_id"
+	// AdjudicatorsTable is the table that holds the adjudicators relation/edge. The primary key declared below.
+	AdjudicatorsTable = "problem_adjudicators"
+	// AdjudicatorsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
-	JudgersInverseTable = "groups"
+	AdjudicatorsInverseTable = "groups"
 )
 
 // Columns holds all SQL columns for problem fields.
 var Columns = []string{
 	FieldID,
+	FieldProblemTypeID,
 	FieldTitle,
 	FieldContent,
-	FieldPoint,
+	FieldScore,
 	FieldCaseVersion,
 	FieldIndex,
-	FieldRestrictPresentation,
+	FieldCompareType,
 	FieldIsDeleted,
-	FieldConfig,
 	FieldContestID,
 	FieldUserID,
 	FieldVisibility,
+	FieldMetadata,
 }
 
 var (
-	// JudgersPrimaryKey and JudgersColumn2 are the table columns denoting the
-	// primary key for the judgers relation (M2M).
-	JudgersPrimaryKey = []string{"problem_id", "group_id"}
+	// AdjudicatorsPrimaryKey and AdjudicatorsColumn2 are the table columns denoting the
+	// primary key for the adjudicators relation (M2M).
+	AdjudicatorsPrimaryKey = []string{"problem_id", "group_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -114,19 +119,70 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// PointValidator is a validator for the "point" field. It is called by the builders before save.
-	PointValidator func(int16) error
+	// ScoreValidator is a validator for the "score" field. It is called by the builders before save.
+	ScoreValidator func(int16) error
 	// DefaultCaseVersion holds the default value on creation for the "case_version" field.
 	DefaultCaseVersion int16
 	// IndexValidator is a validator for the "index" field. It is called by the builders before save.
 	IndexValidator func(int16) error
-	// DefaultRestrictPresentation holds the default value on creation for the "restrict_presentation" field.
-	DefaultRestrictPresentation bool
 	// DefaultIsDeleted holds the default value on creation for the "is_deleted" field.
 	DefaultIsDeleted bool
-	// DefaultVisibility holds the default value on creation for the "visibility" field.
-	DefaultVisibility int8
+	// DefaultMetadata holds the default value on creation for the "metadata" field.
+	DefaultMetadata map[string]string
 )
+
+// CompareType defines the type for the "compare_type" enum field.
+type CompareType string
+
+// CompareTypeSTRICT is the default value of the CompareType enum.
+const DefaultCompareType = CompareTypeSTRICT
+
+// CompareType values.
+const (
+	CompareTypeSTRICT                                   CompareType = "STRICT"
+	CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER CompareType = "IGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER"
+)
+
+func (ct CompareType) String() string {
+	return string(ct)
+}
+
+// CompareTypeValidator is a validator for the "compare_type" field enum values. It is called by the builders before save.
+func CompareTypeValidator(ct CompareType) error {
+	switch ct {
+	case CompareTypeSTRICT, CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for compare_type field: %q", ct)
+	}
+}
+
+// Visibility defines the type for the "visibility" enum field.
+type Visibility string
+
+// VisibilityPRIVATE is the default value of the Visibility enum.
+const DefaultVisibility = VisibilityPRIVATE
+
+// Visibility values.
+const (
+	VisibilityPRIVATE Visibility = "PRIVATE"
+	VisibilityPUBLIC  Visibility = "PUBLIC"
+	VisibilityCONTEST Visibility = "CONTEST"
+)
+
+func (v Visibility) String() string {
+	return string(v)
+}
+
+// VisibilityValidator is a validator for the "visibility" field enum values. It is called by the builders before save.
+func VisibilityValidator(v Visibility) error {
+	switch v {
+	case VisibilityPRIVATE, VisibilityPUBLIC, VisibilityCONTEST:
+		return nil
+	default:
+		return fmt.Errorf("problem: invalid enum value for visibility field: %q", v)
+	}
+}
 
 // OrderOption defines the ordering options for the Problem queries.
 type OrderOption func(*sql.Selector)
@@ -134,6 +190,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByProblemTypeID orders the results by the problem_type_id field.
+func ByProblemTypeID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProblemTypeID, opts...).ToFunc()
 }
 
 // ByTitle orders the results by the title field.
@@ -146,9 +207,9 @@ func ByContent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContent, opts...).ToFunc()
 }
 
-// ByPoint orders the results by the point field.
-func ByPoint(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPoint, opts...).ToFunc()
+// ByScore orders the results by the score field.
+func ByScore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScore, opts...).ToFunc()
 }
 
 // ByCaseVersion orders the results by the case_version field.
@@ -161,19 +222,14 @@ func ByIndex(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIndex, opts...).ToFunc()
 }
 
-// ByRestrictPresentation orders the results by the restrict_presentation field.
-func ByRestrictPresentation(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRestrictPresentation, opts...).ToFunc()
+// ByCompareType orders the results by the compare_type field.
+func ByCompareType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompareType, opts...).ToFunc()
 }
 
 // ByIsDeleted orders the results by the is_deleted field.
 func ByIsDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsDeleted, opts...).ToFunc()
-}
-
-// ByConfig orders the results by the config field.
-func ByConfig(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldConfig, opts...).ToFunc()
 }
 
 // ByContestID orders the results by the contest_id field.
@@ -191,20 +247,6 @@ func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
 }
 
-// ByProblemCasesCount orders the results by problem_cases count.
-func ByProblemCasesCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newProblemCasesStep(), opts...)
-	}
-}
-
-// ByProblemCases orders the results by problem_cases terms.
-func ByProblemCases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProblemCasesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // BySubmissionCount orders the results by submission count.
 func BySubmissionCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -219,10 +261,10 @@ func BySubmission(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByContestsField orders the results by contests field.
-func ByContestsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByContestField orders the results by contest field.
+func ByContestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newContestsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newContestStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -233,25 +275,25 @@ func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByJudgersCount orders the results by judgers count.
-func ByJudgersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByProblemTypeField orders the results by problem_type field.
+func ByProblemTypeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newJudgersStep(), opts...)
+		sqlgraph.OrderByNeighborTerms(s, newProblemTypeStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByJudgers orders the results by judgers terms.
-func ByJudgers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByAdjudicatorsCount orders the results by adjudicators count.
+func ByAdjudicatorsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newJudgersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborsCount(s, newAdjudicatorsStep(), opts...)
 	}
 }
-func newProblemCasesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ProblemCasesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ProblemCasesTable, ProblemCasesColumn),
-	)
+
+// ByAdjudicators orders the results by adjudicators terms.
+func ByAdjudicators(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAdjudicatorsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
 }
 func newSubmissionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -260,11 +302,11 @@ func newSubmissionStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, SubmissionTable, SubmissionColumn),
 	)
 }
-func newContestsStep() *sqlgraph.Step {
+func newContestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ContestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+		sqlgraph.To(ContestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
 	)
 }
 func newOwnerStep() *sqlgraph.Step {
@@ -274,10 +316,17 @@ func newOwnerStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
 	)
 }
-func newJudgersStep() *sqlgraph.Step {
+func newProblemTypeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(JudgersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, JudgersTable, JudgersPrimaryKey...),
+		sqlgraph.To(ProblemTypeInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProblemTypeTable, ProblemTypeColumn),
+	)
+}
+func newAdjudicatorsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AdjudicatorsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, AdjudicatorsTable, AdjudicatorsPrimaryKey...),
 	)
 }

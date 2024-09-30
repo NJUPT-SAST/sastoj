@@ -21,18 +21,20 @@ type Submission struct {
 	ID int64 `json:"id,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
-	// Status holds the value of the "status" field.
-	Status int16 `json:"status,omitempty"`
-	// CompileMessage holds the value of the "compile_message" field.
-	CompileMessage string `json:"compile_message,omitempty"`
+	// State holds the value of the "state" field.
+	State int16 `json:"state,omitempty"`
+	// CompileStdout holds the value of the "compile_stdout" field.
+	CompileStdout string `json:"compile_stdout,omitempty"`
+	// CompileStderr holds the value of the "compile_stderr" field.
+	CompileStderr string `json:"compile_stderr,omitempty"`
 	// Point holds the value of the "point" field.
 	Point int16 `json:"point,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// TotalTime holds the value of the "total_time" field.
-	TotalTime int32 `json:"total_time,omitempty"`
+	TotalTime uint64 `json:"total_time,omitempty"`
 	// MaxMemory holds the value of the "max_memory" field.
-	MaxMemory int32 `json:"max_memory,omitempty"`
+	MaxMemory uint64 `json:"max_memory,omitempty"`
 	// Language holds the value of the "language" field.
 	Language string `json:"language,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
@@ -49,8 +51,8 @@ type Submission struct {
 
 // SubmissionEdges holds the relations/edges for other nodes in the graph.
 type SubmissionEdges struct {
-	// SubmissionCases holds the value of the submission_cases edge.
-	SubmissionCases []*SubmissionCase `json:"submission_cases,omitempty"`
+	// SubmissionSubtasks holds the value of the submission_subtasks edge.
+	SubmissionSubtasks []*SubmissionSubtask `json:"submission_subtasks,omitempty"`
 	// Problems holds the value of the problems edge.
 	Problems *Problem `json:"problems,omitempty"`
 	// Users holds the value of the users edge.
@@ -62,13 +64,13 @@ type SubmissionEdges struct {
 	loadedTypes [4]bool
 }
 
-// SubmissionCasesOrErr returns the SubmissionCases value or an error if the edge
+// SubmissionSubtasksOrErr returns the SubmissionSubtasks value or an error if the edge
 // was not loaded in eager-loading.
-func (e SubmissionEdges) SubmissionCasesOrErr() ([]*SubmissionCase, error) {
+func (e SubmissionEdges) SubmissionSubtasksOrErr() ([]*SubmissionSubtask, error) {
 	if e.loadedTypes[0] {
-		return e.SubmissionCases, nil
+		return e.SubmissionSubtasks, nil
 	}
-	return nil, &NotLoadedError{edge: "submission_cases"}
+	return nil, &NotLoadedError{edge: "submission_subtasks"}
 }
 
 // ProblemsOrErr returns the Problems value or an error if the edge
@@ -111,9 +113,9 @@ func (*Submission) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case submission.FieldID, submission.FieldStatus, submission.FieldPoint, submission.FieldTotalTime, submission.FieldMaxMemory, submission.FieldCaseVersion, submission.FieldProblemID, submission.FieldUserID:
+		case submission.FieldID, submission.FieldState, submission.FieldPoint, submission.FieldTotalTime, submission.FieldMaxMemory, submission.FieldCaseVersion, submission.FieldProblemID, submission.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case submission.FieldCode, submission.FieldCompileMessage, submission.FieldLanguage:
+		case submission.FieldCode, submission.FieldCompileStdout, submission.FieldCompileStderr, submission.FieldLanguage:
 			values[i] = new(sql.NullString)
 		case submission.FieldCreateTime:
 			values[i] = new(sql.NullTime)
@@ -144,17 +146,23 @@ func (s *Submission) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Code = value.String
 			}
-		case submission.FieldStatus:
+		case submission.FieldState:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field status", values[i])
+				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
-				s.Status = int16(value.Int64)
+				s.State = int16(value.Int64)
 			}
-		case submission.FieldCompileMessage:
+		case submission.FieldCompileStdout:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field compile_message", values[i])
+				return fmt.Errorf("unexpected type %T for field compile_stdout", values[i])
 			} else if value.Valid {
-				s.CompileMessage = value.String
+				s.CompileStdout = value.String
+			}
+		case submission.FieldCompileStderr:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field compile_stderr", values[i])
+			} else if value.Valid {
+				s.CompileStderr = value.String
 			}
 		case submission.FieldPoint:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -172,13 +180,13 @@ func (s *Submission) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_time", values[i])
 			} else if value.Valid {
-				s.TotalTime = int32(value.Int64)
+				s.TotalTime = uint64(value.Int64)
 			}
 		case submission.FieldMaxMemory:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_memory", values[i])
 			} else if value.Valid {
-				s.MaxMemory = int32(value.Int64)
+				s.MaxMemory = uint64(value.Int64)
 			}
 		case submission.FieldLanguage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -217,9 +225,9 @@ func (s *Submission) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QuerySubmissionCases queries the "submission_cases" edge of the Submission entity.
-func (s *Submission) QuerySubmissionCases() *SubmissionCaseQuery {
-	return NewSubmissionClient(s.config).QuerySubmissionCases(s)
+// QuerySubmissionSubtasks queries the "submission_subtasks" edge of the Submission entity.
+func (s *Submission) QuerySubmissionSubtasks() *SubmissionSubtaskQuery {
+	return NewSubmissionClient(s.config).QuerySubmissionSubtasks(s)
 }
 
 // QueryProblems queries the "problems" edge of the Submission entity.
@@ -263,11 +271,14 @@ func (s *Submission) String() string {
 	builder.WriteString("code=")
 	builder.WriteString(s.Code)
 	builder.WriteString(", ")
-	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", s.Status))
+	builder.WriteString("state=")
+	builder.WriteString(fmt.Sprintf("%v", s.State))
 	builder.WriteString(", ")
-	builder.WriteString("compile_message=")
-	builder.WriteString(s.CompileMessage)
+	builder.WriteString("compile_stdout=")
+	builder.WriteString(s.CompileStdout)
+	builder.WriteString(", ")
+	builder.WriteString("compile_stderr=")
+	builder.WriteString(s.CompileStderr)
 	builder.WriteString(", ")
 	builder.WriteString("point=")
 	builder.WriteString(fmt.Sprintf("%v", s.Point))

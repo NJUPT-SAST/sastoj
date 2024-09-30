@@ -21,8 +21,8 @@ type Contest struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// Status holds the value of the "status" field.
-	Status int16 `json:"status,omitempty"`
+	// State holds the value of the "state" field.
+	State contest.State `json:"state,omitempty"`
 	// Type holds the value of the "type" field.
 	Type int16 `json:"type,omitempty"`
 	// StartTime holds the value of the "start_time" field.
@@ -97,9 +97,9 @@ func (*Contest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case contest.FieldID, contest.FieldStatus, contest.FieldType, contest.FieldExtraTime:
+		case contest.FieldID, contest.FieldType, contest.FieldExtraTime:
 			values[i] = new(sql.NullInt64)
-		case contest.FieldTitle, contest.FieldDescription, contest.FieldLanguage:
+		case contest.FieldTitle, contest.FieldDescription, contest.FieldState, contest.FieldLanguage:
 			values[i] = new(sql.NullString)
 		case contest.FieldStartTime, contest.FieldEndTime, contest.FieldCreateTime:
 			values[i] = new(sql.NullTime)
@@ -136,11 +136,11 @@ func (c *Contest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Description = value.String
 			}
-		case contest.FieldStatus:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field status", values[i])
+		case contest.FieldState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
-				c.Status = int16(value.Int64)
+				c.State = contest.State(value.String)
 			}
 		case contest.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -240,8 +240,8 @@ func (c *Contest) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(c.Description)
 	builder.WriteString(", ")
-	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", c.Status))
+	builder.WriteString("state=")
+	builder.WriteString(fmt.Sprintf("%v", c.State))
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", c.Type))

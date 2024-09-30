@@ -23,7 +23,7 @@ type Submission struct {
 
 func (s Submission) String() string {
 	return fmt.Sprintf(
-		"Submission{ID: %s, UserID: %d, ProblemID: %d, Code: %s, Status: %d, Point: %d, CreateTime: %s, TotalTime: %d, MaxMemory: %d, Language: %s, Stderr: %s, Token: %s}",
+		"Submission{ID: %s, UserId: %d, ProblemID: %d, Code: %s, Status: %d, Point: %d, CreateTime: %s, TotalTime: %d, MaxMemory: %d, Language: %s, Stderr: %s, Token: %s}",
 		s.ID,
 		s.UserID,
 		s.ProblemID,

@@ -37,9 +37,17 @@ func (cc *ContestCreate) SetDescription(s string) *ContestCreate {
 	return cc
 }
 
-// SetStatus sets the "status" field.
-func (cc *ContestCreate) SetStatus(i int16) *ContestCreate {
-	cc.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (cc *ContestCreate) SetState(c contest.State) *ContestCreate {
+	cc.mutation.SetState(c)
+	return cc
+}
+
+// SetNillableState sets the "state" field if the given value is not nil.
+func (cc *ContestCreate) SetNillableState(c *contest.State) *ContestCreate {
+	if c != nil {
+		cc.SetState(*c)
+	}
 	return cc
 }
 
@@ -196,6 +204,10 @@ func (cc *ContestCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *ContestCreate) defaults() {
+	if _, ok := cc.mutation.State(); !ok {
+		v := contest.DefaultState
+		cc.mutation.SetState(v)
+	}
 	if _, ok := cc.mutation.ExtraTime(); !ok {
 		v := contest.DefaultExtraTime
 		cc.mutation.SetExtraTime(v)
@@ -214,12 +226,12 @@ func (cc *ContestCreate) check() error {
 	if _, ok := cc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Contest.description"`)}
 	}
-	if _, ok := cc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Contest.status"`)}
+	if _, ok := cc.mutation.State(); !ok {
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Contest.state"`)}
 	}
-	if v, ok := cc.mutation.Status(); ok {
-		if err := contest.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
+	if v, ok := cc.mutation.State(); ok {
+		if err := contest.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
 		}
 	}
 	if _, ok := cc.mutation.GetType(); !ok {
@@ -291,9 +303,9 @@ func (cc *ContestCreate) createSpec() (*Contest, *sqlgraph.CreateSpec) {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := cc.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
-		_node.Status = value
+	if value, ok := cc.mutation.State(); ok {
+		_spec.SetField(contest.FieldState, field.TypeEnum, value)
+		_node.State = value
 	}
 	if value, ok := cc.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt16, value)
@@ -459,21 +471,15 @@ func (u *ContestUpsert) UpdateDescription() *ContestUpsert {
 	return u
 }
 
-// SetStatus sets the "status" field.
-func (u *ContestUpsert) SetStatus(v int16) *ContestUpsert {
-	u.Set(contest.FieldStatus, v)
+// SetState sets the "state" field.
+func (u *ContestUpsert) SetState(v contest.State) *ContestUpsert {
+	u.Set(contest.FieldState, v)
 	return u
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *ContestUpsert) UpdateStatus() *ContestUpsert {
-	u.SetExcluded(contest.FieldStatus)
-	return u
-}
-
-// AddStatus adds v to the "status" field.
-func (u *ContestUpsert) AddStatus(v int16) *ContestUpsert {
-	u.Add(contest.FieldStatus, v)
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *ContestUpsert) UpdateState() *ContestUpsert {
+	u.SetExcluded(contest.FieldState)
 	return u
 }
 
@@ -637,24 +643,17 @@ func (u *ContestUpsertOne) UpdateDescription() *ContestUpsertOne {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *ContestUpsertOne) SetStatus(v int16) *ContestUpsertOne {
+// SetState sets the "state" field.
+func (u *ContestUpsertOne) SetState(v contest.State) *ContestUpsertOne {
 	return u.Update(func(s *ContestUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *ContestUpsertOne) AddStatus(v int16) *ContestUpsertOne {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *ContestUpsertOne) UpdateState() *ContestUpsertOne {
 	return u.Update(func(s *ContestUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *ContestUpsertOne) UpdateStatus() *ContestUpsertOne {
-	return u.Update(func(s *ContestUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 
@@ -998,24 +997,17 @@ func (u *ContestUpsertBulk) UpdateDescription() *ContestUpsertBulk {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *ContestUpsertBulk) SetStatus(v int16) *ContestUpsertBulk {
+// SetState sets the "state" field.
+func (u *ContestUpsertBulk) SetState(v contest.State) *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *ContestUpsertBulk) AddStatus(v int16) *ContestUpsertBulk {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *ContestUpsertBulk) UpdateState() *ContestUpsertBulk {
 	return u.Update(func(s *ContestUpsert) {
-		s.AddStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *ContestUpsertBulk) UpdateStatus() *ContestUpsertBulk {
-	return u.Update(func(s *ContestUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 

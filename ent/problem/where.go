@@ -54,6 +54,11 @@ func IDLTE(id int64) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldID, id))
 }
 
+// ProblemTypeID applies equality check predicate on the "problem_type_id" field. It's identical to ProblemTypeIDEQ.
+func ProblemTypeID(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldProblemTypeID, v))
+}
+
 // Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
 func Title(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldTitle, v))
@@ -64,9 +69,9 @@ func Content(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldContent, v))
 }
 
-// Point applies equality check predicate on the "point" field. It's identical to PointEQ.
-func Point(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldPoint, v))
+// Score applies equality check predicate on the "score" field. It's identical to ScoreEQ.
+func Score(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldScore, v))
 }
 
 // CaseVersion applies equality check predicate on the "case_version" field. It's identical to CaseVersionEQ.
@@ -79,19 +84,9 @@ func Index(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIndex, v))
 }
 
-// RestrictPresentation applies equality check predicate on the "restrict_presentation" field. It's identical to RestrictPresentationEQ.
-func RestrictPresentation(v bool) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldRestrictPresentation, v))
-}
-
 // IsDeleted applies equality check predicate on the "is_deleted" field. It's identical to IsDeletedEQ.
 func IsDeleted(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldIsDeleted, v))
-}
-
-// Config applies equality check predicate on the "config" field. It's identical to ConfigEQ.
-func Config(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldConfig, v))
 }
 
 // ContestID applies equality check predicate on the "contest_id" field. It's identical to ContestIDEQ.
@@ -104,9 +99,24 @@ func UserID(v int64) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldUserID, v))
 }
 
-// Visibility applies equality check predicate on the "visibility" field. It's identical to VisibilityEQ.
-func Visibility(v int8) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldVisibility, v))
+// ProblemTypeIDEQ applies the EQ predicate on the "problem_type_id" field.
+func ProblemTypeIDEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldProblemTypeID, v))
+}
+
+// ProblemTypeIDNEQ applies the NEQ predicate on the "problem_type_id" field.
+func ProblemTypeIDNEQ(v int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldProblemTypeID, v))
+}
+
+// ProblemTypeIDIn applies the In predicate on the "problem_type_id" field.
+func ProblemTypeIDIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldProblemTypeID, vs...))
+}
+
+// ProblemTypeIDNotIn applies the NotIn predicate on the "problem_type_id" field.
+func ProblemTypeIDNotIn(vs ...int64) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldProblemTypeID, vs...))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -239,44 +249,44 @@ func ContentContainsFold(v string) predicate.Problem {
 	return predicate.Problem(sql.FieldContainsFold(FieldContent, v))
 }
 
-// PointEQ applies the EQ predicate on the "point" field.
-func PointEQ(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldPoint, v))
+// ScoreEQ applies the EQ predicate on the "score" field.
+func ScoreEQ(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldScore, v))
 }
 
-// PointNEQ applies the NEQ predicate on the "point" field.
-func PointNEQ(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldPoint, v))
+// ScoreNEQ applies the NEQ predicate on the "score" field.
+func ScoreNEQ(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldScore, v))
 }
 
-// PointIn applies the In predicate on the "point" field.
-func PointIn(vs ...int16) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldPoint, vs...))
+// ScoreIn applies the In predicate on the "score" field.
+func ScoreIn(vs ...int16) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldScore, vs...))
 }
 
-// PointNotIn applies the NotIn predicate on the "point" field.
-func PointNotIn(vs ...int16) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldPoint, vs...))
+// ScoreNotIn applies the NotIn predicate on the "score" field.
+func ScoreNotIn(vs ...int16) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldScore, vs...))
 }
 
-// PointGT applies the GT predicate on the "point" field.
-func PointGT(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldPoint, v))
+// ScoreGT applies the GT predicate on the "score" field.
+func ScoreGT(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldGT(FieldScore, v))
 }
 
-// PointGTE applies the GTE predicate on the "point" field.
-func PointGTE(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldPoint, v))
+// ScoreGTE applies the GTE predicate on the "score" field.
+func ScoreGTE(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldGTE(FieldScore, v))
 }
 
-// PointLT applies the LT predicate on the "point" field.
-func PointLT(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldPoint, v))
+// ScoreLT applies the LT predicate on the "score" field.
+func ScoreLT(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldLT(FieldScore, v))
 }
 
-// PointLTE applies the LTE predicate on the "point" field.
-func PointLTE(v int16) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldPoint, v))
+// ScoreLTE applies the LTE predicate on the "score" field.
+func ScoreLTE(v int16) predicate.Problem {
+	return predicate.Problem(sql.FieldLTE(FieldScore, v))
 }
 
 // CaseVersionEQ applies the EQ predicate on the "case_version" field.
@@ -359,14 +369,24 @@ func IndexLTE(v int16) predicate.Problem {
 	return predicate.Problem(sql.FieldLTE(FieldIndex, v))
 }
 
-// RestrictPresentationEQ applies the EQ predicate on the "restrict_presentation" field.
-func RestrictPresentationEQ(v bool) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldRestrictPresentation, v))
+// CompareTypeEQ applies the EQ predicate on the "compare_type" field.
+func CompareTypeEQ(v CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldEQ(FieldCompareType, v))
 }
 
-// RestrictPresentationNEQ applies the NEQ predicate on the "restrict_presentation" field.
-func RestrictPresentationNEQ(v bool) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldRestrictPresentation, v))
+// CompareTypeNEQ applies the NEQ predicate on the "compare_type" field.
+func CompareTypeNEQ(v CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldNEQ(FieldCompareType, v))
+}
+
+// CompareTypeIn applies the In predicate on the "compare_type" field.
+func CompareTypeIn(vs ...CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldIn(FieldCompareType, vs...))
+}
+
+// CompareTypeNotIn applies the NotIn predicate on the "compare_type" field.
+func CompareTypeNotIn(vs ...CompareType) predicate.Problem {
+	return predicate.Problem(sql.FieldNotIn(FieldCompareType, vs...))
 }
 
 // IsDeletedEQ applies the EQ predicate on the "is_deleted" field.
@@ -377,71 +397,6 @@ func IsDeletedEQ(v bool) predicate.Problem {
 // IsDeletedNEQ applies the NEQ predicate on the "is_deleted" field.
 func IsDeletedNEQ(v bool) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldIsDeleted, v))
-}
-
-// ConfigEQ applies the EQ predicate on the "config" field.
-func ConfigEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEQ(FieldConfig, v))
-}
-
-// ConfigNEQ applies the NEQ predicate on the "config" field.
-func ConfigNEQ(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldNEQ(FieldConfig, v))
-}
-
-// ConfigIn applies the In predicate on the "config" field.
-func ConfigIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldIn(FieldConfig, vs...))
-}
-
-// ConfigNotIn applies the NotIn predicate on the "config" field.
-func ConfigNotIn(vs ...string) predicate.Problem {
-	return predicate.Problem(sql.FieldNotIn(FieldConfig, vs...))
-}
-
-// ConfigGT applies the GT predicate on the "config" field.
-func ConfigGT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldConfig, v))
-}
-
-// ConfigGTE applies the GTE predicate on the "config" field.
-func ConfigGTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldConfig, v))
-}
-
-// ConfigLT applies the LT predicate on the "config" field.
-func ConfigLT(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldConfig, v))
-}
-
-// ConfigLTE applies the LTE predicate on the "config" field.
-func ConfigLTE(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldConfig, v))
-}
-
-// ConfigContains applies the Contains predicate on the "config" field.
-func ConfigContains(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContains(FieldConfig, v))
-}
-
-// ConfigHasPrefix applies the HasPrefix predicate on the "config" field.
-func ConfigHasPrefix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasPrefix(FieldConfig, v))
-}
-
-// ConfigHasSuffix applies the HasSuffix predicate on the "config" field.
-func ConfigHasSuffix(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldHasSuffix(FieldConfig, v))
-}
-
-// ConfigEqualFold applies the EqualFold predicate on the "config" field.
-func ConfigEqualFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldEqualFold(FieldConfig, v))
-}
-
-// ConfigContainsFold applies the ContainsFold predicate on the "config" field.
-func ConfigContainsFold(v string) predicate.Problem {
-	return predicate.Problem(sql.FieldContainsFold(FieldConfig, v))
 }
 
 // ContestIDEQ applies the EQ predicate on the "contest_id" field.
@@ -485,66 +440,23 @@ func UserIDNotIn(vs ...int64) predicate.Problem {
 }
 
 // VisibilityEQ applies the EQ predicate on the "visibility" field.
-func VisibilityEQ(v int8) predicate.Problem {
+func VisibilityEQ(v Visibility) predicate.Problem {
 	return predicate.Problem(sql.FieldEQ(FieldVisibility, v))
 }
 
 // VisibilityNEQ applies the NEQ predicate on the "visibility" field.
-func VisibilityNEQ(v int8) predicate.Problem {
+func VisibilityNEQ(v Visibility) predicate.Problem {
 	return predicate.Problem(sql.FieldNEQ(FieldVisibility, v))
 }
 
 // VisibilityIn applies the In predicate on the "visibility" field.
-func VisibilityIn(vs ...int8) predicate.Problem {
+func VisibilityIn(vs ...Visibility) predicate.Problem {
 	return predicate.Problem(sql.FieldIn(FieldVisibility, vs...))
 }
 
 // VisibilityNotIn applies the NotIn predicate on the "visibility" field.
-func VisibilityNotIn(vs ...int8) predicate.Problem {
+func VisibilityNotIn(vs ...Visibility) predicate.Problem {
 	return predicate.Problem(sql.FieldNotIn(FieldVisibility, vs...))
-}
-
-// VisibilityGT applies the GT predicate on the "visibility" field.
-func VisibilityGT(v int8) predicate.Problem {
-	return predicate.Problem(sql.FieldGT(FieldVisibility, v))
-}
-
-// VisibilityGTE applies the GTE predicate on the "visibility" field.
-func VisibilityGTE(v int8) predicate.Problem {
-	return predicate.Problem(sql.FieldGTE(FieldVisibility, v))
-}
-
-// VisibilityLT applies the LT predicate on the "visibility" field.
-func VisibilityLT(v int8) predicate.Problem {
-	return predicate.Problem(sql.FieldLT(FieldVisibility, v))
-}
-
-// VisibilityLTE applies the LTE predicate on the "visibility" field.
-func VisibilityLTE(v int8) predicate.Problem {
-	return predicate.Problem(sql.FieldLTE(FieldVisibility, v))
-}
-
-// HasProblemCases applies the HasEdge predicate on the "problem_cases" edge.
-func HasProblemCases() predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProblemCasesTable, ProblemCasesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProblemCasesWith applies the HasEdge predicate on the "problem_cases" edge with a given conditions (other predicates).
-func HasProblemCasesWith(preds ...predicate.ProblemCase) predicate.Problem {
-	return predicate.Problem(func(s *sql.Selector) {
-		step := newProblemCasesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // HasSubmission applies the HasEdge predicate on the "submission" edge.
@@ -570,21 +482,21 @@ func HasSubmissionWith(preds ...predicate.Submission) predicate.Problem {
 	})
 }
 
-// HasContests applies the HasEdge predicate on the "contests" edge.
-func HasContests() predicate.Problem {
+// HasContest applies the HasEdge predicate on the "contest" edge.
+func HasContest() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ContestsTable, ContestsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ContestTable, ContestColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasContestsWith applies the HasEdge predicate on the "contests" edge with a given conditions (other predicates).
-func HasContestsWith(preds ...predicate.Contest) predicate.Problem {
+// HasContestWith applies the HasEdge predicate on the "contest" edge with a given conditions (other predicates).
+func HasContestWith(preds ...predicate.Contest) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
-		step := newContestsStep()
+		step := newContestStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -616,21 +528,44 @@ func HasOwnerWith(preds ...predicate.User) predicate.Problem {
 	})
 }
 
-// HasJudgers applies the HasEdge predicate on the "judgers" edge.
-func HasJudgers() predicate.Problem {
+// HasProblemType applies the HasEdge predicate on the "problem_type" edge.
+func HasProblemType() predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, JudgersTable, JudgersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProblemTypeTable, ProblemTypeColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasJudgersWith applies the HasEdge predicate on the "judgers" edge with a given conditions (other predicates).
-func HasJudgersWith(preds ...predicate.Group) predicate.Problem {
+// HasProblemTypeWith applies the HasEdge predicate on the "problem_type" edge with a given conditions (other predicates).
+func HasProblemTypeWith(preds ...predicate.ProblemType) predicate.Problem {
 	return predicate.Problem(func(s *sql.Selector) {
-		step := newJudgersStep()
+		step := newProblemTypeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAdjudicators applies the HasEdge predicate on the "adjudicators" edge.
+func HasAdjudicators() predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, AdjudicatorsTable, AdjudicatorsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAdjudicatorsWith applies the HasEdge predicate on the "adjudicators" edge with a given conditions (other predicates).
+func HasAdjudicatorsWith(preds ...predicate.Group) predicate.Problem {
+	return predicate.Problem(func(s *sql.Selector) {
+		step := newAdjudicatorsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

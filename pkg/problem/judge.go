@@ -6,21 +6,21 @@ import (
 )
 
 type Judge interface {
-	judging([]bool) ([]int16, error)
+	judging([]bool) (taskPoint int16, casesPoint []int16, err error)
 }
 
-func Judging(cases []bool, tasks *util.Task) ([]int16, error) {
+func Judging(cases []bool, taskType string, subtask util.Subtasks) (taskPoint int16, casesPoint []int16, err error) {
 	var judgeObj Judge
 	if len(cases) == 0 {
-		return nil, errors.New("no cases found")
+		return 0, nil, errors.New("no cases found")
 	}
-	switch tasks.TaskType {
+	switch taskType {
 	case "simple":
-		judgeObj = &SimpleTask{task: tasks.Cases}
+		judgeObj = &SimpleTask{task: subtask}
 	case "subtasks":
-		judgeObj = &SubtaskMin{subtasks: tasks.Subtasks}
+		judgeObj = &SubtaskMin{subtasks: subtask}
 	default:
-		return nil, errors.New("unknown task type")
+		return 0, nil, errors.New("unknown task type")
 	}
 	return judgeObj.judging(cases)
 }

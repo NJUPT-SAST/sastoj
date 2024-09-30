@@ -2,10 +2,9 @@ package biz
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"sastoj/app/public/auth/internal/conf"
+	"sastoj/pkg/util"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -19,21 +18,20 @@ type User struct {
 	Password  string
 	Salt      string
 	Status    int16
-	GroupID   int64
+	GroupIds  []int64
 	GroupName string
 }
 type MyCustomClaims struct {
-	UserId     int64   `json:"user_id"`
-	GroupId    int64   `json:"group_id"`
-	GroupName  string  `json:"group_name"`
-	ContestIds []int64 `json:"contest_ids"`
+	UserId    int64   `json:"user_id"`
+	GroupIds  []int64 `json:"group_ids"`
+	GroupName string  `json:"group_name"`
 	jwt.RegisteredClaims
 }
 
 // AuthRepo is a user and contest repo.
 type AuthRepo interface {
 	FindUserByName(context.Context, string) (*User, error)
-	GetContests(ctx context.Context, groupID int64) ([]int64, error)
+	GetContests(ctx context.Context, groupIds []int64) ([]int64, error)
 }
 
 type jwtConfig struct {
@@ -75,32 +73,17 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	if err != nil {
 		return "", errors.New("user or password is wrong")
 	}
-	if !verifyPassword(password, user.Salt, user.Password) {
+	if !util.VerifyPassword(password, user.Salt, user.Password) {
 		return "", errors.New("user or password is wrong")
 	}
-	contestIDs, err := uc.repo.GetContests(ctx, user.GroupID)
-	if err != nil {
-		return "", err
-	}
-	j, err := uc.generateJWT(user, contestIDs)
+	j, err := uc.generateJWT(user)
 	if err != nil {
 		return "", err
 	}
 	return j, nil
 }
 
-func generateMD5Password(password string, salt string) string {
-	hash := md5.New()
-	hash.Write([]byte(password + salt))
-	hashBytes := hash.Sum(nil)
-	hashString := hex.EncodeToString(hashBytes)
-	return hashString
-}
-
-func verifyPassword(password string, salt string, hash string) bool {
-	return generateMD5Password(password, salt) == hash
-}
-func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, error) {
+func (uc *AuthUsecase) generateJWT(user *User) (string, error) {
 	// 设置声明（Claims）
 	registeredClaims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(uc.jwtConf.expiration)),
@@ -112,9 +95,8 @@ func (uc *AuthUsecase) generateJWT(user *User, contestIds []int64) (string, erro
 	}
 	claims := MyCustomClaims{
 		UserId:           user.ID,
-		GroupId:          user.GroupID,
+		GroupIds:         user.GroupIds,
 		GroupName:        user.GroupName,
-		ContestIds:       contestIds,
 		RegisteredClaims: registeredClaims,
 	}
 	// 使用密钥对 Token 进行签名，生成最终的 JWT

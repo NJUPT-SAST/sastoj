@@ -4,7 +4,6 @@ package ent
 
 import (
 	"fmt"
-	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"strings"
 
@@ -23,10 +22,8 @@ type User struct {
 	Password string `json:"password,omitempty"`
 	// Salt holds the value of the "salt" field.
 	Salt string `json:"salt,omitempty"`
-	// Status holds the value of the "status" field.
-	Status int16 `json:"status,omitempty"`
-	// GroupID holds the value of the "group_id" field.
-	GroupID int64 `json:"group_id,omitempty"`
+	// State holds the value of the "state" field.
+	State user.State `json:"state,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -42,7 +39,7 @@ type UserEdges struct {
 	// OwnedProblems holds the value of the owned_problems edge.
 	OwnedProblems []*Problem `json:"owned_problems,omitempty"`
 	// Groups holds the value of the groups edge.
-	Groups *Group `json:"groups,omitempty"`
+	Groups []*Group `json:"groups,omitempty"`
 	// ContestResults holds the value of the contest_results edge.
 	ContestResults []*ContestResult `json:"contest_results,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -78,13 +75,9 @@ func (e UserEdges) OwnedProblemsOrErr() ([]*Problem, error) {
 }
 
 // GroupsOrErr returns the Groups value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) GroupsOrErr() (*Group, error) {
+// was not loaded in eager-loading.
+func (e UserEdges) GroupsOrErr() ([]*Group, error) {
 	if e.loadedTypes[3] {
-		if e.Groups == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: group.Label}
-		}
 		return e.Groups, nil
 	}
 	return nil, &NotLoadedError{edge: "groups"}
@@ -104,9 +97,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldStatus, user.FieldGroupID:
+		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldUsername, user.FieldPassword, user.FieldSalt:
+		case user.FieldUsername, user.FieldPassword, user.FieldSalt, user.FieldState:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -147,17 +140,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Salt = value.String
 			}
-		case user.FieldStatus:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field status", values[i])
+		case user.FieldState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
-				u.Status = int16(value.Int64)
-			}
-		case user.FieldGroupID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field group_id", values[i])
-			} else if value.Valid {
-				u.GroupID = value.Int64
+				u.State = user.State(value.String)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -229,11 +216,8 @@ func (u *User) String() string {
 	builder.WriteString("salt=")
 	builder.WriteString(u.Salt)
 	builder.WriteString(", ")
-	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", u.Status))
-	builder.WriteString(", ")
-	builder.WriteString("group_id=")
-	builder.WriteString(fmt.Sprintf("%v", u.GroupID))
+	builder.WriteString("state=")
+	builder.WriteString(fmt.Sprintf("%v", u.State))
 	builder.WriteByte(')')
 	return builder.String()
 }

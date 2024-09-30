@@ -3,9 +3,11 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/problemtype"
 	"sastoj/ent/user"
 	"strings"
 
@@ -18,28 +20,30 @@ type Problem struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int64 `json:"id,omitempty"`
+	// ProblemTypeID holds the value of the "problem_type_id" field.
+	ProblemTypeID int64 `json:"problem_type_id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
-	// Point holds the value of the "point" field.
-	Point int16 `json:"point,omitempty"`
+	// Score holds the value of the "score" field.
+	Score int16 `json:"score,omitempty"`
 	// CaseVersion holds the value of the "case_version" field.
 	CaseVersion int16 `json:"case_version,omitempty"`
 	// Index holds the value of the "index" field.
 	Index int16 `json:"index,omitempty"`
-	// RestrictPresentation holds the value of the "restrict_presentation" field.
-	RestrictPresentation bool `json:"restrict_presentation,omitempty"`
+	// CompareType holds the value of the "compare_type" field.
+	CompareType problem.CompareType `json:"compare_type,omitempty"`
 	// IsDeleted holds the value of the "is_deleted" field.
 	IsDeleted bool `json:"is_deleted,omitempty"`
-	// Config holds the value of the "config" field.
-	Config string `json:"config,omitempty"`
 	// ContestID holds the value of the "contest_id" field.
 	ContestID int64 `json:"contest_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID int64 `json:"user_id,omitempty"`
-	// private:0 pub:1 contest:2
-	Visibility int8 `json:"visibility,omitempty"`
+	// Visibility holds the value of the "visibility" field.
+	Visibility problem.Visibility `json:"visibility,omitempty"`
+	// Metadata like 'allowed languages' of the problem.
+	Metadata map[string]string `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProblemQuery when eager-loading is set.
 	Edges        ProblemEdges `json:"edges"`
@@ -48,56 +52,47 @@ type Problem struct {
 
 // ProblemEdges holds the relations/edges for other nodes in the graph.
 type ProblemEdges struct {
-	// ProblemCases holds the value of the problem_cases edge.
-	ProblemCases []*ProblemCase `json:"problem_cases,omitempty"`
 	// Submission holds the value of the submission edge.
 	Submission []*Submission `json:"submission,omitempty"`
-	// Contests holds the value of the contests edge.
-	Contests *Contest `json:"contests,omitempty"`
+	// Contest holds the value of the contest edge.
+	Contest *Contest `json:"contest,omitempty"`
 	// Owner holds the value of the owner edge.
 	Owner *User `json:"owner,omitempty"`
-	// Judgers holds the value of the judgers edge.
-	Judgers []*Group `json:"judgers,omitempty"`
+	// ProblemType holds the value of the problem_type edge.
+	ProblemType *ProblemType `json:"problem_type,omitempty"`
+	// Adjudicators holds the value of the adjudicators edge.
+	Adjudicators []*Group `json:"adjudicators,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [5]bool
 }
 
-// ProblemCasesOrErr returns the ProblemCases value or an error if the edge
-// was not loaded in eager-loading.
-func (e ProblemEdges) ProblemCasesOrErr() ([]*ProblemCase, error) {
-	if e.loadedTypes[0] {
-		return e.ProblemCases, nil
-	}
-	return nil, &NotLoadedError{edge: "problem_cases"}
-}
-
 // SubmissionOrErr returns the Submission value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProblemEdges) SubmissionOrErr() ([]*Submission, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.Submission, nil
 	}
 	return nil, &NotLoadedError{edge: "submission"}
 }
 
-// ContestsOrErr returns the Contests value or an error if the edge
+// ContestOrErr returns the Contest value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProblemEdges) ContestsOrErr() (*Contest, error) {
-	if e.loadedTypes[2] {
-		if e.Contests == nil {
+func (e ProblemEdges) ContestOrErr() (*Contest, error) {
+	if e.loadedTypes[1] {
+		if e.Contest == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: contest.Label}
 		}
-		return e.Contests, nil
+		return e.Contest, nil
 	}
-	return nil, &NotLoadedError{edge: "contests"}
+	return nil, &NotLoadedError{edge: "contest"}
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProblemEdges) OwnerOrErr() (*User, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[2] {
 		if e.Owner == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: user.Label}
@@ -107,13 +102,26 @@ func (e ProblemEdges) OwnerOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "owner"}
 }
 
-// JudgersOrErr returns the Judgers value or an error if the edge
-// was not loaded in eager-loading.
-func (e ProblemEdges) JudgersOrErr() ([]*Group, error) {
-	if e.loadedTypes[4] {
-		return e.Judgers, nil
+// ProblemTypeOrErr returns the ProblemType value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ProblemEdges) ProblemTypeOrErr() (*ProblemType, error) {
+	if e.loadedTypes[3] {
+		if e.ProblemType == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: problemtype.Label}
+		}
+		return e.ProblemType, nil
 	}
-	return nil, &NotLoadedError{edge: "judgers"}
+	return nil, &NotLoadedError{edge: "problem_type"}
+}
+
+// AdjudicatorsOrErr returns the Adjudicators value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProblemEdges) AdjudicatorsOrErr() ([]*Group, error) {
+	if e.loadedTypes[4] {
+		return e.Adjudicators, nil
+	}
+	return nil, &NotLoadedError{edge: "adjudicators"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -121,11 +129,13 @@ func (*Problem) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case problem.FieldRestrictPresentation, problem.FieldIsDeleted:
+		case problem.FieldMetadata:
+			values[i] = new([]byte)
+		case problem.FieldIsDeleted:
 			values[i] = new(sql.NullBool)
-		case problem.FieldID, problem.FieldPoint, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID, problem.FieldUserID, problem.FieldVisibility:
+		case problem.FieldID, problem.FieldProblemTypeID, problem.FieldScore, problem.FieldCaseVersion, problem.FieldIndex, problem.FieldContestID, problem.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case problem.FieldTitle, problem.FieldContent, problem.FieldConfig:
+		case problem.FieldTitle, problem.FieldContent, problem.FieldCompareType, problem.FieldVisibility:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -148,6 +158,12 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			pr.ID = int64(value.Int64)
+		case problem.FieldProblemTypeID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field problem_type_id", values[i])
+			} else if value.Valid {
+				pr.ProblemTypeID = value.Int64
+			}
 		case problem.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
@@ -160,11 +176,11 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Content = value.String
 			}
-		case problem.FieldPoint:
+		case problem.FieldScore:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field point", values[i])
+				return fmt.Errorf("unexpected type %T for field score", values[i])
 			} else if value.Valid {
-				pr.Point = int16(value.Int64)
+				pr.Score = int16(value.Int64)
 			}
 		case problem.FieldCaseVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -178,23 +194,17 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Index = int16(value.Int64)
 			}
-		case problem.FieldRestrictPresentation:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field restrict_presentation", values[i])
+		case problem.FieldCompareType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field compare_type", values[i])
 			} else if value.Valid {
-				pr.RestrictPresentation = value.Bool
+				pr.CompareType = problem.CompareType(value.String)
 			}
 		case problem.FieldIsDeleted:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_deleted", values[i])
 			} else if value.Valid {
 				pr.IsDeleted = value.Bool
-			}
-		case problem.FieldConfig:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field config", values[i])
-			} else if value.Valid {
-				pr.Config = value.String
 			}
 		case problem.FieldContestID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -209,10 +219,18 @@ func (pr *Problem) assignValues(columns []string, values []any) error {
 				pr.UserID = value.Int64
 			}
 		case problem.FieldVisibility:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field visibility", values[i])
 			} else if value.Valid {
-				pr.Visibility = int8(value.Int64)
+				pr.Visibility = problem.Visibility(value.String)
+			}
+		case problem.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
@@ -227,19 +245,14 @@ func (pr *Problem) Value(name string) (ent.Value, error) {
 	return pr.selectValues.Get(name)
 }
 
-// QueryProblemCases queries the "problem_cases" edge of the Problem entity.
-func (pr *Problem) QueryProblemCases() *ProblemCaseQuery {
-	return NewProblemClient(pr.config).QueryProblemCases(pr)
-}
-
 // QuerySubmission queries the "submission" edge of the Problem entity.
 func (pr *Problem) QuerySubmission() *SubmissionQuery {
 	return NewProblemClient(pr.config).QuerySubmission(pr)
 }
 
-// QueryContests queries the "contests" edge of the Problem entity.
-func (pr *Problem) QueryContests() *ContestQuery {
-	return NewProblemClient(pr.config).QueryContests(pr)
+// QueryContest queries the "contest" edge of the Problem entity.
+func (pr *Problem) QueryContest() *ContestQuery {
+	return NewProblemClient(pr.config).QueryContest(pr)
 }
 
 // QueryOwner queries the "owner" edge of the Problem entity.
@@ -247,9 +260,14 @@ func (pr *Problem) QueryOwner() *UserQuery {
 	return NewProblemClient(pr.config).QueryOwner(pr)
 }
 
-// QueryJudgers queries the "judgers" edge of the Problem entity.
-func (pr *Problem) QueryJudgers() *GroupQuery {
-	return NewProblemClient(pr.config).QueryJudgers(pr)
+// QueryProblemType queries the "problem_type" edge of the Problem entity.
+func (pr *Problem) QueryProblemType() *ProblemTypeQuery {
+	return NewProblemClient(pr.config).QueryProblemType(pr)
+}
+
+// QueryAdjudicators queries the "adjudicators" edge of the Problem entity.
+func (pr *Problem) QueryAdjudicators() *GroupQuery {
+	return NewProblemClient(pr.config).QueryAdjudicators(pr)
 }
 
 // Update returns a builder for updating this Problem.
@@ -275,14 +293,17 @@ func (pr *Problem) String() string {
 	var builder strings.Builder
 	builder.WriteString("Problem(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", pr.ID))
+	builder.WriteString("problem_type_id=")
+	builder.WriteString(fmt.Sprintf("%v", pr.ProblemTypeID))
+	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(pr.Title)
 	builder.WriteString(", ")
 	builder.WriteString("content=")
 	builder.WriteString(pr.Content)
 	builder.WriteString(", ")
-	builder.WriteString("point=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Point))
+	builder.WriteString("score=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Score))
 	builder.WriteString(", ")
 	builder.WriteString("case_version=")
 	builder.WriteString(fmt.Sprintf("%v", pr.CaseVersion))
@@ -290,14 +311,11 @@ func (pr *Problem) String() string {
 	builder.WriteString("index=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Index))
 	builder.WriteString(", ")
-	builder.WriteString("restrict_presentation=")
-	builder.WriteString(fmt.Sprintf("%v", pr.RestrictPresentation))
+	builder.WriteString("compare_type=")
+	builder.WriteString(fmt.Sprintf("%v", pr.CompareType))
 	builder.WriteString(", ")
 	builder.WriteString("is_deleted=")
 	builder.WriteString(fmt.Sprintf("%v", pr.IsDeleted))
-	builder.WriteString(", ")
-	builder.WriteString("config=")
-	builder.WriteString(pr.Config)
 	builder.WriteString(", ")
 	builder.WriteString("contest_id=")
 	builder.WriteString(fmt.Sprintf("%v", pr.ContestID))
@@ -307,6 +325,9 @@ func (pr *Problem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("visibility=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Visibility))
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -9,7 +9,7 @@ import (
 	"sastoj/ent/contestresult"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
-	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"sastoj/ent/user"
 	"time"
 
@@ -32,22 +32,36 @@ func (sc *SubmissionCreate) SetCode(s string) *SubmissionCreate {
 	return sc
 }
 
-// SetStatus sets the "status" field.
-func (sc *SubmissionCreate) SetStatus(i int16) *SubmissionCreate {
-	sc.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (sc *SubmissionCreate) SetState(i int16) *SubmissionCreate {
+	sc.mutation.SetState(i)
 	return sc
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (sc *SubmissionCreate) SetCompileMessage(s string) *SubmissionCreate {
-	sc.mutation.SetCompileMessage(s)
+// SetCompileStdout sets the "compile_stdout" field.
+func (sc *SubmissionCreate) SetCompileStdout(s string) *SubmissionCreate {
+	sc.mutation.SetCompileStdout(s)
 	return sc
 }
 
-// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
-func (sc *SubmissionCreate) SetNillableCompileMessage(s *string) *SubmissionCreate {
+// SetNillableCompileStdout sets the "compile_stdout" field if the given value is not nil.
+func (sc *SubmissionCreate) SetNillableCompileStdout(s *string) *SubmissionCreate {
 	if s != nil {
-		sc.SetCompileMessage(*s)
+		sc.SetCompileStdout(*s)
+	}
+	return sc
+}
+
+// SetCompileStderr sets the "compile_stderr" field.
+func (sc *SubmissionCreate) SetCompileStderr(s string) *SubmissionCreate {
+	sc.mutation.SetCompileStderr(s)
+	return sc
+}
+
+// SetNillableCompileStderr sets the "compile_stderr" field if the given value is not nil.
+func (sc *SubmissionCreate) SetNillableCompileStderr(s *string) *SubmissionCreate {
+	if s != nil {
+		sc.SetCompileStderr(*s)
 	}
 	return sc
 }
@@ -73,14 +87,14 @@ func (sc *SubmissionCreate) SetNillableCreateTime(t *time.Time) *SubmissionCreat
 }
 
 // SetTotalTime sets the "total_time" field.
-func (sc *SubmissionCreate) SetTotalTime(i int32) *SubmissionCreate {
-	sc.mutation.SetTotalTime(i)
+func (sc *SubmissionCreate) SetTotalTime(u uint64) *SubmissionCreate {
+	sc.mutation.SetTotalTime(u)
 	return sc
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (sc *SubmissionCreate) SetMaxMemory(i int32) *SubmissionCreate {
-	sc.mutation.SetMaxMemory(i)
+func (sc *SubmissionCreate) SetMaxMemory(u uint64) *SubmissionCreate {
+	sc.mutation.SetMaxMemory(u)
 	return sc
 }
 
@@ -114,19 +128,19 @@ func (sc *SubmissionCreate) SetID(i int64) *SubmissionCreate {
 	return sc
 }
 
-// AddSubmissionCaseIDs adds the "submission_cases" edge to the SubmissionCase entity by IDs.
-func (sc *SubmissionCreate) AddSubmissionCaseIDs(ids ...int64) *SubmissionCreate {
-	sc.mutation.AddSubmissionCaseIDs(ids...)
+// AddSubmissionSubtaskIDs adds the "submission_subtasks" edge to the SubmissionSubtask entity by IDs.
+func (sc *SubmissionCreate) AddSubmissionSubtaskIDs(ids ...int64) *SubmissionCreate {
+	sc.mutation.AddSubmissionSubtaskIDs(ids...)
 	return sc
 }
 
-// AddSubmissionCases adds the "submission_cases" edges to the SubmissionCase entity.
-func (sc *SubmissionCreate) AddSubmissionCases(s ...*SubmissionCase) *SubmissionCreate {
+// AddSubmissionSubtasks adds the "submission_subtasks" edges to the SubmissionSubtask entity.
+func (sc *SubmissionCreate) AddSubmissionSubtasks(s ...*SubmissionSubtask) *SubmissionCreate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return sc.AddSubmissionCaseIDs(ids...)
+	return sc.AddSubmissionSubtaskIDs(ids...)
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
@@ -201,6 +215,14 @@ func (sc *SubmissionCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (sc *SubmissionCreate) defaults() {
+	if _, ok := sc.mutation.CompileStdout(); !ok {
+		v := submission.DefaultCompileStdout
+		sc.mutation.SetCompileStdout(v)
+	}
+	if _, ok := sc.mutation.CompileStderr(); !ok {
+		v := submission.DefaultCompileStderr
+		sc.mutation.SetCompileStderr(v)
+	}
 	if _, ok := sc.mutation.CreateTime(); !ok {
 		v := submission.DefaultCreateTime
 		sc.mutation.SetCreateTime(v)
@@ -212,8 +234,14 @@ func (sc *SubmissionCreate) check() error {
 	if _, ok := sc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Submission.code"`)}
 	}
-	if _, ok := sc.mutation.Status(); !ok {
-		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Submission.status"`)}
+	if _, ok := sc.mutation.State(); !ok {
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Submission.state"`)}
+	}
+	if _, ok := sc.mutation.CompileStdout(); !ok {
+		return &ValidationError{Name: "compile_stdout", err: errors.New(`ent: missing required field "Submission.compile_stdout"`)}
+	}
+	if _, ok := sc.mutation.CompileStderr(); !ok {
+		return &ValidationError{Name: "compile_stderr", err: errors.New(`ent: missing required field "Submission.compile_stderr"`)}
 	}
 	if _, ok := sc.mutation.Point(); !ok {
 		return &ValidationError{Name: "point", err: errors.New(`ent: missing required field "Submission.point"`)}
@@ -282,13 +310,17 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_spec.SetField(submission.FieldCode, field.TypeString, value)
 		_node.Code = value
 	}
-	if value, ok := sc.mutation.Status(); ok {
-		_spec.SetField(submission.FieldStatus, field.TypeInt16, value)
-		_node.Status = value
+	if value, ok := sc.mutation.State(); ok {
+		_spec.SetField(submission.FieldState, field.TypeInt16, value)
+		_node.State = value
 	}
-	if value, ok := sc.mutation.CompileMessage(); ok {
-		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
-		_node.CompileMessage = value
+	if value, ok := sc.mutation.CompileStdout(); ok {
+		_spec.SetField(submission.FieldCompileStdout, field.TypeString, value)
+		_node.CompileStdout = value
+	}
+	if value, ok := sc.mutation.CompileStderr(); ok {
+		_spec.SetField(submission.FieldCompileStderr, field.TypeString, value)
+		_node.CompileStderr = value
 	}
 	if value, ok := sc.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
@@ -299,11 +331,11 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_node.CreateTime = value
 	}
 	if value, ok := sc.mutation.TotalTime(); ok {
-		_spec.SetField(submission.FieldTotalTime, field.TypeInt32, value)
+		_spec.SetField(submission.FieldTotalTime, field.TypeUint64, value)
 		_node.TotalTime = value
 	}
 	if value, ok := sc.mutation.MaxMemory(); ok {
-		_spec.SetField(submission.FieldMaxMemory, field.TypeInt32, value)
+		_spec.SetField(submission.FieldMaxMemory, field.TypeUint64, value)
 		_node.MaxMemory = value
 	}
 	if value, ok := sc.mutation.Language(); ok {
@@ -314,15 +346,15 @@ func (sc *SubmissionCreate) createSpec() (*Submission, *sqlgraph.CreateSpec) {
 		_spec.SetField(submission.FieldCaseVersion, field.TypeInt8, value)
 		_node.CaseVersion = value
 	}
-	if nodes := sc.mutation.SubmissionCasesIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.SubmissionSubtasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -444,39 +476,45 @@ func (u *SubmissionUpsert) UpdateCode() *SubmissionUpsert {
 	return u
 }
 
-// SetStatus sets the "status" field.
-func (u *SubmissionUpsert) SetStatus(v int16) *SubmissionUpsert {
-	u.Set(submission.FieldStatus, v)
+// SetState sets the "state" field.
+func (u *SubmissionUpsert) SetState(v int16) *SubmissionUpsert {
+	u.Set(submission.FieldState, v)
 	return u
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateStatus() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldStatus)
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateState() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldState)
 	return u
 }
 
-// AddStatus adds v to the "status" field.
-func (u *SubmissionUpsert) AddStatus(v int16) *SubmissionUpsert {
-	u.Add(submission.FieldStatus, v)
+// AddState adds v to the "state" field.
+func (u *SubmissionUpsert) AddState(v int16) *SubmissionUpsert {
+	u.Add(submission.FieldState, v)
 	return u
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (u *SubmissionUpsert) SetCompileMessage(v string) *SubmissionUpsert {
-	u.Set(submission.FieldCompileMessage, v)
+// SetCompileStdout sets the "compile_stdout" field.
+func (u *SubmissionUpsert) SetCompileStdout(v string) *SubmissionUpsert {
+	u.Set(submission.FieldCompileStdout, v)
 	return u
 }
 
-// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
-func (u *SubmissionUpsert) UpdateCompileMessage() *SubmissionUpsert {
-	u.SetExcluded(submission.FieldCompileMessage)
+// UpdateCompileStdout sets the "compile_stdout" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCompileStdout() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCompileStdout)
 	return u
 }
 
-// ClearCompileMessage clears the value of the "compile_message" field.
-func (u *SubmissionUpsert) ClearCompileMessage() *SubmissionUpsert {
-	u.SetNull(submission.FieldCompileMessage)
+// SetCompileStderr sets the "compile_stderr" field.
+func (u *SubmissionUpsert) SetCompileStderr(v string) *SubmissionUpsert {
+	u.Set(submission.FieldCompileStderr, v)
+	return u
+}
+
+// UpdateCompileStderr sets the "compile_stderr" field to the value that was provided on create.
+func (u *SubmissionUpsert) UpdateCompileStderr() *SubmissionUpsert {
+	u.SetExcluded(submission.FieldCompileStderr)
 	return u
 }
 
@@ -511,7 +549,7 @@ func (u *SubmissionUpsert) UpdateCreateTime() *SubmissionUpsert {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (u *SubmissionUpsert) SetTotalTime(v int32) *SubmissionUpsert {
+func (u *SubmissionUpsert) SetTotalTime(v uint64) *SubmissionUpsert {
 	u.Set(submission.FieldTotalTime, v)
 	return u
 }
@@ -523,13 +561,13 @@ func (u *SubmissionUpsert) UpdateTotalTime() *SubmissionUpsert {
 }
 
 // AddTotalTime adds v to the "total_time" field.
-func (u *SubmissionUpsert) AddTotalTime(v int32) *SubmissionUpsert {
+func (u *SubmissionUpsert) AddTotalTime(v uint64) *SubmissionUpsert {
 	u.Add(submission.FieldTotalTime, v)
 	return u
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (u *SubmissionUpsert) SetMaxMemory(v int32) *SubmissionUpsert {
+func (u *SubmissionUpsert) SetMaxMemory(v uint64) *SubmissionUpsert {
 	u.Set(submission.FieldMaxMemory, v)
 	return u
 }
@@ -541,7 +579,7 @@ func (u *SubmissionUpsert) UpdateMaxMemory() *SubmissionUpsert {
 }
 
 // AddMaxMemory adds v to the "max_memory" field.
-func (u *SubmissionUpsert) AddMaxMemory(v int32) *SubmissionUpsert {
+func (u *SubmissionUpsert) AddMaxMemory(v uint64) *SubmissionUpsert {
 	u.Add(submission.FieldMaxMemory, v)
 	return u
 }
@@ -662,45 +700,52 @@ func (u *SubmissionUpsertOne) UpdateCode() *SubmissionUpsertOne {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *SubmissionUpsertOne) SetStatus(v int16) *SubmissionUpsertOne {
+// SetState sets the "state" field.
+func (u *SubmissionUpsertOne) SetState(v int16) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *SubmissionUpsertOne) AddStatus(v int16) *SubmissionUpsertOne {
+// AddState adds v to the "state" field.
+func (u *SubmissionUpsertOne) AddState(v int16) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.AddStatus(v)
+		s.AddState(v)
 	})
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateStatus() *SubmissionUpsertOne {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateState() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (u *SubmissionUpsertOne) SetCompileMessage(v string) *SubmissionUpsertOne {
+// SetCompileStdout sets the "compile_stdout" field.
+func (u *SubmissionUpsertOne) SetCompileStdout(v string) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetCompileMessage(v)
+		s.SetCompileStdout(v)
 	})
 }
 
-// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
-func (u *SubmissionUpsertOne) UpdateCompileMessage() *SubmissionUpsertOne {
+// UpdateCompileStdout sets the "compile_stdout" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCompileStdout() *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateCompileMessage()
+		s.UpdateCompileStdout()
 	})
 }
 
-// ClearCompileMessage clears the value of the "compile_message" field.
-func (u *SubmissionUpsertOne) ClearCompileMessage() *SubmissionUpsertOne {
+// SetCompileStderr sets the "compile_stderr" field.
+func (u *SubmissionUpsertOne) SetCompileStderr(v string) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.ClearCompileMessage()
+		s.SetCompileStderr(v)
+	})
+}
+
+// UpdateCompileStderr sets the "compile_stderr" field to the value that was provided on create.
+func (u *SubmissionUpsertOne) UpdateCompileStderr() *SubmissionUpsertOne {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCompileStderr()
 	})
 }
 
@@ -740,14 +785,14 @@ func (u *SubmissionUpsertOne) UpdateCreateTime() *SubmissionUpsertOne {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (u *SubmissionUpsertOne) SetTotalTime(v int32) *SubmissionUpsertOne {
+func (u *SubmissionUpsertOne) SetTotalTime(v uint64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetTotalTime(v)
 	})
 }
 
 // AddTotalTime adds v to the "total_time" field.
-func (u *SubmissionUpsertOne) AddTotalTime(v int32) *SubmissionUpsertOne {
+func (u *SubmissionUpsertOne) AddTotalTime(v uint64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.AddTotalTime(v)
 	})
@@ -761,14 +806,14 @@ func (u *SubmissionUpsertOne) UpdateTotalTime() *SubmissionUpsertOne {
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (u *SubmissionUpsertOne) SetMaxMemory(v int32) *SubmissionUpsertOne {
+func (u *SubmissionUpsertOne) SetMaxMemory(v uint64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetMaxMemory(v)
 	})
 }
 
 // AddMaxMemory adds v to the "max_memory" field.
-func (u *SubmissionUpsertOne) AddMaxMemory(v int32) *SubmissionUpsertOne {
+func (u *SubmissionUpsertOne) AddMaxMemory(v uint64) *SubmissionUpsertOne {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.AddMaxMemory(v)
 	})
@@ -1072,45 +1117,52 @@ func (u *SubmissionUpsertBulk) UpdateCode() *SubmissionUpsertBulk {
 	})
 }
 
-// SetStatus sets the "status" field.
-func (u *SubmissionUpsertBulk) SetStatus(v int16) *SubmissionUpsertBulk {
+// SetState sets the "state" field.
+func (u *SubmissionUpsertBulk) SetState(v int16) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetStatus(v)
+		s.SetState(v)
 	})
 }
 
-// AddStatus adds v to the "status" field.
-func (u *SubmissionUpsertBulk) AddStatus(v int16) *SubmissionUpsertBulk {
+// AddState adds v to the "state" field.
+func (u *SubmissionUpsertBulk) AddState(v int16) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.AddStatus(v)
+		s.AddState(v)
 	})
 }
 
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateStatus() *SubmissionUpsertBulk {
+// UpdateState sets the "state" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateState() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateStatus()
+		s.UpdateState()
 	})
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (u *SubmissionUpsertBulk) SetCompileMessage(v string) *SubmissionUpsertBulk {
+// SetCompileStdout sets the "compile_stdout" field.
+func (u *SubmissionUpsertBulk) SetCompileStdout(v string) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.SetCompileMessage(v)
+		s.SetCompileStdout(v)
 	})
 }
 
-// UpdateCompileMessage sets the "compile_message" field to the value that was provided on create.
-func (u *SubmissionUpsertBulk) UpdateCompileMessage() *SubmissionUpsertBulk {
+// UpdateCompileStdout sets the "compile_stdout" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCompileStdout() *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.UpdateCompileMessage()
+		s.UpdateCompileStdout()
 	})
 }
 
-// ClearCompileMessage clears the value of the "compile_message" field.
-func (u *SubmissionUpsertBulk) ClearCompileMessage() *SubmissionUpsertBulk {
+// SetCompileStderr sets the "compile_stderr" field.
+func (u *SubmissionUpsertBulk) SetCompileStderr(v string) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
-		s.ClearCompileMessage()
+		s.SetCompileStderr(v)
+	})
+}
+
+// UpdateCompileStderr sets the "compile_stderr" field to the value that was provided on create.
+func (u *SubmissionUpsertBulk) UpdateCompileStderr() *SubmissionUpsertBulk {
+	return u.Update(func(s *SubmissionUpsert) {
+		s.UpdateCompileStderr()
 	})
 }
 
@@ -1150,14 +1202,14 @@ func (u *SubmissionUpsertBulk) UpdateCreateTime() *SubmissionUpsertBulk {
 }
 
 // SetTotalTime sets the "total_time" field.
-func (u *SubmissionUpsertBulk) SetTotalTime(v int32) *SubmissionUpsertBulk {
+func (u *SubmissionUpsertBulk) SetTotalTime(v uint64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetTotalTime(v)
 	})
 }
 
 // AddTotalTime adds v to the "total_time" field.
-func (u *SubmissionUpsertBulk) AddTotalTime(v int32) *SubmissionUpsertBulk {
+func (u *SubmissionUpsertBulk) AddTotalTime(v uint64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.AddTotalTime(v)
 	})
@@ -1171,14 +1223,14 @@ func (u *SubmissionUpsertBulk) UpdateTotalTime() *SubmissionUpsertBulk {
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (u *SubmissionUpsertBulk) SetMaxMemory(v int32) *SubmissionUpsertBulk {
+func (u *SubmissionUpsertBulk) SetMaxMemory(v uint64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.SetMaxMemory(v)
 	})
 }
 
 // AddMaxMemory adds v to the "max_memory" field.
-func (u *SubmissionUpsertBulk) AddMaxMemory(v int32) *SubmissionUpsertBulk {
+func (u *SubmissionUpsertBulk) AddMaxMemory(v uint64) *SubmissionUpsertBulk {
 	return u.Update(func(s *SubmissionUpsert) {
 		s.AddMaxMemory(v)
 	})

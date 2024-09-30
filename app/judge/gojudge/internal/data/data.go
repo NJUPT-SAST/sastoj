@@ -7,6 +7,7 @@ import (
 	"sastoj/app/judge/gojudge/internal/conf"
 	"sastoj/app/judge/gojudge/pkg/gojudge"
 	"sastoj/ent"
+	"sastoj/ent/problemtype"
 	"sastoj/pkg/file"
 
 	"entgo.io/ent/dialect"
@@ -35,6 +36,7 @@ type Data struct {
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	ctx := context.Background()
 	// New logHelper
 	logHelper := log.NewHelper(logger)
 
@@ -66,17 +68,37 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background()); err != nil {
+	if err := client.Schema.Create(ctx); err != nil {
 		log.Errorf("failed creating schema resources: %v", err)
 		return nil, nil, err
 	}
+
+	// Check if problemTypes are created
+	exists, err := client.ProblemType.Query().Where(problemtype.SlugName("gojudge-classic")).Exist(ctx)
+	if err != nil {
+		log.Errorf("failed checking problemTypes: %v", err)
+		return nil, nil, err
+	}
+	if !exists {
+		_, err := client.ProblemType.Create().
+			SetSlugName("gojudge-classic-algo").
+			SetDisplayName("Classic-Algo").
+			SetDescription("Classic Algo Problem powered by Gojudge").
+			SetJudge("gojudge").
+			Save(ctx)
+		if err != nil {
+			log.Errorf("failed creating problemTypes: %v", err)
+			return nil, nil, err
+		}
+	}
+	log.Errorf("failed checking problemTypes: %v", err)
 
 	// connect to redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: c.Redis.Addr,
 		DB:   int(c.Redis.Db),
 	})
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+	if err := redisClient.Ping(ctx).Err(); err != nil {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
@@ -86,7 +108,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 
 	// Create a go-judge client
 	ClientConn, err := grpc.DialInsecure(
-		context.Background(),
+		ctx,
 		grpc.WithEndpoint(c.Judge.Endpoint),
 		grpc.WithHealthCheck(false))
 	if err != nil {

@@ -59,24 +59,17 @@ func (cu *ContestUpdate) SetNillableDescription(s *string) *ContestUpdate {
 	return cu
 }
 
-// SetStatus sets the "status" field.
-func (cu *ContestUpdate) SetStatus(i int16) *ContestUpdate {
-	cu.mutation.ResetStatus()
-	cu.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (cu *ContestUpdate) SetState(c contest.State) *ContestUpdate {
+	cu.mutation.SetState(c)
 	return cu
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (cu *ContestUpdate) SetNillableStatus(i *int16) *ContestUpdate {
-	if i != nil {
-		cu.SetStatus(*i)
+// SetNillableState sets the "state" field if the given value is not nil.
+func (cu *ContestUpdate) SetNillableState(c *contest.State) *ContestUpdate {
+	if c != nil {
+		cu.SetState(*c)
 	}
-	return cu
-}
-
-// AddStatus adds i to the "status" field.
-func (cu *ContestUpdate) AddStatus(i int16) *ContestUpdate {
-	cu.mutation.AddStatus(i)
 	return cu
 }
 
@@ -356,9 +349,9 @@ func (cu *ContestUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cu *ContestUpdate) check() error {
-	if v, ok := cu.mutation.Status(); ok {
-		if err := contest.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
+	if v, ok := cu.mutation.State(); ok {
+		if err := contest.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
 		}
 	}
 	if v, ok := cu.mutation.GetType(); ok {
@@ -392,11 +385,8 @@ func (cu *ContestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.Description(); ok {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := cu.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
-	}
-	if value, ok := cu.mutation.AddedStatus(); ok {
-		_spec.AddField(contest.FieldStatus, field.TypeInt16, value)
+	if value, ok := cu.mutation.State(); ok {
+		_spec.SetField(contest.FieldState, field.TypeEnum, value)
 	}
 	if value, ok := cu.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt16, value)
@@ -650,24 +640,17 @@ func (cuo *ContestUpdateOne) SetNillableDescription(s *string) *ContestUpdateOne
 	return cuo
 }
 
-// SetStatus sets the "status" field.
-func (cuo *ContestUpdateOne) SetStatus(i int16) *ContestUpdateOne {
-	cuo.mutation.ResetStatus()
-	cuo.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (cuo *ContestUpdateOne) SetState(c contest.State) *ContestUpdateOne {
+	cuo.mutation.SetState(c)
 	return cuo
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (cuo *ContestUpdateOne) SetNillableStatus(i *int16) *ContestUpdateOne {
-	if i != nil {
-		cuo.SetStatus(*i)
+// SetNillableState sets the "state" field if the given value is not nil.
+func (cuo *ContestUpdateOne) SetNillableState(c *contest.State) *ContestUpdateOne {
+	if c != nil {
+		cuo.SetState(*c)
 	}
-	return cuo
-}
-
-// AddStatus adds i to the "status" field.
-func (cuo *ContestUpdateOne) AddStatus(i int16) *ContestUpdateOne {
-	cuo.mutation.AddStatus(i)
 	return cuo
 }
 
@@ -960,9 +943,9 @@ func (cuo *ContestUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuo *ContestUpdateOne) check() error {
-	if v, ok := cuo.mutation.Status(); ok {
-		if err := contest.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Contest.status": %w`, err)}
+	if v, ok := cuo.mutation.State(); ok {
+		if err := contest.StateValidator(v); err != nil {
+			return &ValidationError{Name: "state", err: fmt.Errorf(`ent: validator failed for field "Contest.state": %w`, err)}
 		}
 	}
 	if v, ok := cuo.mutation.GetType(); ok {
@@ -1013,11 +996,8 @@ func (cuo *ContestUpdateOne) sqlSave(ctx context.Context) (_node *Contest, err e
 	if value, ok := cuo.mutation.Description(); ok {
 		_spec.SetField(contest.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := cuo.mutation.Status(); ok {
-		_spec.SetField(contest.FieldStatus, field.TypeInt16, value)
-	}
-	if value, ok := cuo.mutation.AddedStatus(); ok {
-		_spec.AddField(contest.FieldStatus, field.TypeInt16, value)
+	if value, ok := cuo.mutation.State(); ok {
+		_spec.SetField(contest.FieldState, field.TypeEnum, value)
 	}
 	if value, ok := cuo.mutation.GetType(); ok {
 		_spec.SetField(contest.FieldType, field.TypeInt16, value)

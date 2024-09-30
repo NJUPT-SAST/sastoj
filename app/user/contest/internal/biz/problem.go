@@ -2,14 +2,16 @@ package biz
 
 import (
 	"context"
+
 	"github.com/go-kratos/kratos/v2/log"
 )
 
 type Problem struct {
 	ID      int64
 	Title   string
+	Type    string
 	Content string
-	Point   int16
+	Score   int32
 	Index   int16
 }
 

@@ -18,8 +18,7 @@ func (User) Fields() []ent.Field {
 		field.String("username").Default("unknown"),
 		field.String("password"),
 		field.String("salt"),
-		field.Int16("status").NonNegative(),
-		field.Int64("group_id"),
+		field.Enum("state").Values("NORMAL", "BANNED", "INACTIVE").Default("NORMAL"),
 	}
 }
 
@@ -29,7 +28,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("submission", Submission.Type),
 		edge.To("login_sessions", LoginSession.Type),
 		edge.To("owned_problems", Problem.Type),
-		edge.From("groups", Group.Type).Ref("users").Field("group_id").Unique().Required(),
+		edge.From("groups", Group.Type).Ref("users"),
 		edge.To("contest_results", ContestResult.Type),
 	}
 }

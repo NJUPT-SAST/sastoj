@@ -3,12 +3,13 @@ package util
 import (
 	"context"
 	"errors"
-	"github.com/mholt/archiver/v4"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
+
+	"github.com/mholt/archiver/v4"
 )
 
 func Extract(file *os.File, targetPath string) error {
@@ -100,9 +101,6 @@ func CompressAndArchive(pathToArchive string, compressedPackageSuffix string) er
 		return nil
 	})
 	files, err := archiver.FilesFromDisk(nil, tarFiles)
-	if err != nil {
-		return err
-	}
 	if err != nil {
 		return err
 	}

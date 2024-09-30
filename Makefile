@@ -1,7 +1,7 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-PROJECTS=case group judge problem user contest user-contest
+PROJECTS=admin user-contest public-auth gojudge-server
 
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
@@ -11,9 +11,11 @@ ifeq ($(GOHOSTOS), windows)
     Git_Bash="$(subst \,/,$(subst cmd\git.exe,bin\bash.exe,$(shell where git)))"
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
 	API_PROTO_FILES=$(shell $(Git_Bash) -c "find api -name *.proto")
+	APP_PROTO_FILES=$(shell $(Git_Bash) -c "find app -name *.proto")
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 	API_PROTO_FILES=$(shell find api -name *.proto)
+	APP_PROTO_FILES=$(shell find app -name *.proto)
 endif
 
 .PHONY: init
@@ -29,16 +31,16 @@ init:
 .PHONY: config
 # generate internal proto
 config:
-	protoc --proto_path=./internal \
+	protoc --proto_path=./app \
 	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./internal \
-	       $(INTERNAL_PROTO_FILES)
+ 	       --go_out=paths=source_relative:./app \
+	       $(APP_PROTO_FILES)
 
 .PHONY: api
 # generate protobuf api go code
 api:
 	@cd api && \
-	buf generate
+	buf generate -o sastoj
 .PHONY: errors
 # generate error proto
 errors:
@@ -72,7 +74,6 @@ all:
 # generate db
 db:
 	go generate ./ent/
-	go run ./test/generatedb/main.go
 
 .PHONY: docker
 # build docker image

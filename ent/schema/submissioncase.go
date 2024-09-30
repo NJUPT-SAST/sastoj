@@ -13,9 +13,9 @@ type SubmissionCase struct {
 	ent.Schema
 }
 
-func (SubmissionCase) Annitations() []schema.Annotation {
+func (SubmissionCase) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "submission_case"},
+		entsql.Annotation{Table: "submission_cases"},
 	}
 }
 
@@ -25,18 +25,17 @@ func (SubmissionCase) Fields() []ent.Field {
 		field.Int64("id").Unique(),
 		field.Int16("state"),
 		field.Int16("point"),
-		field.Text("message"),
-		field.Int32("time"),
-		field.Int32("memory"),
-		field.Int64("submission_id"),
-		field.Int64("problem_case_id"),
+		field.Uint64("time"),
+		field.Uint64("memory"),
+		field.String("stdout").Default(""),
+		field.String("stderr").Default(""),
+		field.Int64("submission_subtask_id"),
 	}
 }
 
 // Edges of the SubmissionCase.
 func (SubmissionCase) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("submission", Submission.Type).Ref("submission_cases").Field("submission_id").Unique().Required(),
-		edge.From("problem_cases", ProblemCase.Type).Ref("submission_cases").Field("problem_case_id").Unique().Required(),
+		edge.From("submission_subtasks", SubmissionSubtask.Type).Ref("submission_cases").Field("submission_subtask_id").Unique().Required(),
 	}
 }

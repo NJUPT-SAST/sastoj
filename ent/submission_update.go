@@ -10,7 +10,7 @@ import (
 	"sastoj/ent/predicate"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
-	"sastoj/ent/submissioncase"
+	"sastoj/ent/submissionsubtask"
 	"sastoj/ent/user"
 	"time"
 
@@ -46,44 +46,52 @@ func (su *SubmissionUpdate) SetNillableCode(s *string) *SubmissionUpdate {
 	return su
 }
 
-// SetStatus sets the "status" field.
-func (su *SubmissionUpdate) SetStatus(i int16) *SubmissionUpdate {
-	su.mutation.ResetStatus()
-	su.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (su *SubmissionUpdate) SetState(i int16) *SubmissionUpdate {
+	su.mutation.ResetState()
+	su.mutation.SetState(i)
 	return su
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (su *SubmissionUpdate) SetNillableStatus(i *int16) *SubmissionUpdate {
+// SetNillableState sets the "state" field if the given value is not nil.
+func (su *SubmissionUpdate) SetNillableState(i *int16) *SubmissionUpdate {
 	if i != nil {
-		su.SetStatus(*i)
+		su.SetState(*i)
 	}
 	return su
 }
 
-// AddStatus adds i to the "status" field.
-func (su *SubmissionUpdate) AddStatus(i int16) *SubmissionUpdate {
-	su.mutation.AddStatus(i)
+// AddState adds i to the "state" field.
+func (su *SubmissionUpdate) AddState(i int16) *SubmissionUpdate {
+	su.mutation.AddState(i)
 	return su
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (su *SubmissionUpdate) SetCompileMessage(s string) *SubmissionUpdate {
-	su.mutation.SetCompileMessage(s)
+// SetCompileStdout sets the "compile_stdout" field.
+func (su *SubmissionUpdate) SetCompileStdout(s string) *SubmissionUpdate {
+	su.mutation.SetCompileStdout(s)
 	return su
 }
 
-// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
-func (su *SubmissionUpdate) SetNillableCompileMessage(s *string) *SubmissionUpdate {
+// SetNillableCompileStdout sets the "compile_stdout" field if the given value is not nil.
+func (su *SubmissionUpdate) SetNillableCompileStdout(s *string) *SubmissionUpdate {
 	if s != nil {
-		su.SetCompileMessage(*s)
+		su.SetCompileStdout(*s)
 	}
 	return su
 }
 
-// ClearCompileMessage clears the value of the "compile_message" field.
-func (su *SubmissionUpdate) ClearCompileMessage() *SubmissionUpdate {
-	su.mutation.ClearCompileMessage()
+// SetCompileStderr sets the "compile_stderr" field.
+func (su *SubmissionUpdate) SetCompileStderr(s string) *SubmissionUpdate {
+	su.mutation.SetCompileStderr(s)
+	return su
+}
+
+// SetNillableCompileStderr sets the "compile_stderr" field if the given value is not nil.
+func (su *SubmissionUpdate) SetNillableCompileStderr(s *string) *SubmissionUpdate {
+	if s != nil {
+		su.SetCompileStderr(*s)
+	}
 	return su
 }
 
@@ -123,44 +131,44 @@ func (su *SubmissionUpdate) SetNillableCreateTime(t *time.Time) *SubmissionUpdat
 }
 
 // SetTotalTime sets the "total_time" field.
-func (su *SubmissionUpdate) SetTotalTime(i int32) *SubmissionUpdate {
+func (su *SubmissionUpdate) SetTotalTime(u uint64) *SubmissionUpdate {
 	su.mutation.ResetTotalTime()
-	su.mutation.SetTotalTime(i)
+	su.mutation.SetTotalTime(u)
 	return su
 }
 
 // SetNillableTotalTime sets the "total_time" field if the given value is not nil.
-func (su *SubmissionUpdate) SetNillableTotalTime(i *int32) *SubmissionUpdate {
-	if i != nil {
-		su.SetTotalTime(*i)
+func (su *SubmissionUpdate) SetNillableTotalTime(u *uint64) *SubmissionUpdate {
+	if u != nil {
+		su.SetTotalTime(*u)
 	}
 	return su
 }
 
-// AddTotalTime adds i to the "total_time" field.
-func (su *SubmissionUpdate) AddTotalTime(i int32) *SubmissionUpdate {
-	su.mutation.AddTotalTime(i)
+// AddTotalTime adds u to the "total_time" field.
+func (su *SubmissionUpdate) AddTotalTime(u int64) *SubmissionUpdate {
+	su.mutation.AddTotalTime(u)
 	return su
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (su *SubmissionUpdate) SetMaxMemory(i int32) *SubmissionUpdate {
+func (su *SubmissionUpdate) SetMaxMemory(u uint64) *SubmissionUpdate {
 	su.mutation.ResetMaxMemory()
-	su.mutation.SetMaxMemory(i)
+	su.mutation.SetMaxMemory(u)
 	return su
 }
 
 // SetNillableMaxMemory sets the "max_memory" field if the given value is not nil.
-func (su *SubmissionUpdate) SetNillableMaxMemory(i *int32) *SubmissionUpdate {
-	if i != nil {
-		su.SetMaxMemory(*i)
+func (su *SubmissionUpdate) SetNillableMaxMemory(u *uint64) *SubmissionUpdate {
+	if u != nil {
+		su.SetMaxMemory(*u)
 	}
 	return su
 }
 
-// AddMaxMemory adds i to the "max_memory" field.
-func (su *SubmissionUpdate) AddMaxMemory(i int32) *SubmissionUpdate {
-	su.mutation.AddMaxMemory(i)
+// AddMaxMemory adds u to the "max_memory" field.
+func (su *SubmissionUpdate) AddMaxMemory(u int64) *SubmissionUpdate {
+	su.mutation.AddMaxMemory(u)
 	return su
 }
 
@@ -227,19 +235,19 @@ func (su *SubmissionUpdate) SetNillableUserID(i *int64) *SubmissionUpdate {
 	return su
 }
 
-// AddSubmissionCaseIDs adds the "submission_cases" edge to the SubmissionCase entity by IDs.
-func (su *SubmissionUpdate) AddSubmissionCaseIDs(ids ...int64) *SubmissionUpdate {
-	su.mutation.AddSubmissionCaseIDs(ids...)
+// AddSubmissionSubtaskIDs adds the "submission_subtasks" edge to the SubmissionSubtask entity by IDs.
+func (su *SubmissionUpdate) AddSubmissionSubtaskIDs(ids ...int64) *SubmissionUpdate {
+	su.mutation.AddSubmissionSubtaskIDs(ids...)
 	return su
 }
 
-// AddSubmissionCases adds the "submission_cases" edges to the SubmissionCase entity.
-func (su *SubmissionUpdate) AddSubmissionCases(s ...*SubmissionCase) *SubmissionUpdate {
+// AddSubmissionSubtasks adds the "submission_subtasks" edges to the SubmissionSubtask entity.
+func (su *SubmissionUpdate) AddSubmissionSubtasks(s ...*SubmissionSubtask) *SubmissionUpdate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return su.AddSubmissionCaseIDs(ids...)
+	return su.AddSubmissionSubtaskIDs(ids...)
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
@@ -284,25 +292,25 @@ func (su *SubmissionUpdate) Mutation() *SubmissionMutation {
 	return su.mutation
 }
 
-// ClearSubmissionCases clears all "submission_cases" edges to the SubmissionCase entity.
-func (su *SubmissionUpdate) ClearSubmissionCases() *SubmissionUpdate {
-	su.mutation.ClearSubmissionCases()
+// ClearSubmissionSubtasks clears all "submission_subtasks" edges to the SubmissionSubtask entity.
+func (su *SubmissionUpdate) ClearSubmissionSubtasks() *SubmissionUpdate {
+	su.mutation.ClearSubmissionSubtasks()
 	return su
 }
 
-// RemoveSubmissionCaseIDs removes the "submission_cases" edge to SubmissionCase entities by IDs.
-func (su *SubmissionUpdate) RemoveSubmissionCaseIDs(ids ...int64) *SubmissionUpdate {
-	su.mutation.RemoveSubmissionCaseIDs(ids...)
+// RemoveSubmissionSubtaskIDs removes the "submission_subtasks" edge to SubmissionSubtask entities by IDs.
+func (su *SubmissionUpdate) RemoveSubmissionSubtaskIDs(ids ...int64) *SubmissionUpdate {
+	su.mutation.RemoveSubmissionSubtaskIDs(ids...)
 	return su
 }
 
-// RemoveSubmissionCases removes "submission_cases" edges to SubmissionCase entities.
-func (su *SubmissionUpdate) RemoveSubmissionCases(s ...*SubmissionCase) *SubmissionUpdate {
+// RemoveSubmissionSubtasks removes "submission_subtasks" edges to SubmissionSubtask entities.
+func (su *SubmissionUpdate) RemoveSubmissionSubtasks(s ...*SubmissionSubtask) *SubmissionUpdate {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return su.RemoveSubmissionCaseIDs(ids...)
+	return su.RemoveSubmissionSubtaskIDs(ids...)
 }
 
 // ClearProblems clears the "problems" edge to the Problem entity.
@@ -391,17 +399,17 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Code(); ok {
 		_spec.SetField(submission.FieldCode, field.TypeString, value)
 	}
-	if value, ok := su.mutation.Status(); ok {
-		_spec.SetField(submission.FieldStatus, field.TypeInt16, value)
+	if value, ok := su.mutation.State(); ok {
+		_spec.SetField(submission.FieldState, field.TypeInt16, value)
 	}
-	if value, ok := su.mutation.AddedStatus(); ok {
-		_spec.AddField(submission.FieldStatus, field.TypeInt16, value)
+	if value, ok := su.mutation.AddedState(); ok {
+		_spec.AddField(submission.FieldState, field.TypeInt16, value)
 	}
-	if value, ok := su.mutation.CompileMessage(); ok {
-		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+	if value, ok := su.mutation.CompileStdout(); ok {
+		_spec.SetField(submission.FieldCompileStdout, field.TypeString, value)
 	}
-	if su.mutation.CompileMessageCleared() {
-		_spec.ClearField(submission.FieldCompileMessage, field.TypeString)
+	if value, ok := su.mutation.CompileStderr(); ok {
+		_spec.SetField(submission.FieldCompileStderr, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
@@ -413,16 +421,16 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(submission.FieldCreateTime, field.TypeTime, value)
 	}
 	if value, ok := su.mutation.TotalTime(); ok {
-		_spec.SetField(submission.FieldTotalTime, field.TypeInt32, value)
+		_spec.SetField(submission.FieldTotalTime, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.AddedTotalTime(); ok {
-		_spec.AddField(submission.FieldTotalTime, field.TypeInt32, value)
+		_spec.AddField(submission.FieldTotalTime, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.MaxMemory(); ok {
-		_spec.SetField(submission.FieldMaxMemory, field.TypeInt32, value)
+		_spec.SetField(submission.FieldMaxMemory, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.AddedMaxMemory(); ok {
-		_spec.AddField(submission.FieldMaxMemory, field.TypeInt32, value)
+		_spec.AddField(submission.FieldMaxMemory, field.TypeUint64, value)
 	}
 	if value, ok := su.mutation.Language(); ok {
 		_spec.SetField(submission.FieldLanguage, field.TypeString, value)
@@ -433,28 +441,28 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.AddedCaseVersion(); ok {
 		_spec.AddField(submission.FieldCaseVersion, field.TypeInt8, value)
 	}
-	if su.mutation.SubmissionCasesCleared() {
+	if su.mutation.SubmissionSubtasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.RemovedSubmissionCasesIDs(); len(nodes) > 0 && !su.mutation.SubmissionCasesCleared() {
+	if nodes := su.mutation.RemovedSubmissionSubtasksIDs(); len(nodes) > 0 && !su.mutation.SubmissionSubtasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -462,15 +470,15 @@ func (su *SubmissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.SubmissionCasesIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.SubmissionSubtasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -615,44 +623,52 @@ func (suo *SubmissionUpdateOne) SetNillableCode(s *string) *SubmissionUpdateOne 
 	return suo
 }
 
-// SetStatus sets the "status" field.
-func (suo *SubmissionUpdateOne) SetStatus(i int16) *SubmissionUpdateOne {
-	suo.mutation.ResetStatus()
-	suo.mutation.SetStatus(i)
+// SetState sets the "state" field.
+func (suo *SubmissionUpdateOne) SetState(i int16) *SubmissionUpdateOne {
+	suo.mutation.ResetState()
+	suo.mutation.SetState(i)
 	return suo
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (suo *SubmissionUpdateOne) SetNillableStatus(i *int16) *SubmissionUpdateOne {
+// SetNillableState sets the "state" field if the given value is not nil.
+func (suo *SubmissionUpdateOne) SetNillableState(i *int16) *SubmissionUpdateOne {
 	if i != nil {
-		suo.SetStatus(*i)
+		suo.SetState(*i)
 	}
 	return suo
 }
 
-// AddStatus adds i to the "status" field.
-func (suo *SubmissionUpdateOne) AddStatus(i int16) *SubmissionUpdateOne {
-	suo.mutation.AddStatus(i)
+// AddState adds i to the "state" field.
+func (suo *SubmissionUpdateOne) AddState(i int16) *SubmissionUpdateOne {
+	suo.mutation.AddState(i)
 	return suo
 }
 
-// SetCompileMessage sets the "compile_message" field.
-func (suo *SubmissionUpdateOne) SetCompileMessage(s string) *SubmissionUpdateOne {
-	suo.mutation.SetCompileMessage(s)
+// SetCompileStdout sets the "compile_stdout" field.
+func (suo *SubmissionUpdateOne) SetCompileStdout(s string) *SubmissionUpdateOne {
+	suo.mutation.SetCompileStdout(s)
 	return suo
 }
 
-// SetNillableCompileMessage sets the "compile_message" field if the given value is not nil.
-func (suo *SubmissionUpdateOne) SetNillableCompileMessage(s *string) *SubmissionUpdateOne {
+// SetNillableCompileStdout sets the "compile_stdout" field if the given value is not nil.
+func (suo *SubmissionUpdateOne) SetNillableCompileStdout(s *string) *SubmissionUpdateOne {
 	if s != nil {
-		suo.SetCompileMessage(*s)
+		suo.SetCompileStdout(*s)
 	}
 	return suo
 }
 
-// ClearCompileMessage clears the value of the "compile_message" field.
-func (suo *SubmissionUpdateOne) ClearCompileMessage() *SubmissionUpdateOne {
-	suo.mutation.ClearCompileMessage()
+// SetCompileStderr sets the "compile_stderr" field.
+func (suo *SubmissionUpdateOne) SetCompileStderr(s string) *SubmissionUpdateOne {
+	suo.mutation.SetCompileStderr(s)
+	return suo
+}
+
+// SetNillableCompileStderr sets the "compile_stderr" field if the given value is not nil.
+func (suo *SubmissionUpdateOne) SetNillableCompileStderr(s *string) *SubmissionUpdateOne {
+	if s != nil {
+		suo.SetCompileStderr(*s)
+	}
 	return suo
 }
 
@@ -692,44 +708,44 @@ func (suo *SubmissionUpdateOne) SetNillableCreateTime(t *time.Time) *SubmissionU
 }
 
 // SetTotalTime sets the "total_time" field.
-func (suo *SubmissionUpdateOne) SetTotalTime(i int32) *SubmissionUpdateOne {
+func (suo *SubmissionUpdateOne) SetTotalTime(u uint64) *SubmissionUpdateOne {
 	suo.mutation.ResetTotalTime()
-	suo.mutation.SetTotalTime(i)
+	suo.mutation.SetTotalTime(u)
 	return suo
 }
 
 // SetNillableTotalTime sets the "total_time" field if the given value is not nil.
-func (suo *SubmissionUpdateOne) SetNillableTotalTime(i *int32) *SubmissionUpdateOne {
-	if i != nil {
-		suo.SetTotalTime(*i)
+func (suo *SubmissionUpdateOne) SetNillableTotalTime(u *uint64) *SubmissionUpdateOne {
+	if u != nil {
+		suo.SetTotalTime(*u)
 	}
 	return suo
 }
 
-// AddTotalTime adds i to the "total_time" field.
-func (suo *SubmissionUpdateOne) AddTotalTime(i int32) *SubmissionUpdateOne {
-	suo.mutation.AddTotalTime(i)
+// AddTotalTime adds u to the "total_time" field.
+func (suo *SubmissionUpdateOne) AddTotalTime(u int64) *SubmissionUpdateOne {
+	suo.mutation.AddTotalTime(u)
 	return suo
 }
 
 // SetMaxMemory sets the "max_memory" field.
-func (suo *SubmissionUpdateOne) SetMaxMemory(i int32) *SubmissionUpdateOne {
+func (suo *SubmissionUpdateOne) SetMaxMemory(u uint64) *SubmissionUpdateOne {
 	suo.mutation.ResetMaxMemory()
-	suo.mutation.SetMaxMemory(i)
+	suo.mutation.SetMaxMemory(u)
 	return suo
 }
 
 // SetNillableMaxMemory sets the "max_memory" field if the given value is not nil.
-func (suo *SubmissionUpdateOne) SetNillableMaxMemory(i *int32) *SubmissionUpdateOne {
-	if i != nil {
-		suo.SetMaxMemory(*i)
+func (suo *SubmissionUpdateOne) SetNillableMaxMemory(u *uint64) *SubmissionUpdateOne {
+	if u != nil {
+		suo.SetMaxMemory(*u)
 	}
 	return suo
 }
 
-// AddMaxMemory adds i to the "max_memory" field.
-func (suo *SubmissionUpdateOne) AddMaxMemory(i int32) *SubmissionUpdateOne {
-	suo.mutation.AddMaxMemory(i)
+// AddMaxMemory adds u to the "max_memory" field.
+func (suo *SubmissionUpdateOne) AddMaxMemory(u int64) *SubmissionUpdateOne {
+	suo.mutation.AddMaxMemory(u)
 	return suo
 }
 
@@ -796,19 +812,19 @@ func (suo *SubmissionUpdateOne) SetNillableUserID(i *int64) *SubmissionUpdateOne
 	return suo
 }
 
-// AddSubmissionCaseIDs adds the "submission_cases" edge to the SubmissionCase entity by IDs.
-func (suo *SubmissionUpdateOne) AddSubmissionCaseIDs(ids ...int64) *SubmissionUpdateOne {
-	suo.mutation.AddSubmissionCaseIDs(ids...)
+// AddSubmissionSubtaskIDs adds the "submission_subtasks" edge to the SubmissionSubtask entity by IDs.
+func (suo *SubmissionUpdateOne) AddSubmissionSubtaskIDs(ids ...int64) *SubmissionUpdateOne {
+	suo.mutation.AddSubmissionSubtaskIDs(ids...)
 	return suo
 }
 
-// AddSubmissionCases adds the "submission_cases" edges to the SubmissionCase entity.
-func (suo *SubmissionUpdateOne) AddSubmissionCases(s ...*SubmissionCase) *SubmissionUpdateOne {
+// AddSubmissionSubtasks adds the "submission_subtasks" edges to the SubmissionSubtask entity.
+func (suo *SubmissionUpdateOne) AddSubmissionSubtasks(s ...*SubmissionSubtask) *SubmissionUpdateOne {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return suo.AddSubmissionCaseIDs(ids...)
+	return suo.AddSubmissionSubtaskIDs(ids...)
 }
 
 // SetProblemsID sets the "problems" edge to the Problem entity by ID.
@@ -853,25 +869,25 @@ func (suo *SubmissionUpdateOne) Mutation() *SubmissionMutation {
 	return suo.mutation
 }
 
-// ClearSubmissionCases clears all "submission_cases" edges to the SubmissionCase entity.
-func (suo *SubmissionUpdateOne) ClearSubmissionCases() *SubmissionUpdateOne {
-	suo.mutation.ClearSubmissionCases()
+// ClearSubmissionSubtasks clears all "submission_subtasks" edges to the SubmissionSubtask entity.
+func (suo *SubmissionUpdateOne) ClearSubmissionSubtasks() *SubmissionUpdateOne {
+	suo.mutation.ClearSubmissionSubtasks()
 	return suo
 }
 
-// RemoveSubmissionCaseIDs removes the "submission_cases" edge to SubmissionCase entities by IDs.
-func (suo *SubmissionUpdateOne) RemoveSubmissionCaseIDs(ids ...int64) *SubmissionUpdateOne {
-	suo.mutation.RemoveSubmissionCaseIDs(ids...)
+// RemoveSubmissionSubtaskIDs removes the "submission_subtasks" edge to SubmissionSubtask entities by IDs.
+func (suo *SubmissionUpdateOne) RemoveSubmissionSubtaskIDs(ids ...int64) *SubmissionUpdateOne {
+	suo.mutation.RemoveSubmissionSubtaskIDs(ids...)
 	return suo
 }
 
-// RemoveSubmissionCases removes "submission_cases" edges to SubmissionCase entities.
-func (suo *SubmissionUpdateOne) RemoveSubmissionCases(s ...*SubmissionCase) *SubmissionUpdateOne {
+// RemoveSubmissionSubtasks removes "submission_subtasks" edges to SubmissionSubtask entities.
+func (suo *SubmissionUpdateOne) RemoveSubmissionSubtasks(s ...*SubmissionSubtask) *SubmissionUpdateOne {
 	ids := make([]int64, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
-	return suo.RemoveSubmissionCaseIDs(ids...)
+	return suo.RemoveSubmissionSubtaskIDs(ids...)
 }
 
 // ClearProblems clears the "problems" edge to the Problem entity.
@@ -990,17 +1006,17 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 	if value, ok := suo.mutation.Code(); ok {
 		_spec.SetField(submission.FieldCode, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.Status(); ok {
-		_spec.SetField(submission.FieldStatus, field.TypeInt16, value)
+	if value, ok := suo.mutation.State(); ok {
+		_spec.SetField(submission.FieldState, field.TypeInt16, value)
 	}
-	if value, ok := suo.mutation.AddedStatus(); ok {
-		_spec.AddField(submission.FieldStatus, field.TypeInt16, value)
+	if value, ok := suo.mutation.AddedState(); ok {
+		_spec.AddField(submission.FieldState, field.TypeInt16, value)
 	}
-	if value, ok := suo.mutation.CompileMessage(); ok {
-		_spec.SetField(submission.FieldCompileMessage, field.TypeString, value)
+	if value, ok := suo.mutation.CompileStdout(); ok {
+		_spec.SetField(submission.FieldCompileStdout, field.TypeString, value)
 	}
-	if suo.mutation.CompileMessageCleared() {
-		_spec.ClearField(submission.FieldCompileMessage, field.TypeString)
+	if value, ok := suo.mutation.CompileStderr(); ok {
+		_spec.SetField(submission.FieldCompileStderr, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Point(); ok {
 		_spec.SetField(submission.FieldPoint, field.TypeInt16, value)
@@ -1012,16 +1028,16 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 		_spec.SetField(submission.FieldCreateTime, field.TypeTime, value)
 	}
 	if value, ok := suo.mutation.TotalTime(); ok {
-		_spec.SetField(submission.FieldTotalTime, field.TypeInt32, value)
+		_spec.SetField(submission.FieldTotalTime, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.AddedTotalTime(); ok {
-		_spec.AddField(submission.FieldTotalTime, field.TypeInt32, value)
+		_spec.AddField(submission.FieldTotalTime, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.MaxMemory(); ok {
-		_spec.SetField(submission.FieldMaxMemory, field.TypeInt32, value)
+		_spec.SetField(submission.FieldMaxMemory, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.AddedMaxMemory(); ok {
-		_spec.AddField(submission.FieldMaxMemory, field.TypeInt32, value)
+		_spec.AddField(submission.FieldMaxMemory, field.TypeUint64, value)
 	}
 	if value, ok := suo.mutation.Language(); ok {
 		_spec.SetField(submission.FieldLanguage, field.TypeString, value)
@@ -1032,28 +1048,28 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 	if value, ok := suo.mutation.AddedCaseVersion(); ok {
 		_spec.AddField(submission.FieldCaseVersion, field.TypeInt8, value)
 	}
-	if suo.mutation.SubmissionCasesCleared() {
+	if suo.mutation.SubmissionSubtasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.RemovedSubmissionCasesIDs(); len(nodes) > 0 && !suo.mutation.SubmissionCasesCleared() {
+	if nodes := suo.mutation.RemovedSubmissionSubtasksIDs(); len(nodes) > 0 && !suo.mutation.SubmissionSubtasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1061,15 +1077,15 @@ func (suo *SubmissionUpdateOne) sqlSave(ctx context.Context) (_node *Submission,
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.SubmissionCasesIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.SubmissionSubtasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   submission.SubmissionCasesTable,
-			Columns: []string{submission.SubmissionCasesColumn},
+			Table:   submission.SubmissionSubtasksTable,
+			Columns: []string{submission.SubmissionSubtasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(submissioncase.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(submissionsubtask.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
