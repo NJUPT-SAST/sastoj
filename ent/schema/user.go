@@ -15,7 +15,7 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique(),
-		field.String("username").Default("unknown"),
+		field.String("username").Unique(),
 		field.String("password"),
 		field.String("salt"),
 		field.Enum("state").Values("NORMAL", "BANNED", "INACTIVE").Default("NORMAL"),
