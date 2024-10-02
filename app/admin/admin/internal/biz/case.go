@@ -8,8 +8,8 @@ import (
 )
 
 type Case struct {
-	Id        int64
-	ProblemId int64
+	ID        int64
+	ProblemID int64
 	Point     int32
 	Index     int32
 	IsAuto    bool
@@ -28,14 +28,14 @@ func NewCaseUsecase(repo CaseRepo, logger log.Logger) *CaseUsecase {
 	return &CaseUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *CaseUsecase) DeleteCasesByProblemId(ctx context.Context, pi int64) error {
-	uc.log.WithContext(ctx).Infof("DeleteCasesByProblemId: %v", pi)
+func (uc *CaseUsecase) DeleteCasesByProblemID(ctx context.Context, pi int64) error {
+	uc.log.WithContext(ctx).Infof("DeleteCasesByProblemID: %v", pi)
 	return nil
 }
 
-func (uc *CaseUsecase) UploadCases(ctx context.Context, problemId int64, casesFile multipart.File, filename string, casesType string) error {
+func (uc *CaseUsecase) UploadCases(ctx context.Context, problemID int64, casesFile multipart.File, filename string, casesType string) error {
 	uc.log.WithContext(ctx).Infof("start uploading %v from %v", filename, casesType)
-	err := uc.repo.UploadCasesFile(problemId, casesFile, filename, casesType)
+	err := uc.repo.UploadCasesFile(problemID, casesFile, filename, casesType)
 	if err != nil {
 		return err
 	}

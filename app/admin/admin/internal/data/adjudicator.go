@@ -22,16 +22,16 @@ func NewAdjudicatorRepo(data *Data, logger log.Logger) biz.AdjudicatorRepo {
 	}
 }
 
-func (r *adjudicatorRepo) Save(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().AddAdjudicatorIDs(groupIds...).Exec(ctx)
+func (r *adjudicatorRepo) Save(ctx context.Context, groupIDs []int64) error {
+	return r.data.db.Problem.Update().AddAdjudicatorIDs(groupIDs...).Exec(ctx)
 }
 
-func (r *adjudicatorRepo) Update(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().ClearAdjudicators().AddAdjudicatorIDs(groupIds...).Exec(ctx)
+func (r *adjudicatorRepo) Update(ctx context.Context, groupIDs []int64) error {
+	return r.data.db.Problem.Update().ClearAdjudicators().AddAdjudicatorIDs(groupIDs...).Exec(ctx)
 }
 
-func (r *adjudicatorRepo) FindByID(ctx context.Context, problemId int64) (*biz.Adjudicator, error) {
-	groups, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemId)).QueryAdjudicators().All(ctx)
+func (r *adjudicatorRepo) FindByID(ctx context.Context, problemID int64) (*biz.Adjudicator, error) {
+	groups, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemID)).QueryAdjudicators().All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func (r *adjudicatorRepo) FindByID(ctx context.Context, problemId int64) (*biz.A
 	}, nil
 }
 
-func (r *adjudicatorRepo) FindProblemById(ctx context.Context, problemId int64) (*ent.Problem, error) {
-	v, err := r.data.db.Problem.Query().Where(problem.ID(problemId)).First(ctx)
+func (r *adjudicatorRepo) FindProblemByID(ctx context.Context, problemID int64) (*ent.Problem, error) {
+	v, err := r.data.db.Problem.Query().Where(problem.ID(problemID)).First(ctx)
 	if err != nil {
 		return nil, err
 	}

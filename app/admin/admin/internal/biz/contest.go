@@ -11,7 +11,7 @@ const ContestTypeIOI = 1
 const ContestTypeACM = 2
 
 type Contest struct {
-	Id          int64
+	ID          int64
 	Title       string
 	Description string
 	Status      int32
@@ -29,7 +29,7 @@ type ContestRepo interface {
 	Delete(context.Context, int64) error
 	FindByID(context.Context, int64) (*Contest, error)
 	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
-	AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error
+	AddContestants(ctx context.Context, contestID int64, groupID int64, role int32) error
 	GetRacingContests(ctx context.Context) ([]*Contest, error)
 }
 
@@ -57,13 +57,13 @@ func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, 
 func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, error) {
 	return uc.repo.ListPages(ctx, current, size)
 }
-func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
-	_, err := uc.repo.FindByID(ctx, contestId)
+func (uc *ContestUsecase) AddContestants(ctx context.Context, contestID int64, groupID int64, role int32) error {
+	_, err := uc.repo.FindByID(ctx, contestID)
 	if err != nil {
 		return err
 	}
 
-	return uc.repo.AddContestants(ctx, contestId, groupId, role)
+	return uc.repo.AddContestants(ctx, contestID, groupID, role)
 }
 func (uc *ContestUsecase) GetRacingContests(ctx context.Context) ([]*Contest, error) {
 	return uc.repo.GetRacingContests(ctx)

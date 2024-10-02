@@ -11,7 +11,7 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/problem"
 	"sastoj/pkg/mq"
-	pJudge "sastoj/pkg/problem"
+	judge "sastoj/pkg/problem"
 	"sastoj/pkg/util"
 	"sync"
 	"time"
@@ -215,8 +215,8 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 	// test each case
 	for i, subtask := range config.Task.Subtasks {
 		var subtaskState int16 = util.Accepted
-		var totalTime uint64 = 0
-		var maxMemory uint64 = 0
+		var totalTime uint64
+		var maxMemory uint64
 		submissionCaseCreates := make([]*ent.SubmissionCaseCreate, len(subtask.Cases))
 		casesResult := make([]bool, len(subtask.Cases))
 		subtaskBuilder := r.data.db.SubmissionSubtask.Create().
@@ -332,7 +332,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			}
 		}
 		wg.Wait()
-		taskPoint, casesPoint, err := pJudge.Judging(casesResult, config.Task.TaskType, subtask)
+		taskPoint, casesPoint, err := judge.Judging(casesResult, config.Task.TaskType, subtask)
 		if err != nil {
 			r.log.Errorf("judging score error: %v", err)
 			s.Status = util.SystemError

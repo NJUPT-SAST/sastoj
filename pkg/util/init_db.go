@@ -43,8 +43,6 @@ func InsertDefaultUser(ctx context.Context, client *ent.Client, rootGroup *ent.G
 
 func ExistRootUser(ctx context.Context, client *ent.Client) bool {
 	rootUser := client.User.Query().Where(user.HasGroupsWith(group.IsRootEQ(true))).FirstX(ctx)
-	if rootUser != nil {
-		return true
-	}
-	return false
+
+	return rootUser != nil
 }

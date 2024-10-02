@@ -10,7 +10,7 @@ type SubtaskMin struct {
 
 func (s *SubtaskMin) judging(cases []bool) (tasksPoint int16, casesPoint []int16, err error) {
 	tasksPoint = s.subtasks.Score
-	casesPoint = make([]int16, len(cases), len(cases))
+	casesPoint = make([]int16, len(cases))
 	err = nil
 	flag := true
 	for _, c := range s.subtasks.Cases {

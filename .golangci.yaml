@@ -1,0 +1,89 @@
+run:
+  timeout: 10m
+linters:
+  enable:
+    - errcheck
+    - goimports
+    - revive
+    - govet
+    - staticcheck
+    - misspell
+    - gocritic
+    - sqlclosecheck
+    - rowserrcheck
+    - nilerr
+    - godot
+    - mirror
+    - bodyclose
+
+issues:
+  exclude:
+    - Rollback
+    - fmt.Printf
+
+linters-settings:
+#  goimports:
+    # Organize imports so that local packages come after third-party packages.
+#    local-prefixes: github.com/NJUPT-SAST/sastoj
+  revive:
+    # Enable all rules but selectively disable ones that are too restrictive.
+    enable-all-rules: true
+    rules:
+      # Rules description see revive documentation: https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md
+      # - name: line-length-limit
+      #  arguments: [120] # Set a reasonable line length limit
+      # Disable other rules that are too strict.
+      - name: line-length-limit
+        disabled: true
+      - name: file-header
+        disabled: true
+      - name: function-length
+        disabled: true
+      - name: max-public-structs
+        disabled: true
+      - name: function-result-limit
+        disabled: true
+      - name: banned-characters
+        disabled: true
+      - name: argument-limit
+        disabled: true
+      - name: cognitive-complexity
+        disabled: true
+      - name: cyclomatic
+        disabled: true
+      - name: confusing-results
+        disabled: true
+      - name: add-constant
+        disabled: true
+      - name: flag-parameter
+        disabled: true
+      - name: nested-structs
+        disabled: true
+      - name: import-shadowing
+        disabled: true
+      - name: early-return
+        disabled: true
+      - name: use-any
+        disabled: true
+      - name: exported
+        disabled: true
+      - name: unhandled-error
+        disabled: true
+      - name: if-return
+        disabled: true
+      - name: max-control-nesting
+        disabled: true
+  gocritic:
+    # Rules description see gocritic documentation: https://go-critic.com/overview#checkers-from-the-diagnostic-group
+    disabled-checks:
+      - ifElseChain
+  govet:
+    settings:
+      printf: # The name of the analyzer, run `go tool vet help` to see the list of all analyzers
+        funcs: # Run `go tool vet help printf` to see the full configuration of `printf`.
+          - common.Errorf # Treat common.Errorf as a printf-style function.
+    enable-all: true
+    # Rules description see govet documentation: https://pkg.go.dev/github.com/golangci/govet
+    disable:
+      - fieldalignment
+      - shadow

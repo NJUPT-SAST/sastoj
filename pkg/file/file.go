@@ -14,26 +14,26 @@ type Manager struct {
 }
 
 // GetJudgeConfig get judge config from file system
-func (m *Manager) GetJudgeConfig(problemId int64) (*u.JudgeConfig, error) {
-	return u.GetConfig(problemId, m.location)
+func (m *Manager) GetJudgeConfig(problemID int64) (*u.JudgeConfig, error) {
+	return u.GetConfig(problemID, m.location)
 }
 
 // SetJudgeConfig save judge config to file system
-func (m *Manager) SetJudgeConfig(problemId int64, config *u.JudgeConfig) error {
-	return u.SetConfig(problemId, m.location, config)
+func (m *Manager) SetJudgeConfig(problemID int64, config *u.JudgeConfig) error {
+	return u.SetConfig(problemID, m.location, config)
 }
 
 // FetchCase fetch test case from file system
-func (m *Manager) FetchCase(problemId int64, fileIn string, fileAns string) (in []byte, ans []byte, err error) {
-	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/testdata/"
+func (m *Manager) FetchCase(problemID int64, fileIn string, fileAns string) (in []byte, ans []byte, err error) {
+	location := m.location + "/" + strconv.FormatInt(problemID, 10) + "/testdata/"
 	in, err = os.ReadFile(location + "/" + fileIn)
 	ans, err = os.ReadFile(location + "/" + fileAns)
 	return
 }
 
 // DeleteCase delete case from file system
-func (m *Manager) DeleteCase(problemId int64) error {
-	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
+func (m *Manager) DeleteCase(problemID int64) error {
+	location := m.location + "/" + strconv.FormatInt(problemID, 10) + "/"
 	if _, err := os.Stat(location); err == nil {
 		err := os.RemoveAll(location)
 		if err != nil {
@@ -44,8 +44,8 @@ func (m *Manager) DeleteCase(problemId int64) error {
 }
 
 // HandleHydroCase handle hydro case from file system
-func (m *Manager) HandleHydroCase(problemId int64) error {
-	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
+func (m *Manager) HandleHydroCase(problemID int64) error {
+	location := m.location + "/" + strconv.FormatInt(problemID, 10) + "/"
 	dir, err := os.ReadDir(location + "config")
 	if err != nil {
 		return err
@@ -66,13 +66,13 @@ func (m *Manager) HandleHydroCase(problemId int64) error {
 }
 
 // CompressAndArchive compress and archive case from file system
-func (m *Manager) CompressAndArchive(problemId int64) error {
-	return u.CompressAndArchive(m.location+"/"+strconv.FormatInt(problemId, 10)+"testdata"+"/", ".tar.zst")
+func (m *Manager) CompressAndArchive(problemID int64) error {
+	return u.CompressAndArchive(m.location+"/"+strconv.FormatInt(problemID, 10)+"testdata"+"/", ".tar.zst")
 }
 
 // CaseCrlfToLf set .in and .out files crlf to lf
-func (m *Manager) CaseCrlfToLf(problemId int64, config *u.JudgeConfig) error {
-	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
+func (m *Manager) CaseCrlfToLf(problemID int64, config *u.JudgeConfig) error {
+	location := m.location + "/" + strconv.FormatInt(problemID, 10) + "/"
 	wg := sync.WaitGroup{}
 	wg.Add(len(config.Task.Cases))
 	errChannel := make(chan error)
@@ -110,8 +110,8 @@ func (m *Manager) CaseCrlfToLf(problemId int64, config *u.JudgeConfig) error {
 }
 
 // SaveAndExtractCase save and extract case file to file system
-func (m *Manager) SaveAndExtractCase(casesFile multipart.File, filename string, problemId int64) error {
-	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
+func (m *Manager) SaveAndExtractCase(casesFile multipart.File, filename string, problemID int64) error {
+	location := m.location + "/" + strconv.FormatInt(problemID, 10) + "/"
 	err := os.Mkdir(location, os.ModePerm)
 	if err != nil {
 		return err

@@ -10,12 +10,12 @@ import (
 )
 
 type Rank struct {
-	ContestId int64
+	ContestID int64
 	UserRank  []*UserRank
 }
 
 type UserRank struct {
-	UserId       int64
+	UserID       int64
 	UserName     string
 	Rank         int32
 	Penalty      int32
@@ -26,8 +26,8 @@ type UserRank struct {
 }
 
 type UserProblemResult struct {
-	SubmissionId int64
-	ProblemId    int64
+	SubmissionID int64
+	ProblemID    int64
 	State        int32
 	Point        int32
 	TriedCount   int32
@@ -41,7 +41,7 @@ const (
 )
 
 type RankRepo interface {
-	GetSubmissions(ctx context.Context, contestId int64) (map[int64]*UserRank, error)
+	GetSubmissions(ctx context.Context, contestID int64) (map[int64]*UserRank, error)
 	Save(ctx context.Context, contest *Contest, rank *Rank) error
 	Find(ctx context.Context, contest *Contest) (*Rank, error)
 }
@@ -68,7 +68,7 @@ func (r *RankUsecase) Save(ctx context.Context, contest *Contest, rank *Rank) er
 }
 
 func (r *RankUsecase) Update(ctx context.Context, contest *Contest) (*Rank, error) {
-	userSubmissions, err := r.repo.GetSubmissions(ctx, contest.Id)
+	userSubmissions, err := r.repo.GetSubmissions(ctx, contest.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (r *RankUsecase) Update(ctx context.Context, contest *Contest) (*Rank, erro
 
 func (r *RankUsecase) rankByIOI(userSubmissions map[int64]*UserRank, contest *Contest) (*Rank, error) {
 	var res = &Rank{
-		ContestId: contest.Id,
+		ContestID: contest.ID,
 		UserRank:  make([]*UserRank, 0),
 	}
 	if len(userSubmissions) == 0 {
@@ -119,7 +119,7 @@ func (r *RankUsecase) rankByIOI(userSubmissions map[int64]*UserRank, contest *Co
 
 func (r *RankUsecase) rankByACM(userSubmissions map[int64]*UserRank, contest *Contest) (*Rank, error) {
 	var res = &Rank{
-		ContestId: contest.Id,
+		ContestID: contest.ID,
 		UserRank:  make([]*UserRank, 0),
 	}
 	if len(userSubmissions) == 0 {
@@ -132,8 +132,8 @@ func (r *RankUsecase) rankByACM(userSubmissions map[int64]*UserRank, contest *Co
 		achieveTime := time.Unix(0, 0)
 		for _, p := range v.Problems {
 			prob := &UserProblemResult{
-				SubmissionId: p.SubmissionId,
-				ProblemId:    p.ProblemId,
+				SubmissionID: p.SubmissionID,
+				ProblemID:    p.ProblemID,
 				State:        p.State,
 				TriedCount:   p.TriedCount,
 				SubmitTime:   p.SubmitTime,
@@ -148,10 +148,10 @@ func (r *RankUsecase) rankByACM(userSubmissions map[int64]*UserRank, contest *Co
 					achieveTime = p.SubmitTime
 				}
 			}
-			problems[p.ProblemId] = prob
+			problems[p.ProblemID] = prob
 		}
 		res.UserRank = append(res.UserRank, &UserRank{
-			UserId:       v.UserId,
+			UserID:       v.UserID,
 			UserName:     v.UserName,
 			Penalty:      pent,
 			TotalPoint:   score,

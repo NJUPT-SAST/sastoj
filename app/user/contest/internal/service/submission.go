@@ -13,7 +13,7 @@ import (
 
 func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 	id := uuid.NewString()
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 
 func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
 	selfTestID := uuid.NewString()
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 	err := s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:        selfTestID,
 		UserID:    userID,

@@ -107,7 +107,7 @@ func NewData(c *conf.Data, cc v1.ContestClient, logger log.Logger) (*Data, func(
 			problems = append(problems, &biz.Problem{
 				ID:    problem.Id,
 				Title: problem.Title,
-				Point: int16(problem.Point),
+				Score: int16(problem.Score),
 				Index: int16(problem.Index),
 			})
 			problemDTO, err := cc.GetProblem(context.Background(), &v1.GetProblemRequest{
@@ -120,7 +120,7 @@ func NewData(c *conf.Data, cc v1.ContestClient, logger log.Logger) (*Data, func(
 				ID:      problem.Id,
 				Title:   problem.Title,
 				Content: problemDTO.Content,
-				Point:   int16(problem.Point),
+				Score:   int16(problem.Score),
 			}
 		}
 		cache.contest2problems[contest.Id] = problems

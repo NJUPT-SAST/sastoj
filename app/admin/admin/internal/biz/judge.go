@@ -9,7 +9,7 @@ import (
 
 // Submission is a Submit model.
 type Submission struct {
-	Id         int64
+	ID         int64
 	Code       string
 	Status     int32
 	Point      int32
@@ -35,19 +35,19 @@ func NewJudgeUsecase(repo JudgeRepo, logger log.Logger) *JudgeUsecase {
 	return &JudgeUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *JudgeUsecase) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
-	uc.log.WithContext(ctx).Infof("SubmitJudge : %d", submissionId)
-	return uc.repo.SubmitJudge(ctx, submissionId, point)
+func (uc *JudgeUsecase) SubmitJudge(ctx context.Context, submissionID int64, point int32) error {
+	uc.log.WithContext(ctx).Infof("SubmitJudge : %d", submissionID)
+	return uc.repo.SubmitJudge(ctx, submissionID, point)
 }
 
-func (uc *JudgeUsecase) GetJudgableProblems(ctx context.Context, userId int64) ([]*Problem, error) {
-	uc.log.WithContext(ctx).Infof("GetJudgableProblems from user %d", userId)
-	return uc.repo.GetJudgableProblems(ctx, userId)
+func (uc *JudgeUsecase) GetJudgableProblems(ctx context.Context, userID int64) ([]*Problem, error) {
+	uc.log.WithContext(ctx).Infof("GetJudgableProblems from user %d", userID)
+	return uc.repo.GetJudgableProblems(ctx, userID)
 }
-func (uc *JudgeUsecase) GetSubmissions(ctx context.Context, problemId int64, status int32) ([]*Submission, error) {
-	uc.log.WithContext(ctx).Infof("GetSubmissions from problem %d", problemId)
+func (uc *JudgeUsecase) GetSubmissions(ctx context.Context, problemID int64, status int32) ([]*Submission, error) {
+	uc.log.WithContext(ctx).Infof("GetSubmissions from problem %d", problemID)
 	if status == 0 {
-		return uc.repo.GetSubmissions(ctx, problemId)
+		return uc.repo.GetSubmissions(ctx, problemID)
 	}
-	return uc.repo.GetSubmissionsWithStatus(ctx, problemId, status)
+	return uc.repo.GetSubmissionsWithStatus(ctx, problemID, status)
 }

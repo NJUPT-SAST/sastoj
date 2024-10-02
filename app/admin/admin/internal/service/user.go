@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	_ "crypto/md5"
 	_ "encoding/hex"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/app/admin/admin/internal/biz"
@@ -12,7 +11,7 @@ func (s *AdminService) CreateUser(ctx context.Context, req *pb.CreateUserRequest
 	rv, err := s.uc.CreateUser(ctx, &biz.User{
 		Username: req.Username,
 		Password: req.Password,
-		GroupIds: req.GroupIds,
+		GroupIDs: req.GroupIds,
 		State:    0,
 	})
 	if err != nil {
@@ -45,7 +44,7 @@ func (s *AdminService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest
 		ID:       req.Id,
 		Username: req.Username,
 		State:    int16(req.State),
-		GroupIds: req.GroupIds,
+		GroupIDs: req.GroupIds,
 	})
 	if err != nil {
 		return nil, err
@@ -70,7 +69,7 @@ func (s *AdminService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*
 		users = append(users, &pb.ListUserReply_User{
 			Id:       v.ID,
 			Username: v.Username,
-			GroupIds: v.GroupIds,
+			GroupIds: v.GroupIDs,
 			State:    int32(v.State),
 		})
 	}

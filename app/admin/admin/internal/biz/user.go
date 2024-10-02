@@ -19,13 +19,13 @@ type User struct {
 	Password string
 	Salt     string
 	State    int16
-	GroupIds []int64
+	GroupIDs []int64
 }
 type UserCreate struct {
 	Username string
 	Password string
 	Salt     string
-	GroupIds []int64
+	GroupIDs []int64
 }
 
 // UserRepo is a Greater repo.
@@ -84,7 +84,7 @@ func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64) 
 	return res, nil
 }
 
-func (uc *UserUsecase) BatchSave(ctx context.Context, number int32, groupIds []int64) (map[string]string, error) {
+func (uc *UserUsecase) BatchSave(ctx context.Context, number int32, groupIDs []int64) (map[string]string, error) {
 	users := make([]*UserCreate, 0)
 	passwordMap := make(map[string]string)
 	for i := 0; i < int(number); i++ {
@@ -96,7 +96,7 @@ func (uc *UserUsecase) BatchSave(ctx context.Context, number int32, groupIds []i
 			Username: username,
 			Salt:     salt,
 			Password: md5Password,
-			GroupIds: groupIds,
+			GroupIDs: groupIDs,
 		})
 		passwordMap[username] = password
 	}

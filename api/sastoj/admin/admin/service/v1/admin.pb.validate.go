@@ -35,112 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on Case with the rules defined in the proto
-// definition for this message. If any rules are violated, the first error
-// encountered is returned, or nil if there are no violations.
-func (m *Case) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on Case with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in CaseMultiError, or nil if none found.
-func (m *Case) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *Case) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Id
-
-	// no validation rules for Point
-
-	// no validation rules for Index
-
-	// no validation rules for IsAuto
-
-	if len(errors) > 0 {
-		return CaseMultiError(errors)
-	}
-
-	return nil
-}
-
-// CaseMultiError is an error wrapping multiple validation errors returned by
-// Case.ValidateAll() if the designated constraints aren't met.
-type CaseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m CaseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m CaseMultiError) AllErrors() []error { return m }
-
-// CaseValidationError is the validation error returned by Case.Validate if the
-// designated constraints aren't met.
-type CaseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e CaseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e CaseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e CaseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e CaseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e CaseValidationError) ErrorName() string { return "CaseValidationError" }
-
-// Error satisfies the builtin error interface
-func (e CaseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sCase.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = CaseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = CaseValidationError{}
-
 // Validate checks the field values on DeleteCasesByProblemIdRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3519,15 +3413,13 @@ func (m *Problem) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Point
+	// no validation rules for Score
 
 	// no validation rules for ContestId
 
 	// no validation rules for CaseVersion
 
 	// no validation rules for Index
-
-	// no validation rules for Config
 
 	if len(errors) > 0 {
 		return ProblemMultiError(errors)
@@ -4456,7 +4348,7 @@ func (m *CreateProblemRequest) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Point
+	// no validation rules for Score
 
 	// no validation rules for ContestId
 
@@ -4682,17 +4574,13 @@ func (m *UpdateProblemRequest) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Point
+	// no validation rules for Score
 
 	// no validation rules for ContestId
 
 	// no validation rules for CaseVersion
 
 	// no validation rules for Index
-
-	// no validation rules for Config
-
-	// no validation rules for OwnerId
 
 	// no validation rules for Visibility
 
@@ -5222,7 +5110,7 @@ func (m *GetProblemReply) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Point
+	// no validation rules for Score
 
 	// no validation rules for ContestId
 
@@ -8192,15 +8080,13 @@ func (m *ListProblemReply_Problem) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Point
+	// no validation rules for Score
 
 	// no validation rules for ContestId
 
 	// no validation rules for CaseVersion
 
 	// no validation rules for Index
-
-	// no validation rules for Config
 
 	// no validation rules for OwnerId
 

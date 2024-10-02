@@ -9,17 +9,16 @@ import (
 
 // Problem is a Problem model.
 type Problem struct {
-	Id          int64
-	TypeId      int64
+	ID          int64
+	TypeID      int64
 	Title       string
 	Content     string
-	Point       int32
-	ContestId   int64
-	CaseVersion int32
-	Index       int32
+	Score       int16
+	ContestID   int64
+	CaseVersion int16
+	Index       int16
 	Visibility  pb.Visibility
-	OwnerId     int64
-	Config      string
+	OwnerID     int64
 }
 
 type ProblemRepo interface {

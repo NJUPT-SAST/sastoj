@@ -22,17 +22,17 @@ type problemRepo struct {
 
 const ProblemPrefix = "user:contest:problem:"
 
-func (p *problemRepo) GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
-	result, err := p.data.redis.Get(ctx, "problem:"+strconv.Itoa(int(problemId))+":"+"case_version").Result()
+func (p *problemRepo) GetProblemCaseVer(ctx context.Context, problemID int64) (int8, error) {
+	result, err := p.data.redis.Get(ctx, "problem:"+strconv.Itoa(int(problemID))+":"+"case_version").Result()
 	if err == nil {
 		ver, _ := strconv.Atoi(result)
 		return int8(ver), nil
 	}
-	po, err := p.data.db.Problem.Query().Where(problem.IDEQ(problemId)).Only(ctx)
+	po, err := p.data.db.Problem.Query().Where(problem.IDEQ(problemID)).Only(ctx)
 	if err != nil {
 		return 0, err
 	}
-	p.data.redis.Set(ctx, "problem:"+strconv.Itoa(int(problemId))+":"+"case_version", strconv.Itoa(int(po.CaseVersion)), 2*time.Hour)
+	p.data.redis.Set(ctx, "problem:"+strconv.Itoa(int(problemID))+":"+"case_version", strconv.Itoa(int(po.CaseVersion)), 2*time.Hour)
 	return int8(po.CaseVersion), nil
 }
 
