@@ -74,7 +74,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 
 	// Check if problemTypes are created
-	exists, err := client.ProblemType.Query().Where(problemtype.SlugName("gojudge-classic")).Exist(ctx)
+	exists, err := client.ProblemType.Query().Where(problemtype.SlugNameEQ("gojudge-classic-algo")).Exist(ctx)
 	if err != nil {
 		log.Errorf("failed checking problemTypes: %v", err)
 		return nil, nil, err
