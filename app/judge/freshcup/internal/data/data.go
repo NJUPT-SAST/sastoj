@@ -2,24 +2,19 @@ package data
 
 import (
 	"context"
-	"fmt"
-	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
-	"sastoj/app/judge/gojudge/internal/conf"
-	"sastoj/app/judge/gojudge/pkg/gojudge"
-	"sastoj/ent"
-	"sastoj/ent/problemtype"
-	"sastoj/pkg/file"
-
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
-	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"sastoj/app/judge/freshcup/internal/conf"
+	"sastoj/ent"
+	"sastoj/ent/problemtype"
+	"sastoj/pkg/file"
 )
 
 // ProviderSet is data providers.
@@ -27,11 +22,10 @@ var ProviderSet = wire.NewSet(NewData, NewSubmissionRepo)
 
 // Data .
 type Data struct {
-	db      *ent.Client
-	redis   *redis.Client
-	gojudge *gojudge.GoJudge
-	fm      *file.Manager
-	logger  *log.Helper
+	db     *ent.Client
+	redis  *redis.Client
+	fm     *file.Manager
+	logger *log.Helper
 }
 
 // NewData .
@@ -74,17 +68,41 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 
 	// Check if problemTypes are created
-	exists, err := client.ProblemType.Query().Where(problemtype.SlugName("gojudge-classic-algo")).Exist(ctx)
+	exists, err := client.ProblemType.Query().Where(
+		problemtype.SlugName("freshcup-single-choice"),
+		problemtype.SlugName("freshcup-multiple-choice"),
+		problemtype.SlugName("freshcup-short-answer"),
+	).Exist(ctx)
 	if err != nil {
 		log.Errorf("failed checking problemTypes: %v", err)
 		return nil, nil, err
 	}
 	if !exists {
 		_, err := client.ProblemType.Create().
-			SetSlugName("gojudge-classic-algo").
-			SetDisplayName("Classic-Algo").
-			SetDescription("Classic Algo Problem powered by Gojudge").
-			SetJudge("gojudge").
+			SetSlugName("freshcup-single-choice").
+			SetDisplayName("Single-Choice").
+			SetDescription("Single Choice Problem powered by Freshcup").
+			SetJudge("freshcup").
+			Save(ctx)
+		if err != nil {
+			log.Errorf("failed creating problemTypes: %v", err)
+			return nil, nil, err
+		}
+		_, err = client.ProblemType.Create().
+			SetSlugName("freshcup-multiple-choice").
+			SetDisplayName("Multiple-Choice").
+			SetDescription("Multiple Choice Problem powered by Freshcup").
+			SetJudge("freshcup").
+			Save(ctx)
+		if err != nil {
+			log.Errorf("failed creating problemTypes: %v", err)
+			return nil, nil, err
+		}
+		_, err = client.ProblemType.Create().
+			SetSlugName("freshcup-short-answer").
+			SetDisplayName("Short-Answer").
+			SetDescription("Short Answer Problem powered by Freshcup").
+			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
 			log.Errorf("failed creating problemTypes: %v", err)
@@ -106,38 +124,9 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	// Create a file manager
 	fm := file.NewManager(c.Load.ProblemCasesLocation)
 
-	// Create a go-judge client
-	ClientConn, err := grpc.DialInsecure(
-		ctx,
-		grpc.WithEndpoint(c.Judge.Endpoint),
-		grpc.WithHealthCheck(false))
-	if err != nil {
-		logHelper.Errorf("failed creating go-judge clients: %v", err)
-	}
-	exec := pbc.NewExecutorClient(ClientConn)
-
-	// Commands
-	envs := make(map[string][]string)
-	for k, v := range c.Judge.Language.Env {
-		envs[k] = v.Env
-	}
-
-	commands := gojudge.NewCommands(
-		c.Judge.Language.Enable,
-		envs,
-		c.Judge.Language.Compile,
-		c.Judge.Language.Run,
-		c.Judge.Language.Source,
-		c.Judge.Language.Target,
-		c.Judge.Language.ExecConfig,
-	)
 	return &Data{
-		db:    client,
-		redis: redisClient,
-		gojudge: &gojudge.GoJudge{
-			Client:   &exec,
-			Commands: &commands,
-		},
+		db:     client,
+		redis:  redisClient,
 		fm:     fm,
 		logger: logHelper,
 	}, cleanup, nil

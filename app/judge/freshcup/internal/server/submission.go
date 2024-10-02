@@ -6,8 +6,8 @@ import (
 	"github.com/tx7do/kratos-transport/broker"
 	rabbitmqBroker "github.com/tx7do/kratos-transport/broker/rabbitmq"
 	"github.com/tx7do/kratos-transport/transport/rabbitmq"
-	"sastoj/app/judge/gojudge/internal/conf"
-	"sastoj/app/judge/gojudge/internal/service"
+	"sastoj/app/judge/freshcup/internal/conf"
+	"sastoj/app/judge/freshcup/internal/service"
 )
 
 func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger log.Logger) *rabbitmq.Server {
@@ -18,8 +18,8 @@ func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger lo
 
 	srv := rabbitmq.NewServer(opts...)
 
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "gojudge-submission", s.SubmissionHandle, broker.WithQueueName("gojudge-submission"), rabbitmqBroker.WithDurableQueue())
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "gojudge-self-test", s.SelfTestHandle, broker.WithQueueName("gojudge-self-test"), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "freshcup-submission", s.SubmissionHandle, broker.WithQueueName("freshcup-submission"), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "freshcup-self-test", s.SelfTestHandle, broker.WithQueueName("freshcup-self-test"), rabbitmqBroker.WithDurableQueue())
 
 	return srv
 }

@@ -82,18 +82,20 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed opening a channel")
 		return nil, nil, err
 	}
-	sCh, err := mq.NewSubmissionChannel(ch)
-	if err != nil {
-		log.Errorf("failed creating a submission channel")
-		return nil, nil, err
-	}
 	chanMap := make(map[string]*mq.OjChannel)
-	chanMap[mq.SubmissionQueue] = sCh
-	stCh, err := mq.NewSelfTestChannel(ch)
-	if err != nil {
-		log.Errorf("failed creating a self-test channel")
-		return nil, nil, err
+	for _, problemType := range client.ProblemType.Query().AllX(context.Background()) {
+		sCh, err := mq.NewChannel(ch, problemType.Edges.Problems[0].Edges.ProblemType.SubmissionChannelName)
+		if err != nil {
+			log.Errorf("failed creating a submission channel")
+			return nil, nil, err
+		}
+		chanMap[problemType.SubmissionChannelName] = sCh
+		stCh, err := mq.NewChannel(ch, problemType.Edges.Problems[0].Edges.ProblemType.SelfTestChannelName)
+		if err != nil {
+			log.Errorf("failed creating a self-test channel")
+			return nil, nil, err
+		}
+		chanMap[problemType.SelfTestChannelName] = stCh
 	}
-	chanMap[mq.SelfTestQueue] = stCh
 	return &Data{client, redisClient, chanMap}, cleanup, nil
 }
