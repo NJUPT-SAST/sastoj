@@ -9,8 +9,7 @@ import (
 
 // FromError : Convert kratos error to Local-error , mainly add customized error code
 func FromError(err error) *LocalError {
-	var kratosError *kerr.Error
-	kratosError = kerr.FromError(err)
+	kratosError := kerr.FromError(err)
 	if kratosError.Status.Reason == "VALIDATOR" {
 		return &LocalError{
 			Code:    InvalidParamError.Code,

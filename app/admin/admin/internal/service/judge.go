@@ -22,14 +22,13 @@ func (s *AdminService) GetJudgableProblems(ctx context.Context, req *pb.GetJudga
 	reply := &pb.GetJudgableProblemsReply{}
 	for _, p := range ps {
 		reply.Results = append(reply.Results, &pb.Problem{
-			Id:          p.Id,
+			Id:          p.ID,
 			Title:       p.Title,
 			Content:     p.Content,
-			Point:       p.Point,
-			ContestId:   p.ContestId,
-			CaseVersion: p.CaseVersion,
-			Index:       p.Index,
-			Config:      p.Config,
+			Score:       int32(p.Score),
+			ContestId:   p.ContestID,
+			CaseVersion: int32(p.CaseVersion),
+			Index:       int32(p.Index),
 		})
 	}
 	return reply, nil
@@ -42,7 +41,7 @@ func (s *AdminService) GetSubmissions(ctx context.Context, req *pb.GetSubmission
 	reply := &pb.GetSubmissionsReply{}
 	for _, p := range ps {
 		reply.Submissions = append(reply.Submissions, &pb.Submission{
-			Id:         p.Id,
+			Id:         p.ID,
 			Code:       p.Code,
 			Point:      p.Point,
 			CreateTime: timestamppb.New(p.CreateTime),

@@ -42,7 +42,7 @@ func (r *contestRepo) Save(ctx context.Context, g *biz.Contest) (*biz.Contest, e
 	if err != nil {
 		return nil, err
 	}
-	g.Id = res.ID
+	g.ID = res.ID
 	return g, nil
 }
 
@@ -61,7 +61,7 @@ func (r *contestRepo) Update(ctx context.Context, g *biz.Contest) error {
 		SetLanguage(g.Language).
 		SetExtraTime(int16(g.ExtraTime)).
 		SetCreateTime(time.Now()).
-		Where(contest.ID(g.Id)).
+		Where(contest.ID(g.ID)).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (r *contestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, err
 		return nil, err
 	}
 	return &biz.Contest{
-		Id:          po.ID,
+		ID:          po.ID,
 		Title:       po.Title,
 		Description: po.Description,
 		Status:      util.ContestStateToInt(po.State, po.StartTime, po.EndTime),
@@ -105,7 +105,7 @@ func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) 
 	rv := make([]*biz.Contest, 0)
 	for _, po := range res {
 		rv = append(rv, &biz.Contest{
-			Id:          po.ID,
+			ID:          po.ID,
 			Title:       po.Title,
 			Description: po.Description,
 			Status:      util.ContestStateToInt(po.State, po.StartTime, po.EndTime),
@@ -119,17 +119,17 @@ func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) 
 	}
 	return rv, nil
 }
-func (r *contestRepo) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
+func (r *contestRepo) AddContestants(ctx context.Context, contestID int64, groupID int64, role int32) error {
 	switch role {
 	case 0:
-		_, err := r.data.db.Contest.UpdateOneID(contestId).AddContestantIDs(groupId).Save(ctx)
+		_, err := r.data.db.Contest.UpdateOneID(contestID).AddContestantIDs(groupID).Save(ctx)
 		if err != nil {
 			log.Debug(" error :", err)
 			return err
 		}
 		return nil
 	case 1:
-		_, err := r.data.db.Contest.UpdateOneID(contestId).AddManagerIDs(groupId).Save(ctx)
+		_, err := r.data.db.Contest.UpdateOneID(contestID).AddManagerIDs(groupID).Save(ctx)
 		if err != nil {
 			log.Debug(" error :", err)
 			return err

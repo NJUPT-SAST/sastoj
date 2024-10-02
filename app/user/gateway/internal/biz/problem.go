@@ -10,7 +10,7 @@ type Problem struct {
 	ID      int64
 	Title   string
 	Content string
-	Point   int16
+	Score   int16
 	Index   int16
 }
 

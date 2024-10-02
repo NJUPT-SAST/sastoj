@@ -215,7 +215,7 @@ message ListRankingReply {
 	message User {
 		int64 id = 1;
 		string username = 2;
-		int32 score = 3;
+		int32 point = 3;
 		int32 rank = 4;
 	}
 	repeated User users = 1;
@@ -225,8 +225,8 @@ message UpdateSubmissionRequest {
 	string submission_id = 1;
 	int32 status = 2;
 	optional int32 point = 3;
-	optional int32 total_time = 4;
-	optional int32 max_memory = 5;
+	optional uint64 total_time = 4;
+	optional uint64 max_memory = 5;
 }
 message UpdateSubmissionReply {
 	bool success = 1;

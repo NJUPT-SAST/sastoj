@@ -70,7 +70,7 @@ func StringRemoveLineEndSpace(a string) string {
 }
 
 func Crlf2lf(s string) string {
-	res := strings.Replace(s, "\r\n", "\n", -1)
+	res := strings.ReplaceAll(s, "\r\n", "\n")
 	return res
 }
 

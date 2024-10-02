@@ -200,12 +200,6 @@ enum ErrorReason {
 
 }
 
-message Case {
-  int64 id = 1;
-  int32 point = 2;
-  int32 index = 3;
-  bool is_auto = 4;
-}
 message DeleteCasesByProblemIdRequest{
   int64 problem_id = 1;
 }
@@ -305,7 +299,6 @@ message ManualRankingReply {
 message GetRankingRequest {
   int64 contest_id = 1;
 }
-
 message GetRankingReply {
   message UserResult {
     message ProblemResult {
@@ -334,6 +327,7 @@ message CreateGroupRequest {
 message CreateGroupReply {
   int64 id = 1;
 }
+
 message UpdateGroupRequest {
   int64 id = 1;
   string name = 2;
@@ -345,12 +339,14 @@ message UpdateGroupRequest {
 message UpdateGroupReply {
   bool success = 1;
 }
+
 message DeleteGroupRequest {
   int64 id = 1;
 }
 message DeleteGroupReply {
   bool success = 1;
 }
+
 message GetGroupRequest {
   int64 id = 1;
 }
@@ -362,6 +358,7 @@ message GetGroupReply {
   repeated int64 contests = 5;
   repeated int64 problems = 6;
 }
+
 message ListGroupRequest {
   int64 size = 1 [(validate.rules).int64 = {gt: -1}];
   int64 current = 2 [(validate.rules).int64 = {gt: -1}];
@@ -382,12 +379,12 @@ message Problem {
   int64 id = 1;
   string title = 2;
   string content = 3;
-  int32 point = 4;
+  int32 score = 4;
   int64 contest_id = 5;
   int32 case_version = 6;
   int32 index = 7;
-  string config = 8;
 }
+
 message Submission {
   int64 id = 1;
   string code = 2;
@@ -401,11 +398,13 @@ message SubmitJudgeRequest {
 }
 message SubmitJudgeReply {
 }
+
 message GetJudgableProblemsRequest {
 }
 message GetJudgableProblemsReply {
   repeated Problem results = 1;
 }
+
 message GetSubmissionsRequest{
   int64 problem_id = 1;
   int32 status = 2;
@@ -418,11 +417,11 @@ message CreateProblemRequest {
   int64 type_id = 1;
   string title = 2;
   string content = 3;
-  int32 point =4;
-  int64 contestId = 5;
+  int32 score = 4;
+  int64 contest_id = 5;
   int32 index = 6;
   string config = 7;
-  int64 ownerId = 8;
+  int64 owner_id = 8;
   Visibility visibility = 9;
 }
 
@@ -441,13 +440,11 @@ message UpdateProblemRequest {
   int64 type_id = 2;
   string title = 3;
   string content = 4;
-  int32 point = 5;
-  int64 contestId = 6;
-  int32 caseVersion = 7;
+  int32 score = 5;
+  int64 contest_id = 6;
+  int32 case_version = 7;
   int32 index = 8;
-  string config = 9;
-  int64 ownerId = 10;
-  Visibility visibility = 11;
+  Visibility visibility = 9;
 }
 message UpdateProblemReply {
   bool success = 1;
@@ -468,12 +465,12 @@ message GetProblemReply {
   int64 type_id = 2;
   string title = 3;
   string content = 4;
-  int32 point = 5;
-  int64 contestId = 6;
-  int32 caseVersion = 7;
+  int32 score = 5;
+  int64 contest_id = 6;
+  int32 case_version = 7;
   int32 index = 8;
   string config = 9;
-  int64 ownerId = 10;
+  int64 owner_id = 10;
   Visibility visibility = 11;
 }
 message ListProblemRequest {
@@ -486,12 +483,11 @@ message ListProblemReply {
     int64 type_id = 2;
     string title = 3;
     string content = 4;
-    int32 point = 5;
-    int64 contestId = 6;
-    int32 caseVersion = 7;
+    int32 score = 5;
+    int64 contest_id = 6;
+    int32 case_version = 7;
     int32 index = 8;
-    string config = 9;
-    int64 ownerId = 10;
+    int64 owner_id = 10;
     Visibility visibility = 11;
   }
   int32 currency = 2;

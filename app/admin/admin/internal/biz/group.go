@@ -7,7 +7,7 @@ import (
 )
 
 type Group struct {
-	Id   int64
+	ID   int64
 	Name string
 }
 
@@ -16,7 +16,7 @@ type GroupRepo interface {
 	Update(context.Context, *Group) (*int64, error)
 	FindByID(context.Context, int64) (*Group, error)
 	ListByPage(ctx context.Context, current int64, size int64) ([]*Group, error)
-	DeleteById(context.Context, int64) error
+	DeleteByID(context.Context, int64) error
 }
 
 type GroupUsecase struct {
@@ -38,8 +38,8 @@ func (uc *GroupUsecase) CreateGroup(ctx context.Context, g *Group) (*Group, erro
 }
 
 func (uc *GroupUsecase) GetGroup(ctx context.Context, g *Group) (*Group, error) {
-	uc.log.WithContext(ctx).Infof("GetGroup: %v", g.Id)
-	out, err := uc.repo.FindByID(ctx, g.Id)
+	uc.log.WithContext(ctx).Infof("GetGroup: %v", g.ID)
+	out, err := uc.repo.FindByID(ctx, g.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (uc *GroupUsecase) GetGroup(ctx context.Context, g *Group) (*Group, error) 
 }
 
 func (uc *GroupUsecase) UpdateGroup(ctx context.Context, g *Group) (bool, error) {
-	uc.log.WithContext(ctx).Infof("UpdateGroup: %v", g.Id)
+	uc.log.WithContext(ctx).Infof("UpdateGroup: %v", g.ID)
 	rv, err := uc.repo.Update(ctx, g)
 	if err != nil || *rv == 0 {
 		return false, err
@@ -66,7 +66,7 @@ func (uc *GroupUsecase) ListGroup(ctx context.Context, current int64, size int64
 
 func (uc *GroupUsecase) DeleteGroup(ctx context.Context, id int64) (bool, error) {
 	uc.log.WithContext(ctx).Infof("GetGroup: %v", id)
-	err := uc.repo.DeleteById(ctx, id)
+	err := uc.repo.DeleteByID(ctx, id)
 	if err != nil {
 		return false, err
 	}

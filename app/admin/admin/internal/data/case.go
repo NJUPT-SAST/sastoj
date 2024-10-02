@@ -21,26 +21,26 @@ func NewProblemCaseRepo(data *Data, logger log.Logger) biz.CaseRepo {
 	}
 }
 
-func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) error {
-	err := r.data.fm.DeleteCase(problemId)
+func (r *caseRepo) UploadCasesFile(problemID int64, casesFile multipart.File, filename string, casesType string) error {
+	err := r.data.fm.DeleteCase(problemID)
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.SaveAndExtractCase(casesFile, filename, problemId)
+	err = r.data.fm.SaveAndExtractCase(casesFile, filename, problemID)
 	if err != nil {
 		return err
 	}
 	if casesType == "hydro" {
-		err = r.data.fm.HandleHydroCase(problemId)
+		err = r.data.fm.HandleHydroCase(problemID)
 		if err != nil {
 			return err
 		}
 	}
-	config, err := r.data.fm.GetJudgeConfig(problemId)
+	config, err := r.data.fm.GetJudgeConfig(problemID)
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.CaseCrlfToLf(problemId, config)
+	err = r.data.fm.CaseCrlfToLf(problemID, config)
 	if err != nil {
 		return err
 	}
@@ -48,9 +48,9 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.SetJudgeConfig(problemId, config)
+	err = r.data.fm.SetJudgeConfig(problemID, config)
 	if err != nil {
 		return err
 	}
-	return r.data.fm.CompressAndArchive(problemId)
+	return r.data.fm.CompressAndArchive(problemID)
 }

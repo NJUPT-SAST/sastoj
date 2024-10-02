@@ -13,7 +13,7 @@ func (s *SimpleTask) judging(cases []bool) (taskPoint int16, casesPoint []int16,
 	if len(cases) != len(s.task.Cases) {
 		return 0, nil, errors.New("cases and tasks not match")
 	}
-	res := make([]int16, len(cases), len(cases))
+	res := make([]int16, len(cases))
 	taskPoint = 0
 	for _, c := range s.task.Cases {
 		i := util.GetCaseIndex(c.Input) - 1

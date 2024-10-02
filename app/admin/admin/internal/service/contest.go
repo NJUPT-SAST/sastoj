@@ -27,12 +27,12 @@ func (s *AdminService) CreateContest(ctx context.Context, req *v1.CreateContestR
 		return nil, err
 	}
 	return &v1.CreateContestReply{
-		Id: rv.Id,
+		Id: rv.ID,
 	}, nil
 }
 func (s *AdminService) UpdateContest(ctx context.Context, req *v1.UpdateContestRequest) (*v1.UpdateContestReply, error) {
 	err := s.ctsc.UpdateContest(ctx, &biz.Contest{
-		Id:          req.Id,
+		ID:          req.Id,
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      req.Status,
@@ -55,7 +55,7 @@ func (s *AdminService) DeleteContest(ctx context.Context, req *v1.DeleteContestR
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -69,12 +69,12 @@ func (s *AdminService) GetContest(ctx context.Context, req *v1.GetContestRequest
 
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
 	return &v1.GetContestReply{
-		Id:          rv.Id,
+		Id:          rv.ID,
 		Title:       rv.Title,
 		Description: rv.Description,
 		Status:      rv.Status,
@@ -94,7 +94,7 @@ func (s *AdminService) ListContest(ctx context.Context, req *v1.ListContestReque
 	var list []*v1.ListContestReply_Contest
 	for _, v := range rv {
 		list = append(list, &v1.ListContestReply_Contest{
-			Id:          v.Id,
+			Id:          v.ID,
 			Title:       v.Title,
 			Description: v.Description,
 			Status:      v.Status,
@@ -118,9 +118,9 @@ func (s *AdminService) AddContestants(ctx context.Context, req *v1.AddContestant
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
-		return nil, v1.ErrorGroupNotFound("group with specified Id not found")
+		return nil, v1.ErrorGroupNotFound("group with specified ID not found")
 	}
 	return &v1.AddContestantsReply{
 		Success: true,
@@ -131,7 +131,7 @@ func (s *AdminService) ManualRanking(ctx context.Context, req *v1.ManualRankingR
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest
 		problems := make([]*v1.GetRankingReply_UserResult_ProblemResult, 0)
 		for _, p := range v.Problems {
 			problems = append(problems, &v1.GetRankingReply_UserResult_ProblemResult{
-				ProblemId:         p.ProblemId,
+				ProblemId:         p.ProblemID,
 				State:             p.State,
 				Point:             p.Point,
 				TriedTimes:        p.TriedCount,

@@ -8,15 +8,14 @@ import (
 
 func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProblemRequest) (*pb.CreateProblemReply, error) {
 	rv, err := s.pc.CreateProblem(ctx, &biz.Problem{
-		TypeId:     request.TypeId,
+		TypeID:     request.TypeId,
 		Title:      request.Title,
 		Content:    request.Content,
-		Point:      request.Point,
-		ContestId:  request.ContestId,
-		Index:      request.Index,
+		Score:      int16(request.Score),
+		ContestID:  request.ContestId,
+		Index:      int16(request.Index),
 		Visibility: request.Visibility,
-		OwnerId:    request.OwnerId,
-		Config:     request.Config,
+		OwnerID:    request.OwnerId,
 	})
 	if err != nil {
 		return nil, err
@@ -28,15 +27,13 @@ func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProb
 
 func (s *AdminService) UpdateProblem(ctx context.Context, request *pb.UpdateProblemRequest) (*pb.UpdateProblemReply, error) {
 	rv, err := s.pc.UpdateProblem(ctx, &biz.Problem{
-		TypeId:     request.TypeId,
+		TypeID:     request.TypeId,
 		Title:      request.Title,
 		Content:    request.Content,
-		Point:      request.Point,
-		ContestId:  request.ContestId,
-		Index:      request.Index,
+		Score:      int16(request.Score),
+		ContestID:  request.ContestId,
+		Index:      int16(request.Index),
 		Visibility: request.Visibility,
-		OwnerId:    request.OwnerId,
-		Config:     request.Config,
 	})
 	if err != nil {
 		return nil, err
@@ -62,16 +59,15 @@ func (s *AdminService) GetProblem(ctx context.Context, request *pb.GetProblemReq
 		return nil, err
 	}
 	return &pb.GetProblemReply{
-		Id:          rv.Id,
-		TypeId:      rv.TypeId,
+		Id:          rv.ID,
+		TypeId:      rv.TypeID,
 		Title:       rv.Title,
 		Content:     rv.Content,
-		Point:       rv.Point,
-		ContestId:   rv.ContestId,
-		CaseVersion: rv.CaseVersion,
-		Index:       rv.Index,
-		Config:      rv.Config,
-		OwnerId:     rv.OwnerId,
+		Score:       int32(rv.Score),
+		ContestId:   rv.ContestID,
+		CaseVersion: int32(rv.CaseVersion),
+		Index:       int32(rv.Index),
+		OwnerId:     rv.OwnerID,
 		Visibility:  rv.Visibility,
 	}, nil
 }
@@ -84,16 +80,15 @@ func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemR
 	var list []*pb.ListProblemReply_Problem
 	for _, each := range rv {
 		r := pb.ListProblemReply_Problem{
-			Id:          each.Id,
-			TypeId:      each.TypeId,
+			Id:          each.ID,
+			TypeId:      each.TypeID,
 			Title:       each.Title,
 			Content:     each.Content,
-			Point:       each.Point,
-			ContestId:   each.ContestId,
-			CaseVersion: each.CaseVersion,
-			Index:       each.Index,
-			Config:      each.Config,
-			OwnerId:     each.OwnerId,
+			Score:       int32(each.Score),
+			ContestId:   each.ContestID,
+			CaseVersion: int32(each.CaseVersion),
+			Index:       int32(each.Index),
+			OwnerId:     each.OwnerID,
 			Visibility:  each.Visibility,
 		}
 		list = append(list, &r)

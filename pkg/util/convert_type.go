@@ -1,7 +1,6 @@
 package util
 
 import (
-	api "sastoj/api/sastoj/admin/admin/service/v1"
 	pb "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
@@ -43,7 +42,7 @@ func ContestStateToEnt(state int32) (contest.State, error) {
 	case 5:
 		return contest.StateDELETED, nil
 	default:
-		return "", api.ErrorContestInvalid("contest state invalid")
+		return "", pb.ErrorContestInvalid("contest state invalid")
 	}
 }
 
@@ -69,7 +68,7 @@ func UserStateToEnt(state int16) (user.State, error) {
 	case 2:
 		return user.StateINACTIVE, nil
 	default:
-		return "", api.ErrorUserInvalid("user state invalid")
+		return "", pb.ErrorUserInvalid("user state invalid")
 	}
 }
 

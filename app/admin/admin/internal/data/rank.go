@@ -30,7 +30,7 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
 	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
-		key := prefix + strconv.FormatInt(contest.Id, 10)
+		key := prefix + strconv.FormatInt(contest.ID, 10)
 		data, err := r.data.redis.Get(ctx, key).Result()
 		if err != nil {
 			return nil, err
@@ -49,7 +49,7 @@ func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 func (r *rankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
 	if contest.EndTime.After(time.Now()) {
 		const prefix = "admin:contest:rank:"
-		key := prefix + strconv.FormatInt(contest.Id, 10)
+		key := prefix + strconv.FormatInt(contest.ID, 10)
 		rankData, err := json.Marshal(rank)
 		if err != nil {
 			return err
@@ -64,9 +64,9 @@ func (r *rankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Ran
 	return nil
 }
 
-func (r *rankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int64]*biz.UserRank, error) {
+func (r *rankRepo) GetSubmissions(ctx context.Context, contestID int64) (map[int64]*biz.UserRank, error) {
 	submissions, err := r.data.db.Submission.Query().
-		Where(submission.HasProblemsWith(problem.HasContestWith(contest.ID(contestId)))).
+		Where(submission.HasProblemsWith(problem.HasContestWith(contest.ID(contestID)))).
 		WithUsers().
 		WithProblems().
 		All(ctx)
@@ -82,7 +82,7 @@ func (r *rankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int
 	for _, v := range submissions {
 		if _, ok := res[v.UserID]; !ok {
 			res[v.UserID] = &biz.UserRank{
-				UserId:       v.UserID,
+				UserID:       v.UserID,
 				UserName:     v.Edges.Users.Username,
 				AchievedTime: time.Unix(0, 0),
 				Problems:     make(map[int64]*biz.UserProblemResult),
@@ -99,8 +99,8 @@ func (r *rankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int
 		}
 		if _, ok := res[v.UserID].Problems[v.ProblemID]; !ok {
 			res[v.UserID].Problems[v.ProblemID] = &biz.UserProblemResult{
-				SubmissionId: v.ID,
-				ProblemId:    v.ProblemID,
+				SubmissionID: v.ID,
+				ProblemID:    v.ProblemID,
 				State:        status,
 				Point:        int32(v.Point),
 				TriedCount:   0,
@@ -114,7 +114,7 @@ func (r *rankRepo) GetSubmissions(ctx context.Context, contestId int64) (map[int
 			// only update submission when score is higher
 			if int64(v.Point) > int64(res[v.UserID].Problems[v.ProblemID].Point) {
 				res[v.UserID].Problems[v.ProblemID].Point = int32(v.Point)
-				res[v.UserID].Problems[v.ProblemID].SubmissionId = v.ID
+				res[v.UserID].Problems[v.ProblemID].SubmissionID = v.ID
 				res[v.UserID].Problems[v.ProblemID].SubmitTime = v.CreateTime
 				res[v.UserID].Problems[v.ProblemID].State = status
 			}

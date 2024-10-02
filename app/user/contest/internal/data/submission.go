@@ -24,7 +24,7 @@ type submissionRepo struct {
 }
 
 func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*biz.SelfTest, error) {
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 	var res *biz.SelfTest
 	// get from redis
 	var po *mq.SelfTest
@@ -52,7 +52,7 @@ func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*b
 
 func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 	var cases []*biz.Case
 	if err != nil {
 		// get from redis
@@ -104,7 +104,7 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 		return fmt.Errorf("problem %d is not exist", selfTest.ProblemID)
 	}
 
-	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIds, po) {
+	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIDs, po) {
 		return errors.New("permission denied")
 	}
 
@@ -126,7 +126,7 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 
 func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 	var res *biz.Submission
 	if err != nil {
 		// get from redis
@@ -180,12 +180,12 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 	return res, nil
 }
 
-func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
-	userID := util.GetUserInfoFromCtx(ctx).UserId
+func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*biz.Submission, error) {
+	userID := util.GetUserInfoFromCtx(ctx).UserID
 
 	po, err := s.data.db.Submission.Query().
 		Select(submission.FieldID, submission.FieldState, submission.FieldPoint, submission.FieldLanguage, submission.FieldCreateTime, submission.FieldLanguage).
-		Where(submission.UserIDEQ(userID), submission.ProblemIDEQ(problemId)).
+		Where(submission.UserIDEQ(userID), submission.ProblemIDEQ(problemID)).
 		Order(ent.Desc(submission.FieldCreateTime)).
 		All(ctx)
 	if err != nil {
@@ -195,7 +195,7 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 	for _, v := range po {
 		submissions = append(submissions, &biz.Submission{
 			ID:         strconv.FormatInt(v.ID, 10),
-			ProblemID:  problemId,
+			ProblemID:  problemID,
 			Language:   v.Language,
 			Status:     v.State,
 			Point:      v.Point,
@@ -217,7 +217,7 @@ func (s *submissionRepo) CreateSubmission(ctx context.Context, submission *biz.S
 		s.log.Errorf("unmarshal problem failed: %v", err)
 		return fmt.Errorf("problem %d is not exist", submission.ProblemID)
 	}
-	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIds, po) {
+	if !contestValidator(util.GetUserInfoFromCtx(ctx).GroupIDs, po) {
 		return errors.New("permission denied")
 	}
 

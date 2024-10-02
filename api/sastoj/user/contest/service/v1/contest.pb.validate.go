@@ -3879,7 +3879,7 @@ func (m *ListRankingReply_User) validate(all bool) error {
 
 	// no validation rules for Username
 
-	// no validation rules for Score
+	// no validation rules for Point
 
 	// no validation rules for Rank
 

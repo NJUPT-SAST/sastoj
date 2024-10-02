@@ -24,8 +24,8 @@ var (
 )
 
 type Claims struct {
-	UserId    int64   `json:"user_id"`
-	GroupIds  []int64 `json:"group_ids"`
+	UserID    int64   `json:"user_id"`
+	GroupIDs  []int64 `json:"group_ids"`
 	GroupName string  `json:"group_name"`
 }
 
@@ -62,14 +62,14 @@ func Auth(secret string, defaultRule string, customApiMap map[string]string) mid
 			if err != nil {
 				return nil, err
 			}
-			log.Infof("receive request from user: %d", claimsInfo.UserId)
+			log.Infof("receive request from user: %d", claimsInfo.UserID)
 
 			//put claims into context so that other service could retrieve it
 			ctx = context.WithValue(ctx, "userInfo", claimsInfo)
 
 			// if the user is an admin, then return directly
 			if strings.HasPrefix(claimsInfo.GroupName, AdminGroup) {
-				log.Infof("receive request from admin: %d", claimsInfo.UserId)
+				log.Infof("receive request from admin: %d", claimsInfo.UserID)
 				return handler(ctx, req)
 			}
 
@@ -135,25 +135,21 @@ func parseClaims(claims jwt.Claims) (*Claims, error) {
 	if err != nil {
 		return nil, ErrMissingClaims
 	}
-	groupIds := make([]int64, 0)
+	groupIDs := make([]int64, 0)
 	for _, id := range claims.(jwt.MapClaims)["group_ids"].([]interface{}) {
 		groupID, err := id.(json.Number).Int64()
 		if err != nil {
 			return nil, ErrMissingClaims
 		}
-		groupIds = append(groupIds, groupID)
-	}
-	log.Info(groupIds)
-	if err != nil {
-		return nil, ErrMissingClaims
+		groupIDs = append(groupIDs, groupID)
 	}
 	groupName, ok := claims.(jwt.MapClaims)["group_name"].(string)
 	if !ok {
 		return nil, ErrMissingClaims
 	}
 	return &Claims{
-		UserId:    userID,
-		GroupIds:  groupIds,
+		UserID:    userID,
+		GroupIDs:  groupIDs,
 		GroupName: groupName,
 	}, nil
 }

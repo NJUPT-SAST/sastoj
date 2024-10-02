@@ -26,6 +26,6 @@ func (s *AuthService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 
 }
 
-//func (s *AuthService) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutReply, error) {
-//	return &pb.LogoutReply{}, nil
-//}
+// func (s *AuthService) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutReply, error) {
+// 	return &pb.LogoutReply{}, nil
+// }

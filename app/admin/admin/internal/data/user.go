@@ -28,7 +28,7 @@ func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
 		SetUsername(u.Username).
 		SetPassword(u.Password).
 		SetSalt(u.Salt).
-		AddGroupIDs(u.GroupIds...).
+		AddGroupIDs(u.GroupIDs...).
 		Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
@@ -46,7 +46,7 @@ func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
 	res, err := r.data.db.User.Update().
 		SetUsername(u.Username).
 		ClearGroups().
-		AddGroupIDs(u.GroupIds...).
+		AddGroupIDs(u.GroupIDs...).
 		SetState(entState).
 		Where(user.IDEQ(u.ID)).
 		Save(ctx)
@@ -67,7 +67,7 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	return &biz.User{
 		ID:       res.ID,
 		Username: res.Username,
-		GroupIds: res.QueryGroups().IDsX(ctx),
+		GroupIDs: res.QueryGroups().IDsX(ctx),
 		State:    util.UserStateToInt(res.State),
 	}, nil
 }
@@ -83,7 +83,7 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64) ([]
 		rv = append(rv, &biz.User{
 			ID:       u.ID,
 			Username: u.Username,
-			GroupIds: u.QueryGroups().IDsX(ctx),
+			GroupIDs: u.QueryGroups().IDsX(ctx),
 			State:    util.UserStateToInt(u.State),
 		})
 	}
@@ -94,7 +94,7 @@ func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]st
 		c.SetUsername(users[i].Username).
 			SetSalt(users[i].Salt).
 			SetPassword(users[i].Password).
-			AddGroupIDs(users[i].GroupIds...)
+			AddGroupIDs(users[i].GroupIDs...)
 	}).Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)

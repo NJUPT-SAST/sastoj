@@ -3,8 +3,10 @@ package data
 import (
 	"context"
 	"sastoj/app/admin/admin/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/user"
 	"sastoj/pkg/util"
 	"time"
 
@@ -26,13 +28,13 @@ func NewProblemRepo(data *Data, logger log.Logger) biz.ProblemRepo {
 
 func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) {
 	res, err := r.data.db.Problem.Create().
-		SetProblemTypeID(g.TypeId).
+		SetProblemTypeID(g.TypeID).
 		SetTitle(g.Title).
 		SetContent(g.Content).
-		SetScore(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetScore(g.Score).
+		SetContestID(g.ContestID).
 		SetCaseVersion(1).
-		SetIndex(int16(g.Index)).
+		SetIndex(g.Index).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
 		Save(ctx)
@@ -44,19 +46,18 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 
 func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error) {
 	res, err := r.data.db.Problem.Update().
-		SetProblemTypeID(g.TypeId).
+		SetProblemTypeID(g.TypeID).
 		SetTitle(g.Title).
 		SetContent(g.Content).
-		SetScore(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetScore(g.Score).
+		SetContestID(g.ContestID).
 		AddCaseVersion(1).
-		SetIndex(int16(g.Index)).
-		SetOwnerID(getUserID(ctx)).
+		SetIndex(g.Index).
 		SetVisibility(util.VisToEnt(g.Visibility)).
-		Where(problem.ID(g.Id)).
+		Where(problem.ID(g.ID)).
 		Where(problem.IsDeleted(false)).
 		Where(problem.HasContestWith(
-			contest.IDEQ(g.ContestId), contest.StartTimeGT(time.Now()))).
+			contest.IDEQ(g.ContestID), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -69,25 +70,23 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 	p, err := r.data.db.Problem.Query().
 		Where(problem.ID(id)).
 		Where(problem.IsDeleted(false)).
-		WithOwner().
+		WithOwner(func(q *ent.UserQuery) {
+			q.Select(user.FieldID)
+		}).
 		First(ctx)
-	if err != nil {
-		return nil, err
-	}
-	owner, err := p.QueryOwner().First(ctx)
 	if err != nil {
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
 	return &biz.Problem{
-		Id:          p.ID,
+		ID:          p.ID,
 		Title:       p.Title,
 		Content:     p.Content,
-		Point:       int32(p.Score),
-		ContestId:   p.ContestID,
-		CaseVersion: int32(p.CaseVersion),
-		Index:       int32(p.Index),
-		OwnerId:     owner.ID,
+		Score:       p.Score,
+		ContestID:   p.ContestID,
+		CaseVersion: p.CaseVersion,
+		Index:       p.Index,
+		OwnerID:     p.Edges.Owner.ID,
 		Visibility:  vis,
 	}, nil
 }
@@ -107,7 +106,9 @@ func (r *problemRepo) Delete(ctx context.Context, id int64) (*int64, error) {
 func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*biz.Problem, error) {
 	res, err := r.data.db.Problem.Query().
 		Limit(int(size)).Offset(int((currency - 1) * size)).
-		WithOwner().
+		WithOwner(func(q *ent.UserQuery) {
+			q.Select(user.FieldID)
+		}).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -115,20 +116,17 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
 		vis := util.VisToPb(v.Visibility)
-		owner, err := v.QueryOwner().First(ctx)
-		if err != nil {
-			return nil, err
-		}
+
 		list = append(list, &biz.Problem{
-			Id:          v.ID,
-			TypeId:      v.ProblemTypeID,
+			ID:          v.ID,
+			TypeID:      v.ProblemTypeID,
 			Title:       v.Title,
 			Content:     v.Content,
-			Point:       int32(v.Score),
-			ContestId:   v.ContestID,
-			CaseVersion: int32(v.CaseVersion),
-			Index:       int32(v.Index),
-			OwnerId:     owner.ID,
+			Score:       v.Score,
+			ContestID:   v.ContestID,
+			CaseVersion: v.CaseVersion,
+			Index:       v.Index,
+			OwnerID:     v.Edges.Owner.ID,
 			Visibility:  vis,
 		})
 	}
@@ -136,5 +134,5 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 }
 
 func getUserID(ctx context.Context) int64 {
-	return util.GetUserInfoFromCtx(ctx).UserId
+	return util.GetUserInfoFromCtx(ctx).UserID
 }

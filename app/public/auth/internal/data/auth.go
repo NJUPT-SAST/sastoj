@@ -4,7 +4,6 @@ import (
 	"context"
 	"sastoj/app/public/auth/internal/biz"
 	"sastoj/ent"
-	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"sastoj/pkg/util"
@@ -15,18 +14,6 @@ import (
 type authRepo struct {
 	data *Data
 	log  *log.Helper
-}
-
-func (a *authRepo) GetContests(ctx context.Context, groupIds []int64) ([]int64, error) {
-	contests, err := a.data.db.Contest.Query().Select(contest.FieldID).Where(contest.HasContestantsWith(group.IDIn(groupIds...))).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var ids []int64
-	for _, c := range contests {
-		ids = append(ids, c.ID)
-	}
-	return ids, nil
 }
 
 func (a *authRepo) FindUserByName(ctx context.Context, username string) (*biz.User, error) {
@@ -53,7 +40,7 @@ func (a *authRepo) FindUserByName(ctx context.Context, username string) (*biz.Us
 		Password:  po.Password,
 		Salt:      po.Salt,
 		Status:    util.UserStateToInt(po.State),
-		GroupIds:  groupIDs,
+		GroupIDs:  groupIDs,
 		GroupName: po.Edges.Groups[0].GroupName,
 	}, nil
 }

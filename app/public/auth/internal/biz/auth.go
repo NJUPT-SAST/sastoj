@@ -18,14 +18,14 @@ type User struct {
 	Password  string
 	Salt      string
 	Status    int16
-	GroupIds  []int64
+	GroupIDs  []int64
 	GroupName string
 }
 
 // MyCustomClaims is a custom claim for jwt.
 type MyCustomClaims struct {
-	UserId    int64   `json:"user_id"`
-	GroupIds  []int64 `json:"group_ids"`
+	UserID    int64   `json:"user_id"`
+	GroupIDs  []int64 `json:"group_ids"`
 	GroupName string  `json:"group_name"`
 	jwt.RegisteredClaims
 }
@@ -95,8 +95,8 @@ func (uc *AuthUsecase) generateJWT(user *User) (string, error) {
 		ID:        "1",
 	}
 	claims := MyCustomClaims{
-		UserId:           user.ID,
-		GroupIds:         user.GroupIds,
+		UserID:           user.ID,
+		GroupIDs:         user.GroupIDs,
 		GroupName:        user.GroupName,
 		RegisteredClaims: registeredClaims,
 	}

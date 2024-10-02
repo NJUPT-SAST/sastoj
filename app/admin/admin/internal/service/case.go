@@ -10,7 +10,7 @@ import (
 )
 
 func (s *AdminService) DeleteCasesByProblemId(ctx context.Context, req *pb.DeleteCasesByProblemIdRequest) (*pb.DeleteCasesByProblemIdReply, error) {
-	err := s.casec.DeleteCasesByProblemId(ctx, req.ProblemId)
+	err := s.casec.DeleteCasesByProblemID(ctx, req.ProblemId)
 	return &pb.DeleteCasesByProblemIdReply{}, err
 }
 

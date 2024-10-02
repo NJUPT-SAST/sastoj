@@ -26,7 +26,7 @@ func ApiLimiterMiddleware(apis map[string]time.Duration) middleware.Middleware {
 			if !exists {
 				return handler(ctx, req)
 			}
-			userID := ctx.Value("userInfo").(*auth.Claims).UserId
+			userID := ctx.Value("userInfo").(*auth.Claims).UserID
 			prevTime, exists := blackList[userID]
 			log.Debug(fmt.Sprintf("userID: %d, prevTime: %v, exists: %v", userID, prevTime, exists))
 			if exists && time.Now().Before(prevTime) {

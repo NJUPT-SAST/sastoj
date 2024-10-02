@@ -20,8 +20,8 @@ type submissionDTO struct {
 	Status     int16     `json:"state,omitempty"`
 	Point      int16     `json:"point,omitempty"`
 	CreateTime time.Time `json:"create_time"`
-	TotalTime  int32     `json:"total_time,omitempty"`
-	MaxMemory  int32     `json:"max_memory,omitempty"`
+	TotalTime  uint64    `json:"total_time,omitempty"`
+	MaxMemory  uint64    `json:"max_memory,omitempty"`
 	Language   string    `json:"language,omitempty"`
 	Token      string    `json:"secret,omitempty"`
 }

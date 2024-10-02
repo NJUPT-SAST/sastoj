@@ -14,12 +14,12 @@ func (s *AdminService) CreateGroup(ctx context.Context, req *pb.CreateGroupReque
 		return nil, err
 	}
 	return &pb.CreateGroupReply{
-		Id: rv.Id,
+		Id: rv.ID,
 	}, nil
 }
 func (s *AdminService) UpdateGroup(ctx context.Context, req *pb.UpdateGroupRequest) (*pb.UpdateGroupReply, error) {
 	rv, err := s.gc.UpdateGroup(ctx, &biz.Group{
-		Id:   req.Id,
+		ID:   req.Id,
 		Name: req.Name,
 	})
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *AdminService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupReque
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, pb.ErrorGroupNotFound("Group with specified Id not found")
+			return nil, pb.ErrorGroupNotFound("Group with specified ID not found")
 		}
 		return nil, err
 	}
@@ -44,16 +44,16 @@ func (s *AdminService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupReque
 
 }
 func (s *AdminService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*pb.GetGroupReply, error) {
-	rv, err := s.gc.GetGroup(ctx, &biz.Group{Id: req.Id})
+	rv, err := s.gc.GetGroup(ctx, &biz.Group{ID: req.Id})
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, pb.ErrorGroupNotFound("Group with specified Id not found")
+			return nil, pb.ErrorGroupNotFound("Group with specified ID not found")
 		}
 		return nil, err
 	}
 	return &pb.GetGroupReply{
-		Id:   rv.Id,
+		Id:   rv.ID,
 		Name: rv.Name,
 	}, nil
 }
@@ -65,7 +65,7 @@ func (s *AdminService) ListGroup(ctx context.Context, req *pb.ListGroupRequest) 
 	var list []*pb.ListGroupReply_Group
 	for _, v := range rv {
 		list = append(list, &pb.ListGroupReply_Group{
-			Id:   v.Id,
+			Id:   v.ID,
 			Name: v.Name,
 		})
 	}
