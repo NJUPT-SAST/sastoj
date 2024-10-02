@@ -84,13 +84,13 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 	chanMap := make(map[string]*mq.OjChannel)
 	for _, problemType := range client.ProblemType.Query().AllX(context.Background()) {
-		sCh, err := mq.NewChannel(ch, problemType.Edges.Problems[0].Edges.ProblemType.SubmissionChannelName)
+		sCh, err := mq.NewChannel(ch, problemType.SubmissionChannelName)
 		if err != nil {
 			log.Errorf("failed creating a submission channel")
 			return nil, nil, err
 		}
 		chanMap[problemType.SubmissionChannelName] = sCh
-		stCh, err := mq.NewChannel(ch, problemType.Edges.Problems[0].Edges.ProblemType.SelfTestChannelName)
+		stCh, err := mq.NewChannel(ch, problemType.SelfTestChannelName)
 		if err != nil {
 			log.Errorf("failed creating a self-test channel")
 			return nil, nil, err

@@ -35,6 +35,7 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
+		SetMetadata(g.Metadata).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -53,6 +54,7 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
+		SetMetadata(g.Metadata).
 		Where(problem.ID(g.Id)).
 		Where(problem.IsDeleted(false)).
 		Where(problem.HasContestWith(
@@ -89,6 +91,7 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		Index:       int32(p.Index),
 		OwnerId:     owner.ID,
 		Visibility:  vis,
+		Metadata:    p.Metadata,
 	}, nil
 }
 
@@ -130,6 +133,7 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			Index:       int32(v.Index),
 			OwnerId:     owner.ID,
 			Visibility:  vis,
+			Metadata:    v.Metadata,
 		})
 	}
 	return list, nil
