@@ -37,7 +37,7 @@ func (r *contestRepo) Save(ctx context.Context, g *biz.Contest) (*biz.Contest, e
 		SetEndTime(g.EndTime).
 		SetLanguage(g.Language).
 		SetExtraTime(int16(g.ExtraTime)).
-		SetCreateTime(g.CreateTime).
+		SetCreateTime(time.Now()).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (r *contestRepo) Update(ctx context.Context, g *biz.Contest) error {
 		SetEndTime(g.EndTime).
 		SetLanguage(g.Language).
 		SetExtraTime(int16(g.ExtraTime)).
-		SetCreateTime(g.CreateTime).
+		SetCreateTime(time.Now()).
 		Where(contest.ID(g.Id)).
 		Save(ctx)
 	if err != nil {

@@ -24,15 +24,10 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 }
 
 func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
-	entState, err := util.UserStateToEnt(u.State)
-	if err != nil {
-		return nil, err
-	}
 	res, err := r.data.db.User.Create().
 		SetUsername(u.Username).
 		SetPassword(u.Password).
 		SetSalt(u.Salt).
-		SetState(entState).
 		AddGroupIDs(u.GroupIds...).
 		Save(ctx)
 	if err != nil {
@@ -53,7 +48,7 @@ func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
 		ClearGroups().
 		AddGroupIDs(u.GroupIds...).
 		SetState(entState).
-		Where(user.ID(u.ID)).
+		Where(user.IDEQ(u.ID)).
 		Save(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
@@ -104,7 +99,7 @@ func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]st
 	if err != nil {
 		log.Debug("err: ", err)
 	}
-	//返回usernames是为了防止有些账户没有创建成功
+	// 返回usernames是为了防止有些账户没有创建成功
 	usernames := make([]string, 0)
 	for _, u := range createdUsers {
 		usernames = append(usernames, u.Username)

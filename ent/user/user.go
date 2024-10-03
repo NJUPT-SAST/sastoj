@@ -94,11 +94,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// DefaultUsername holds the default value on creation for the "username" field.
-	DefaultUsername string
-)
-
 // State defines the type for the "state" enum field.
 type State string
 

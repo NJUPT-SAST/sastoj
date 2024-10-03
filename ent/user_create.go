@@ -32,14 +32,6 @@ func (uc *UserCreate) SetUsername(s string) *UserCreate {
 	return uc
 }
 
-// SetNillableUsername sets the "username" field if the given value is not nil.
-func (uc *UserCreate) SetNillableUsername(s *string) *UserCreate {
-	if s != nil {
-		uc.SetUsername(*s)
-	}
-	return uc
-}
-
 // SetPassword sets the "password" field.
 func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	uc.mutation.SetPassword(s)
@@ -182,10 +174,6 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
-	if _, ok := uc.mutation.Username(); !ok {
-		v := user.DefaultUsername
-		uc.mutation.SetUsername(v)
-	}
 	if _, ok := uc.mutation.State(); !ok {
 		v := user.DefaultState
 		uc.mutation.SetState(v)

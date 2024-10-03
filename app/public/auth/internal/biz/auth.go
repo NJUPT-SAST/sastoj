@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// User is a Greeter model.
+// User is a user model.
 type User struct {
 	ID        int64
 	Username  string
@@ -21,6 +21,8 @@ type User struct {
 	GroupIds  []int64
 	GroupName string
 }
+
+// MyCustomClaims is a custom claim for jwt.
 type MyCustomClaims struct {
 	UserId    int64   `json:"user_id"`
 	GroupIds  []int64 `json:"group_ids"`
@@ -31,7 +33,6 @@ type MyCustomClaims struct {
 // AuthRepo is a user and contest repo.
 type AuthRepo interface {
 	FindUserByName(context.Context, string) (*User, error)
-	GetContests(ctx context.Context, groupIds []int64) ([]int64, error)
 }
 
 type jwtConfig struct {

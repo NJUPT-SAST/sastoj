@@ -51,6 +51,7 @@ func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
 // CreateUser creates a User, and returns the new User.
 func (uc *UserUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 	var salt = util.GenerateRandomString(5, "")
+	u.Salt = salt
 	u.Password = util.GenerateMD5Password(u.Password, salt)
 	uc.log.WithContext(ctx).Infof("CreateUser: %v", u.Username)
 	res, err := uc.repo.Save(ctx, u)
