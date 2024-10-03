@@ -7,6 +7,7 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/ent/user"
+	"sastoj/pkg/util"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -25,7 +26,7 @@ func NewJudgeRepo(data *Data, logger log.Logger) biz.JudgeRepo {
 }
 
 func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
-	_, err := r.data.db.Submission.Update().SetState(2).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
+	_, err := r.data.db.Submission.Update().SetState(util.Accepted).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
 	if err != nil {
 		return err
 	}

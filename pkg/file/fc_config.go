@@ -6,6 +6,7 @@ type FcConfigManager struct {
 
 type FcConfig struct {
 	ReferenceAnswer string
+	PartialScore    int16
 }
 
 // NewFcConfigManager create a new file manager
