@@ -48,6 +48,7 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 			CaseVersion: int32(p.CaseVersion),
 			Index:       int32(p.Index),
 			Config:      "",
+			Metadata:    p.Metadata,
 		})
 	}
 	return rv, nil

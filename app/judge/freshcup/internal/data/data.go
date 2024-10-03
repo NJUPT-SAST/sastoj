@@ -24,7 +24,7 @@ var ProviderSet = wire.NewSet(NewData, NewSubmissionRepo)
 type Data struct {
 	db     *ent.Client
 	redis  *redis.Client
-	fm     *file.Manager
+	fm     *file.FcConfigManager
 	logger *log.Helper
 }
 
@@ -82,6 +82,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-single-choice").
 			SetDisplayName("Single-Choice").
 			SetDescription("Single Choice Problem powered by Freshcup").
+			SetSubmissionChannelName("freshcup-submission").
+			SetSelfTestChannelName("freshcup-self-test").
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
@@ -92,6 +94,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-multiple-choice").
 			SetDisplayName("Multiple-Choice").
 			SetDescription("Multiple Choice Problem powered by Freshcup").
+			SetSubmissionChannelName("freshcup-submission").
+			SetSelfTestChannelName("freshcup-self-test").
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
@@ -102,6 +106,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-short-answer").
 			SetDisplayName("Short-Answer").
 			SetDescription("Short Answer Problem powered by Freshcup").
+			SetSubmissionChannelName("freshcup-submission").
+			SetSelfTestChannelName("freshcup-self-test").
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
@@ -122,7 +128,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 
 	// Create a file manager
-	fm := file.NewManager(c.Load.ProblemCasesLocation)
+	fm := file.NewFcConfigManager(c.Load.ProblemCasesLocation)
 
 	return &Data{
 		db:     client,

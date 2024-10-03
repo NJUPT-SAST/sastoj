@@ -30,7 +30,7 @@ type Data struct {
 	db      *ent.Client
 	redis   *redis.Client
 	gojudge *gojudge.GoJudge
-	fm      *file.Manager
+	fm      *file.JudgeConfigManager
 	logger  *log.Helper
 }
 
@@ -84,6 +84,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("gojudge-classic-algo").
 			SetDisplayName("Classic-Algo").
 			SetDescription("Classic Algo Problem powered by Gojudge").
+			SetSubmissionChannelName("gojudge-submission").
+			SetSelfTestChannelName("gojudge-self-test").
 			SetJudge("gojudge").
 			Save(ctx)
 		if err != nil {
@@ -104,7 +106,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 
 	// Create a file manager
-	fm := file.NewManager(c.Load.ProblemCasesLocation)
+	fm := file.NewJudgeConfigManager(c.Load.ProblemCasesLocation)
 
 	// Create a go-judge client
 	ClientConn, err := grpc.DialInsecure(
