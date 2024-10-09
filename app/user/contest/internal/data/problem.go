@@ -50,11 +50,12 @@ func (p *problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.
 	var problems []*biz.Problem
 	for _, v := range po {
 		problems = append(problems, &biz.Problem{
-			ID:    v.ID,
-			Type:  v.Edges.ProblemType.DisplayName,
-			Title: v.Title,
-			Score: int32(v.Score),
-			Index: v.Index,
+			ID:       v.ID,
+			Type:     v.Edges.ProblemType.DisplayName,
+			Title:    v.Title,
+			Score:    int32(v.Score),
+			Index:    v.Index,
+			Metadata: v.Metadata,
 		})
 	}
 	return problems, nil
@@ -70,12 +71,13 @@ func (p *problemRepo) GetProblem(ctx context.Context, problemID, contestID int64
 			p.log.Errorf("unmarshal problem failed: %v", err)
 		} else {
 			return &biz.Problem{
-				ID:      po.ID,
-				Title:   po.Title,
-				Type:    po.Edges.ProblemType.DisplayName,
-				Content: po.Content,
-				Index:   po.Index,
-				Score:   int32(po.Score),
+				ID:       po.ID,
+				Title:    po.Title,
+				Type:     po.Edges.ProblemType.DisplayName,
+				Content:  po.Content,
+				Index:    po.Index,
+				Score:    int32(po.Score),
+				Metadata: po.Metadata,
 			}, nil
 		}
 	}
@@ -115,12 +117,13 @@ func (p *problemRepo) GetProblem(ctx context.Context, problemID, contestID int64
 	}
 
 	return &biz.Problem{
-		ID:      po.ID,
-		Title:   po.Title,
-		Type:    po.Edges.ProblemType.DisplayName,
-		Content: po.Content,
-		Index:   po.Index,
-		Score:   int32(po.Score),
+		ID:       po.ID,
+		Title:    po.Title,
+		Type:     po.Edges.ProblemType.DisplayName,
+		Content:  po.Content,
+		Index:    po.Index,
+		Score:    int32(po.Score),
+		Metadata: po.Metadata,
 	}, nil
 }
 

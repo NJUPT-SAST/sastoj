@@ -27,7 +27,8 @@ var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJu
 type Data struct {
 	db    *ent.Client
 	redis *redis.Client
-	fm    *file.Manager
+	jcm   *file.JudgeConfigManager
+	fcm   *file.FcConfigManager
 }
 
 // NewData .
@@ -86,5 +87,10 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
-	return &Data{db: client, redis: redisClient, fm: file.NewManager(c.Load.GetProblemCasesLocation())}, cleanup, nil
+	return &Data{
+		db:    client,
+		redis: redisClient,
+		jcm:   file.NewJudgeConfigManager(c.Load.GetProblemCasesLocation()),
+		fcm:   file.NewFcConfigManager(c.Load.GetProblemCasesLocation()),
+	}, cleanup, nil
 }

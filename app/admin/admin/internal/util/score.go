@@ -2,9 +2,10 @@ package util
 
 import (
 	"errors"
+	"sastoj/pkg/file"
 )
 
-func CalculateScores(config *JudgeConfig) error {
+func CalculateScores(config *file.JudgeConfig) error {
 	if config.Score <= 0 {
 		return errors.New("problem score should be positive")
 	}

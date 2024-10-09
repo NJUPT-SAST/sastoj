@@ -20,6 +20,7 @@ type Problem struct {
 	Visibility  pb.Visibility
 	OwnerId     int64
 	Config      string
+	Metadata    map[string]string
 }
 
 type ProblemRepo interface {

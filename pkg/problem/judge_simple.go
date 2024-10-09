@@ -2,11 +2,12 @@ package problem
 
 import (
 	"errors"
+	"sastoj/pkg/file"
 	"sastoj/pkg/util"
 )
 
 type SimpleTask struct {
-	task util.Subtasks
+	task file.Subtasks
 }
 
 func (s *SimpleTask) judging(cases []bool) (taskPoint int16, casesPoint []int16, err error) {

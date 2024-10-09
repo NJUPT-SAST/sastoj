@@ -1,11 +1,10 @@
 package data
 
 import (
+	"github.com/go-kratos/kratos/v2/log"
 	"mime/multipart"
 	"sastoj/app/admin/admin/internal/biz"
-	"sastoj/pkg/util"
-
-	"github.com/go-kratos/kratos/v2/log"
+	"sastoj/app/admin/admin/internal/util"
 )
 
 type caseRepo struct {
@@ -22,25 +21,25 @@ func NewProblemCaseRepo(data *Data, logger log.Logger) biz.CaseRepo {
 }
 
 func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, filename string, casesType string) error {
-	err := r.data.fm.DeleteCase(problemId)
+	err := r.data.jcm.DeleteCase(problemId)
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.SaveAndExtractCase(casesFile, filename, problemId)
+	err = r.data.jcm.SaveAndExtractCase(casesFile, filename, problemId)
 	if err != nil {
 		return err
 	}
 	if casesType == "hydro" {
-		err = r.data.fm.HandleHydroCase(problemId)
+		err = r.data.jcm.HandleHydroCase(problemId)
 		if err != nil {
 			return err
 		}
 	}
-	config, err := r.data.fm.GetJudgeConfig(problemId)
+	config, err := r.data.jcm.GetConfig(problemId)
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.CaseCrlfToLf(problemId, config)
+	err = r.data.jcm.CaseCrlfToLf(problemId, config)
 	if err != nil {
 		return err
 	}
@@ -48,9 +47,9 @@ func (r *caseRepo) UploadCasesFile(problemId int64, casesFile multipart.File, fi
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.SetJudgeConfig(problemId, config)
+	err = r.data.jcm.SetConfig(problemId, config)
 	if err != nil {
 		return err
 	}
-	return r.data.fm.CompressAndArchive(problemId)
+	return r.data.jcm.CompressAndArchive(problemId)
 }

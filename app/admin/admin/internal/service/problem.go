@@ -17,6 +17,7 @@ func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProb
 		Visibility: request.Visibility,
 		OwnerId:    request.OwnerId,
 		Config:     request.Config,
+		Metadata:   request.Metadata,
 	})
 	if err != nil {
 		return nil, err
@@ -37,6 +38,7 @@ func (s *AdminService) UpdateProblem(ctx context.Context, request *pb.UpdateProb
 		Visibility: request.Visibility,
 		OwnerId:    request.OwnerId,
 		Config:     request.Config,
+		Metadata:   request.Metadata,
 	})
 	if err != nil {
 		return nil, err
@@ -73,6 +75,7 @@ func (s *AdminService) GetProblem(ctx context.Context, request *pb.GetProblemReq
 		Config:      rv.Config,
 		OwnerId:     rv.OwnerId,
 		Visibility:  rv.Visibility,
+		Metadata:    rv.Metadata,
 	}, nil
 }
 
@@ -95,6 +98,7 @@ func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemR
 			Config:      each.Config,
 			OwnerId:     each.OwnerId,
 			Visibility:  each.Visibility,
+			Metadata:    each.Metadata,
 		}
 		list = append(list, &r)
 	}

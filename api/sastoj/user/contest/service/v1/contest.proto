@@ -112,6 +112,7 @@ message GetProblemsReply {
 		string title = 3;
 		int32 score = 4;
 		int32 index = 5;
+		map<string, string> metadata = 6;
 	}
 	repeated Problem problems = 1;
 }
@@ -126,6 +127,7 @@ message GetProblemReply {
 	string title = 3;
 	string content = 4;
 	int32 score = 5;
+	map<string, string> metadata = 6;
 }
 
 message SubmitRequest {

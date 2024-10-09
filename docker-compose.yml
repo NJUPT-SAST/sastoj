@@ -89,6 +89,22 @@ services:
       - go-judge:goj
     network_mode: bridge
 
+  oj-freshcup:
+    image: sastoj/freshcup-server
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        target: freshcup-server
+    volumes:
+      - ./conf/freshcup:/data/conf
+      - ./data/cases:/data/cases
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+
   oj-public-auth:
     image: sastoj/public-auth
     build:

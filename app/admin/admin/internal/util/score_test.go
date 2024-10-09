@@ -1,10 +1,13 @@
 package util
 
-import "testing"
+import (
+	"sastoj/pkg/file"
+	"testing"
+)
 
 func TestCalculateSimpleScores(t *testing.T) {
 	type args struct {
-		config *JudgeConfig
+		config *file.JudgeConfig
 	}
 	tests := []struct {
 		name    string
@@ -15,14 +18,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 1",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 30,
 							},
@@ -42,14 +45,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 2",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 10,
 							},
@@ -69,14 +72,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 3",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 20,
 							},
@@ -96,14 +99,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 4",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 0,
 							},
@@ -123,14 +126,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 5",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases:    []Cases{},
+						Cases:    []file.Cases{},
 					},
 				},
 			},
@@ -140,14 +143,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 6",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 0,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 20,
 							},
@@ -161,14 +164,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 7",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 2,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 20,
 							},
@@ -188,14 +191,14 @@ func TestCalculateSimpleScores(t *testing.T) {
 		{
 			name: "Test CalculateSimpleScores 8",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "simple",
-						Cases: []Cases{
+						Cases: []file.Cases{
 							{
 								Score: 0,
 							},
@@ -229,7 +232,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 
 func TestCalculateSubtaskScores(t *testing.T) {
 	type args struct {
-		config *JudgeConfig
+		config *file.JudgeConfig
 	}
 	tests := []struct {
 		name    string
@@ -240,14 +243,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 1",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 30,
 							},
@@ -267,14 +270,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 2",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 10,
 							},
@@ -294,14 +297,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 3",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -321,14 +324,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 4",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 0,
 							},
@@ -348,14 +351,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 5",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{},
+						Subtasks: []file.Subtasks{},
 					},
 				},
 			},
@@ -365,14 +368,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 6",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 0,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -386,14 +389,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 7",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 2,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -413,14 +416,14 @@ func TestCalculateSubtaskScores(t *testing.T) {
 		{
 			name: "Test CalculateSubtaskScores 8",
 			args: args{
-				config: &JudgeConfig{
-					Judge: Judge{
+				config: &file.JudgeConfig{
+					Judge: file.Judge{
 						JudgeType: "classic",
 					},
 					Score: 100,
-					Task: Task{
+					Task: file.Task{
 						TaskType: "subtasks",
-						Subtasks: []Subtasks{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 0,
 							},

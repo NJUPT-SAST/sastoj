@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/judge/gojudge/internal/conf"
+	"sastoj/app/judge/gojudge/internal/server"
 	"sastoj/app/judge/gojudge/pkg/gojudge"
 	"sastoj/ent"
 	"sastoj/ent/problemtype"
@@ -30,7 +31,7 @@ type Data struct {
 	db      *ent.Client
 	redis   *redis.Client
 	gojudge *gojudge.GoJudge
-	fm      *file.Manager
+	fm      *file.JudgeConfigManager
 	logger  *log.Helper
 }
 
@@ -83,6 +84,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("gojudge-classic-algo").
 			SetDisplayName("Classic-Algo").
 			SetDescription("Classic Algo Problem powered by Gojudge").
+			SetSubmissionChannelName(server.SubmissionQueueName).
+			SetSelfTestChannelName(server.SelfTestQueueName).
 			SetJudge("gojudge").
 			Save(ctx)
 		if err != nil {
@@ -102,7 +105,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	}
 
 	// Create a file manager
-	fm := file.NewManager(c.Load.ProblemCasesLocation)
+	fm := file.NewJudgeConfigManager(c.Load.ProblemCasesLocation)
 
 	// Create a go-judge client
 	ClientConn, err := grpc.DialInsecure(
