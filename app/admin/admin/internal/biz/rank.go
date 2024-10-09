@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"sastoj/pkg/util"
 	"sort"
 	"time"
 
@@ -73,9 +74,9 @@ func (r *RankUsecase) Update(ctx context.Context, contest *Contest) (*Rank, erro
 		return nil, err
 	}
 	switch contest.Type {
-	case ContestTypeIOI:
+	case util.ContestTypeIOI:
 		return r.rankByIOI(userSubmissions, contest)
-	case ContestTypeACM:
+	case util.ContestTypeACM:
 		return r.rankByACM(userSubmissions, contest)
 	default:
 		return nil, fmt.Errorf("unknown contest type, find contest type: %d", contest.Type)

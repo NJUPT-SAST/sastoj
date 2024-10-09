@@ -8,6 +8,7 @@ import (
 	"sastoj/app/judge/freshcup/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/problem"
+	"sastoj/ent/submission"
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 	"strings"
@@ -32,11 +33,6 @@ func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) e
 }
 
 func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) error {
-	s.Status = util.Judging
-
-	marshal, _ := json.Marshal(s)
-	r.data.redis.Set(ctx, fmt.Sprintf("%s:%d:%s", SubmissionKey, s.UserID, s.ID), marshal, 2*time.Hour)
-
 	s.Status = util.SystemError
 
 	// cache submission
@@ -86,8 +82,9 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		if s.Status == util.SystemError {
 			return
 		}
-
-		_, err := r.data.db.Submission.Create().
+		// save only the latest submission
+		_, err := r.data.db.Submission.Update().
+			Where(submission.UserIDEQ(s.UserID), submission.ProblemIDEQ(s.ProblemID)).
 			SetUserID(s.UserID).
 			SetProblemID(s.ProblemID).
 			SetCode(s.Code).
@@ -99,7 +96,20 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			SetCompileStderr(s.Stderr).
 			SetCaseVersion(int8(s.CaseVer)).
 			Save(ctx)
-		if err != nil {
+		if ent.IsNotFound(err) {
+			_, err = r.data.db.Submission.Create().
+				SetUserID(s.UserID).
+				SetProblemID(s.ProblemID).
+				SetCode(s.Code).
+				SetState(s.Status).
+				SetPoint(s.Point).
+				SetTotalTime(s.TotalTime).
+				SetMaxMemory(s.MaxMemory).
+				SetLanguage(s.Language).
+				SetCompileStderr(s.Stderr).
+				SetCaseVersion(int8(s.CaseVer)).
+				Save(ctx)
+		} else if err != nil {
 			r.log.Errorf("save submission error: %v", err)
 			return
 		}
