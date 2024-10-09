@@ -10,6 +10,11 @@ import (
 	"sastoj/app/judge/freshcup/internal/service"
 )
 
+const (
+	SubmissionQueueName = "freshcup-submission"
+	SelfTestQueueName   = "freshcup-self-test"
+)
+
 func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger log.Logger) *rabbitmq.Server {
 	var opts = []rabbitmq.ServerOption{
 		rabbitmq.WithAddress([]string{c.Mq}),
@@ -18,8 +23,8 @@ func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger lo
 
 	srv := rabbitmq.NewServer(opts...)
 
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "freshcup-submission", s.SubmissionHandle, broker.WithQueueName("freshcup-submission"), rabbitmqBroker.WithDurableQueue())
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "freshcup-self-test", s.SelfTestHandle, broker.WithQueueName("freshcup-self-test"), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), SubmissionQueueName, s.SubmissionHandle, broker.WithQueueName(SubmissionQueueName), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), SelfTestQueueName, s.SelfTestHandle, broker.WithQueueName(SelfTestQueueName), rabbitmqBroker.WithDurableQueue())
 
 	return srv
 }

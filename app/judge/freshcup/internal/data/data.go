@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"sastoj/app/judge/freshcup/internal/conf"
+	"sastoj/app/judge/freshcup/internal/server"
 	"sastoj/ent"
 	"sastoj/ent/problemtype"
 	"sastoj/pkg/file"
@@ -82,8 +83,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-single-choice").
 			SetDisplayName("Single-Choice").
 			SetDescription("Single Choice Problem powered by Freshcup").
-			SetSubmissionChannelName("freshcup-submission").
-			SetSelfTestChannelName("freshcup-self-test").
+			SetSubmissionChannelName(server.SubmissionQueueName).
+			SetSelfTestChannelName(server.SelfTestQueueName).
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
@@ -94,8 +95,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-multiple-choice").
 			SetDisplayName("Multiple-Choice").
 			SetDescription("Multiple Choice Problem powered by Freshcup").
-			SetSubmissionChannelName("freshcup-submission").
-			SetSelfTestChannelName("freshcup-self-test").
+			SetSubmissionChannelName(server.SubmissionQueueName).
+			SetSelfTestChannelName(server.SelfTestQueueName).
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {
@@ -106,8 +107,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			SetSlugName("freshcup-short-answer").
 			SetDisplayName("Short-Answer").
 			SetDescription("Short Answer Problem powered by Freshcup").
-			SetSubmissionChannelName("freshcup-submission").
-			SetSelfTestChannelName("freshcup-self-test").
+			SetSubmissionChannelName(server.SubmissionQueueName).
+			SetSelfTestChannelName(server.SelfTestQueueName).
 			SetJudge("freshcup").
 			Save(ctx)
 		if err != nil {

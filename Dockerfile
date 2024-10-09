@@ -10,7 +10,8 @@ RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download \
         && cd app/admin/admin && make build && cd ../.. \
         && cd user/contest && make build && cd ../.. \
         && cd public/auth && make build && cd ../.. \
-        && cd judge/gojudge && make build && cd ../..
+        && cd judge/gojudge && make build && cd ../.. \
+        && cd judge/freshcup && make build && cd ../..
 
 
 FROM alpine:edge AS admin
@@ -45,3 +46,9 @@ FROM alpine:edge AS gojudge-server
 COPY --from=builder /src/app/judge/gojudge/bin/gojudge /
 VOLUME /data/conf
 CMD ["/gojudge", "-conf", "/data/conf"]
+
+FROM alpine:edge AS freshcup-server
+
+COPY --from=builder /src/app/judge/freshcup/bin/freshcup /
+VOLUME /data/conf
+CMD ["/freshcup", "-conf", "/data/conf"]

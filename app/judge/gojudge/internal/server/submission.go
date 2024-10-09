@@ -10,6 +10,11 @@ import (
 	"sastoj/app/judge/gojudge/internal/service"
 )
 
+const (
+	SubmissionQueueName = "gojudge-submission"
+	SelfTestQueueName   = "gojudge-self-test"
+)
+
 func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger log.Logger) *rabbitmq.Server {
 	var opts = []rabbitmq.ServerOption{
 		rabbitmq.WithAddress([]string{c.Mq}),
@@ -18,8 +23,8 @@ func NewSubmissionServer(c *conf.Server, s *service.SubmissionService, logger lo
 
 	srv := rabbitmq.NewServer(opts...)
 
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "gojudge-submission", s.SubmissionHandle, broker.WithQueueName("gojudge-submission"), rabbitmqBroker.WithDurableQueue())
-	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), "gojudge-self-test", s.SelfTestHandle, broker.WithQueueName("gojudge-self-test"), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), SubmissionQueueName, s.SubmissionHandle, broker.WithQueueName(SubmissionQueueName), rabbitmqBroker.WithDurableQueue())
+	_ = rabbitmq.RegisterSubscriber(srv, context.Background(), SelfTestQueueName, s.SelfTestHandle, broker.WithQueueName(SelfTestQueueName), rabbitmqBroker.WithDurableQueue())
 
 	return srv
 }
