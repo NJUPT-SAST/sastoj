@@ -78,7 +78,7 @@ db:
 .PHONY: docker
 # build docker image
 docker:
-	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj_$(T):$(VERSION) . ;)
+	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj/$(T):$(VERSION) . ;)
 
 # show help
 help:

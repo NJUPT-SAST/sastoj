@@ -36,10 +36,10 @@ services:
 #    privileged: true
 #    shm_size: 512m
 #    network_mode: bridge
-  oj-admin-admin:
+  admin:
     image: sastoj/admin
     build:
-      context: ./src
+      context: ./
       dockerfile: ./Dockerfile
       args:
         target: admin
@@ -54,10 +54,10 @@ services:
       - oj-pg:pg
     network_mode: bridge
 
-  oj-user-contest:
+  user-contest:
     image: sastoj/user-contest
     build:
-      context: ./src
+      context: ./
       dockerfile: ./Dockerfile
       args:
         target: user-contest
@@ -72,10 +72,10 @@ services:
       - oj-pg:pg
     network_mode: bridge
 
-  oj-gojudge:
+  gojudge-server:
     image: sastoj/gojudge-server
     build:
-      context: ./src
+      context: ./
       dockerfile: ./Dockerfile
       args:
         target: gojudge-server
@@ -89,10 +89,26 @@ services:
       - go-judge:goj
     network_mode: bridge
 
+  freshcup-server:
+    image: sastoj/freshcup-server
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        target: freshcup-server
+    volumes:
+      - ./conf/freshcup:/data/conf
+      - ./data/cases:/data/cases
+    external_links:
+      - redis:rd
+      - some-rabbit:mq
+      - oj-pg:pg
+    network_mode: bridge
+
   oj-public-auth:
     image: sastoj/public-auth
     build:
-      context: ./src
+      context: ./
       dockerfile: ./Dockerfile
       args:
         target: public-auth
