@@ -22,6 +22,7 @@ type JudgeRepo interface {
 	GetJudgableProblems(context.Context, int64) ([]*Problem, error)
 	GetSubmissions(context.Context, int64) ([]*Submission, error)
 	GetSubmissionsWithStatus(context.Context, int64, int32) ([]*Submission, error)
+	GetReferenceAnswer(context.Context, int64) (*string, error)
 }
 
 // JudgeUsecase is a Judge usecase.
@@ -50,4 +51,9 @@ func (uc *JudgeUsecase) GetSubmissions(ctx context.Context, problemId int64, sta
 		return uc.repo.GetSubmissions(ctx, problemId)
 	}
 	return uc.repo.GetSubmissionsWithStatus(ctx, problemId, status)
+}
+
+func (uc *JudgeUsecase) GetReferenceAnswer(ctx context.Context, problemId int64) (*string, error) {
+	uc.log.WithContext(ctx).Infof("GetReferenceAnswer from problem %d", problemId)
+	return uc.repo.GetReferenceAnswer(ctx, problemId)
 }

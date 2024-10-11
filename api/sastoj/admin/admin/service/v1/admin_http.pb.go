@@ -37,6 +37,7 @@ const OperationAdminGetJudgableProblems = "/api.sastoj.admin.admin.service.v1.Ad
 const OperationAdminGetProblem = "/api.sastoj.admin.admin.service.v1.Admin/GetProblem"
 const OperationAdminGetProblemTypes = "/api.sastoj.admin.admin.service.v1.Admin/GetProblemTypes"
 const OperationAdminGetRanking = "/api.sastoj.admin.admin.service.v1.Admin/GetRanking"
+const OperationAdminGetReferenceAnswer = "/api.sastoj.admin.admin.service.v1.Admin/GetReferenceAnswer"
 const OperationAdminGetSubmissions = "/api.sastoj.admin.admin.service.v1.Admin/GetSubmissions"
 const OperationAdminGetUser = "/api.sastoj.admin.admin.service.v1.Admin/GetUser"
 const OperationAdminListContest = "/api.sastoj.admin.admin.service.v1.Admin/ListContest"
@@ -70,6 +71,7 @@ type AdminHTTPServer interface {
 	GetProblem(context.Context, *GetProblemRequest) (*GetProblemReply, error)
 	GetProblemTypes(context.Context, *GetProblemTypesRequest) (*GetProblemTypesReply, error)
 	GetRanking(context.Context, *GetRankingRequest) (*GetRankingReply, error)
+	GetReferenceAnswer(context.Context, *GetReferenceAnswerRequest) (*GetReferenceAnswerReply, error)
 	GetSubmissions(context.Context, *GetSubmissionsRequest) (*GetSubmissionsReply, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
 	ListContest(context.Context, *ListContestRequest) (*ListContestReply, error)
@@ -104,6 +106,7 @@ func RegisterAdminHTTPServer(s *http.Server, srv AdminHTTPServer) {
 	r.POST("/judge/{submission_id}", _Admin_SubmitJudge0_HTTP_Handler(srv))
 	r.GET("/judge", _Admin_GetJudgableProblems0_HTTP_Handler(srv))
 	r.GET("/judge/{problem_id}", _Admin_GetSubmissions0_HTTP_Handler(srv))
+	r.GET("/judge/answer/{problem_id}", _Admin_GetReferenceAnswer0_HTTP_Handler(srv))
 	r.POST("/adjudicator/{problem_id}", _Admin_UpdateAdjudicator0_HTTP_Handler(srv))
 	r.GET("/adjudicator/{problem_id}", _Admin_GetAdjudicator0_HTTP_Handler(srv))
 	r.POST("/problem", _Admin_CreateProblem0_HTTP_Handler(srv))
@@ -488,6 +491,28 @@ func _Admin_GetSubmissions0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Admin_GetReferenceAnswer0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetReferenceAnswerRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAdminGetReferenceAnswer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetReferenceAnswer(ctx, req.(*GetReferenceAnswerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetReferenceAnswerReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _Admin_UpdateAdjudicator0_HTTP_Handler(srv AdminHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpdateAdjudicatorRequest
@@ -809,6 +834,7 @@ type AdminHTTPClient interface {
 	GetProblem(ctx context.Context, req *GetProblemRequest, opts ...http.CallOption) (rsp *GetProblemReply, err error)
 	GetProblemTypes(ctx context.Context, req *GetProblemTypesRequest, opts ...http.CallOption) (rsp *GetProblemTypesReply, err error)
 	GetRanking(ctx context.Context, req *GetRankingRequest, opts ...http.CallOption) (rsp *GetRankingReply, err error)
+	GetReferenceAnswer(ctx context.Context, req *GetReferenceAnswerRequest, opts ...http.CallOption) (rsp *GetReferenceAnswerReply, err error)
 	GetSubmissions(ctx context.Context, req *GetSubmissionsRequest, opts ...http.CallOption) (rsp *GetSubmissionsReply, err error)
 	GetUser(ctx context.Context, req *GetUserRequest, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	ListContest(ctx context.Context, req *ListContestRequest, opts ...http.CallOption) (rsp *ListContestReply, err error)
@@ -1058,6 +1084,19 @@ func (c *AdminHTTPClientImpl) GetRanking(ctx context.Context, in *GetRankingRequ
 	pattern := "/contest/rank/{contest_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAdminGetRanking))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AdminHTTPClientImpl) GetReferenceAnswer(ctx context.Context, in *GetReferenceAnswerRequest, opts ...http.CallOption) (*GetReferenceAnswerReply, error) {
+	var out GetReferenceAnswerReply
+	pattern := "/judge/answer/{problem_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAdminGetReferenceAnswer))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

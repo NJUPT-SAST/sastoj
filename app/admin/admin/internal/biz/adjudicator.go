@@ -37,14 +37,15 @@ func (uc *AdjudicatorUsecase) UpdateAdjudicator(ctx context.Context, problemId i
 	uc.log.WithContext(ctx).Infof("CreateAdjudicator: %v")
 	_, err := uc.repo.FindProblemById(ctx, problemId)
 	if err != nil {
-		var notFoundError *ent.NotFoundError
-		if errors.As(err, &notFoundError) {
-			//如何类型相同则说明没有该id的problem
+		if ent.IsNotFound(err) {
 			return errors.New("not find the specified Id of problem")
 		}
 		return err
 	}
 	adjudicatorGroups, err := uc.repo.FindByID(ctx, problemId)
+	if err != nil {
+		return err
+	}
 	if len(adjudicatorGroups.Groups) == 0 {
 		return uc.repo.Save(ctx, groupIds)
 	} else {

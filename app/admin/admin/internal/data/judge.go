@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"sastoj/app/admin/admin/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/group"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
@@ -26,7 +27,22 @@ func NewJudgeRepo(data *Data, logger log.Logger) biz.JudgeRepo {
 }
 
 func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point int32) error {
-	_, err := r.data.db.Submission.Update().SetState(util.Accepted).SetPoint(int16(point)).Where(submission.IDEQ(submissionId)).Save(ctx)
+	s, err := r.data.db.Submission.Query().Where(submission.IDEQ(submissionId)).Only(ctx)
+	if err != nil {
+		return err
+	}
+	p, err := r.data.db.Problem.Query().Where(problem.IDEQ(s.ProblemID)).Only(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = p.QueryAdjudicators().Where(group.HasUsersWith(user.IDEQ(s.UserID))).All(ctx)
+	if ent.IsNotFound(err) {
+		// Permission denied
+		return err
+	}
+	s.State = util.Accepted
+	s.Point = int16(point)
+	_, err = r.data.db.Submission.UpdateOne(s).Save(ctx)
 	if err != nil {
 		return err
 	}
@@ -89,4 +105,20 @@ func (r *judgeRepo) GetSubmissionsWithStatus(ctx context.Context, problemId int6
 		})
 	}
 	return rv, nil
+}
+
+func (r *judgeRepo) GetReferenceAnswer(ctx context.Context, problemId int64) (*string, error) {
+	p, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemId)).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if p.Edges.ProblemType.Judge != "freshcup" {
+		log.Error("Reference answer is not available for this problem type")
+		return nil, err
+	}
+	c, err := r.data.fcm.GetConfig(problemId)
+	if err != nil {
+		return nil, err
+	}
+	return &c.ReferenceAnswer, nil
 }
