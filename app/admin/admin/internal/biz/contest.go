@@ -7,9 +7,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
-const ContestTypeIOI = 1
-const ContestTypeACM = 2
-
 type Contest struct {
 	Id          int64
 	Title       string

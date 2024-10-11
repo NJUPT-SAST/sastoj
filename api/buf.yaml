@@ -9,7 +9,7 @@ lint:
     - DEFAULT
 
 modules:
-  - path: sastoj
+  - path: ''
     name: buf.build/sast-oj/backend
 
 deps:

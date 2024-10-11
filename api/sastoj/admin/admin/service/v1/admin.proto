@@ -424,6 +424,7 @@ message CreateProblemRequest {
   string config = 7;
   int64 ownerId = 8;
   Visibility visibility = 9;
+  map<string, string> metadata = 10;
 }
 
 enum Visibility{
@@ -448,6 +449,7 @@ message UpdateProblemRequest {
   string config = 9;
   int64 ownerId = 10;
   Visibility visibility = 11;
+  map<string, string> metadata = 12;
 }
 message UpdateProblemReply {
   bool success = 1;
@@ -475,6 +477,7 @@ message GetProblemReply {
   string config = 9;
   int64 ownerId = 10;
   Visibility visibility = 11;
+  map<string, string> metadata = 12;
 }
 message ListProblemRequest {
   int32 size = 1;
@@ -493,6 +496,7 @@ message ListProblemReply {
     string config = 9;
     int64 ownerId = 10;
     Visibility visibility = 11;
+    map<string, string> metadata = 12;
   }
   int32 currency = 2;
   int32 total = 1;

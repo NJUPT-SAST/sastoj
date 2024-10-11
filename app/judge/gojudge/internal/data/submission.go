@@ -146,7 +146,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 	}
 
 	// get judge config
-	config, err := r.data.fm.GetJudgeConfig(p.ID)
+	config, err := r.data.fm.GetConfig(p.ID)
 	if err != nil {
 		return err
 	}

@@ -1,11 +1,12 @@
 package problem
 
 import (
+	"sastoj/pkg/file"
 	"sastoj/pkg/util"
 )
 
 type SubtaskMin struct {
-	subtasks util.Subtasks
+	subtasks file.Subtasks
 }
 
 func (s *SubtaskMin) judging(cases []bool) (tasksPoint int16, casesPoint []int16, err error) {

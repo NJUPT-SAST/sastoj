@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.8.0
 // - protoc             (unknown)
-// source: admin/admin/service/v1/admin.proto
+// source: sastoj/admin/admin/service/v1/admin.proto
 
 package v1
 
