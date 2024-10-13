@@ -15,8 +15,8 @@ type Adjudicator struct {
 
 // AdjudicatorRepo is a Greater repo.
 type AdjudicatorRepo interface {
-	Save(ctx context.Context, groupIds []int64) error
-	Update(ctx context.Context, groupIds []int64) error
+	Save(ctx context.Context, problemID int64, groupIds []int64) error
+	Update(ctx context.Context, problemID int64, groupIds []int64) error
 	FindByID(ctx context.Context, problemId int64) (*Adjudicator, error)
 	FindProblemById(ctx context.Context, problemId int64) (*ent.Problem, error)
 }
@@ -38,7 +38,7 @@ func (uc *AdjudicatorUsecase) UpdateAdjudicator(ctx context.Context, problemId i
 	_, err := uc.repo.FindProblemById(ctx, problemId)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return errors.New("not find the specified Id of problem")
+			return errors.New("problem not found")
 		}
 		return err
 	}
@@ -47,9 +47,9 @@ func (uc *AdjudicatorUsecase) UpdateAdjudicator(ctx context.Context, problemId i
 		return err
 	}
 	if len(adjudicatorGroups.Groups) == 0 {
-		return uc.repo.Save(ctx, groupIds)
+		return uc.repo.Save(ctx, problemId, groupIds)
 	} else {
-		return uc.repo.Update(ctx, groupIds)
+		return uc.repo.Update(ctx, problemId, groupIds)
 
 	}
 }

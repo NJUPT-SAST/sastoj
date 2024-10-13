@@ -22,12 +22,12 @@ func NewAdjudicatorRepo(data *Data, logger log.Logger) biz.AdjudicatorRepo {
 	}
 }
 
-func (r *adjudicatorRepo) Save(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().AddAdjudicatorIDs(groupIds...).Exec(ctx)
+func (r *adjudicatorRepo) Save(ctx context.Context, problemID int64, groupIds []int64) error {
+	return r.data.db.Problem.Update().Where(problem.IDEQ(problemID)).AddAdjudicatorIDs(groupIds...).Exec(ctx)
 }
 
-func (r *adjudicatorRepo) Update(ctx context.Context, groupIds []int64) error {
-	return r.data.db.Problem.Update().ClearAdjudicators().AddAdjudicatorIDs(groupIds...).Exec(ctx)
+func (r *adjudicatorRepo) Update(ctx context.Context, problemID int64, groupIds []int64) error {
+	return r.data.db.Problem.Update().Where(problem.IDEQ(problemID)).ClearAdjudicators().AddAdjudicatorIDs(groupIds...).Exec(ctx)
 }
 
 func (r *adjudicatorRepo) FindByID(ctx context.Context, problemId int64) (*biz.Adjudicator, error) {
