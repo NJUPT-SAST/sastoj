@@ -32,10 +32,7 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point i
 	if err != nil {
 		return err
 	}
-	p, err := r.data.db.Problem.Query().Where(problem.IDEQ(s.ProblemID)).Only(ctx)
-	if err != nil {
-		return err
-	}
+	p := s.Edges.Problems
 	_, err = p.QueryAdjudicators().Where(group.HasUsersWith(user.IDEQ(s.UserID))).All(ctx)
 	if ent.IsNotFound(err) {
 		return errors.New("user is not an adjudicator for this problem")
@@ -56,22 +53,9 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 	}
 	rv := make([]*biz.Problem, 0)
 	for _, p := range problems {
-		var config string
-		problemType, err := p.QueryProblemType().Only(ctx)
+		config, err := r.data.GetConfig(p)
 		if err != nil {
 			return nil, err
-		}
-		switch problemType.Judge {
-		case "freshcup":
-			config, err = r.data.fcm.GetConfigString(p.ID)
-			if err != nil {
-				return nil, err
-			}
-		case "gojudge":
-			config, err = r.data.jcm.GetConfigString(p.ID)
-			if err != nil {
-				return nil, err
-			}
 		}
 		rv = append(rv, &biz.Problem{
 			Id:          p.ID,

@@ -60,8 +60,12 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 	return &res.ID, nil
 }
 
-func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error) {
-	res, err := r.data.db.Problem.Update().
+func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) error {
+	p, err := r.data.db.Problem.Query().Where(problem.ID(g.Id)).Only(ctx)
+	if err != nil {
+		return err
+	}
+	res, err := p.Update().
 		SetProblemTypeID(g.TypeId).
 		SetTitle(g.Title).
 		SetContent(g.Content).
@@ -78,26 +82,13 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error
 			contest.IDEQ(g.ContestId), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	problemType, err := r.data.db.ProblemType.Query().Where(problemtype.ID(g.TypeId)).Only(ctx)
+	err = r.data.SetConfig(res, g.Config)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	switch problemType.Judge {
-	case "freshcup":
-		err := r.data.fcm.SetConfigString(g.Id, g.Config)
-		if err != nil {
-			return nil, err
-		}
-	case "gojudge":
-		err := r.data.jcm.SetConfigString(g.Id, g.Config)
-		if err != nil {
-			return nil, err
-		}
-	}
-	res64 := int64(res)
-	return &res64, nil
+	return nil
 }
 
 func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, error) {
@@ -114,19 +105,9 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
-
-	var config string
-	switch p.Edges.ProblemType.Judge {
-	case "freshcup":
-		config, err = r.data.fcm.GetConfigString(id)
-		if err != nil {
-			return nil, err
-		}
-	case "gojudge":
-		config, err = r.data.jcm.GetConfigString(id)
-		if err != nil {
-			return nil, err
-		}
+	config, err := r.data.GetConfig(p)
+	if err != nil {
+		return nil, err
 	}
 
 	return &biz.Problem{
@@ -171,19 +152,9 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			return nil, err
 		}
 		vis := util.VisToPb(v.Visibility)
-
-		var config string
-		switch v.Edges.ProblemType.Judge {
-		case "freshcup":
-			config, err = r.data.fcm.GetConfigString(v.ID)
-			if err != nil {
-				return nil, err
-			}
-		case "gojudge":
-			config, err = r.data.jcm.GetConfigString(v.ID)
-			if err != nil {
-				return nil, err
-			}
+		config, err := r.data.GetConfig(v)
+		if err != nil {
+			return nil, err
 		}
 
 		list = append(list, &biz.Problem{

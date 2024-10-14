@@ -50,12 +50,11 @@ func (p *problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.
 	var problems []*biz.Problem
 	for _, v := range po {
 		problems = append(problems, &biz.Problem{
-			ID:       v.ID,
-			Type:     v.Edges.ProblemType.DisplayName,
-			Title:    v.Title,
-			Score:    int32(v.Score),
-			Index:    v.Index,
-			Metadata: v.Metadata,
+			ID:    v.ID,
+			Type:  v.Edges.ProblemType.DisplayName,
+			Title: v.Title,
+			Score: int32(v.Score),
+			Index: v.Index,
 		})
 	}
 	return problems, nil

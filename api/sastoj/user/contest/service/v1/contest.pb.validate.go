@@ -3523,8 +3523,6 @@ func (m *GetProblemsReply_Problem) validate(all bool) error {
 
 	// no validation rules for Index
 
-	// no validation rules for Metadata
-
 	if len(errors) > 0 {
 		return GetProblemsReply_ProblemMultiError(errors)
 	}
