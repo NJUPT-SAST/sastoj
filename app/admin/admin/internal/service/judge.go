@@ -50,14 +50,3 @@ func (s *AdminService) GetSubmissions(ctx context.Context, req *pb.GetSubmission
 	}
 	return reply, nil
 }
-
-func (s *AdminService) GetReferenceAnswer(ctx context.Context, req *pb.GetReferenceAnswerRequest) (*pb.GetReferenceAnswerReply, error) {
-	answer, err := s.jc.GetReferenceAnswer(ctx, req.GetProblemId())
-	if err != nil {
-		return nil, err
-	}
-	reply := &pb.GetReferenceAnswerReply{
-		Answer: *answer,
-	}
-	return reply, nil
-}

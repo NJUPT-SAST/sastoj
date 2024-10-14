@@ -15,7 +15,7 @@ func (s *GatewayService) GetProblems(ctx context.Context, req *pb.GetProblemsReq
 		reply.Problems = append(reply.Problems, &pb.GetProblemsReply_Problem{
 			Id:    p.ID,
 			Title: p.Title,
-			Point: int32(p.Point),
+			Score: int32(p.Point),
 			Index: int32(p.Index),
 		})
 	}
@@ -30,6 +30,6 @@ func (s *GatewayService) GetProblem(ctx context.Context, req *pb.GetProblemReque
 		Id:      rv.ID,
 		Title:   rv.Title,
 		Content: rv.Content,
-		Point:   int32(rv.Point),
+		Score:   int32(rv.Point),
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/problemtype"
 	"sastoj/pkg/util"
 	"time"
 
@@ -40,6 +41,22 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 	if err != nil {
 		return nil, err
 	}
+	problemType, err := r.data.db.ProblemType.Query().Where(problemtype.ID(g.TypeId)).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	switch problemType.Judge {
+	case "freshcup":
+		err := r.data.fcm.SetConfigString(res.ID, g.Config)
+		if err != nil {
+			return nil, err
+		}
+	case "gojudge":
+		err := r.data.jcm.SetConfigString(res.ID, g.Config)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &res.ID, nil
 }
 
@@ -63,6 +80,22 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error
 	if err != nil {
 		return nil, err
 	}
+	problemType, err := r.data.db.ProblemType.Query().Where(problemtype.ID(g.TypeId)).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	switch problemType.Judge {
+	case "freshcup":
+		err := r.data.fcm.SetConfigString(g.Id, g.Config)
+		if err != nil {
+			return nil, err
+		}
+	case "gojudge":
+		err := r.data.jcm.SetConfigString(g.Id, g.Config)
+		if err != nil {
+			return nil, err
+		}
+	}
 	res64 := int64(res)
 	return &res64, nil
 }
@@ -81,6 +114,21 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
+
+	var config string
+	switch p.Edges.ProblemType.Judge {
+	case "freshcup":
+		config, err = r.data.fcm.GetConfigString(id)
+		if err != nil {
+			return nil, err
+		}
+	case "gojudge":
+		config, err = r.data.jcm.GetConfigString(id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &biz.Problem{
 		Id:          p.ID,
 		Title:       p.Title,
@@ -91,6 +139,7 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		Index:       int32(p.Index),
 		OwnerId:     owner.ID,
 		Visibility:  vis,
+		Config:      config,
 		Metadata:    p.Metadata,
 	}, nil
 }
@@ -117,11 +166,26 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	}
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
-		vis := util.VisToPb(v.Visibility)
 		owner, err := v.QueryOwner().First(ctx)
 		if err != nil {
 			return nil, err
 		}
+		vis := util.VisToPb(v.Visibility)
+
+		var config string
+		switch v.Edges.ProblemType.Judge {
+		case "freshcup":
+			config, err = r.data.fcm.GetConfigString(v.ID)
+			if err != nil {
+				return nil, err
+			}
+		case "gojudge":
+			config, err = r.data.jcm.GetConfigString(v.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		list = append(list, &biz.Problem{
 			Id:          v.ID,
 			TypeId:      v.ProblemTypeID,
@@ -133,6 +197,7 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			Index:       int32(v.Index),
 			OwnerId:     owner.ID,
 			Visibility:  vis,
+			Config:      config,
 			Metadata:    v.Metadata,
 		})
 	}

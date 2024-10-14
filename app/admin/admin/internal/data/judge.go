@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"errors"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/group"
@@ -37,8 +38,7 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point i
 	}
 	_, err = p.QueryAdjudicators().Where(group.HasUsersWith(user.IDEQ(s.UserID))).All(ctx)
 	if ent.IsNotFound(err) {
-		// Permission denied
-		return err
+		return errors.New("user is not an adjudicator for this problem")
 	}
 	s.State = util.Accepted
 	s.Point = int16(point)
@@ -56,6 +56,23 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 	}
 	rv := make([]*biz.Problem, 0)
 	for _, p := range problems {
+		var config string
+		problemType, err := p.QueryProblemType().Only(ctx)
+		if err != nil {
+			return nil, err
+		}
+		switch problemType.Judge {
+		case "freshcup":
+			config, err = r.data.fcm.GetConfigString(p.ID)
+			if err != nil {
+				return nil, err
+			}
+		case "gojudge":
+			config, err = r.data.jcm.GetConfigString(p.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
 		rv = append(rv, &biz.Problem{
 			Id:          p.ID,
 			Title:       p.Title,
@@ -64,7 +81,7 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 			ContestId:   p.ContestID,
 			CaseVersion: int32(p.CaseVersion),
 			Index:       int32(p.Index),
-			Config:      "",
+			Config:      config,
 			Metadata:    p.Metadata,
 		})
 	}
@@ -105,20 +122,4 @@ func (r *judgeRepo) GetSubmissionsWithStatus(ctx context.Context, problemId int6
 		})
 	}
 	return rv, nil
-}
-
-func (r *judgeRepo) GetReferenceAnswer(ctx context.Context, problemId int64) (*string, error) {
-	p, err := r.data.db.Problem.Query().Where(problem.IDEQ(problemId)).Only(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if p.Edges.ProblemType.Judge != "freshcup" {
-		log.Error("Reference answer is not available for this problem type")
-		return nil, err
-	}
-	c, err := r.data.fcm.GetConfig(problemId)
-	if err != nil {
-		return nil, err
-	}
-	return &c.ReferenceAnswer, nil
 }

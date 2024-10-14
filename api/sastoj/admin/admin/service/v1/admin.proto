@@ -97,9 +97,6 @@ service Admin {
   rpc GetSubmissions (GetSubmissionsRequest) returns (GetSubmissionsReply){
     option (google.api.http) = {get: "/judge/{problem_id}"};
   };
-  rpc GetReferenceAnswer (GetReferenceAnswerRequest) returns (GetReferenceAnswerReply){
-    option (google.api.http) = {get: "/judge/answer/{problem_id}"};
-  };
 
   rpc UpdateAdjudicator (UpdateAdjudicatorRequest) returns (UpdateAdjudicatorReply){
     option (google.api.http) = {
@@ -415,12 +412,6 @@ message GetSubmissionsRequest{
 }
 message GetSubmissionsReply {
   repeated Submission submissions = 1;
-}
-message GetReferenceAnswerRequest {
-  int64 problem_id = 1;
-}
-message GetReferenceAnswerReply {
-  string answer = 1;
 }
 
 message CreateProblemRequest {
