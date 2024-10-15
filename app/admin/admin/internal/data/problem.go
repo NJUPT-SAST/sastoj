@@ -5,7 +5,6 @@ import (
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
-	"sastoj/ent/problemtype"
 	"sastoj/pkg/util"
 	"time"
 
@@ -41,21 +40,9 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 	if err != nil {
 		return nil, err
 	}
-	problemType, err := r.data.db.ProblemType.Query().Where(problemtype.ID(g.TypeId)).Only(ctx)
+	err = r.data.SetConfig(res, g.Config)
 	if err != nil {
 		return nil, err
-	}
-	switch problemType.Judge {
-	case "freshcup":
-		err := r.data.fcm.SetConfigString(res.ID, g.Config)
-		if err != nil {
-			return nil, err
-		}
-	case "gojudge":
-		err := r.data.jcm.SetConfigString(res.ID, g.Config)
-		if err != nil {
-			return nil, err
-		}
 	}
 	return &res.ID, nil
 }

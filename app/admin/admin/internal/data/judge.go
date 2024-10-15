@@ -37,9 +37,10 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point i
 	if ent.IsNotFound(err) {
 		return errors.New("user is not an adjudicator for this problem")
 	}
-	s.State = util.Accepted
-	s.Point = int16(point)
-	_, err = r.data.db.Submission.UpdateOne(s).Save(ctx)
+	s, err = s.Update().
+		SetState(util.Accepted).
+		SetPoint(int16(point)).
+		Save(ctx)
 	if err != nil {
 		return err
 	}
