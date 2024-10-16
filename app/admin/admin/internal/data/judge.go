@@ -60,6 +60,7 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 		}
 		rv = append(rv, &biz.Problem{
 			Id:          p.ID,
+			TypeId:      p.Edges.ProblemType.ID,
 			Title:       p.Title,
 			Content:     p.Content,
 			Point:       int32(p.Score),

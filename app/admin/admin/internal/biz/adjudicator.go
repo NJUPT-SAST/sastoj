@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"sastoj/ent"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -34,24 +33,8 @@ func NewAdjudicatorUsecase(repo AdjudicatorRepo, logger log.Logger) *Adjudicator
 
 // UpdateAdjudicator creates a Adjudicator, and returns the new Adjudicator.
 func (uc *AdjudicatorUsecase) UpdateAdjudicator(ctx context.Context, problemId int64, groupIds []int64) error {
-	uc.log.WithContext(ctx).Infof("CreateAdjudicator: %v")
-	_, err := uc.repo.FindProblemById(ctx, problemId)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return errors.New("problem not found")
-		}
-		return err
-	}
-	adjudicatorGroups, err := uc.repo.FindByID(ctx, problemId)
-	if err != nil {
-		return err
-	}
-	if len(adjudicatorGroups.Groups) == 0 {
-		return uc.repo.Save(ctx, problemId, groupIds)
-	} else {
-		return uc.repo.Update(ctx, problemId, groupIds)
-
-	}
+	uc.log.WithContext(ctx).Infof("CreateAdjudicator: %v", problemId)
+	return uc.repo.Update(ctx, problemId, groupIds)
 }
 
 func (uc *AdjudicatorUsecase) GetAdjudicator(ctx context.Context, problemId int64) (*Adjudicator, error) {

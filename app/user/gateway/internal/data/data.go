@@ -105,11 +105,12 @@ func NewData(c *conf.Data, cc v1.ContestClient, logger log.Logger) (*Data, func(
 		}
 		for _, problem := range problemsDTO.Problems {
 			problems = append(problems, &biz.Problem{
-				ID:    problem.Id,
-				Title: problem.Title,
-				Type:  problem.Type,
-				Score: problem.Score,
-				Index: int16(problem.Index),
+				ID:       problem.Id,
+				Title:    problem.Title,
+				Type:     problem.Type,
+				Score:    problem.Score,
+				Index:    int16(problem.Index),
+				Metadata: problem.Metadata,
 			})
 			problemDTO, err := cc.GetProblem(context.Background(), &v1.GetProblemRequest{
 				ProblemId: problem.Id,

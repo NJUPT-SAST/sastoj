@@ -13,11 +13,12 @@ func (s *ContestService) GetProblems(ctx context.Context, req *pb.GetProblemsReq
 	reply := &pb.GetProblemsReply{}
 	for _, p := range rv {
 		reply.Problems = append(reply.Problems, &pb.GetProblemsReply_Problem{
-			Id:    p.ID,
-			Type:  p.Type,
-			Title: p.Title,
-			Score: p.Score,
-			Index: int32(p.Index),
+			Id:       p.ID,
+			Type:     p.Type,
+			Title:    p.Title,
+			Score:    p.Score,
+			Index:    int32(p.Index),
+			Metadata: p.Metadata,
 		})
 	}
 	return reply, nil

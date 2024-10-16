@@ -3515,6 +3515,8 @@ func (m *Problem) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for TypeId
+
 	// no validation rules for Title
 
 	// no validation rules for Content
@@ -3528,6 +3530,8 @@ func (m *Problem) validate(all bool) error {
 	// no validation rules for Index
 
 	// no validation rules for Config
+
+	// no validation rules for Metadata
 
 	if len(errors) > 0 {
 		return ProblemMultiError(errors)
