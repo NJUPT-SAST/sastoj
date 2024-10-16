@@ -380,13 +380,15 @@ message ListGroupReply {
 
 message Problem {
   int64 id = 1;
-  string title = 2;
-  string content = 3;
-  int32 point = 4;
-  int64 contest_id = 5;
-  int32 case_version = 6;
-  int32 index = 7;
-  string config = 8;
+  int64 type_id = 2;
+  string title = 3;
+  string content = 4;
+  int32 point = 5;
+  int64 contest_id = 6;
+  int32 case_version = 7;
+  int32 index = 8;
+  string config = 9;
+  map<string, string> metadata = 10;
 }
 message Submission {
   int64 id = 1;

@@ -31,6 +31,32 @@ type Data struct {
 	fcm   *file.FcConfigManager
 }
 
+func (d *Data) GetConfig(p *ent.Problem) (string, error) {
+	var config string
+	var err error
+	switch p.Edges.ProblemType.Judge {
+	case "freshcup":
+		config, err = d.fcm.GetConfigString(p.ID)
+	case "gojudge":
+		config, err = d.jcm.GetConfigString(p.ID)
+	}
+	if err != nil {
+		return "", err
+	}
+	return config, nil
+}
+
+func (d *Data) SetConfig(p *ent.Problem, config string) error {
+	var err error
+	switch p.Edges.ProblemType.Judge {
+	case "freshcup":
+		err = d.fcm.SetConfigString(p.ID, config)
+	case "gojudge":
+		err = d.jcm.SetConfigString(p.ID, config)
+	}
+	return err
+}
+
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {

@@ -20,10 +20,23 @@ func (m *BaseConfigManager[T]) GetConfig(problemId int64) (config *T, err error)
 	return
 }
 
+func (m *BaseConfigManager[T]) GetConfigString(problemId int64) (config string, err error) {
+	tomlFile, err := ReadTomlFile(problemId, m.location)
+	if err != nil {
+		return "", err
+	}
+	return string(tomlFile), nil
+}
+
 func (m *BaseConfigManager[T]) SetConfig(problemId int64, config *T) error {
 	tomlFile, err := toml.Marshal(config)
 	if err != nil {
 		return err
 	}
+	return WriteTomlFile(problemId, m.location, tomlFile)
+}
+
+func (m *BaseConfigManager[T]) SetConfigString(problemId int64, config string) error {
+	tomlFile := []byte(config)
 	return WriteTomlFile(problemId, m.location, tomlFile)
 }

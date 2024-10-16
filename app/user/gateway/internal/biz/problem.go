@@ -7,11 +7,13 @@ import (
 )
 
 type Problem struct {
-	ID      int64
-	Title   string
-	Content string
-	Point   int16
-	Index   int16
+	ID       int64
+	Title    string
+	Type     string
+	Content  string
+	Score    int32
+	Index    int16
+	Metadata map[string]string
 }
 
 type ProblemRepo interface {

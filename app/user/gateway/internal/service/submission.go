@@ -63,8 +63,8 @@ func (s *GatewayService) GetSubmission(ctx context.Context, req *pb.GetSubmissio
 		Point:     int32(rv.Point),
 		State:     int32(rv.Status),
 		CreatedAt: timestamppb.New(rv.CreateTime),
-		TotalTime: rv.TotalTime,
-		MaxMemory: rv.MaxMemory,
+		TotalTime: uint64(rv.TotalTime),
+		MaxMemory: uint64(rv.MaxMemory),
 	}, nil
 }
 
