@@ -1,8 +1,9 @@
 package gojudge
 
 import (
-	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/pkg/util"
+
+	"github.com/criyle/go-judge/pb"
 )
 
 func Convert(state pb.Response_Result_StatusType) (res int16) {
