@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -70,13 +71,10 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 
 	// Check if problemTypes are created
 	exists, err := client.ProblemType.Query().Where(
-		problemtype.SlugName("freshcup-single-choice"),
-		problemtype.SlugName("freshcup-multiple-choice"),
-		problemtype.SlugName("freshcup-short-answer"),
+		problemtype.SlugNameIn("freshcup-single-choice", "freshcup-multiple-choice", "freshcup-short-answer"),
 	).Exist(ctx)
 	if err != nil {
 		log.Errorf("failed checking problemTypes: %v", err)
-		return nil, nil, err
 	}
 	if !exists {
 		_, err := client.ProblemType.Create().
@@ -116,7 +114,6 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 			return nil, nil, err
 		}
 	}
-	log.Errorf("failed checking problemTypes: %v", err)
 
 	// connect to redis
 	redisClient := redis.NewClient(&redis.Options{
