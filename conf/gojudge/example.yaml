@@ -1,3 +1,5 @@
+server:
+  mq: amqp://sastoj:123456@mq:5672/
 data:
   database:
     driver: postgres
@@ -7,7 +9,6 @@ data:
     read_timeout: 0.2s
     write_timeout: 0.2s
     db: 0
-  mq: amqp://sastoj:123456@mq:5672/
   load:
     problem_cases_location: /data/cases
 
