@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	pbc "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
 	"sastoj/app/judge/gojudge/internal/conf"
 	"sastoj/app/judge/gojudge/internal/server"
 	"sastoj/app/judge/gojudge/pkg/gojudge"
@@ -13,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"github.com/criyle/go-judge/pb"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
@@ -115,7 +115,7 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		logHelper.Errorf("failed creating go-judge clients: %v", err)
 	}
-	exec := pbc.NewExecutorClient(ClientConn)
+	exec := pb.NewExecutorClient(ClientConn)
 
 	// Commands
 	envs := make(map[string][]string)
