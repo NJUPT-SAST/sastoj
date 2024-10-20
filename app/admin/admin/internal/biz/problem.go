@@ -20,11 +20,12 @@ type Problem struct {
 	Visibility  pb.Visibility
 	OwnerId     int64
 	Config      string
+	Metadata    map[string]string
 }
 
 type ProblemRepo interface {
 	Save(context.Context, *Problem) (*int64, error)
-	Update(context.Context, *Problem) (*int64, error)
+	Update(context.Context, *Problem) error
 	Delete(context.Context, int64) (*int64, error)
 	FindByID(context.Context, int64) (*Problem, error)
 	ListPages(context.Context, int32, int32) ([]*Problem, error)
@@ -50,8 +51,8 @@ func (uc *ProblemUsecase) CreateProblem(ctx context.Context, p *Problem) (*int64
 }
 
 func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, g *Problem) (bool, error) {
-	rv, err := uc.repo.Update(ctx, g)
-	if err != nil || *rv == 0 {
+	err := uc.repo.Update(ctx, g)
+	if err != nil {
 		return false, err
 	}
 	return true, nil

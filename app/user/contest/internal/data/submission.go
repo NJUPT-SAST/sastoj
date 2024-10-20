@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/ent"
+	"sastoj/ent/contest"
 	"sastoj/ent/submission"
 	"sastoj/ent/submissionsubtask"
 	"sastoj/pkg/mq"
@@ -125,62 +126,123 @@ func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfT
 }
 
 func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string, contestID int64) (*biz.Submission, error) {
+	ct, err := s.data.db.Contest.Query().Where(contest.IDEQ(contestID)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
 	id, err := strconv.ParseInt(submissionID, 10, 64)
 	userID := util.GetUserInfoFromCtx(ctx).UserId
 	var res *biz.Submission
-	if err != nil {
-		// get from redis
-		var po *mq.Submission
-		result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
+	switch ct.Type {
+	case util.ContestTypeFC:
 		if err != nil {
-			return nil, fmt.Errorf("no submission found: %s", submissionID)
+			// get from redis
+			var po *mq.Submission
+			result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
+			if err != nil {
+				return nil, fmt.Errorf("no submission found: %s", submissionID)
+			}
+			err = json.Unmarshal([]byte(result), &po)
+			if err != nil {
+				return nil, err
+			}
+			res = &biz.Submission{
+				ID:         po.ID,
+				UserID:     po.UserID,
+				ProblemID:  po.ProblemID,
+				Code:       po.Code,
+				Status:     po.Status,
+				Point:      0,
+				CreateTime: po.CreateTime,
+				TotalTime:  po.TotalTime,
+				MaxMemory:  po.MaxMemory,
+				Language:   po.Language,
+				CompileMsg: po.Stderr,
+			}
+		} else {
+			// get from db
+			po, err := s.data.db.Submission.Get(ctx, id)
+			if err != nil {
+				return nil, fmt.Errorf("no submission found: %s", submissionID)
+			}
+			if po.UserID != userID {
+				// TODO: ADD Global Error: Permission Denied
+				return nil, errors.New("permission denied")
+			}
+			res = &biz.Submission{
+				ID:         strconv.FormatInt(po.ID, 10),
+				UserID:     po.UserID,
+				ProblemID:  po.ProblemID,
+				Code:       po.Code,
+				Status:     po.State,
+				Point:      0,
+				CreateTime: po.CreateTime,
+				TotalTime:  po.TotalTime,
+				MaxMemory:  po.MaxMemory,
+				Language:   po.Language,
+				CompileMsg: po.CompileStderr,
+			}
 		}
-		err = json.Unmarshal([]byte(result), &po)
+	case util.ContestTypeIOI:
+		fallthrough
+	case util.ContestTypeACM:
 		if err != nil {
-			return nil, err
-		}
-		res = &biz.Submission{
-			ID:         po.ID,
-			UserID:     po.UserID,
-			ProblemID:  po.ProblemID,
-			Code:       po.Code,
-			Status:     po.Status,
-			Point:      po.Point,
-			CreateTime: po.CreateTime,
-			TotalTime:  po.TotalTime,
-			MaxMemory:  po.MaxMemory,
-			Language:   po.Language,
-			CompileMsg: po.Stderr,
-		}
-	} else {
-		// get from db
-		po, err := s.data.db.Submission.Get(ctx, id)
-		if err != nil {
-			return nil, fmt.Errorf("no submission found: %s", submissionID)
-		}
-		if po.UserID != userID {
-			// TODO: ADD Global Error: Permission Denied
-			return nil, errors.New("permission denied")
-		}
-		res = &biz.Submission{
-			ID:         strconv.FormatInt(po.ID, 10),
-			UserID:     po.UserID,
-			ProblemID:  po.ProblemID,
-			Code:       po.Code,
-			Status:     po.State,
-			Point:      po.Point,
-			CreateTime: po.CreateTime,
-			TotalTime:  po.TotalTime,
-			MaxMemory:  po.MaxMemory,
-			Language:   po.Language,
-			CompileMsg: po.CompileStderr,
+			// get from redis
+			var po *mq.Submission
+			result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
+			if err != nil {
+				return nil, fmt.Errorf("no submission found: %s", submissionID)
+			}
+			err = json.Unmarshal([]byte(result), &po)
+			if err != nil {
+				return nil, err
+			}
+			res = &biz.Submission{
+				ID:         po.ID,
+				UserID:     po.UserID,
+				ProblemID:  po.ProblemID,
+				Code:       po.Code,
+				Status:     po.Status,
+				Point:      po.Point,
+				CreateTime: po.CreateTime,
+				TotalTime:  po.TotalTime,
+				MaxMemory:  po.MaxMemory,
+				Language:   po.Language,
+				CompileMsg: po.Stderr,
+			}
+		} else {
+			// get from db
+			po, err := s.data.db.Submission.Get(ctx, id)
+			if err != nil {
+				return nil, fmt.Errorf("no submission found: %s", submissionID)
+			}
+			if po.UserID != userID {
+				// TODO: ADD Global Error: Permission Denied
+				return nil, errors.New("permission denied")
+			}
+			res = &biz.Submission{
+				ID:         strconv.FormatInt(po.ID, 10),
+				UserID:     po.UserID,
+				ProblemID:  po.ProblemID,
+				Code:       po.Code,
+				Status:     po.State,
+				Point:      po.Point,
+				CreateTime: po.CreateTime,
+				TotalTime:  po.TotalTime,
+				MaxMemory:  po.MaxMemory,
+				Language:   po.Language,
+				CompileMsg: po.CompileStderr,
+			}
 		}
 	}
-	// TODO: Add contest type check
 	return res, nil
 }
 
 func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, problemId int64) ([]*biz.Submission, error) {
+	ct, err := s.data.db.Contest.Query().Where(contest.IDEQ(contestID)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
 	userID := util.GetUserInfoFromCtx(ctx).UserId
 
 	po, err := s.data.db.Submission.Query().
@@ -192,17 +254,32 @@ func (s *submissionRepo) GetSubmissions(ctx context.Context, contestID int64, pr
 		return nil, err
 	}
 	var submissions []*biz.Submission
-	for _, v := range po {
-		submissions = append(submissions, &biz.Submission{
-			ID:         strconv.FormatInt(v.ID, 10),
-			ProblemID:  problemId,
-			Language:   v.Language,
-			Status:     v.State,
-			Point:      v.Point,
-			CreateTime: v.CreateTime,
-		})
+	switch ct.Type {
+	case util.ContestTypeFC:
+		for _, v := range po {
+			submissions = append(submissions, &biz.Submission{
+				ID:         strconv.FormatInt(v.ID, 10),
+				ProblemID:  problemId,
+				Language:   v.Language,
+				Status:     v.State,
+				Point:      0,
+				CreateTime: v.CreateTime,
+			})
+		}
+	case util.ContestTypeIOI:
+		fallthrough
+	case util.ContestTypeACM:
+		for _, v := range po {
+			submissions = append(submissions, &biz.Submission{
+				ID:         strconv.FormatInt(v.ID, 10),
+				ProblemID:  problemId,
+				Language:   v.Language,
+				Status:     v.State,
+				Point:      v.Point,
+				CreateTime: v.CreateTime,
+			})
+		}
 	}
-	// TODO: Add contest type check
 	return submissions, nil
 }
 

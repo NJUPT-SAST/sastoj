@@ -23,6 +23,7 @@ func (s *AdminService) GetJudgableProblems(ctx context.Context, req *pb.GetJudga
 	for _, p := range ps {
 		reply.Results = append(reply.Results, &pb.Problem{
 			Id:          p.Id,
+			TypeId:      p.TypeId,
 			Title:       p.Title,
 			Content:     p.Content,
 			Point:       p.Point,
@@ -30,6 +31,7 @@ func (s *AdminService) GetJudgableProblems(ctx context.Context, req *pb.GetJudga
 			CaseVersion: p.CaseVersion,
 			Index:       p.Index,
 			Config:      p.Config,
+			Metadata:    p.Metadata,
 		})
 	}
 	return reply, nil

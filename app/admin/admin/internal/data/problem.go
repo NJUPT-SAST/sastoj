@@ -35,15 +35,24 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
+		SetMetadata(g.Metadata).
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	err = r.data.SetConfig(res, g.Config)
 	if err != nil {
 		return nil, err
 	}
 	return &res.ID, nil
 }
 
-func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error) {
-	res, err := r.data.db.Problem.Update().
+func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) error {
+	p, err := r.data.db.Problem.Query().Where(problem.ID(g.Id)).Only(ctx)
+	if err != nil {
+		return err
+	}
+	res, err := p.Update().
 		SetProblemTypeID(g.TypeId).
 		SetTitle(g.Title).
 		SetContent(g.Content).
@@ -53,16 +62,20 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) (*int64, error
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
+		SetMetadata(g.Metadata).
 		Where(problem.ID(g.Id)).
 		Where(problem.IsDeleted(false)).
 		Where(problem.HasContestWith(
 			contest.IDEQ(g.ContestId), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	res64 := int64(res)
-	return &res64, nil
+	err = r.data.SetConfig(res, g.Config)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, error) {
@@ -79,6 +92,11 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
+	config, err := r.data.GetConfig(p)
+	if err != nil {
+		return nil, err
+	}
+
 	return &biz.Problem{
 		Id:          p.ID,
 		Title:       p.Title,
@@ -89,6 +107,8 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		Index:       int32(p.Index),
 		OwnerId:     owner.ID,
 		Visibility:  vis,
+		Config:      config,
+		Metadata:    p.Metadata,
 	}, nil
 }
 
@@ -114,11 +134,16 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 	}
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
-		vis := util.VisToPb(v.Visibility)
 		owner, err := v.QueryOwner().First(ctx)
 		if err != nil {
 			return nil, err
 		}
+		vis := util.VisToPb(v.Visibility)
+		config, err := r.data.GetConfig(v)
+		if err != nil {
+			return nil, err
+		}
+
 		list = append(list, &biz.Problem{
 			Id:          v.ID,
 			TypeId:      v.ProblemTypeID,
@@ -130,6 +155,8 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			Index:       int32(v.Index),
 			OwnerId:     owner.ID,
 			Visibility:  vis,
+			Config:      config,
+			Metadata:    v.Metadata,
 		})
 	}
 	return list, nil

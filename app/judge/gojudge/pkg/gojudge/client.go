@@ -3,7 +3,8 @@ package gojudge
 import (
 	"context"
 	"errors"
-	pb "sastoj/api/sastoj/gojudge/judger/gojudge/v1"
+
+	"github.com/criyle/go-judge/pb"
 )
 
 type GoJudge struct {

@@ -1,0 +1,32 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "sastoj/app/judge/freshcup/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  string mq = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string addr = 1;
+    int32 db = 2;
+  }
+  message Load {
+    string problem_cases_location = 1;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  Load load = 3;
+}

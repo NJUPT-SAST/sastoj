@@ -8,11 +8,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const (
-	SubmissionQueue = "submission"
-	SelfTestQueue   = "self-test"
-)
-
 type Channel interface {
 	Publish(ctx context.Context, v interface{}) error
 	Close() error
@@ -23,8 +18,8 @@ type OjChannel struct {
 	q  *amqp.Queue
 }
 
-func newChannel(ch *amqp.Channel, name string) (amqp.Queue, error) {
-	return ch.QueueDeclare(
+func NewChannel(ch *amqp.Channel, name string) (*OjChannel, error) {
+	q, err := ch.QueueDeclare(
 		name,  // name
 		true,  // durable
 		false, // delete when unused
@@ -32,21 +27,6 @@ func newChannel(ch *amqp.Channel, name string) (amqp.Queue, error) {
 		false, // no-wait
 		nil,   // arguments
 	)
-}
-
-func NewSubmissionChannel(ch *amqp.Channel) (*OjChannel, error) {
-	q, err := newChannel(ch, SubmissionQueue)
-	if err != nil {
-		return nil, err
-	}
-	return &OjChannel{
-		ch: ch,
-		q:  &q,
-	}, nil
-}
-
-func NewSelfTestChannel(ch *amqp.Channel) (*OjChannel, error) {
-	q, err := newChannel(ch, SelfTestQueue)
 	if err != nil {
 		return nil, err
 	}
