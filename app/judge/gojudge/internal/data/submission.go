@@ -227,12 +227,9 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		// wait for all cases finished
 		wg := sync.WaitGroup{}
 		wg.Add(len(subtask.Cases))
-		for _, c := range subtask.Cases {
+		for j, c := range subtask.Cases {
 			err := func() error {
-				// get file index
-				fileIndex := util.GetCaseIndex(c.Input)
-
-				casesResult[fileIndex-1] = false
+				casesResult[j] = false
 
 				builder := r.data.db.SubmissionCase.Create().
 					SetState(util.Waiting).
@@ -244,7 +241,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 
 				// delete test file and set submission cases
 				defer func() {
-					submissionCaseCreates[fileIndex-1] = builder
+					submissionCaseCreates[j] = builder
 					wg.Done()
 				}()
 
@@ -321,7 +318,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 					}
 				} else {
 					builder.SetPoint(c.Score)
-					casesResult[fileIndex-1] = true
+					casesResult[j] = true
 				}
 
 				return nil

@@ -68,9 +68,16 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 		return nil, errors.New("not support to get cases by UUID")
 	} else {
 		// get from db
-		po, err := s.data.db.SubmissionSubtask.Query().Where(submissionsubtask.SubmissionIDEQ(id)).All(ctx)
+		po, err := s.data.db.SubmissionSubtask.
+			Query().
+			Where(submissionsubtask.SubmissionIDEQ(id)).
+			WithSubmissions(func(q *ent.SubmissionQuery) {
+				q.Where(submission.UserIDEQ(userID))
+			}).
+			All(ctx)
 		if err != nil {
-			return nil, err
+			s.log.Errorf("get cases failed: %v", err)
+			return nil, errors.New("permission denied")
 		}
 		cases = make([]*biz.Case, 0)
 		for i, v := range po {
@@ -82,13 +89,6 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 				Memory: v.MaxMemory,
 			})
 		}
-	}
-	exist, err := s.data.db.Submission.Query().Where(submission.IDEQ(id)).Where(submission.UserIDEQ(userID)).Exist(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if !exist {
-		return nil, errors.New("permission denied")
 	}
 	// TODO: Add permission check, including contest type
 	return cases, nil

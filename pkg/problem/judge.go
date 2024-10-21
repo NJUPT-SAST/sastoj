@@ -15,12 +15,13 @@ func Judging(cases []bool, taskType string, subtask file.Subtasks) (taskPoint in
 		return 0, nil, errors.New("no cases found")
 	}
 	switch taskType {
-	case "simple":
-		judgeObj = &SimpleTask{task: subtask}
+	//case "simple":
+	//	judgeObj = &SimpleTask{task: subtask}
 	case "subtasks":
 		judgeObj = &SubtaskMin{subtasks: subtask}
 	default:
-		return 0, nil, errors.New("unknown task type")
+		judgeObj = &SubtaskMin{subtasks: subtask}
+		//return 0, nil, errors.New("unknown task type")
 	}
 	return judgeObj.judging(cases)
 }
