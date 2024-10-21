@@ -20,13 +20,11 @@ type Cases struct {
 }
 
 type Judge struct {
-	JudgeType  string
-	Interactor string
+	JudgeType string
 }
 
 type Task struct {
 	TaskType string
-	Cases    []Cases
 	Checker  string
 	Subtasks []Subtasks
 }
@@ -99,37 +97,39 @@ func (m *JudgeConfigManager) CompressAndArchive(problemId int64) error {
 func (m *JudgeConfigManager) CaseCrlfToLf(problemId int64, config *JudgeConfig) error {
 	location := m.location + "/" + strconv.FormatInt(problemId, 10) + "/"
 	wg := sync.WaitGroup{}
-	wg.Add(len(config.Task.Cases))
-	errChannel := make(chan error)
-	for _, c := range config.Task.Cases {
-		c := c
-		go func() {
-			defer wg.Done()
-			in, err := os.ReadFile(location + "testdata" + "/" + c.Input)
-			if err != nil {
-				errChannel <- err
-				return
-			}
-			out, err := os.ReadFile(location + "testdata" + "/" + c.Answer)
-			if err != nil {
-				errChannel <- err
-				return
-			}
-			err = os.WriteFile(location+"testdata"+"/"+c.Input, []byte(u.Crlf2lf(string(in[:]))), os.ModePerm)
-			if err != nil {
-				errChannel <- err
-				return
-			}
-			err = os.WriteFile(location+"testdata"+"/"+c.Answer, []byte(u.Crlf2lf(string(out[:]))), os.ModePerm)
-			if err != nil {
-				errChannel <- err
-				return
-			}
-		}()
-	}
-	wg.Wait()
-	if len(errChannel) != 0 {
-		return <-errChannel
+	for _, subtask := range config.Task.Subtasks {
+		wg.Add(len(subtask.Cases))
+		errChannel := make(chan error)
+		for _, c := range subtask.Cases {
+			c := c
+			go func() {
+				defer wg.Done()
+				in, err := os.ReadFile(location + "testdata" + "/" + c.Input)
+				if err != nil {
+					errChannel <- err
+					return
+				}
+				out, err := os.ReadFile(location + "testdata" + "/" + c.Answer)
+				if err != nil {
+					errChannel <- err
+					return
+				}
+				err = os.WriteFile(location+"testdata"+"/"+c.Input, []byte(u.Crlf2lf(string(in[:]))), os.ModePerm)
+				if err != nil {
+					errChannel <- err
+					return
+				}
+				err = os.WriteFile(location+"testdata"+"/"+c.Answer, []byte(u.Crlf2lf(string(out[:]))), os.ModePerm)
+				if err != nil {
+					errChannel <- err
+					return
+				}
+			}()
+		}
+		wg.Wait()
+		if len(errChannel) != 0 {
+			return <-errChannel
+		}
 	}
 	return nil
 }
@@ -157,7 +157,7 @@ func (m *JudgeConfigManager) SaveAndExtractCase(casesFile multipart.File, filena
 	return nil
 }
 
-// NewManager create a new file manager
+// NewJudgeConfigManager create a new file manager
 func NewJudgeConfigManager(fileLocation string) *JudgeConfigManager {
 	return &JudgeConfigManager{
 		BaseConfigManager: BaseConfigManager[JudgeConfig]{location: fileLocation},
