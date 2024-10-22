@@ -26,6 +26,7 @@ type Contest struct {
 type ContestRepo interface {
 	ListContest(ctx context.Context, userID int64) ([]*Contest, error)
 	JoinContest(ctx context.Context, userID, contestID int64, isJoin bool) error
+	FindByID(context.Context, int64) (*Contest, error)
 }
 
 // ContestUsecase is a Contest usecase.
@@ -54,4 +55,8 @@ func (uc *ContestUsecase) JoinContest(ctx context.Context, userID, contestID int
 	uc.log.Infof("userID: %d, contestID: %d, isJoin: %v", userID, contestID, isJoin)
 	// redis set isJoin state
 	return uc.repo.JoinContest(ctx, userID, contestID, isJoin)
+}
+
+func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, error) {
+	return uc.repo.FindByID(ctx, id)
 }

@@ -8,6 +8,7 @@ import (
 	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
+	"sastoj/pkg/util"
 	"strconv"
 	"time"
 
@@ -108,6 +109,26 @@ func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, 
 		return err
 	}
 	return nil
+}
+
+func (r *contestRepo) FindByID(ctx context.Context, id int64) (*biz.Contest, error) {
+	po, err := r.data.db.Contest.Get(ctx, id)
+	if err != nil {
+		log.Debug("err : ", err)
+		return nil, err
+	}
+	return &biz.Contest{
+		ID:          po.ID,
+		Title:       po.Title,
+		Description: po.Description,
+		Status:      int16(util.ContestStateToInt(po.State, po.StartTime, po.EndTime)),
+		Type:        po.Type,
+		StartTime:   po.StartTime,
+		EndTime:     po.EndTime,
+		Language:    po.Language,
+		ExtraTime:   po.ExtraTime,
+		CreateTime:  po.CreateTime,
+	}, nil
 }
 
 // NewContestRepo .

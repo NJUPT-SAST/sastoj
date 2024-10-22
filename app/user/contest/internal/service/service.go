@@ -16,13 +16,15 @@ type ContestService struct {
 	problemUc  *biz.ProblemUsecase
 	submitUc   *biz.SubmissionUsecase
 	registerUc *biz.RegisterUsecase
+	rankUc     *biz.RankUsecase
 }
 
-func NewContestService(contestUsecase *biz.ContestUsecase, problemUsecase *biz.ProblemUsecase, submitUsecase *biz.SubmissionUsecase, registerUsecase *biz.RegisterUsecase) *ContestService {
+func NewContestService(contestUsecase *biz.ContestUsecase, problemUsecase *biz.ProblemUsecase, submitUsecase *biz.SubmissionUsecase, registerUsecase *biz.RegisterUsecase, rankUsecase *biz.RankUsecase) *ContestService {
 	return &ContestService{
 		contestUc:  contestUsecase,
 		problemUc:  problemUsecase,
 		submitUc:   submitUsecase,
 		registerUc: registerUsecase,
+		rankUc:     rankUsecase,
 	}
 }

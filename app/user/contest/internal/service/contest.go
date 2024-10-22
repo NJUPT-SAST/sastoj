@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
+	"sastoj/ent"
 	"sastoj/pkg/util"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -43,5 +45,39 @@ func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestReq
 }
 
 func (s *ContestService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
-	return &pb.ListRankingReply{}, nil
+	contest, err := s.contestUc.FindContest(ctx, req.ContestId)
+	if err != nil {
+		var entErr *ent.NotFoundError
+		if errors.As(err, &entErr) {
+			return nil, errors.New("contest with specified Id not found")
+		}
+		return nil, err
+	}
+	rv, err := s.rankUc.Find(ctx, contest)
+	if err != nil {
+		return nil, err
+	}
+	list := make([]*pb.ListRankingReply_UserResult, 0)
+	for _, v := range rv.UserRank {
+		problems := make([]*pb.ListRankingReply_UserResult_ProblemResult, 0)
+		for _, p := range v.Problems {
+			problems = append(problems, &pb.ListRankingReply_UserResult_ProblemResult{
+				ProblemId:         p.ProblemId,
+				State:             p.State,
+				Point:             p.Point,
+				TriedTimes:        p.TriedCount,
+				ScoreAchievedTime: util.ConvertTimeToTimeStamp(p.SubmitTime),
+			})
+		}
+		list = append(list, &pb.ListRankingReply_UserResult{
+			Username:   v.UserName,
+			TotalScore: v.TotalPoint,
+			Rank:       v.Rank,
+			Penalty:    v.Penalty,
+			Problems:   problems,
+		})
+	}
+	return &pb.ListRankingReply{
+		Users: list,
+	}, nil
 }
