@@ -1,7 +1,7 @@
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-PROJECTS=admin user-contest public-auth gojudge-server
+PROJECTS=admin contest public-auth gojudge-server freshcup-server
 
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
@@ -78,7 +78,7 @@ db:
 .PHONY: docker
 # build docker image
 docker:
-	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj/$(T):$(VERSION) . ;)
+	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj/$(T):latest . ;)
 
 # show help
 help:
