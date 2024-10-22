@@ -3,11 +3,9 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"strconv"
-	"time"
-
-	"github.com/go-kratos/kratos/v2/log"
 )
 
 type rankRepo struct {
@@ -22,21 +20,17 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 	}
 }
 
-func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
-	if contest.EndTime.After(time.Now()) {
-		const prefix = "admin:contest:rank:"
-		key := prefix + strconv.FormatInt(contest.ID, 10)
-		data, err := r.data.redis.Get(ctx, key).Result()
-		if err != nil {
-			return nil, err
-		}
-		var rank biz.Rank
-		err = json.Unmarshal([]byte(data), &rank)
-		if err != nil {
-			return nil, err
-		}
-		return &rank, nil
-	} else {
-		return nil, nil
+func (r *rankRepo) Find(ctx context.Context, contestId int64) (*biz.Rank, error) {
+	const prefix = "admin:contest:rank:"
+	key := prefix + strconv.FormatInt(contestId, 10)
+	data, err := r.data.redis.Get(ctx, key).Result()
+	if err != nil {
+		return nil, err
 	}
+	var rank biz.Rank
+	err = json.Unmarshal([]byte(data), &rank)
+	if err != nil {
+		return nil, err
+	}
+	return &rank, nil
 }

@@ -45,16 +45,12 @@ func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestReq
 }
 
 func (s *ContestService) ListRanking(ctx context.Context, req *pb.ListRankingRequest) (*pb.ListRankingReply, error) {
-	contest, err := s.contestUc.FindContest(ctx, req.ContestId)
+	rv, err := s.rankUc.Find(ctx, req.ContestId)
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
 			return nil, errors.New("contest with specified Id not found")
 		}
-		return nil, err
-	}
-	rv, err := s.rankUc.Find(ctx, contest)
-	if err != nil {
 		return nil, err
 	}
 	list := make([]*pb.ListRankingReply_UserResult, 0)
