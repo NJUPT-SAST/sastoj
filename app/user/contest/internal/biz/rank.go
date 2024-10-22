@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -34,7 +33,7 @@ type UserProblemResult struct {
 }
 
 type RankRepo interface {
-	Find(ctx context.Context, contest *Contest) (*Rank, error)
+	Find(ctx context.Context, contestId int64) (*Rank, error)
 }
 
 type RankUsecase struct {
@@ -46,10 +45,6 @@ func NewRankUsecase(repo RankRepo, logger log.Logger) *RankUsecase {
 	return &RankUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (r *RankUsecase) Find(ctx context.Context, contest *Contest) (*Rank, error) {
-	if contest.EndTime.After(time.Now()) {
-		return r.repo.Find(ctx, contest)
-	} else {
-		return nil, errors.New("contest with specified Id not found")
-	}
+func (r *RankUsecase) Find(ctx context.Context, contestId int64) (*Rank, error) {
+	return r.repo.Find(ctx, contestId)
 }
