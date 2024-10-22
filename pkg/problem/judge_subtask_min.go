@@ -2,7 +2,6 @@ package problem
 
 import (
 	"sastoj/pkg/file"
-	"sastoj/pkg/util"
 )
 
 type SubtaskMin struct {
@@ -14,8 +13,7 @@ func (s *SubtaskMin) judging(cases []bool) (tasksPoint int16, casesPoint []int16
 	casesPoint = make([]int16, len(cases), len(cases))
 	err = nil
 	flag := true
-	for _, c := range s.subtasks.Cases {
-		i := util.GetCaseIndex(c.Input) - 1
+	for i, c := range s.subtasks.Cases {
 		if !cases[i] {
 			casesPoint[i] = 0
 			flag = false
