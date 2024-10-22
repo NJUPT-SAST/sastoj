@@ -3857,50 +3857,84 @@ var _ interface {
 	ErrorName() string
 } = GetCasesReply_CaseValidationError{}
 
-// Validate checks the field values on ListRankingReply_User with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on ListRankingReply_UserResult with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ListRankingReply_User) Validate() error {
+func (m *ListRankingReply_UserResult) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListRankingReply_User with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on ListRankingReply_UserResult with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ListRankingReply_UserMultiError, or nil if none found.
-func (m *ListRankingReply_User) ValidateAll() error {
+// ListRankingReply_UserResultMultiError, or nil if none found.
+func (m *ListRankingReply_UserResult) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListRankingReply_User) validate(all bool) error {
+func (m *ListRankingReply_UserResult) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Id
+	for idx, item := range m.GetProblems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListRankingReply_UserResultValidationError{
+						field:  fmt.Sprintf("Problems[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListRankingReply_UserResultValidationError{
+						field:  fmt.Sprintf("Problems[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListRankingReply_UserResultValidationError{
+					field:  fmt.Sprintf("Problems[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	// no validation rules for Username
 
-	// no validation rules for Score
+	// no validation rules for TotalScore
 
 	// no validation rules for Rank
 
+	// no validation rules for Penalty
+
 	if len(errors) > 0 {
-		return ListRankingReply_UserMultiError(errors)
+		return ListRankingReply_UserResultMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListRankingReply_UserMultiError is an error wrapping multiple validation
-// errors returned by ListRankingReply_User.ValidateAll() if the designated
-// constraints aren't met.
-type ListRankingReply_UserMultiError []error
+// ListRankingReply_UserResultMultiError is an error wrapping multiple
+// validation errors returned by ListRankingReply_UserResult.ValidateAll() if
+// the designated constraints aren't met.
+type ListRankingReply_UserResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListRankingReply_UserMultiError) Error() string {
+func (m ListRankingReply_UserResultMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3909,11 +3943,12 @@ func (m ListRankingReply_UserMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListRankingReply_UserMultiError) AllErrors() []error { return m }
+func (m ListRankingReply_UserResultMultiError) AllErrors() []error { return m }
 
-// ListRankingReply_UserValidationError is the validation error returned by
-// ListRankingReply_User.Validate if the designated constraints aren't met.
-type ListRankingReply_UserValidationError struct {
+// ListRankingReply_UserResultValidationError is the validation error returned
+// by ListRankingReply_UserResult.Validate if the designated constraints
+// aren't met.
+type ListRankingReply_UserResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3921,24 +3956,24 @@ type ListRankingReply_UserValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRankingReply_UserValidationError) Field() string { return e.field }
+func (e ListRankingReply_UserResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRankingReply_UserValidationError) Reason() string { return e.reason }
+func (e ListRankingReply_UserResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRankingReply_UserValidationError) Cause() error { return e.cause }
+func (e ListRankingReply_UserResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRankingReply_UserValidationError) Key() bool { return e.key }
+func (e ListRankingReply_UserResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRankingReply_UserValidationError) ErrorName() string {
-	return "ListRankingReply_UserValidationError"
+func (e ListRankingReply_UserResultValidationError) ErrorName() string {
+	return "ListRankingReply_UserResultValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRankingReply_UserValidationError) Error() string {
+func (e ListRankingReply_UserResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3950,14 +3985,14 @@ func (e ListRankingReply_UserValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRankingReply_User.%s: %s%s",
+		"invalid %sListRankingReply_UserResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRankingReply_UserValidationError{}
+var _ error = ListRankingReply_UserResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -3965,4 +4000,147 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRankingReply_UserValidationError{}
+} = ListRankingReply_UserResultValidationError{}
+
+// Validate checks the field values on
+// ListRankingReply_UserResult_ProblemResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ListRankingReply_UserResult_ProblemResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// ListRankingReply_UserResult_ProblemResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// ListRankingReply_UserResult_ProblemResultMultiError, or nil if none found.
+func (m *ListRankingReply_UserResult_ProblemResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListRankingReply_UserResult_ProblemResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ProblemId
+
+	// no validation rules for State
+
+	// no validation rules for Point
+
+	// no validation rules for TriedTimes
+
+	if all {
+		switch v := interface{}(m.GetScoreAchievedTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ListRankingReply_UserResult_ProblemResultValidationError{
+					field:  "ScoreAchievedTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ListRankingReply_UserResult_ProblemResultValidationError{
+					field:  "ScoreAchievedTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetScoreAchievedTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListRankingReply_UserResult_ProblemResultValidationError{
+				field:  "ScoreAchievedTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ListRankingReply_UserResult_ProblemResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListRankingReply_UserResult_ProblemResultMultiError is an error wrapping
+// multiple validation errors returned by
+// ListRankingReply_UserResult_ProblemResult.ValidateAll() if the designated
+// constraints aren't met.
+type ListRankingReply_UserResult_ProblemResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListRankingReply_UserResult_ProblemResultMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListRankingReply_UserResult_ProblemResultMultiError) AllErrors() []error { return m }
+
+// ListRankingReply_UserResult_ProblemResultValidationError is the validation
+// error returned by ListRankingReply_UserResult_ProblemResult.Validate if the
+// designated constraints aren't met.
+type ListRankingReply_UserResult_ProblemResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListRankingReply_UserResult_ProblemResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListRankingReply_UserResult_ProblemResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListRankingReply_UserResult_ProblemResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListRankingReply_UserResult_ProblemResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListRankingReply_UserResult_ProblemResultValidationError) ErrorName() string {
+	return "ListRankingReply_UserResult_ProblemResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListRankingReply_UserResult_ProblemResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListRankingReply_UserResult_ProblemResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListRankingReply_UserResult_ProblemResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListRankingReply_UserResult_ProblemResultValidationError{}

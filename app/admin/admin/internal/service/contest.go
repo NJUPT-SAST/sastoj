@@ -6,9 +6,7 @@ import (
 	v1 "sastoj/api/sastoj/admin/admin/service/v1"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent"
-	"time"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"sastoj/pkg/util"
 )
 
 func (s *AdminService) CreateContest(ctx context.Context, req *v1.CreateContestRequest) (*v1.CreateContestReply, error) {
@@ -79,11 +77,11 @@ func (s *AdminService) GetContest(ctx context.Context, req *v1.GetContestRequest
 		Description: rv.Description,
 		Status:      rv.Status,
 		Type:        rv.Type,
-		StartTime:   convertTimeToTimeStamp(rv.StartTime),
-		EndTime:     convertTimeToTimeStamp(rv.EndTime),
+		StartTime:   util.ConvertTimeToTimeStamp(rv.StartTime),
+		EndTime:     util.ConvertTimeToTimeStamp(rv.EndTime),
 		Language:    rv.Language,
 		ExtraTime:   rv.ExtraTime,
-		CreateTime:  convertTimeToTimeStamp(rv.CreateTime),
+		CreateTime:  util.ConvertTimeToTimeStamp(rv.CreateTime),
 	}, nil
 }
 func (s *AdminService) ListContest(ctx context.Context, req *v1.ListContestRequest) (*v1.ListContestReply, error) {
@@ -99,11 +97,11 @@ func (s *AdminService) ListContest(ctx context.Context, req *v1.ListContestReque
 			Description: v.Description,
 			Status:      v.Status,
 			Type:        v.Type,
-			StartTime:   convertTimeToTimeStamp(v.StartTime),
-			EndTime:     convertTimeToTimeStamp(v.EndTime),
+			StartTime:   util.ConvertTimeToTimeStamp(v.StartTime),
+			EndTime:     util.ConvertTimeToTimeStamp(v.EndTime),
 			Language:    v.Language,
 			ExtraTime:   v.ExtraTime,
-			CreateTime:  convertTimeToTimeStamp(v.CreateTime),
+			CreateTime:  util.ConvertTimeToTimeStamp(v.CreateTime),
 		})
 	}
 	return &v1.ListContestReply{
@@ -168,7 +166,7 @@ func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest
 				State:             p.State,
 				Point:             p.Point,
 				TriedTimes:        p.TriedCount,
-				ScoreAchievedTime: convertTimeToTimeStamp(p.SubmitTime),
+				ScoreAchievedTime: util.ConvertTimeToTimeStamp(p.SubmitTime),
 			})
 		}
 		list = append(list, &v1.GetRankingReply_UserResult{
@@ -182,12 +180,4 @@ func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest
 	return &v1.GetRankingReply{
 		Users: list,
 	}, nil
-}
-
-func convertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {
-
-	return &timestamppb.Timestamp{
-		Seconds: tm.Unix(),
-		Nanos:   int32(tm.Nanosecond()),
-	}
 }

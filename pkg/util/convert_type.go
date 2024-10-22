@@ -7,6 +7,8 @@ import (
 	"sastoj/ent/problem"
 	"sastoj/ent/user"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func ContestStateToInt(state contest.State, start, end time.Time) int32 {
@@ -96,5 +98,13 @@ func VisToEnt(v pb.Visibility) problem.Visibility {
 		return problem.VisibilityCONTEST
 	default:
 		return problem.VisibilityPRIVATE
+	}
+}
+
+func ConvertTimeToTimeStamp(tm time.Time) *timestamppb.Timestamp {
+
+	return &timestamppb.Timestamp{
+		Seconds: tm.Unix(),
+		Nanos:   int32(tm.Nanosecond()),
 	}
 }

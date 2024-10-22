@@ -214,13 +214,21 @@ message ListRankingRequest {
 	int64 contest_id = 1;
 }
 message ListRankingReply {
-	message User {
-		int64 id = 1;
+	message UserResult {
+		message ProblemResult {
+			int64 problem_id = 1;
+			int32 state = 2;
+			int32 point = 3;
+			int32 tried_times = 4;
+			google.protobuf.Timestamp score_achieved_time = 5;
+		}
+		repeated ProblemResult problems = 1;
 		string username = 2;
-		int32 score = 3;
+		int32 total_score = 3;
 		int32 rank = 4;
+		int32 penalty = 5;
 	}
-	repeated User users = 1;
+	repeated UserResult users = 1;
 }
 
 message UpdateSubmissionRequest {
