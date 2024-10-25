@@ -91,14 +91,16 @@ func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) e
 }
 
 func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) error {
+	// set submission status to judging
 	s.Status = util.Judging
-
 	marshal, _ := json.Marshal(s)
 	r.data.redis.Set(ctx, fmt.Sprintf("%s:%d:%s", SubmissionKey, s.UserID, s.ID), marshal, 2*time.Hour)
 
+	// begin getting basic info of the problem
+	// set submission status to system error
 	s.Status = util.SystemError
 
-	// cache submission
+	// cache submission after judging
 	defer func() {
 		marshal, err := json.Marshal(s)
 		if err != nil {
@@ -110,7 +112,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		}
 	}()
 
-	// get problem from redis
+	// get problem from redis or db
 	// TODO: add case version for cache
 	var p *ent.Problem
 	pBytes, err := r.data.redis.Get(ctx, fmt.Sprintf("%s:%d", ProblemKey, s.ProblemID)).Result()
@@ -128,51 +130,25 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		_ = json.Unmarshal([]byte(pBytes), &p)
 	}
 
-	// set case version
-	s.CaseVer = p.CaseVersion
-
-	// compile submission
-	fileID, result, err := r.data.gojudge.Compile([]byte(s.Code), s.Language, uuid.NewString())
-	if err != nil {
-		if result != nil {
-			s.Status = util.CompileError
-			s.Stderr = "Compile error without stderr"
-			stderr, ok := result.Files["stderr"]
-			if ok {
-				s.Stderr = string(stderr)
-			}
-		}
-		return err
-	}
-
 	// get judge config
 	config, err := r.data.fm.GetConfig(p.ID)
 	if err != nil {
 		return err
 	}
 
-	// init submission info
+	// set case version and submission info
+	s.CaseVer = p.CaseVersion
 	s.TotalTime = 0
 	s.MaxMemory = 0
 	s.Point = 0
-	s.Status = util.Accepted
 
 	// init submission cases
 	subtaskCreates := make([]*ent.SubmissionSubtaskCreate, len(config.Task.Subtasks))
 	cases := make([][]*ent.SubmissionCaseCreate, len(config.Task.Subtasks))
 
-	// save submission
+	// save submission to database after judging
 	defer func() {
-		// delete compiled file
-		if err := r.data.gojudge.DeleteFile(fileID); err != nil {
-			r.log.Errorf("delete file error: %v", err)
-		}
-
-		// skip save to database when system error
-		if s.Status == util.SystemError {
-			return
-		}
-
+		// save submission to database
 		submission, err := r.data.db.Submission.Create().
 			SetUserID(s.UserID).
 			SetProblemID(s.ProblemID).
@@ -190,6 +166,12 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			return
 		}
 
+		// skip save cases and subtasks to database when system error
+		if s.Status == util.SystemError || s.Status == util.CompileError {
+			return
+		}
+
+		// save subtasks and cases to database
 		for _, builder := range subtaskCreates {
 			builder.SetSubmissionID(submission.ID)
 		}
@@ -211,6 +193,31 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			r.log.Errorf("save cases error: %v", err)
 		}
 	}()
+
+	// compile submission
+	fileID, result, err := r.data.gojudge.Compile([]byte(s.Code), s.Language, uuid.NewString())
+	if err != nil {
+		if result != nil {
+			s.Status = util.CompileError
+			s.Stderr = "Compile error without stderr"
+			stderr, ok := result.Files["stderr"]
+			if ok {
+				s.Stderr = string(stderr)
+			}
+		}
+		return err
+	}
+
+	// delete compiled file after judging
+	defer func() {
+		if err := r.data.gojudge.DeleteFile(fileID); err != nil {
+			r.log.Errorf("delete file error: %v", err)
+		}
+	}()
+
+	// begin judging
+	// init submission info
+	s.Status = util.Accepted
 
 	// test each case
 	for i, subtask := range config.Task.Subtasks {
