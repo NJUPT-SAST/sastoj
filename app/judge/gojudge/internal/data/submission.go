@@ -160,6 +160,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			SetLanguage(s.Language).
 			SetCompileStderr(s.Stderr).
 			SetCaseVersion(int8(s.CaseVer)).
+			SetCreateTime(s.CreateTime).
 			Save(ctx)
 		if err != nil {
 			r.log.Errorf("save submission error: %v", err)
