@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.8.0
 // - protoc             (unknown)
-// source: sastoj/user/contest/service/v1/contest.proto
+// source: user/contest/service/v1/contest.proto
 
 package v1
 

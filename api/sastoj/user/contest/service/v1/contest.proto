@@ -207,7 +207,15 @@ message GetCasesReply {
 		uint64 time = 4;
 		uint64 memory = 5;
 	}
-	repeated Case cases = 1;
+	message Subtask {
+		int32 index = 1;
+		int32 point = 2;
+		int32 state = 3;
+		uint64 time = 4;
+		uint64 memory = 5;
+		repeated Case cases = 6;
+	}
+	repeated Subtask subtasks = 1;
 }
 
 message ListRankingRequest {

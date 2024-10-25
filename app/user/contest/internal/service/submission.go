@@ -116,17 +116,29 @@ func (s *ContestService) GetCases(ctx context.Context, req *pb.GetCasesRequest) 
 	if err != nil {
 		return nil, err
 	}
-	var pbCases []*pb.GetCasesReply_Case
+	var pbSubtasks []*pb.GetCasesReply_Subtask
 	for _, c := range cases {
-		pbCases = append(pbCases, &pb.GetCasesReply_Case{
+		var pbCases []*pb.GetCasesReply_Case
+		for _, o := range c.Cases {
+			pbCases = append(pbCases, &pb.GetCasesReply_Case{
+				Index:  o.Index,
+				Point:  o.Point,
+				State:  o.State,
+				Time:   o.Time,
+				Memory: o.Memory,
+			})
+		}
+
+		pbSubtasks = append(pbSubtasks, &pb.GetCasesReply_Subtask{
 			Index:  c.Index,
 			Point:  c.Point,
 			State:  c.State,
 			Time:   c.Time,
 			Memory: c.Memory,
+			Cases:  pbCases,
 		})
 	}
 	return &pb.GetCasesReply{
-		Cases: pbCases,
+		Subtasks: pbSubtasks,
 	}, nil
 }
