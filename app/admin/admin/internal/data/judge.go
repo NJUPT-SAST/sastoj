@@ -48,17 +48,17 @@ func (r *judgeRepo) SubmitJudge(ctx context.Context, submissionId int64, point i
 }
 
 func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*biz.Problem, error) {
-	problems, err := r.data.db.Problem.Query().Where(problem.HasAdjudicatorsWith(group.HasUsersWith(user.IDEQ(userId)))).All(ctx)
+	problems, err := r.data.db.Problem.
+		Query().
+		Where(problem.HasAdjudicatorsWith(group.HasUsersWith(user.IDEQ(userId)))).
+		WithProblemType().
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
 	rv := make([]*biz.Problem, 0)
 	for _, p := range problems {
-		pt, err := p.QueryProblemType().First(ctx)
-		if err != nil {
-			return nil, err
-		}
-		config, err := r.data.GetConfig(p.ID, pt)
+		config, err := r.data.GetConfig(p)
 		if err != nil {
 			return nil, err
 		}

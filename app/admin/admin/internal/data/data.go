@@ -31,14 +31,14 @@ type Data struct {
 	fcm   *file.FcConfigManager
 }
 
-func (d *Data) GetConfig(problemId int64, problemType *ent.ProblemType) (string, error) {
+func (d *Data) GetConfig(p *ent.Problem) (string, error) {
 	var config string
 	var err error
-	switch problemType.Judge {
+	switch p.Edges.ProblemType.Judge {
 	case "freshcup":
-		config, err = d.fcm.GetConfigString(problemId)
+		config, err = d.fcm.GetConfigString(p.ID)
 	case "gojudge":
-		config, err = d.jcm.GetConfigString(problemId)
+		config, err = d.jcm.GetConfigString(p.ID)
 	}
 	if err != nil {
 		return "", err
@@ -46,13 +46,13 @@ func (d *Data) GetConfig(problemId int64, problemType *ent.ProblemType) (string,
 	return config, nil
 }
 
-func (d *Data) SetConfig(p *ent.Problem, config string) error {
+func (d *Data) SetConfig(problemID int64, problemType *ent.ProblemType, config string) error {
 	var err error
-	switch p.Edges.ProblemType.Judge {
+	switch problemType.Judge {
 	case "freshcup":
-		err = d.fcm.SetConfigString(p.ID, config)
+		err = d.fcm.SetConfigString(problemID, config)
 	case "gojudge":
-		err = d.jcm.SetConfigString(p.ID, config)
+		err = d.jcm.SetConfigString(problemID, config)
 	}
 	return err
 }
