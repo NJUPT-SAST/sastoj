@@ -80,7 +80,7 @@ func (s *AdminService) GetProblem(ctx context.Context, request *pb.GetProblemReq
 }
 
 func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemRequest) (*pb.ListProblemReply, error) {
-	rv, err := s.pc.ListProblem(ctx, request.Currency, request.Size)
+	rv, err := s.pc.ListProblem(ctx, request.Current, request.Size)
 	if err != nil {
 		return nil, err
 	}
