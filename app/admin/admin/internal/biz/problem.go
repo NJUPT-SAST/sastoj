@@ -76,9 +76,9 @@ func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*Problem, 
 	return rv, nil
 }
 
-func (uc *ProblemUsecase) ListProblem(ctx context.Context, currency int32, size int32) ([]*Problem, error) {
-	uc.log.WithContext(ctx).Infof("ListProblem: %v %v", currency, size)
-	rv, err := uc.repo.ListPages(ctx, currency, size)
+func (uc *ProblemUsecase) ListProblem(ctx context.Context, current int32, size int32) ([]*Problem, error) {
+	uc.log.WithContext(ctx).Infof("ListProblem: %v %v", current, size)
+	rv, err := uc.repo.ListPages(ctx, current, size)
 	if err != nil {
 		return nil, err
 	}

@@ -92,7 +92,11 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
-	config, err := r.data.GetConfig(p)
+	pt, err := p.QueryProblemType().First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	config, err := r.data.GetConfig(p.ID, pt)
 	if err != nil {
 		return nil, err
 	}
@@ -124,9 +128,9 @@ func (r *problemRepo) Delete(ctx context.Context, id int64) (*int64, error) {
 	return &res64, nil
 }
 
-func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32) ([]*biz.Problem, error) {
+func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32) ([]*biz.Problem, error) {
 	res, err := r.data.db.Problem.Query().
-		Limit(int(size)).Offset(int((currency - 1) * size)).
+		Limit(int(size)).Offset(int((current - 1) * size)).
 		WithOwner().
 		All(ctx)
 	if err != nil {
@@ -139,7 +143,11 @@ func (r *problemRepo) ListPages(ctx context.Context, currency int32, size int32)
 			return nil, err
 		}
 		vis := util.VisToPb(v.Visibility)
-		config, err := r.data.GetConfig(v)
+		pt, err := v.QueryProblemType().First(ctx)
+		if err != nil {
+			return nil, err
+		}
+		config, err := r.data.GetConfig(v.ID, pt)
 		if err != nil {
 			return nil, err
 		}

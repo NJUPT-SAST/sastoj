@@ -483,7 +483,7 @@ message GetProblemReply {
 }
 message ListProblemRequest {
   int32 size = 1;
-  int32 currency = 2;
+  int32 current = 2;
 }
 message ListProblemReply {
   message Problem {
@@ -500,7 +500,7 @@ message ListProblemReply {
     Visibility visibility = 11;
     map<string, string> metadata = 12;
   }
-  int32 currency = 2;
+  int32 current = 2;
   int32 total = 1;
   repeated Problem problems = 3;
 }
