@@ -3,6 +3,7 @@ package gojudge
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/criyle/go-judge/pb"
 )
@@ -97,7 +98,7 @@ func (g *GoJudge) ClassicJudge(input []byte, language string, targetID string, r
 	})
 	result, err := handleExecError(requestID, res, err)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 	return result, nil
 }
@@ -137,6 +138,9 @@ func handleExecError(requestID string, response *pb.Response, err error) (*pb.Re
 			message += "file error: " + fileError.Message + ",\n"
 		}
 		return result, errors.New(message)
+	}
+	if result.ExitStatus != 0 && result.ExitStatus < 32 {
+		return result, errors.New("request=" + requestID + ": exit status=" + strconv.Itoa(int(result.ExitStatus)))
 	}
 	return result, nil
 }

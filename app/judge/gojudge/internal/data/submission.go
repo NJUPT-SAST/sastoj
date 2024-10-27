@@ -239,7 +239,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			err := func() error {
 				casesResult[j] = false
 
-				builder := r.data.db.SubmissionCase.Create().
+				caseBuilder := r.data.db.SubmissionCase.Create().
 					SetState(util.Waiting).
 					SetTime(0).
 					SetMemory(0).
@@ -249,7 +249,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 
 				// delete test file and set submission cases
 				defer func() {
-					submissionCaseCreates[j] = builder
+					submissionCaseCreates[j] = caseBuilder
 					wg.Done()
 				}()
 
@@ -264,10 +264,13 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				// judge case
 				result, err := r.data.gojudge.ClassicJudge(in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
 				if err != nil {
-					builder.SetState(util.RuntimeError)
-					builder.SetStderr(err.Error())
+					stderr := util.GetSignalMean(result.ExitStatus)
+					caseBuilder.SetState(util.RuntimeError)
+					caseBuilder.SetStderr(stderr)
+					subtaskBuilder.SetState(util.RuntimeError)
 					s.Status = util.RuntimeError
-					s.Stderr = err.Error()
+					s.Stderr = stderr
+					r.log.Infof("submission: %s runtime error: %v", s.ID, err)
 					return nil
 				}
 				r.log.Infof("submission: %s result: %+v", s.ID, result)
@@ -296,9 +299,9 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				}
 
 				// set submission case
-				builder.SetState(state)
-				builder.SetTime(result.Time)
-				builder.SetMemory(result.Memory)
+				caseBuilder.SetState(state)
+				caseBuilder.SetTime(result.Time)
+				caseBuilder.SetMemory(result.Memory)
 				// TODO: support more contest type
 
 				// set subtask info
@@ -311,7 +314,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 
 				// set status and point
 				if state != util.Accepted {
-					builder.SetPoint(0)
+					caseBuilder.SetPoint(0)
 					if s.Status == util.Accepted {
 						s.Status = state
 					}
@@ -320,12 +323,12 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 					}
 					msg, ok := result.Files["stderr"]
 					if ok {
-						builder.SetStderr(string(msg))
+						caseBuilder.SetStderr(string(msg))
 					} else {
-						builder.SetStdout(result.Error)
+						caseBuilder.SetStdout(result.Error)
 					}
 				} else {
-					builder.SetPoint(c.Score)
+					caseBuilder.SetPoint(c.Score)
 					casesResult[j] = true
 				}
 
