@@ -137,10 +137,11 @@ func (s *AdminService) ManualRanking(ctx context.Context, req *v1.ManualRankingR
 	if err != nil {
 		return nil, err
 	}
-	err = s.rc.Save(ctx, contest, rank)
+	err = s.rc.Save(ctx, rank)
 	if err != nil {
 		return nil, err
 	}
+	err = s.rc.SaveCache(ctx, contest, rank)
 	return &v1.ManualRankingReply{Success: true}, nil
 }
 

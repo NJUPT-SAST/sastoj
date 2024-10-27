@@ -37,7 +37,7 @@ func (s *ContestJob) Ranking(ctx context.Context) {
 			log.Warn(err.Error())
 			continue
 		}
-		err = s.rc.Save(ctx, contest, rank)
+		err = s.rc.SaveCache(ctx, contest, rank)
 		if err != nil {
 			log.Warn(err.Error())
 			continue

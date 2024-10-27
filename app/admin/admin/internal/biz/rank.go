@@ -43,7 +43,9 @@ const (
 
 type RankRepo interface {
 	GetSubmissions(ctx context.Context, contestId int64) (map[int64]*UserRank, error)
-	Save(ctx context.Context, contest *Contest, rank *Rank) error
+	DeleteByContestId(ctx context.Context, contestId int64) error
+	Save(ctx context.Context, rank *Rank) error
+	SaveCache(ctx context.Context, contest *Contest, rank *Rank) error
 	Find(ctx context.Context, contest *Contest) (*Rank, error)
 }
 
@@ -64,8 +66,16 @@ func (r *RankUsecase) Find(ctx context.Context, contest *Contest) (*Rank, error)
 	}
 }
 
-func (r *RankUsecase) Save(ctx context.Context, contest *Contest, rank *Rank) error {
-	return r.repo.Save(ctx, contest, rank)
+func (r *RankUsecase) Save(ctx context.Context, rank *Rank) error {
+	err := r.repo.DeleteByContestId(ctx, rank.ContestId)
+	if err != nil {
+		return err
+	}
+	return r.repo.Save(ctx, rank)
+}
+
+func (r *RankUsecase) SaveCache(ctx context.Context, contest *Contest, rank *Rank) error {
+	return r.repo.SaveCache(ctx, contest, rank)
 }
 
 func (r *RankUsecase) Update(ctx context.Context, contest *Contest) (*Rank, error) {

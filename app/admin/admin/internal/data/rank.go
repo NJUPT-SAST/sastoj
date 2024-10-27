@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"sastoj/app/admin/admin/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/contest"
+	"sastoj/ent/contestresult"
 	"sastoj/ent/problem"
 	"sastoj/ent/submission"
 	"sastoj/pkg/util"
@@ -13,6 +15,10 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+)
+
+const (
+	prefix = "admin:contest:rank:"
 )
 
 type rankRepo struct {
@@ -29,7 +35,6 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 
 func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
 	if contest.EndTime.After(time.Now()) {
-		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
 		data, err := r.data.redis.Get(ctx, key).Result()
 		if err != nil {
@@ -46,9 +51,35 @@ func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, e
 	}
 }
 
-func (r *rankRepo) Save(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
+func (r *rankRepo) DeleteByContestId(ctx context.Context, contestId int64) error {
+	_, err := r.data.db.ContestResult.Delete().Where(contestresult.ContestIDEQ(contestId)).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *rankRepo) Save(ctx context.Context, rank *biz.Rank) error {
+	var contestResults []*ent.ContestResultCreate
+	for _, userRank := range rank.UserRank {
+		contestResults = append(contestResults,
+			r.data.db.ContestResult.Create().
+				SetContestID(rank.ContestId).
+				SetUserID(userRank.UserId).
+				SetScore(userRank.TotalPoint).
+				SetScoreTime(int32(userRank.AchievedTime.Second())).
+				SetRank(userRank.Rank).
+				SetPenalty(userRank.Penalty))
+	}
+	_, err := r.data.db.ContestResult.CreateBulk(contestResults...).Save(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *rankRepo) SaveCache(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
 	if contest.EndTime.After(time.Now()) {
-		const prefix = "admin:contest:rank:"
 		key := prefix + strconv.FormatInt(contest.Id, 10)
 		rankData, err := json.Marshal(rank)
 		if err != nil {
