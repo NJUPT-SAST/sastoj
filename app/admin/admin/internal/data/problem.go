@@ -40,11 +40,7 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 	if err != nil {
 		return nil, err
 	}
-	problemType, err := res.QueryProblemType().First(ctx)
-	if err != nil {
-		return nil, err
-	}
-	err = r.data.SetConfig(res.ID, problemType, g.Config)
+	err = r.data.fm.SetConfigString(res.ID, g.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -75,8 +71,7 @@ func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) error {
 	if err != nil {
 		return err
 	}
-	problemType, err := res.QueryProblemType().First(ctx)
-	err = r.data.SetConfig(res.ID, problemType, g.Config)
+	err = r.data.fm.SetConfigString(res.ID, g.Config)
 	if err != nil {
 		return err
 	}
@@ -98,7 +93,7 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 		return nil, err
 	}
 	vis := util.VisToPb(p.Visibility)
-	config, err := r.data.GetConfig(p)
+	config, err := r.data.fm.GetConfigString(p.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +141,7 @@ func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32) 
 			return nil, err
 		}
 		vis := util.VisToPb(v.Visibility)
-		config, err := r.data.GetConfig(v)
+		config, err := r.data.fm.GetConfigString(v.ID)
 		if err != nil {
 			return nil, err
 		}

@@ -92,7 +92,10 @@ message GetContestsReply {
 
 message JoinContestRequest {
 	int64 contest_id = 1;
-	bool is_join = 2;
+	message JoinContestBody {
+		bool is_join = 1;
+	}
+	JoinContestBody body = 2;
 }
 message JoinContestReply {
 	bool is_join = 1;

@@ -611,5 +611,5 @@ var Contest_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/user/contest/service/v1/contest.proto",
+	Metadata: "user/contest/service/v1/contest.proto",
 }

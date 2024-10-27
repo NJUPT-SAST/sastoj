@@ -28,33 +28,7 @@ type Data struct {
 	db    *ent.Client
 	redis *redis.Client
 	jcm   *file.JudgeConfigManager
-	fcm   *file.FcConfigManager
-}
-
-func (d *Data) GetConfig(p *ent.Problem) (string, error) {
-	var config string
-	var err error
-	switch p.Edges.ProblemType.Judge {
-	case "freshcup":
-		config, err = d.fcm.GetConfigString(p.ID)
-	case "gojudge":
-		config, err = d.jcm.GetConfigString(p.ID)
-	}
-	if err != nil {
-		return "", err
-	}
-	return config, nil
-}
-
-func (d *Data) SetConfig(problemID int64, problemType *ent.ProblemType, config string) error {
-	var err error
-	switch problemType.Judge {
-	case "freshcup":
-		err = d.fcm.SetConfigString(problemID, config)
-	case "gojudge":
-		err = d.jcm.SetConfigString(problemID, config)
-	}
-	return err
+	fm    *file.BaseConfigManager[any]
 }
 
 // NewData .
@@ -117,6 +91,6 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		db:    client,
 		redis: redisClient,
 		jcm:   file.NewJudgeConfigManager(c.Load.GetProblemCasesLocation()),
-		fcm:   file.NewFcConfigManager(c.Load.GetProblemCasesLocation()),
+		fm:    file.NewBaseConfigManager(c.Load.GetProblemCasesLocation()),
 	}, cleanup, nil
 }
