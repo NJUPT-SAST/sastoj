@@ -77,6 +77,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		return err
 	}
 	if config == nil {
+		s.Status = util.Waiting
 		r.log.Errorf("config load error for problem %d", p.ID)
 		return nil
 	}
