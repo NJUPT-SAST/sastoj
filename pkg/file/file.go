@@ -40,3 +40,9 @@ func (m *BaseConfigManager[T]) SetConfigString(problemId int64, config string) e
 	tomlFile := []byte(config)
 	return WriteTomlFile(problemId, m.location, tomlFile)
 }
+
+func NewBaseConfigManager(fileLocation string) *BaseConfigManager[any] {
+	return &BaseConfigManager[any]{
+		location: fileLocation,
+	}
+}
