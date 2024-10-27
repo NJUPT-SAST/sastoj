@@ -35,12 +35,12 @@ func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsReque
 }
 func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
 	userID := util.GetUserInfoFromCtx(ctx).UserId
-	err := s.contestUc.JoinContest(ctx, userID, req.GetContestId(), req.Body.IsJoin)
+	err := s.contestUc.JoinContest(ctx, userID, req.GetContestId(), req.IsJoin)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.JoinContestReply{
-		IsJoin: req.Body.IsJoin,
+		IsJoin: req.IsJoin,
 	}, nil
 }
 

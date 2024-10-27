@@ -55,6 +55,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		// get problem from ent
 		p, err = r.data.db.Problem.Query().
 			Where(problem.ID(s.ProblemID)).
+			WithProblemType().
 			First(ctx)
 		if err != nil {
 			return err
@@ -68,13 +69,17 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 	// set case version
 	s.CaseVer = p.CaseVersion
 
+	s.Status = util.Accepted
+
 	// get judge config
 	config, err := r.data.fm.GetConfig(p.ID)
 	if err != nil {
 		return err
 	}
-
-	s.Status = util.Accepted
+	if config == nil {
+		r.log.Errorf("config load error for problem %d", p.ID)
+		return nil
+	}
 
 	// save submission
 	defer func() {
@@ -83,7 +88,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			return
 		}
 		// save only the latest submission
-		_, err := r.data.db.Submission.Update().
+		result, err := r.data.db.Submission.Update().
 			Where(submission.UserIDEQ(s.UserID), submission.ProblemIDEQ(s.ProblemID)).
 			SetUserID(s.UserID).
 			SetProblemID(s.ProblemID).
@@ -96,7 +101,11 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			SetCompileStderr(s.Stderr).
 			SetCaseVersion(int8(s.CaseVer)).
 			Save(ctx)
-		if ent.IsNotFound(err) {
+		if err != nil {
+			r.log.Errorf("save submission error: %v", err)
+			return
+		}
+		if result == 0 {
 			_, err = r.data.db.Submission.Create().
 				SetUserID(s.UserID).
 				SetProblemID(s.ProblemID).
@@ -109,9 +118,6 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				SetCompileStderr(s.Stderr).
 				SetCaseVersion(int8(s.CaseVer)).
 				Save(ctx)
-		} else if err != nil {
-			r.log.Errorf("save submission error: %v", err)
-			return
 		}
 	}()
 
