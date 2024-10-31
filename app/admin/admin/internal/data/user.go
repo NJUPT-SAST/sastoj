@@ -2,14 +2,13 @@ package data
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"sastoj/pkg/util"
 	"strings"
-
-	"github.com/go-kratos/kratos/v2/log"
 )
 
 type userRepo struct {
@@ -84,7 +83,7 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, gro
 		return nil, err
 	}
 	query = query.Where(user.StateEQ(s))
-	res, err := query.Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
+	res, err := query.Offset(int((current - 1) * size)).Limit(int(size)).WithGroups().All(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
 		return nil, err
@@ -94,9 +93,9 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, gro
 		if !strings.Contains(u.Username, username) {
 			continue
 		}
-		g, err := u.QueryGroups().IDs(ctx)
-		if err != nil {
-			return nil, err
+		g := make([]int64, 0, len(u.Edges.Groups))
+		for _, v := range u.Edges.Groups {
+			g = append(g, v.ID)
 		}
 		rv = append(rv, &biz.User{
 			ID:       u.ID,
