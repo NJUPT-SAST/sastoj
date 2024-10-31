@@ -4,8 +4,10 @@ import (
 	"context"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent"
+	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"sastoj/pkg/util"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -72,18 +74,34 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	}, nil
 }
 
-func (r *userRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.User, error) {
-	res, err := r.data.db.User.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
+func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIds []int64, username string, state int16) ([]*biz.User, error) {
+	query := r.data.db.User.Query()
+	if len(groupIds) > 0 {
+		query = query.Where(user.HasGroupsWith(group.IDIn(groupIds...)))
+	}
+	s, err := util.UserStateToEnt(state)
+	if err != nil {
+		return nil, err
+	}
+	query = query.Where(user.StateEQ(s))
+	res, err := query.Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
 		return nil, err
 	}
 	rv := make([]*biz.User, 0)
 	for _, u := range res {
+		if !strings.Contains(u.Username, username) {
+			continue
+		}
+		g, err := u.QueryGroups().IDs(ctx)
+		if err != nil {
+			return nil, err
+		}
 		rv = append(rv, &biz.User{
 			ID:       u.ID,
 			Username: u.Username,
-			GroupIds: u.QueryGroups().IDsX(ctx),
+			GroupIds: g,
 			State:    util.UserStateToInt(u.State),
 		})
 	}

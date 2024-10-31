@@ -582,6 +582,11 @@ message GetUserReply {
 message ListUserRequest {
   int64 size = 1;
   int64 current = 2;
+
+  // 查询条件
+  repeated int64 group_ids = 3;
+  string username = 4;
+  int32 state = 5;
 }
 message ListUserReply {
   message User {
