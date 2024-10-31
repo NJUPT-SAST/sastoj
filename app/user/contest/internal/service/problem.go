@@ -3,6 +3,10 @@ package service
 import (
 	"context"
 	pb "sastoj/api/sastoj/user/contest/service/v1"
+	"sastoj/app/user/contest/internal/biz"
+	"sastoj/pkg/mq"
+
+	"github.com/tx7do/kratos-transport/broker"
 )
 
 func (s *ContestService) GetProblems(ctx context.Context, req *pb.GetProblemsRequest) (*pb.GetProblemsReply, error) {
@@ -16,7 +20,7 @@ func (s *ContestService) GetProblems(ctx context.Context, req *pb.GetProblemsReq
 			Id:       p.ID,
 			Type:     p.Type,
 			Title:    p.Title,
-			Score:    p.Score,
+			Score:    int32(p.Score),
 			Index:    int32(p.Index),
 			Metadata: p.Metadata,
 		})
@@ -34,11 +38,23 @@ func (s *ContestService) GetProblem(ctx context.Context, req *pb.GetProblemReque
 		Type:     rv.Type,
 		Title:    rv.Title,
 		Content:  rv.Content,
-		Score:    rv.Score,
+		Score:    int32(rv.Score),
 		Metadata: rv.Metadata,
 	}, nil
 }
 
 func (s *ContestService) getProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	return s.problemUc.GetProblemCaseVer(ctx, problemId)
+}
+
+func (s *ContestService) UpdateProblemHandle(ctx context.Context, _ string, _ broker.Headers, msg *mq.Problem) error {
+	return s.problemUc.UpdateProblem(ctx, &biz.Problem{
+		ID:       msg.ID,
+		Title:    msg.Title,
+		Type:     msg.Type,
+		Content:  msg.Content,
+		Score:    msg.Score,
+		Index:    msg.Index,
+		Metadata: msg.Metadata,
+	})
 }

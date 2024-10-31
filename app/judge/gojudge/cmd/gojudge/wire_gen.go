@@ -7,14 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/judge/gojudge/internal/biz"
 	"sastoj/app/judge/gojudge/internal/conf"
 	"sastoj/app/judge/gojudge/internal/data"
 	"sastoj/app/judge/gojudge/internal/server"
 	"sastoj/app/judge/gojudge/internal/service"
-
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 )
 
 import (

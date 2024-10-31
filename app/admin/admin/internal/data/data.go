@@ -7,6 +7,7 @@ import (
 	"sastoj/app/admin/admin/internal/conf"
 	"sastoj/ent"
 	"sastoj/pkg/file"
+	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 
 	"entgo.io/ent/dialect"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -27,6 +29,7 @@ var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJu
 type Data struct {
 	db    *ent.Client
 	redis *redis.Client
+	ex    *mq.OjExchange
 	jcm   *file.JudgeConfigManager
 	fm    *file.BaseConfigManager[any]
 }
@@ -87,9 +90,26 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		log.Errorf("failed connecting to redis: %v", err)
 		return nil, nil, err
 	}
+	// connect to mq
+	conn, err := amqp.Dial(c.Mq)
+	if err != nil {
+		log.Errorf("failed connecting to mq: %v", err)
+		return nil, nil, err
+	}
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Errorf("failed opening a channel")
+		return nil, nil, err
+	}
+	ex, err := mq.NewExchange(ch, "update_problem")
+	if err != nil {
+		log.Errorf("failed creating exchange")
+		return nil, nil, err
+	}
 	return &Data{
 		db:    client,
 		redis: redisClient,
+		ex:    ex,
 		jcm:   file.NewJudgeConfigManager(c.Load.GetProblemCasesLocation()),
 		fm:    file.NewBaseConfigManager(c.Load.GetProblemCasesLocation()),
 	}, cleanup, nil

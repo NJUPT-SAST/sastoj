@@ -53,7 +53,7 @@ func (p *problemRepo) ListProblem(ctx context.Context, contestID int64) ([]*biz.
 			ID:       v.ID,
 			Type:     v.Edges.ProblemType.DisplayName,
 			Title:    v.Title,
-			Score:    int32(v.Score),
+			Score:    v.Score,
 			Index:    v.Index,
 			Metadata: v.Metadata,
 		})
@@ -76,7 +76,7 @@ func (p *problemRepo) GetProblem(ctx context.Context, problemID, contestID int64
 				Type:     po.Edges.ProblemType.DisplayName,
 				Content:  po.Content,
 				Index:    po.Index,
-				Score:    int32(po.Score),
+				Score:    po.Score,
 				Metadata: po.Metadata,
 			}, nil
 		}
@@ -122,9 +122,35 @@ func (p *problemRepo) GetProblem(ctx context.Context, problemID, contestID int64
 		Type:     po.Edges.ProblemType.DisplayName,
 		Content:  po.Content,
 		Index:    po.Index,
-		Score:    int32(po.Score),
+		Score:    po.Score,
 		Metadata: po.Metadata,
 	}, nil
+}
+
+func (p *problemRepo) UpdateProblem(ctx context.Context, problem *biz.Problem) error {
+	key := ProblemPrefix + strconv.FormatInt(problem.ID, 10)
+
+	ttlCmd := p.data.redis.TTL(ctx, key)
+	var po *ent.Problem
+	result, err := p.data.redis.Get(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(result), &po)
+	if err != nil {
+		return err
+	}
+	po.Title = problem.Title
+	po.Content = problem.Content
+	po.Score = problem.Score
+	po.Index = problem.Index
+	po.Metadata = problem.Metadata
+	marshal, err := json.Marshal(po)
+	if err != nil {
+		p.log.Errorf("marshal problem failed: %v", err)
+		return p.data.redis.Del(ctx, key).Err()
+	}
+	return p.data.redis.Set(ctx, key, marshal, ttlCmd.Val()).Err()
 }
 
 func NewProblemRepo(data *Data, logger log.Logger) biz.ProblemRepo {

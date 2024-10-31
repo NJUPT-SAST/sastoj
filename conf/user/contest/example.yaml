@@ -6,6 +6,7 @@ server:
     addr: 0.0.0.0:9000
     timeout: 1s
   jwt_secret: sastoj
+  mq: amqp://sastoj:123456@mq:5672/
 data:
   database:
     driver: postgres

@@ -29,6 +29,7 @@ func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProb
 
 func (s *AdminService) UpdateProblem(ctx context.Context, request *pb.UpdateProblemRequest) (*pb.UpdateProblemReply, error) {
 	rv, err := s.pc.UpdateProblem(ctx, &biz.Problem{
+		ID:         request.Id,
 		TypeID:     request.TypeId,
 		Title:      request.Title,
 		Content:    request.Content,

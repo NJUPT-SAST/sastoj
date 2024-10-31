@@ -7,14 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/user/contest/internal/biz"
 	"sastoj/app/user/contest/internal/conf"
 	"sastoj/app/user/contest/internal/data"
 	"sastoj/app/user/contest/internal/server"
 	"sastoj/app/user/contest/internal/service"
-
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 )
 
 import (
@@ -43,7 +42,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	contestService := service.NewContestService(contestUsecase, problemUsecase, submissionUsecase, registerUsecase, rankUsecase)
 	grpcServer := server.NewGRPCServer(confServer, contestService, logger)
 	httpServer := server.NewHTTPServer(confServer, contestService, logger)
-	app := newApp(logger, grpcServer, httpServer)
+	rabbitmqServer := server.NewMQServer(confServer, contestService, logger)
+	app := newApp(logger, grpcServer, httpServer, rabbitmqServer)
 	return app, func() {
 		cleanup()
 	}, nil
