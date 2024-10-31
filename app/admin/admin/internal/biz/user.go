@@ -33,7 +33,7 @@ type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
 	Update(context.Context, *User) (*int64, error)
 	FindByID(context.Context, int64) (*User, error)
-	ListPages(ctx context.Context, current int64, size int64, groupIds []int64, username string, state int16) ([]*User, error)
+	ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, error)
 	BatchSave(ctx context.Context, users []*UserCreate) ([]string, error)
 }
 
