@@ -8,7 +8,7 @@ import (
 )
 
 // ProviderSet is server providers.
-var ProviderSet = wire.NewSet(NewGRPCServer, NewHTTPServer)
+var ProviderSet = wire.NewSet(NewGRPCServer, NewHTTPServer, NewMQServer)
 
 var apiLimiter = map[string]time.Duration{
 	v1.Contest_Submit_FullMethodName:   10 * time.Second,

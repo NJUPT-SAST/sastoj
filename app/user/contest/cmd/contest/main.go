@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"os"
-
 	"sastoj/app/user/contest/internal/conf"
+	_ "sastoj/ent/runtime"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -13,9 +13,8 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-
+	"github.com/tx7do/kratos-transport/transport/rabbitmq"
 	_ "go.uber.org/automaxprocs"
-	_ "sastoj/ent/runtime"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -34,7 +33,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server, ms *rabbitmq.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -44,6 +43,7 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 		kratos.Server(
 			gs,
 			hs,
+			ms,
 		),
 	)
 }

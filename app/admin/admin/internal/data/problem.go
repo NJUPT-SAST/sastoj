@@ -3,8 +3,11 @@ package data
 import (
 	"context"
 	"sastoj/app/admin/admin/internal/biz"
+	"sastoj/ent"
 	"sastoj/ent/contest"
 	"sastoj/ent/problem"
+	"sastoj/ent/problemtype"
+	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
 	"time"
 
@@ -48,33 +51,59 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 }
 
 func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) error {
-	p, err := r.data.db.Problem.Query().Where(problem.ID(g.ID)).Only(ctx)
-	if err != nil {
-		return err
-	}
-	res, err := p.Update().
-		SetProblemTypeID(g.TypeID).
+	// not allow to update contestID, ownerID, caseVersion and problemTypeID
+	_, err := r.data.db.Problem.Update().
+		Where(problem.IDEQ(g.ID)).
+		// SetProblemTypeID(g.TypeID).
 		SetTitle(g.Title).
 		SetContent(g.Content).
+		// SetContestID(g.ContestID).
 		SetScore(int16(g.Point)).
-		SetContestID(g.ContestID).
 		AddCaseVersion(1).
 		SetIndex(int16(g.Index)).
-		SetOwnerID(getUserID(ctx)).
+		// SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
 		SetMetadata(g.Metadata).
-		Where(problem.ID(g.ID)).
 		Where(problem.IsDeleted(false)).
-		Where(problem.HasContestWith(
-			contest.IDEQ(g.ContestID), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
 		return err
 	}
-	err = r.data.fm.SetConfigString(res.ID, g.Config)
-	if err != nil {
-		return err
+
+	if g.Config != "" {
+		err = r.data.fm.SetConfigString(g.ID, g.Config)
+		if err != nil {
+			return err
+		}
 	}
+
+	po, err := r.data.db.Problem.Query().
+		Where(problem.IDEQ(g.ID)).
+		WithContest(func(q *ent.ContestQuery) {
+			q.Where(contest.StateEQ(contest.StateNORMAL),
+				contest.StartTimeLT(time.Now()),
+				contest.EndTimeGT(time.Now()),
+			)
+		}).
+		WithProblemType(func(q *ent.ProblemTypeQuery) {
+			q.Select(problemtype.FieldDisplayName)
+		}).
+		Only(ctx)
+	if err == nil {
+		err = r.data.ex.Publish(ctx, mq.Problem{
+			ID:       po.ID,
+			Title:    po.Title,
+			Type:     po.Edges.ProblemType.DisplayName,
+			Content:  po.Content,
+			Score:    po.Score,
+			Index:    po.Index,
+			Metadata: po.Metadata,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -136,10 +165,7 @@ func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32) 
 	}
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
-		owner, err := v.QueryOwner().First(ctx)
-		if err != nil {
-			return nil, err
-		}
+		owner := v.Edges.Owner
 		vis := util.VisToPb(v.Visibility)
 		config, err := r.data.fm.GetConfigString(v.ID)
 		if err != nil {

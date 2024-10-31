@@ -11,7 +11,7 @@ type Problem struct {
 	Title    string
 	Type     string
 	Content  string
-	Score    int32
+	Score    int16
 	Index    int16
 	Metadata map[string]string
 }
@@ -20,6 +20,7 @@ type ProblemRepo interface {
 	ListProblem(ctx context.Context, contestID int64) ([]*Problem, error)
 	GetProblem(ctx context.Context, problemID, contestID int64) (*Problem, error)
 	GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error)
+	UpdateProblem(ctx context.Context, problem *Problem) error
 }
 
 type ProblemUsecase struct {
@@ -49,4 +50,8 @@ func (uc *ProblemUsecase) GetProblem(ctx context.Context, contestID int64, probl
 
 func (uc *ProblemUsecase) GetProblemCaseVer(ctx context.Context, problemId int64) (int8, error) {
 	return uc.repo.GetProblemCaseVer(ctx, problemId)
+}
+
+func (uc *ProblemUsecase) UpdateProblem(ctx context.Context, problem *Problem) error {
+	return uc.repo.UpdateProblem(ctx, problem)
 }

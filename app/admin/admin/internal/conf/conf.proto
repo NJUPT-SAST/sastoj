@@ -48,6 +48,7 @@ message Data {
   Redis redis = 2;
   Auth auth = 3;
   Load load = 4;
+  string mq = 5;
 }
 
 message Job {

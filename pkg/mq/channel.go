@@ -18,6 +18,11 @@ type OjChannel struct {
 	q  *amqp.Queue
 }
 
+type OjExchange struct {
+	ch    *amqp.Channel
+	topic string
+}
+
 func NewChannel(ch *amqp.Channel, name string) (*OjChannel, error) {
 	q, err := ch.QueueDeclare(
 		name,  // name
@@ -36,6 +41,25 @@ func NewChannel(ch *amqp.Channel, name string) (*OjChannel, error) {
 	}, nil
 }
 
+func NewExchange(ch *amqp.Channel, name string) (*OjExchange, error) {
+	err := ch.ExchangeDeclare(
+		name,    // name
+		"topic", // type
+		true,    // durable
+		false,   // auto-deleted
+		false,   // internal
+		false,   // no-wait
+		nil,     // arguments
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &OjExchange{
+		ch:    ch,
+		topic: name,
+	}, nil
+}
+
 func (o *OjChannel) Publish(ctx context.Context, v any) error {
 	body, err := json.Marshal(v)
 	if err != nil {
@@ -49,5 +73,21 @@ func (o *OjChannel) Publish(ctx context.Context, v any) error {
 }
 
 func (o *OjChannel) Close() error {
+	return o.ch.Close()
+}
+
+func (o *OjExchange) Publish(ctx context.Context, v any) error {
+	body, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	log.Infof("publish message: %s", body)
+	return o.ch.PublishWithContext(ctx, o.topic, o.topic, false, false, amqp.Publishing{
+		ContentType: "application/json",
+		Body:        body,
+	})
+}
+
+func (o *OjExchange) Close() error {
 	return o.ch.Close()
 }

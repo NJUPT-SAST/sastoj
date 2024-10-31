@@ -19,6 +19,7 @@ data:
     root_password: 123456
   load:
     problem_cases_location: /data/cases
+  mq: amqp://sastoj:123456@mq:5672/
 job:
   ranking_cron: true
   duration: 60
