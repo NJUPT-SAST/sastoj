@@ -73,10 +73,10 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	}, nil
 }
 
-func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIds []int64, username string, state int16) ([]*biz.User, error) {
+func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*biz.User, error) {
 	query := r.data.db.User.Query()
-	if len(groupIds) > 0 {
-		query = query.Where(user.HasGroupsWith(group.IDIn(groupIds...)))
+	if len(groupIDs) > 0 {
+		query = query.Where(user.HasGroupsWith(group.IDIn(groupIDs...)))
 	}
 	s, err := util.UserStateToEnt(state)
 	if err != nil {
