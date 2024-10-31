@@ -22,12 +22,12 @@ func (s *AdminService) GetJudgableProblems(ctx context.Context, req *pb.GetJudga
 	reply := &pb.GetJudgableProblemsReply{}
 	for _, p := range ps {
 		reply.Results = append(reply.Results, &pb.Problem{
-			Id:          p.Id,
-			TypeId:      p.TypeId,
+			Id:          p.ID,
+			TypeId:      p.TypeID,
 			Title:       p.Title,
 			Content:     p.Content,
 			Point:       p.Point,
-			ContestId:   p.ContestId,
+			ContestId:   p.ContestID,
 			CaseVersion: p.CaseVersion,
 			Index:       p.Index,
 			Config:      p.Config,

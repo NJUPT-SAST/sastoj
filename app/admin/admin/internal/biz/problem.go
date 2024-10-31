@@ -9,18 +9,27 @@ import (
 
 // Problem is a Problem model.
 type Problem struct {
-	Id          int64
-	TypeId      int64
+	ID          int64
+	TypeID      int64
 	Title       string
 	Content     string
 	Point       int32
-	ContestId   int64
+	ContestID   int64
 	CaseVersion int32
 	Index       int32
 	Visibility  pb.Visibility
-	OwnerId     int64
+	OwnerID     int64
 	Config      string
 	Metadata    map[string]string
+}
+
+// ProblemType is a ProblemType model.
+type ProblemType struct {
+	ID          int64
+	SlugName    string
+	DisplayName string
+	Description string
+	Judge       string
 }
 
 type ProblemRepo interface {
@@ -29,6 +38,7 @@ type ProblemRepo interface {
 	Delete(context.Context, int64) (*int64, error)
 	FindByID(context.Context, int64) (*Problem, error)
 	ListPages(context.Context, int32, int32) ([]*Problem, error)
+	GetTypes(context.Context) ([]*ProblemType, error)
 }
 
 type ProblemUsecase struct {
@@ -79,6 +89,15 @@ func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*Problem, 
 func (uc *ProblemUsecase) ListProblem(ctx context.Context, current int32, size int32) ([]*Problem, error) {
 	uc.log.WithContext(ctx).Infof("ListProblem: %v %v", current, size)
 	rv, err := uc.repo.ListPages(ctx, current, size)
+	if err != nil {
+		return nil, err
+	}
+	return rv, nil
+}
+
+func (uc *ProblemUsecase) GetProblemTypes(ctx context.Context) ([]*ProblemType, error) {
+	uc.log.WithContext(ctx).Infof("GetProblemTypes")
+	rv, err := uc.repo.GetTypes(ctx)
 	if err != nil {
 		return nil, err
 	}

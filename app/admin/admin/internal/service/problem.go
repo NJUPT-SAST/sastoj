@@ -8,14 +8,14 @@ import (
 
 func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProblemRequest) (*pb.CreateProblemReply, error) {
 	rv, err := s.pc.CreateProblem(ctx, &biz.Problem{
-		TypeId:     request.TypeId,
+		TypeID:     request.TypeId,
 		Title:      request.Title,
 		Content:    request.Content,
 		Point:      request.Point,
-		ContestId:  request.ContestId,
+		ContestID:  request.ContestId,
 		Index:      request.Index,
 		Visibility: request.Visibility,
-		OwnerId:    request.OwnerId,
+		OwnerID:    request.OwnerId,
 		Config:     request.Config,
 		Metadata:   request.Metadata,
 	})
@@ -29,14 +29,14 @@ func (s *AdminService) CreateProblem(ctx context.Context, request *pb.CreateProb
 
 func (s *AdminService) UpdateProblem(ctx context.Context, request *pb.UpdateProblemRequest) (*pb.UpdateProblemReply, error) {
 	rv, err := s.pc.UpdateProblem(ctx, &biz.Problem{
-		TypeId:     request.TypeId,
+		TypeID:     request.TypeId,
 		Title:      request.Title,
 		Content:    request.Content,
 		Point:      request.Point,
-		ContestId:  request.ContestId,
+		ContestID:  request.ContestId,
 		Index:      request.Index,
 		Visibility: request.Visibility,
-		OwnerId:    request.OwnerId,
+		OwnerID:    request.OwnerId,
 		Config:     request.Config,
 		Metadata:   request.Metadata,
 	})
@@ -64,16 +64,16 @@ func (s *AdminService) GetProblem(ctx context.Context, request *pb.GetProblemReq
 		return nil, err
 	}
 	return &pb.GetProblemReply{
-		Id:          rv.Id,
-		TypeId:      rv.TypeId,
+		Id:          rv.ID,
+		TypeId:      rv.TypeID,
 		Title:       rv.Title,
 		Content:     rv.Content,
 		Point:       rv.Point,
-		ContestId:   rv.ContestId,
+		ContestId:   rv.ContestID,
 		CaseVersion: rv.CaseVersion,
 		Index:       rv.Index,
 		Config:      rv.Config,
-		OwnerId:     rv.OwnerId,
+		OwnerId:     rv.OwnerID,
 		Visibility:  rv.Visibility,
 		Metadata:    rv.Metadata,
 	}, nil
@@ -84,19 +84,19 @@ func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemR
 	if err != nil {
 		return nil, err
 	}
-	var list []*pb.ListProblemReply_Problem
+	list := make([]*pb.ListProblemReply_Problem, 0)
 	for _, each := range rv {
 		r := pb.ListProblemReply_Problem{
-			Id:          each.Id,
-			TypeId:      each.TypeId,
+			Id:          each.ID,
+			TypeId:      each.TypeID,
 			Title:       each.Title,
 			Content:     each.Content,
 			Point:       each.Point,
-			ContestId:   each.ContestId,
+			ContestId:   each.ContestID,
 			CaseVersion: each.CaseVersion,
 			Index:       each.Index,
 			Config:      each.Config,
-			OwnerId:     each.OwnerId,
+			OwnerId:     each.OwnerID,
 			Visibility:  each.Visibility,
 			Metadata:    each.Metadata,
 		}
@@ -104,5 +104,26 @@ func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemR
 	}
 	return &pb.ListProblemReply{
 		Problems: list,
+	}, nil
+}
+
+func (s *AdminService) GetProblemTypes(ctx context.Context, _ *pb.GetProblemTypesRequest) (*pb.GetProblemTypesReply, error) {
+	rv, err := s.pc.GetProblemTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
+	list := make([]*pb.GetProblemTypesReply_ProblemType, 0)
+	for _, each := range rv {
+		r := pb.GetProblemTypesReply_ProblemType{
+			Id:          each.ID,
+			Name:        each.DisplayName,
+			Slug:        each.SlugName,
+			Description: each.Description,
+			Judge:       each.Judge,
+		}
+		list = append(list, &r)
+	}
+	return &pb.GetProblemTypesReply{
+		Types: list,
 	}, nil
 }

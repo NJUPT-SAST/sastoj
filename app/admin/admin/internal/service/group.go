@@ -34,7 +34,7 @@ func (s *AdminService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupReque
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, pb.ErrorGroupNotFound("Group with specified Id not found")
+			return nil, pb.ErrorGroupNotFound("Group with specified ID not found")
 		}
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *AdminService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, pb.ErrorGroupNotFound("Group with specified Id not found")
+			return nil, pb.ErrorGroupNotFound("Group with specified ID not found")
 		}
 		return nil, err
 	}

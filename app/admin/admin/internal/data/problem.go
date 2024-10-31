@@ -26,11 +26,11 @@ func NewProblemRepo(data *Data, logger log.Logger) biz.ProblemRepo {
 
 func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) {
 	res, err := r.data.db.Problem.Create().
-		SetProblemTypeID(g.TypeId).
+		SetProblemTypeID(g.TypeID).
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetScore(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetContestID(g.ContestID).
 		SetCaseVersion(1).
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
@@ -48,25 +48,25 @@ func (r *problemRepo) Save(ctx context.Context, g *biz.Problem) (*int64, error) 
 }
 
 func (r *problemRepo) Update(ctx context.Context, g *biz.Problem) error {
-	p, err := r.data.db.Problem.Query().Where(problem.ID(g.Id)).Only(ctx)
+	p, err := r.data.db.Problem.Query().Where(problem.ID(g.ID)).Only(ctx)
 	if err != nil {
 		return err
 	}
 	res, err := p.Update().
-		SetProblemTypeID(g.TypeId).
+		SetProblemTypeID(g.TypeID).
 		SetTitle(g.Title).
 		SetContent(g.Content).
 		SetScore(int16(g.Point)).
-		SetContestID(g.ContestId).
+		SetContestID(g.ContestID).
 		AddCaseVersion(1).
 		SetIndex(int16(g.Index)).
 		SetOwnerID(getUserID(ctx)).
 		SetVisibility(util.VisToEnt(g.Visibility)).
 		SetMetadata(g.Metadata).
-		Where(problem.ID(g.Id)).
+		Where(problem.ID(g.ID)).
 		Where(problem.IsDeleted(false)).
 		Where(problem.HasContestWith(
-			contest.IDEQ(g.ContestId), contest.StartTimeGT(time.Now()))).
+			contest.IDEQ(g.ContestID), contest.StartTimeGT(time.Now()))).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -99,14 +99,14 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 	}
 
 	return &biz.Problem{
-		Id:          p.ID,
+		ID:          p.ID,
 		Title:       p.Title,
 		Content:     p.Content,
 		Point:       int32(p.Score),
-		ContestId:   p.ContestID,
+		ContestID:   p.ContestID,
 		CaseVersion: int32(p.CaseVersion),
 		Index:       int32(p.Index),
-		OwnerId:     owner.ID,
+		OwnerID:     owner.ID,
 		Visibility:  vis,
 		Config:      config,
 		Metadata:    p.Metadata,
@@ -147,21 +147,39 @@ func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32) 
 		}
 
 		list = append(list, &biz.Problem{
-			Id:          v.ID,
-			TypeId:      v.ProblemTypeID,
+			ID:          v.ID,
+			TypeID:      v.ProblemTypeID,
 			Title:       v.Title,
 			Content:     v.Content,
 			Point:       int32(v.Score),
-			ContestId:   v.ContestID,
+			ContestID:   v.ContestID,
 			CaseVersion: int32(v.CaseVersion),
 			Index:       int32(v.Index),
-			OwnerId:     owner.ID,
+			OwnerID:     owner.ID,
 			Visibility:  vis,
 			Config:      config,
 			Metadata:    v.Metadata,
 		})
 	}
 	return list, nil
+}
+
+func (r *problemRepo) GetTypes(ctx context.Context) ([]*biz.ProblemType, error) {
+	res, err := r.data.db.ProblemType.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	types := make([]*biz.ProblemType, 0)
+	for _, v := range res {
+		types = append(types, &biz.ProblemType{
+			ID:          v.ID,
+			SlugName:    v.SlugName,
+			DisplayName: v.DisplayName,
+			Description: v.Description,
+			Judge:       v.Judge,
+		})
+	}
+	return types, nil
 }
 
 func getUserID(ctx context.Context) int64 {
