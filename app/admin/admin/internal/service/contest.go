@@ -53,7 +53,7 @@ func (s *AdminService) DeleteContest(ctx context.Context, req *v1.DeleteContestR
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (s *AdminService) GetContest(ctx context.Context, req *v1.GetContestRequest
 
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -116,9 +116,9 @@ func (s *AdminService) AddContestants(ctx context.Context, req *v1.AddContestant
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
-		return nil, v1.ErrorGroupNotFound("group with specified Id not found")
+		return nil, v1.ErrorGroupNotFound("group with specified ID not found")
 	}
 	return &v1.AddContestantsReply{
 		Success: true,
@@ -129,7 +129,7 @@ func (s *AdminService) ManualRanking(ctx context.Context, req *v1.ManualRankingR
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}
@@ -137,10 +137,11 @@ func (s *AdminService) ManualRanking(ctx context.Context, req *v1.ManualRankingR
 	if err != nil {
 		return nil, err
 	}
-	err = s.rc.Save(ctx, contest, rank)
+	err = s.rc.Save(ctx, rank)
 	if err != nil {
 		return nil, err
 	}
+	err = s.rc.SaveCache(ctx, contest, rank)
 	return &v1.ManualRankingReply{Success: true}, nil
 }
 
@@ -149,7 +150,7 @@ func (s *AdminService) GetRanking(ctx context.Context, req *v1.GetRankingRequest
 	if err != nil {
 		var entErr *ent.NotFoundError
 		if errors.As(err, &entErr) {
-			return nil, v1.ErrorContestNotFound("contest with specified Id not found")
+			return nil, v1.ErrorContestNotFound("contest with specified ID not found")
 		}
 		return nil, err
 	}

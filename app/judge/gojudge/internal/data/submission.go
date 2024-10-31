@@ -239,7 +239,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			err := func() error {
 				casesResult[j] = false
 
-				builder := r.data.db.SubmissionCase.Create().
+				caseBuilder := r.data.db.SubmissionCase.Create().
 					SetState(util.Waiting).
 					SetTime(0).
 					SetMemory(0).
@@ -249,7 +249,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 
 				// delete test file and set submission cases
 				defer func() {
-					submissionCaseCreates[j] = builder
+					submissionCaseCreates[j] = caseBuilder
 					wg.Done()
 				}()
 
@@ -264,17 +264,16 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				// judge case
 				result, err := r.data.gojudge.ClassicJudge(in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
 				if err != nil {
-					builder.SetState(util.RuntimeError)
-					builder.SetStderr(err.Error())
-					s.Status = util.RuntimeError
-					s.Stderr = err.Error()
+					r.log.Infof("submission: %s runtime error: %v", s.ID, err)
+					caseBuilder.SetState(util.RuntimeError)
+					caseBuilder.SetStderr(util.GetSignalMean(result.ExitStatus))
+					subtaskState = util.RuntimeError
 					return nil
 				}
 				r.log.Infof("submission: %s result: %+v", s.ID, result)
 
 				// get result state
 				state := gojudge.Convert(result.Status)
-
 				if out := result.Files["stdout"]; state == util.Accepted && out != nil {
 					switch p.CompareType {
 					case problem.CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER:
@@ -296,36 +295,32 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				}
 
 				// set submission case
-				builder.SetState(state)
-				builder.SetTime(result.Time)
-				builder.SetMemory(result.Memory)
+				caseBuilder.SetState(state)
+				caseBuilder.SetTime(result.Time)
+				caseBuilder.SetMemory(result.Memory)
 				// TODO: support more contest type
 
-				// set subtask info
+				// update subtask info
 				totalTime += result.Time
 				maxMemory = max(maxMemory, result.Memory)
 
-				// set submission info
+				// update submission info
 				s.TotalTime += result.Time
 				s.MaxMemory = max(s.MaxMemory, result.Memory)
 
 				// set status and point
 				if state != util.Accepted {
-					builder.SetPoint(0)
-					if s.Status == util.Accepted {
-						s.Status = state
-					}
-					if subtaskState == util.Accepted {
-						subtaskState = state
-					}
-					msg, ok := result.Files["stderr"]
-					if ok {
-						builder.SetStderr(string(msg))
-					} else {
-						builder.SetStdout(result.Error)
-					}
+					caseBuilder.SetPoint(0)
+					subtaskState = util.Unaccepted
+					// NOTE: return stderr may leak the cases
+					// msg, ok := result.Files["stderr"]
+					// if ok {
+					// 	caseBuilder.SetStderr(string(msg))
+					// } else {
+					// 	caseBuilder.SetStdout(result.Error)
+					// }
 				} else {
-					builder.SetPoint(c.Score)
+					caseBuilder.SetPoint(c.Score)
 					casesResult[j] = true
 				}
 
@@ -343,8 +338,8 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			s.Status = util.SystemError
 			return err
 		}
-		for i, casesPoint := range casesPoint {
-			submissionCaseCreates[i].SetPoint(casesPoint)
+		for j, point := range casesPoint {
+			submissionCaseCreates[j].SetPoint(point)
 		}
 		cases[i] = submissionCaseCreates
 		subtaskBuilder.SetPoint(taskPoint)
@@ -354,6 +349,9 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		subtaskCreates[i] = subtaskBuilder
 
 		s.Point += taskPoint
+		if s.Status == util.Accepted && subtaskState != util.Accepted {
+			s.Status = subtaskState
+		}
 	}
 	return nil
 }

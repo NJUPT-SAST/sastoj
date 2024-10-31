@@ -14,6 +14,7 @@ const (
 	Waiting
 	Judging
 	SystemError
+	Unaccepted
 )
 
 // rsjudge
