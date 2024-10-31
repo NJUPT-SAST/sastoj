@@ -33,7 +33,7 @@ type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
 	Update(context.Context, *User) (*int64, error)
 	FindByID(context.Context, int64) (*User, error)
-	ListPages(ctx context.Context, current int64, size int64) ([]*User, error)
+	ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, error)
 	BatchSave(ctx context.Context, users []*UserCreate) ([]string, error)
 }
 
@@ -75,9 +75,9 @@ func (uc *UserUsecase) GetUser(ctx context.Context, id int64) (*User, error) {
 	}
 	return res, nil
 }
-func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64) ([]*User, error) {
+func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, error) {
 	uc.log.WithContext(ctx).Infof("ListUser: %v", current)
-	res, err := uc.repo.ListPages(ctx, current, size)
+	res, err := uc.repo.ListPages(ctx, current, size, groupIDs, username, state)
 	if err != nil {
 		return nil, err
 	}

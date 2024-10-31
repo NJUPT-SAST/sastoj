@@ -7362,6 +7362,10 @@ func (m *ListUserRequest) validate(all bool) error {
 
 	// no validation rules for Current
 
+	// no validation rules for Username
+
+	// no validation rules for State
+
 	if len(errors) > 0 {
 		return ListUserRequestMultiError(errors)
 	}

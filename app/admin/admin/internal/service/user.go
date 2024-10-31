@@ -61,7 +61,7 @@ func (s *AdminService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb
 	return &pb.GetUserReply{}, nil
 }
 func (s *AdminService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*pb.ListUserReply, error) {
-	rv, err := s.uc.ListUser(ctx, req.Current, req.Size)
+	rv, err := s.uc.ListUser(ctx, req.Current, req.Size, req.GroupIds, req.Username, int16(req.State))
 	if err != nil {
 		return nil, err
 	}
