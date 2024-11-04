@@ -50,13 +50,13 @@ service Admin {
   };
   rpc ManualRanking (ManualRankingRequest) returns (ManualRankingReply){
     option (google.api.http) = {
-      post: "/contest/rank"
+      post: "/contest/{contest_id}/rank"
       body: "*"
     };
   };
   rpc GetRanking (GetRankingRequest) returns (GetRankingReply){
     option (google.api.http) = {
-      get: "/contest/rank/{contest_id}"
+      get: "/contest/{contest_id}/rank"
     };
   }
 
