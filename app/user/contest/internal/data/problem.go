@@ -83,7 +83,7 @@ func (p *problemRepo) GetProblem(ctx context.Context, problemID, contestID int64
 	}
 	now := time.Now()
 	po, err := p.data.db.Problem.Query().
-		Select(problem.FieldID, problem.FieldTitle, problem.FieldContent, problem.FieldScore).
+		Select(problem.FieldID, problem.FieldTitle, problem.FieldContent, problem.FieldScore, problem.FieldMetadata).
 		Where(
 			problem.IDEQ(problemID),
 			problem.ContestIDEQ(contestID),
