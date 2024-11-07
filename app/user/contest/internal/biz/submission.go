@@ -45,6 +45,15 @@ type Case struct {
 	Memory uint64 `json:"memory,omitempty"`
 }
 
+type Subtask struct {
+	Index  int32   `json:"index,omitempty"`
+	Point  int32   `json:"point,omitempty"`
+	State  int32   `json:"state,omitempty"`
+	Time   uint64  `json:"time,omitempty"`
+	Memory uint64  `json:"memory,omitempty"`
+	Cases  []*Case `json:"cases,omitempty"`
+}
+
 type SubmissionRepo interface {
 	CreateSubmission(ctx context.Context, submission *Submission) error
 	CreateSelfTest(ctx context.Context, pretest *SelfTest) error
@@ -53,7 +62,7 @@ type SubmissionRepo interface {
 	GetSubmission(ctx context.Context, submissionID string, contestID int64) (*Submission, error)
 	GetSubmissions(ctx context.Context, contestID int64, problemID int64) ([]*Submission, error)
 	GetSelfTest(ctx context.Context, submissionID string) (*SelfTest, error)
-	GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Case, error)
+	GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Subtask, error)
 }
 
 type SubmissionUsecase struct {
@@ -93,6 +102,6 @@ func (uc *SubmissionUsecase) GetSelfTest(ctx context.Context, submissionID strin
 	return uc.repo.GetSelfTest(ctx, submissionID)
 }
 
-func (uc *SubmissionUsecase) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Case, error) {
+func (uc *SubmissionUsecase) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*Subtask, error) {
 	return uc.repo.GetCases(ctx, submissionID, contestID)
 }

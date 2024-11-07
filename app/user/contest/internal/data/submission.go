@@ -9,6 +9,7 @@ import (
 	"sastoj/ent"
 	"sastoj/ent/contest"
 	"sastoj/ent/submission"
+	"sastoj/ent/submissioncase"
 	"sastoj/ent/submissionsubtask"
 	"sastoj/pkg/mq"
 	"sastoj/pkg/util"
@@ -51,10 +52,12 @@ func (s *submissionRepo) GetSelfTest(ctx context.Context, selfTestID string) (*b
 	return res, nil
 }
 
-func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Case, error) {
+func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, contestID int64) ([]*biz.Subtask, error) {
 	id, err := strconv.ParseInt(submissionID, 10, 64)
 	userID := util.GetUserInfoFromCtx(ctx).UserId
-	var cases []*biz.Case
+	var (
+		subtasks []*biz.Subtask
+	)
 	if err != nil {
 		// get from redis
 		//po, err := s.data.redis.Get(ctx, fmt.Sprintf("cases:%d:%s", userID, submissionID)).Result()
@@ -74,24 +77,38 @@ func (s *submissionRepo) GetCases(ctx context.Context, submissionID string, cont
 			WithSubmissions(func(q *ent.SubmissionQuery) {
 				q.Where(submission.UserIDEQ(userID))
 			}).
+			WithSubmissionCases(func(q *ent.SubmissionCaseQuery) {
+				q.Select(submissioncase.FieldID, submissioncase.FieldPoint, submissioncase.FieldState, submissioncase.FieldMemory, submissioncase.FieldTime)
+			}).
 			All(ctx)
 		if err != nil {
 			s.log.Errorf("get cases failed: %v", err)
 			return nil, errors.New("permission denied")
 		}
-		cases = make([]*biz.Case, 0)
+		subtasks = make([]*biz.Subtask, 0)
 		for i, v := range po {
-			cases = append(cases, &biz.Case{
+			cases := make([]*biz.Case, 0)
+			for j, o := range v.Edges.SubmissionCases {
+				cases = append(cases, &biz.Case{
+					Index:  int32(j),
+					Point:  int32(o.Point),
+					State:  int32(o.State),
+					Time:   o.Time,
+					Memory: o.Memory,
+				})
+			}
+			subtasks = append(subtasks, &biz.Subtask{
 				Index:  int32(i),
 				Point:  int32(v.Point),
 				State:  int32(v.State),
 				Time:   v.TotalTime,
 				Memory: v.MaxMemory,
+				Cases:  cases,
 			})
 		}
 	}
 	// TODO: Add permission check, including contest type
-	return cases, nil
+	return subtasks, nil
 }
 
 func (s *submissionRepo) CreateSelfTest(ctx context.Context, selfTest *biz.SelfTest) error {
@@ -133,108 +150,67 @@ func (s *submissionRepo) GetSubmission(ctx context.Context, submissionID string,
 	id, err := strconv.ParseInt(submissionID, 10, 64)
 	userID := util.GetUserInfoFromCtx(ctx).UserId
 	var res *biz.Submission
+
+	// get from redis
+	if err != nil {
+		var po *mq.Submission
+		result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
+		if err != nil {
+			return nil, fmt.Errorf("no submission found: %s", submissionID)
+		}
+		err = json.Unmarshal([]byte(result), &po)
+		if err != nil {
+			return nil, err
+		}
+		return &biz.Submission{
+			ID:         po.ID,
+			UserID:     po.UserID,
+			ProblemID:  po.ProblemID,
+			Code:       po.Code,
+			Status:     po.Status,
+			Point:      po.Point,
+			CreateTime: po.CreateTime,
+			TotalTime:  po.TotalTime,
+			MaxMemory:  po.MaxMemory,
+			Language:   po.Language,
+			CompileMsg: po.Stderr,
+		}, nil
+	}
+
+	// get from db
+	po, err := s.data.db.Submission.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("no submission found: %s", submissionID)
+	}
+	if po.UserID != userID {
+		// TODO: ADD Global Error: Permission Denied
+		return nil, errors.New("permission denied")
+	}
+	res = &biz.Submission{
+		ID:         strconv.FormatInt(po.ID, 10),
+		UserID:     po.UserID,
+		ProblemID:  po.ProblemID,
+		Code:       po.Code,
+		Status:     po.State,
+		Point:      po.Point,
+		CreateTime: po.CreateTime,
+		TotalTime:  po.TotalTime,
+		MaxMemory:  po.MaxMemory,
+		Language:   po.Language,
+		CompileMsg: po.CompileStderr,
+	}
 	switch ct.Type {
 	case util.ContestTypeFC:
-		if err != nil {
-			// get from redis
-			var po *mq.Submission
-			result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
-			if err != nil {
-				return nil, fmt.Errorf("no submission found: %s", submissionID)
-			}
-			err = json.Unmarshal([]byte(result), &po)
-			if err != nil {
-				return nil, err
-			}
-			res = &biz.Submission{
-				ID:         po.ID,
-				UserID:     po.UserID,
-				ProblemID:  po.ProblemID,
-				Code:       po.Code,
-				Status:     po.Status,
-				Point:      0,
-				CreateTime: po.CreateTime,
-				TotalTime:  po.TotalTime,
-				MaxMemory:  po.MaxMemory,
-				Language:   po.Language,
-				CompileMsg: po.Stderr,
-			}
-		} else {
-			// get from db
-			po, err := s.data.db.Submission.Get(ctx, id)
-			if err != nil {
-				return nil, fmt.Errorf("no submission found: %s", submissionID)
-			}
-			if po.UserID != userID {
-				// TODO: ADD Global Error: Permission Denied
-				return nil, errors.New("permission denied")
-			}
-			res = &biz.Submission{
-				ID:         strconv.FormatInt(po.ID, 10),
-				UserID:     po.UserID,
-				ProblemID:  po.ProblemID,
-				Code:       po.Code,
-				Status:     po.State,
-				Point:      0,
-				CreateTime: po.CreateTime,
-				TotalTime:  po.TotalTime,
-				MaxMemory:  po.MaxMemory,
-				Language:   po.Language,
-				CompileMsg: po.CompileStderr,
-			}
-		}
+		res.Point = 0
 	case util.ContestTypeIOI:
 		fallthrough
 	case util.ContestTypeACM:
-		if err != nil {
-			// get from redis
-			var po *mq.Submission
-			result, err := s.data.redis.Get(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID)).Result()
-			if err != nil {
-				return nil, fmt.Errorf("no submission found: %s", submissionID)
-			}
-			err = json.Unmarshal([]byte(result), &po)
-			if err != nil {
-				return nil, err
-			}
-			res = &biz.Submission{
-				ID:         po.ID,
-				UserID:     po.UserID,
-				ProblemID:  po.ProblemID,
-				Code:       po.Code,
-				Status:     po.Status,
-				Point:      po.Point,
-				CreateTime: po.CreateTime,
-				TotalTime:  po.TotalTime,
-				MaxMemory:  po.MaxMemory,
-				Language:   po.Language,
-				CompileMsg: po.Stderr,
-			}
-		} else {
-			// get from db
-			po, err := s.data.db.Submission.Get(ctx, id)
-			if err != nil {
-				return nil, fmt.Errorf("no submission found: %s", submissionID)
-			}
-			if po.UserID != userID {
-				// TODO: ADD Global Error: Permission Denied
-				return nil, errors.New("permission denied")
-			}
-			res = &biz.Submission{
-				ID:         strconv.FormatInt(po.ID, 10),
-				UserID:     po.UserID,
-				ProblemID:  po.ProblemID,
-				Code:       po.Code,
-				Status:     po.State,
-				Point:      po.Point,
-				CreateTime: po.CreateTime,
-				TotalTime:  po.TotalTime,
-				MaxMemory:  po.MaxMemory,
-				Language:   po.Language,
-				CompileMsg: po.CompileStderr,
-			}
-		}
 	}
+	bytes, err := json.Marshal(res)
+	if err != nil {
+		return nil, errors.New("marshal submission failed")
+	}
+	s.data.redis.Set(ctx, fmt.Sprintf("submission:%d:%s", userID, submissionID), bytes, 2*time.Hour)
 	return res, nil
 }
 
