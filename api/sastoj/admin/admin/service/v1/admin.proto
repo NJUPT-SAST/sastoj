@@ -484,6 +484,7 @@ message GetProblemReply {
 message ListProblemRequest {
   int32 size = 1;
   int32 current = 2;
+  int64 contest_id = 3;
 }
 message ListProblemReply {
   message Problem {

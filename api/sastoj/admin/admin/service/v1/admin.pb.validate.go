@@ -5350,6 +5350,8 @@ func (m *ListProblemRequest) validate(all bool) error {
 
 	// no validation rules for Current
 
+	// no validation rules for ContestId
+
 	if len(errors) > 0 {
 		return ListProblemRequestMultiError(errors)
 	}

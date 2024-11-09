@@ -117,7 +117,6 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 	if err != nil {
 		return nil, err
 	}
-	owner, err := p.QueryOwner().First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -129,13 +128,14 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 
 	return &biz.Problem{
 		ID:          p.ID,
+		TypeID:      p.ProblemTypeID,
 		Title:       p.Title,
 		Content:     p.Content,
 		Point:       int32(p.Score),
 		ContestID:   p.ContestID,
 		CaseVersion: int32(p.CaseVersion),
 		Index:       int32(p.Index),
-		OwnerID:     owner.ID,
+		OwnerID:     p.Edges.Owner.ID,
 		Visibility:  vis,
 		Config:      config,
 		Metadata:    p.Metadata,
@@ -154,8 +154,8 @@ func (r *problemRepo) Delete(ctx context.Context, id int64) (*int64, error) {
 	return &res64, nil
 }
 
-func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32) ([]*biz.Problem, error) {
-	res, err := r.data.db.Problem.Query().
+func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32, contestID int64) ([]*biz.Problem, error) {
+	res, err := r.data.db.Problem.Query().Where(problem.ContestIDEQ(contestID)).
 		Limit(int(size)).Offset(int((current - 1) * size)).
 		WithOwner().
 		WithProblemType().

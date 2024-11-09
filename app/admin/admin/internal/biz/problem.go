@@ -37,7 +37,7 @@ type ProblemRepo interface {
 	Update(context.Context, *Problem) error
 	Delete(context.Context, int64) (*int64, error)
 	FindByID(context.Context, int64) (*Problem, error)
-	ListPages(context.Context, int32, int32) ([]*Problem, error)
+	ListPages(context.Context, int32, int32, int64) ([]*Problem, error)
 	GetTypes(context.Context) ([]*ProblemType, error)
 }
 
@@ -86,9 +86,9 @@ func (uc *ProblemUsecase) FindProblem(ctx context.Context, id int64) (*Problem, 
 	return rv, nil
 }
 
-func (uc *ProblemUsecase) ListProblem(ctx context.Context, current int32, size int32) ([]*Problem, error) {
+func (uc *ProblemUsecase) ListProblem(ctx context.Context, current int32, size int32, contestID int64) ([]*Problem, error) {
 	uc.log.WithContext(ctx).Infof("ListProblem: %v %v", current, size)
-	rv, err := uc.repo.ListPages(ctx, current, size)
+	rv, err := uc.repo.ListPages(ctx, current, size, contestID)
 	if err != nil {
 		return nil, err
 	}
