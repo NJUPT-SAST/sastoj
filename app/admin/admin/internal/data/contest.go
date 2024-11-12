@@ -96,11 +96,11 @@ func (r *contestRepo) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, error) {
+func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) ([]*biz.Contest, int64, error) {
 	res, err := r.data.db.Contest.Query().Offset(int((current - 1) * size)).Limit(int(size)).All(ctx)
 	if err != nil {
 		log.Debug(" error :", err)
-		return nil, err
+		return nil, 0, err
 	}
 	rv := make([]*biz.Contest, 0)
 	for _, po := range res {
@@ -117,7 +117,11 @@ func (r *contestRepo) ListPages(ctx context.Context, current int64, size int64) 
 			CreateTime:  po.CreateTime,
 		})
 	}
-	return rv, nil
+	total, err := r.data.db.Contest.Query().Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	return rv, int64(total), nil
 }
 func (r *contestRepo) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {
 	switch role {

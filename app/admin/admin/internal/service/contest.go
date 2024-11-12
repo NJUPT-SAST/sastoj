@@ -85,7 +85,7 @@ func (s *AdminService) GetContest(ctx context.Context, req *v1.GetContestRequest
 	}, nil
 }
 func (s *AdminService) ListContest(ctx context.Context, req *v1.ListContestRequest) (*v1.ListContestReply, error) {
-	rv, err := s.ctsc.ListContest(ctx, req.Current, req.Size)
+	rv, total, err := s.ctsc.ListContest(ctx, req.Current, req.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +106,7 @@ func (s *AdminService) ListContest(ctx context.Context, req *v1.ListContestReque
 	}
 	return &v1.ListContestReply{
 		Contests: list,
+		Total:    total,
 	}, nil
 }
 func (s *AdminService) AddContestants(ctx context.Context, req *v1.AddContestantsRequest) (*v1.AddContestantsReply, error) {

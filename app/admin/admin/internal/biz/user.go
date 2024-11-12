@@ -33,7 +33,7 @@ type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
 	Update(context.Context, *User) (*int64, error)
 	FindByID(context.Context, int64) (*User, error)
-	ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, error)
+	ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, int64, error)
 	BatchSave(ctx context.Context, users []*UserCreate) ([]string, error)
 }
 
@@ -75,13 +75,13 @@ func (uc *UserUsecase) GetUser(ctx context.Context, id int64) (*User, error) {
 	}
 	return res, nil
 }
-func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, error) {
+func (uc *UserUsecase) ListUser(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, int64, error) {
 	uc.log.WithContext(ctx).Infof("ListUser: %v", current)
-	res, err := uc.repo.ListPages(ctx, current, size, groupIDs, username, state)
+	res, total, err := uc.repo.ListPages(ctx, current, size, groupIDs, username, state)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return res, nil
+	return res, total, nil
 }
 
 func (uc *UserUsecase) BatchSave(ctx context.Context, number int32, groupIds []int64) (map[string]string, error) {

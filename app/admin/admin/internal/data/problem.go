@@ -154,22 +154,24 @@ func (r *problemRepo) Delete(ctx context.Context, id int64) (*int64, error) {
 	return &res64, nil
 }
 
-func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32, contestID int64) ([]*biz.Problem, error) {
-	res, err := r.data.db.Problem.Query().Where(problem.ContestIDEQ(contestID)).
+func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32, contestID int64) ([]*biz.Problem, int64, error) {
+	query := r.data.db.Problem.Query().Where(problem.ContestIDEQ(contestID))
+	res, err := query.
 		Limit(int(size)).Offset(int((current - 1) * size)).
 		WithOwner().
 		WithProblemType().
 		All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+	total, err := query.Count(ctx)
 	list := make([]*biz.Problem, 0)
 	for _, v := range res {
 		owner := v.Edges.Owner
 		vis := util.VisToPb(v.Visibility)
 		config, err := r.data.fm.GetConfigString(v.ID)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		list = append(list, &biz.Problem{
@@ -187,7 +189,7 @@ func (r *problemRepo) ListPages(ctx context.Context, current int32, size int32, 
 			Metadata:    v.Metadata,
 		})
 	}
-	return list, nil
+	return list, int64(total), nil
 }
 
 func (r *problemRepo) GetTypes(ctx context.Context) ([]*biz.ProblemType, error) {

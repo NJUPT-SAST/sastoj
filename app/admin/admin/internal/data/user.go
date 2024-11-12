@@ -8,7 +8,6 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"sastoj/pkg/util"
-	"strings"
 )
 
 type userRepo struct {
@@ -73,26 +72,30 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 	}, nil
 }
 
-func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*biz.User, error) {
+func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*biz.User, int64, error) {
 	query := r.data.db.User.Query()
 	if len(groupIDs) > 0 {
 		query = query.Where(user.HasGroupsWith(group.IDIn(groupIDs...)))
 	}
 	s, err := util.UserStateToEnt(state)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	query = query.Where(user.StateEQ(s))
+	if username != "" {
+		query = query.Where(user.UsernameContains(username))
+	}
 	res, err := query.Offset(int((current - 1) * size)).Limit(int(size)).WithGroups().All(ctx)
 	if err != nil {
 		log.Debug("err: ", err)
-		return nil, err
+		return nil, 0, err
+	}
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
 	}
 	rv := make([]*biz.User, 0)
 	for _, u := range res {
-		if !strings.Contains(u.Username, username) {
-			continue
-		}
 		g := make([]int64, 0, len(u.Edges.Groups))
 		for _, v := range u.Edges.Groups {
 			g = append(g, v.ID)
@@ -104,7 +107,7 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, gro
 			State:    util.UserStateToInt(u.State),
 		})
 	}
-	return rv, nil
+	return rv, int64(total), nil
 }
 func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]string, error) {
 	createdUsers, err := r.data.db.User.MapCreateBulk(users, func(c *ent.UserCreate, i int) {

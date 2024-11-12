@@ -25,7 +25,7 @@ type ContestRepo interface {
 	Update(context.Context, *Contest) error
 	Delete(context.Context, int64) error
 	FindByID(context.Context, int64) (*Contest, error)
-	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, error)
+	ListPages(ctx context.Context, current int64, size int64) ([]*Contest, int64, error)
 	AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error
 	GetRacingContests(ctx context.Context) ([]*Contest, error)
 }
@@ -51,7 +51,7 @@ func (uc *ContestUsecase) DeleteContest(ctx context.Context, id int64) error {
 func (uc *ContestUsecase) FindContest(ctx context.Context, id int64) (*Contest, error) {
 	return uc.repo.FindByID(ctx, id)
 }
-func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, error) {
+func (uc *ContestUsecase) ListContest(ctx context.Context, current int64, size int64) ([]*Contest, int64, error) {
 	return uc.repo.ListPages(ctx, current, size)
 }
 func (uc *ContestUsecase) AddContestants(ctx context.Context, contestId int64, groupId int64, role int32) error {

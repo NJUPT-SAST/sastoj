@@ -284,6 +284,7 @@ message ListContestReply {
     google.protobuf.Timestamp create_time = 10;
   }
   repeated Contest contests = 1;
+  int64 total = 2;
 }
 
 message AddContestantsRequest {
@@ -501,8 +502,7 @@ message ListProblemReply {
     Visibility visibility = 11;
     map<string, string> metadata = 12;
   }
-  int32 current = 2;
-  int32 total = 1;
+  int64 total = 1;
   repeated Problem problems = 3;
 }
 message GetProblemTypesRequest {
@@ -597,4 +597,5 @@ message ListUserReply {
     int32 state = 4;
   }
   repeated User users = 1;
+  int64 total = 2;
 }

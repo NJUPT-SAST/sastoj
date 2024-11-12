@@ -81,7 +81,7 @@ func (s *AdminService) GetProblem(ctx context.Context, request *pb.GetProblemReq
 }
 
 func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemRequest) (*pb.ListProblemReply, error) {
-	rv, err := s.pc.ListProblem(ctx, request.Current, request.Size, request.ContestId)
+	rv, total, err := s.pc.ListProblem(ctx, request.Current, request.Size, request.ContestId)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +105,7 @@ func (s *AdminService) ListProblem(ctx context.Context, request *pb.ListProblemR
 	}
 	return &pb.ListProblemReply{
 		Problems: list,
+		Total:    total,
 	}, nil
 }
 

@@ -1654,6 +1654,8 @@ func (m *ListContestReply) validate(all bool) error {
 
 	}
 
+	// no validation rules for Total
+
 	if len(errors) > 0 {
 		return ListContestReplyMultiError(errors)
 	}
@@ -5556,8 +5558,6 @@ func (m *ListProblemReply) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Current
-
 	// no validation rules for Total
 
 	for idx, item := range m.GetProblems() {
@@ -7603,6 +7603,8 @@ func (m *ListUserReply) validate(all bool) error {
 		}
 
 	}
+
+	// no validation rules for Total
 
 	if len(errors) > 0 {
 		return ListUserReplyMultiError(errors)
