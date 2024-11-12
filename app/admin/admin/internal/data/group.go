@@ -2,10 +2,10 @@ package data
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/log"
 	"sastoj/app/admin/admin/internal/biz"
 	"sastoj/ent/group"
-
-	"github.com/go-kratos/kratos/v2/log"
+	"sastoj/pkg/util"
 )
 
 type groupRepo struct {
@@ -25,6 +25,9 @@ func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) 
 	po, err := r.data.db.Group.
 		Create().
 		SetGroupName(g.Name).
+		AddManageIDs(g.ManageId...).
+		AddContestIDs(g.ContestsId...).
+		AddProblemIDs(g.ProblemsId...).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -36,6 +39,9 @@ func (r *groupRepo) Save(ctx context.Context, g *biz.Group) (*biz.Group, error) 
 func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*int64, error) {
 	res, err := r.data.db.Group.Update().
 		SetGroupName(g.Name).
+		ClearManage().AddManageIDs(g.ManageId...).
+		ClearContests().AddContestIDs(g.ContestsId...).
+		ClearProblems().AddProblemIDs(g.ProblemsId...).
 		Where(group.IDEQ(g.Id)).
 		Save(ctx)
 	if err != nil {
@@ -46,13 +52,60 @@ func (r *groupRepo) Update(ctx context.Context, g *biz.Group) (*int64, error) {
 }
 
 func (r *groupRepo) FindByID(ctx context.Context, id int64) (*biz.Group, error) {
-	group, err := r.data.db.Group.Query().Where(group.IDEQ(id)).Only(ctx)
+	group, err := r.data.db.Group.Query().Where(group.IDEQ(id)).WithContests().WithProblems().WithManage().Only(ctx)
 	if err != nil {
 		return nil, err
 	}
+	log.Info(group.Edges.Problems)
+	var manage []biz.Contest
+	var contests []biz.Contest
+	var problems []biz.Problem
+	for _, m := range group.Edges.Manage {
+		manage = append(manage, biz.Contest{
+			Id:          m.ID,
+			Title:       m.Title,
+			Description: m.Description,
+			Status:      util.ContestStateToInt(m.State, m.StartTime, m.EndTime),
+			Type:        int32(m.Type),
+			StartTime:   m.StartTime,
+			EndTime:     m.EndTime,
+			Language:    m.Language,
+			ExtraTime:   int32(m.ExtraTime),
+			CreateTime:  m.CreateTime,
+		})
+	}
+	for _, c := range group.Edges.Contests {
+		contests = append(contests, biz.Contest{
+			Id:          c.ID,
+			Title:       c.Title,
+			Description: c.Description,
+			Status:      util.ContestStateToInt(c.State, c.StartTime, c.EndTime),
+			Type:        int32(c.Type),
+			StartTime:   c.StartTime,
+			EndTime:     c.EndTime,
+			Language:    c.Language,
+			ExtraTime:   int32(c.ExtraTime),
+			CreateTime:  c.CreateTime,
+		})
+	}
+	for _, p := range group.Edges.Problems {
+		problems = append(problems, biz.Problem{
+			ID:          p.ID,
+			TypeID:      p.ProblemTypeID,
+			Title:       p.Title,
+			Content:     p.Content,
+			Point:       int32(p.Score),
+			ContestID:   p.ContestID,
+			CaseVersion: int32(p.CaseVersion),
+			Index:       int32(p.Index),
+		})
+	}
 	return &biz.Group{
-		Id:   group.ID,
-		Name: group.GroupName,
+		Id:       group.ID,
+		Name:     group.GroupName,
+		Manage:   manage,
+		Contests: contests,
+		Problems: problems,
 	}, nil
 }
 

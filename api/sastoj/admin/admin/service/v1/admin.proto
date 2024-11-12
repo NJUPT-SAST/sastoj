@@ -358,9 +358,9 @@ message GetGroupReply {
   int64 id = 1;
   string name = 2;
   bool is_root = 3;
-  repeated int64 manage = 4;
-  repeated int64 contests = 5;
-  repeated int64 problems = 6;
+  repeated GetContestReply manage = 4;
+  repeated GetContestReply contests = 5;
+  repeated Problem problems = 6;
 }
 message ListGroupRequest {
   int64 size = 1 [(validate.rules).int64 = {gt: -1}];

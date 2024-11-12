@@ -7,8 +7,15 @@ import (
 )
 
 type Group struct {
-	Id   int64
-	Name string
+	Id         int64
+	Name       string
+	IsRoot     bool
+	Manage     []Contest
+	Contests   []Contest
+	Problems   []Problem
+	ManageId   []int64
+	ContestsId []int64
+	ProblemsId []int64
 }
 
 type GroupRepo interface {
