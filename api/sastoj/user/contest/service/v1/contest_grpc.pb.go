@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: sastoj/user/contest/service/v1/contest.proto
+// source: user/contest/service/v1/contest.proto
 
 package v1
 

@@ -12,6 +12,10 @@ import (
 
 func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsRequest) (*pb.GetContestsReply, error) {
 	userID := util.GetUserInfoFromCtx(ctx).UserId
+	exist := s.contestUc.CheckBanned(ctx, userID)
+	if exist {
+		return nil, pb.ErrorUserBanned("user is banned")
+	}
 	rv, err := s.contestUc.ListContest(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -35,6 +39,10 @@ func (s *ContestService) GetContests(ctx context.Context, _ *pb.GetContestsReque
 }
 func (s *ContestService) JoinContest(ctx context.Context, req *pb.JoinContestRequest) (*pb.JoinContestReply, error) {
 	userID := util.GetUserInfoFromCtx(ctx).UserId
+	exist := s.contestUc.CheckBanned(ctx, userID)
+	if exist {
+		return nil, pb.ErrorUserBanned("user is banned")
+	}
 	err := s.contestUc.JoinContest(ctx, userID, req.GetContestId(), req.Body.IsJoin)
 	if err != nil {
 		return nil, err

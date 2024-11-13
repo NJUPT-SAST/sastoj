@@ -77,6 +77,9 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 	if !util.VerifyPassword(password, user.Salt, user.Password) {
 		return "", errors.New("user or password is wrong")
 	}
+	if user.Status == 1 {
+		return "", errors.New("user is banned")
+	}
 	j, err := uc.generateJWT(user)
 	if err != nil {
 		return "", err

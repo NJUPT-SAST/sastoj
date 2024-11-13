@@ -12,8 +12,12 @@ import (
 )
 
 func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
-	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
 	userID := util.GetUserInfoFromCtx(ctx).UserId
+	exist := s.contestUc.CheckBanned(ctx, userID)
+	if exist {
+		return nil, pb.ErrorUserBanned("user is banned")
+	}
+	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
 	id := uuid.NewString()
 	if err != nil {
 		return nil, err
@@ -40,8 +44,12 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 }
 
 func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
-	selfTestID := uuid.NewString()
 	userID := util.GetUserInfoFromCtx(ctx).UserId
+	exist := s.contestUc.CheckBanned(ctx, userID)
+	if exist {
+		return nil, pb.ErrorUserBanned("user is banned")
+	}
+	selfTestID := uuid.NewString()
 	err := s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:        selfTestID,
 		UserID:    userID,

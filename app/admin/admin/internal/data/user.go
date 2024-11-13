@@ -10,6 +10,8 @@ import (
 	"sastoj/pkg/util"
 )
 
+const blacklistPrefix = "user:contest:blacklist:"
+
 type userRepo struct {
 	data *Data
 	log  *log.Helper
@@ -56,6 +58,14 @@ func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
 	}
 	res64 := int64(res)
 	return &res64, nil
+}
+
+func (r *userRepo) AddBlackList(ctx context.Context, id int64) error {
+	return r.data.redis.SAdd(ctx, blacklistPrefix, id, 0).Err()
+}
+
+func (r *userRepo) RemoveBlackList(ctx context.Context, id int64) error {
+	return r.data.redis.SRem(ctx, blacklistPrefix, id, 0).Err()
 }
 
 func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {

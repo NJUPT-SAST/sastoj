@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	prefix = "admin:contest:rank:"
+	rankPrefix = "admin:contest:rank:"
 )
 
 type rankRepo struct {
@@ -35,7 +35,7 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 
 func (r *rankRepo) Find(ctx context.Context, contest *biz.Contest) (*biz.Rank, error) {
 	if contest.EndTime.After(time.Now()) {
-		key := prefix + strconv.FormatInt(contest.Id, 10)
+		key := rankPrefix + strconv.FormatInt(contest.Id, 10)
 		data, err := r.data.redis.Get(ctx, key).Result()
 		if err != nil {
 			return nil, err
@@ -80,7 +80,7 @@ func (r *rankRepo) Save(ctx context.Context, rank *biz.Rank) error {
 
 func (r *rankRepo) SaveCache(ctx context.Context, contest *biz.Contest, rank *biz.Rank) error {
 	if contest.EndTime.After(time.Now()) {
-		key := prefix + strconv.FormatInt(contest.Id, 10)
+		key := rankPrefix + strconv.FormatInt(contest.Id, 10)
 		rankData, err := json.Marshal(rank)
 		if err != nil {
 			return err

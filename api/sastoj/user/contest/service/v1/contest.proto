@@ -4,6 +4,7 @@ package api.sastoj.user.contest.service.v1;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "errors/errors.proto";
 
 option go_package = "sastoj/api/sastoj/user/contest/service/v1;v1";
 option java_multiple_files = true;
@@ -256,4 +257,10 @@ message RegisterRequest {
 }
 message RegisterReply {
 	string token = 1;
+}
+
+enum ErrorReason {
+	option (errors.default_code) = 500;
+
+	USER_BANNED = 0 [(errors.code) = 401];
 }

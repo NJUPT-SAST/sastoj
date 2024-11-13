@@ -19,7 +19,10 @@ type contestRepo struct {
 	log  *log.Helper
 }
 
-const redisPrefix = "user:contest:contest:"
+const (
+	blacklistPrefix = "user:contest:blacklist:"
+	redisPrefix     = "user:contest:contest:"
+)
 
 func (c *contestRepo) ListContest(ctx context.Context, userID int64) ([]*biz.Contest, error) {
 	var (
@@ -108,6 +111,10 @@ func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, 
 		return err
 	}
 	return nil
+}
+
+func (c *contestRepo) CheckBanned(ctx context.Context, userId int64) bool {
+	return c.data.redis.SIsMember(ctx, blacklistPrefix, strconv.FormatInt(userId, 10)).Val()
 }
 
 // NewContestRepo .
