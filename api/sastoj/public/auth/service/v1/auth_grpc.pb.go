@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: sastoj/public/auth/service/v1/auth.proto
+// source: public/auth/service/v1/auth.proto
 
 package v1
 
@@ -155,5 +155,5 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sastoj/public/auth/service/v1/auth.proto",
+	Metadata: "public/auth/service/v1/auth.proto",
 }

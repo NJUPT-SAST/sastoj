@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	pb "sastoj/api/sastoj/public/auth/service/v1"
 	"sastoj/app/public/auth/internal/conf"
 	"sastoj/pkg/util"
 	"time"
@@ -78,7 +79,7 @@ func (uc *AuthUsecase) Login(ctx context.Context, username string, password stri
 		return "", errors.New("user or password is wrong")
 	}
 	if user.Status == 1 {
-		return "", errors.New("user is banned")
+		return "", pb.ErrorUserBanned("user is banned")
 	}
 	j, err := uc.generateJWT(user)
 	if err != nil {
