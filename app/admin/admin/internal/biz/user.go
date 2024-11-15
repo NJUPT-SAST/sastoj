@@ -68,7 +68,7 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, u *User) (bool, error) {
 	if err != nil || *rv == 0 {
 		return false, err
 	}
-	if u.State == 1 {
+	if u.State != 0 {
 		err := uc.repo.AddBlackList(ctx, u.ID)
 		if err != nil {
 			return false, err
