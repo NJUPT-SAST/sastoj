@@ -17,6 +17,10 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 	if exist {
 		return nil, pb.ErrorUserBanned("user is banned")
 	}
+	_, err := s.rankUc.Find(ctx, req.ContestId)
+	if err != nil {
+		return nil, pb.ErrorContestEnd("contest is end")
+	}
 	caseVer, err := s.getProblemCaseVer(ctx, req.ProblemId)
 	id := uuid.NewString()
 	if err != nil {

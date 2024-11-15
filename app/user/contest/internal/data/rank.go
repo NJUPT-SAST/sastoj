@@ -13,6 +13,8 @@ type rankRepo struct {
 	log  *log.Helper
 }
 
+const rankPrefix = "admin:contest:rank:"
+
 func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 	return &rankRepo{
 		data: data,
@@ -21,8 +23,7 @@ func NewRankRepo(data *Data, logger log.Logger) biz.RankRepo {
 }
 
 func (r *rankRepo) Find(ctx context.Context, contestId int64) (*biz.Rank, error) {
-	const prefix = "admin:contest:rank:"
-	key := prefix + strconv.FormatInt(contestId, 10)
+	key := rankPrefix + strconv.FormatInt(contestId, 10)
 	data, err := r.data.redis.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err

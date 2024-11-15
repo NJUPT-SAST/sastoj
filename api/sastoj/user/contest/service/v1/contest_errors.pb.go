@@ -22,3 +22,15 @@ func IsUserBanned(err error) bool {
 func ErrorUserBanned(format string, args ...interface{}) *errors.Error {
 	return errors.New(401, ErrorReason_USER_BANNED.String(), fmt.Sprintf(format, args...))
 }
+
+func IsContestEnd(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_CONTEST_END.String() && e.Code == 401
+}
+
+func ErrorContestEnd(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, ErrorReason_CONTEST_END.String(), fmt.Sprintf(format, args...))
+}

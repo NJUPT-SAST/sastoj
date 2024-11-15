@@ -263,4 +263,5 @@ enum ErrorReason {
 	option (errors.default_code) = 500;
 
 	USER_BANNED = 0 [(errors.code) = 401];
+	CONTEST_END = 1 [(errors.code) = 401];
 }
