@@ -156,6 +156,7 @@ func (r *contestRepo) GetRacingContests(ctx context.Context) ([]*biz.Contest, er
 	rv := make([]*biz.Contest, 0)
 	for _, c := range cs {
 		rv = append(rv, &biz.Contest{
+			Id:          c.ID,
 			Title:       c.Title,
 			Description: c.Description,
 			Status:      util.ContestStateToInt(c.State, c.StartTime, c.EndTime),
