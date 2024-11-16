@@ -32,8 +32,7 @@ type UserCreate struct {
 type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
 	Update(context.Context, *User) (*int64, error)
-	AddBlackList(context.Context, int64) error
-	RemoveBlackList(context.Context, int64) error
+	DeleteCache(context.Context, int64) error
 	FindByID(context.Context, int64) (*User, error)
 	ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*User, int64, error)
 	BatchSave(ctx context.Context, users []*UserCreate) ([]string, error)
@@ -68,16 +67,9 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, u *User) (bool, error) {
 	if err != nil || *rv == 0 {
 		return false, err
 	}
-	if u.State != 0 {
-		err := uc.repo.AddBlackList(ctx, u.ID)
-		if err != nil {
-			return false, err
-		}
-	} else {
-		err := uc.repo.RemoveBlackList(ctx, u.ID)
-		if err != nil {
-			return false, err
-		}
+	err = uc.repo.DeleteCache(ctx, u.ID)
+	if err != nil {
+		return false, err
 	}
 	return true, nil
 }

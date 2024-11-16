@@ -8,6 +8,7 @@ import (
 	"sastoj/ent/contest"
 	"sastoj/ent/group"
 	"sastoj/ent/user"
+	"sastoj/pkg/util"
 	"strconv"
 	"time"
 
@@ -20,7 +21,7 @@ type contestRepo struct {
 }
 
 const (
-	blacklistPrefix = "user:contest:blacklist:"
+	userStatePrefix = "user:contest:userState:"
 	redisPrefix     = "user:contest:contest:"
 )
 
@@ -113,8 +114,24 @@ func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, 
 	return nil
 }
 
-func (c *contestRepo) CheckBanned(ctx context.Context, userId int64) bool {
-	return c.data.redis.SIsMember(ctx, blacklistPrefix, strconv.FormatInt(userId, 10)).Val()
+func (c *contestRepo) UserStateCache(ctx context.Context, userId int64) (string, error) {
+	state, err := c.data.redis.HGet(ctx, userStatePrefix, strconv.FormatInt(userId, 10)).Int()
+	if err != nil {
+		return "", err
+	}
+	stateStr, err := util.UserStateToEnt(int16(state))
+	if err != nil {
+		return "", err
+	}
+	return stateStr.String(), nil
+}
+
+func (c *contestRepo) UserState(ctx context.Context, userId int64) (string, error) {
+	return c.data.db.User.Query().Where(user.IDEQ(userId)).Select(user.FieldState).String(ctx)
+}
+
+func (c *contestRepo) IsUserBanned(state string) bool {
+	return state == user.StateNORMAL.String()
 }
 
 // NewContestRepo .
