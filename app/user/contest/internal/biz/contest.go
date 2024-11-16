@@ -28,6 +28,7 @@ type ContestRepo interface {
 	ListContest(ctx context.Context, userID int64) ([]*Contest, error)
 	JoinContest(ctx context.Context, userID, contestID int64, isJoin bool) error
 	UserStateCache(ctx context.Context, userId int64) (string, error)
+	UpdateUserStateCache(ctx context.Context, userId int64, state string) error
 	UserState(ctx context.Context, userId int64) (string, error)
 	IsUserBanned(state string) bool
 }
@@ -63,7 +64,11 @@ func (uc *ContestUsecase) JoinContest(ctx context.Context, userID, contestID int
 func (uc *ContestUsecase) getUserStateWithCache(ctx context.Context, userId int64) (string, error) {
 	state, err := uc.repo.UserStateCache(ctx, userId)
 	if err == redis.Nil {
-		return uc.repo.UserState(ctx, userId)
+		state, err = uc.repo.UserState(ctx, userId)
+		if err != nil {
+			return "", err
+		}
+		err = uc.repo.UpdateUserStateCache(ctx, userId, state)
 	}
 	return state, err
 }

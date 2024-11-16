@@ -130,6 +130,10 @@ func (c *contestRepo) UserState(ctx context.Context, userId int64) (string, erro
 	return c.data.db.User.Query().Where(user.IDEQ(userId)).Select(user.FieldState).String(ctx)
 }
 
+func (c *contestRepo) UpdateUserStateCache(ctx context.Context, userId int64, state string) error {
+	return c.data.redis.HSet(ctx, userStatePrefix+strconv.FormatInt(userId, 10), util.UserStateToInt(user.State(state))).Err()
+}
+
 func (c *contestRepo) IsUserBanned(state string) bool {
 	return state == user.StateNORMAL.String()
 }
