@@ -21,7 +21,7 @@ type contestRepo struct {
 }
 
 const (
-	userStatePrefix = "user:contest:userState:"
+	userStatePrefix = "user:contest:state:"
 	redisPrefix     = "user:contest:contest:"
 )
 
@@ -115,7 +115,7 @@ func (c *contestRepo) JoinContest(ctx context.Context, userID, contestID int64, 
 }
 
 func (c *contestRepo) UserStateCache(ctx context.Context, userId int64) (string, error) {
-	state, err := c.data.redis.HGet(ctx, userStatePrefix, strconv.FormatInt(userId, 10)).Int()
+	state, err := c.data.redis.Get(ctx, userStatePrefix+strconv.FormatInt(userId, 10)).Int()
 	if err != nil {
 		return "", err
 	}
@@ -131,11 +131,11 @@ func (c *contestRepo) UserState(ctx context.Context, userId int64) (string, erro
 }
 
 func (c *contestRepo) UpdateUserStateCache(ctx context.Context, userId int64, state string) error {
-	return c.data.redis.HSet(ctx, userStatePrefix+strconv.FormatInt(userId, 10), util.UserStateToInt(user.State(state))).Err()
+	return c.data.redis.Set(ctx, userStatePrefix+strconv.FormatInt(userId, 10), util.UserStateToInt(user.State(state)), 1*time.Hour).Err()
 }
 
 func (c *contestRepo) IsUserBanned(state string) bool {
-	return state == user.StateNORMAL.String()
+	return state != user.StateNORMAL.String()
 }
 
 // NewContestRepo .

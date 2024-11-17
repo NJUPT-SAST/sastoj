@@ -13,11 +13,14 @@ import (
 
 func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb.SubmitReply, error) {
 	userID := util.GetUserInfoFromCtx(ctx).UserId
-	exist := s.contestUc.CheckBanned(ctx, userID)
+	exist, err := s.contestUc.CheckBanned(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 	if exist {
 		return nil, pb.ErrorUserBanned("user is banned")
 	}
-	_, err := s.rankUc.Find(ctx, req.ContestId)
+	_, err = s.rankUc.Find(ctx, req.ContestId)
 	if err != nil {
 		return nil, pb.ErrorContestEnd("contest is end")
 	}
@@ -49,12 +52,15 @@ func (s *ContestService) Submit(ctx context.Context, req *pb.SubmitRequest) (*pb
 
 func (s *ContestService) SelfTest(ctx context.Context, req *pb.SelfTestRequest) (*pb.SelfTestReply, error) {
 	userID := util.GetUserInfoFromCtx(ctx).UserId
-	exist := s.contestUc.CheckBanned(ctx, userID)
+	exist, err := s.contestUc.CheckBanned(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 	if exist {
 		return nil, pb.ErrorUserBanned("user is banned")
 	}
 	selfTestID := uuid.NewString()
-	err := s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
+	err = s.submitUc.CreateSelfTest(ctx, &biz.SelfTest{
 		ID:        selfTestID,
 		UserID:    userID,
 		ProblemID: req.ProblemId,

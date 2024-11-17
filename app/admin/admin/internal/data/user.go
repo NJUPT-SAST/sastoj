@@ -8,9 +8,10 @@ import (
 	"sastoj/ent/group"
 	"sastoj/ent/user"
 	"sastoj/pkg/util"
+	"strconv"
 )
 
-const userStatePrefix = "user:contest:userState:"
+const userStatePrefix = "user:contest:state:"
 
 type userRepo struct {
 	data *Data
@@ -61,7 +62,7 @@ func (r *userRepo) Update(ctx context.Context, u *biz.User) (*int64, error) {
 }
 
 func (r *userRepo) DeleteCache(ctx context.Context, id int64) error {
-	return r.data.redis.SRem(ctx, userStatePrefix, id).Err()
+	return r.data.redis.Del(ctx, userStatePrefix+strconv.FormatInt(id, 10)).Err()
 }
 
 func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
