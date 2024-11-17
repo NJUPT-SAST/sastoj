@@ -58,7 +58,7 @@ func (r *judgeRepo) GetJudgableProblems(ctx context.Context, userId int64) ([]*b
 	}
 	rv := make([]*biz.Problem, 0)
 	for _, p := range problems {
-		config, err := r.data.fm.GetConfigString(p.ID)
+		config, err := r.data.jcm.ReadString(p.ID)
 		if err != nil {
 			return nil, err
 		}

@@ -1,6 +1,7 @@
 package file
 
 import (
+	"github.com/pelletier/go-toml/v2"
 	"io"
 	"mime/multipart"
 	"os"
@@ -10,7 +11,7 @@ import (
 )
 
 type JudgeConfigManager struct {
-	BaseConfigManager[JudgeConfig]
+	BaseConfigManager
 }
 
 type Cases struct {
@@ -160,6 +161,28 @@ func (m *JudgeConfigManager) SaveAndExtractCase(casesFile multipart.File, filena
 // NewJudgeConfigManager create a new file manager
 func NewJudgeConfigManager(fileLocation string) *JudgeConfigManager {
 	return &JudgeConfigManager{
-		BaseConfigManager: BaseConfigManager[JudgeConfig]{location: fileLocation},
+		BaseConfigManager: BaseConfigManager{location: fileLocation},
 	}
+}
+
+func (m *JudgeConfigManager) GetConfig(problemId int64) (*JudgeConfig, error) {
+	tomlFile, err := m.ReadFile(problemId)
+	if err != nil {
+		return nil, err
+	}
+
+	var config JudgeConfig
+	err = toml.Unmarshal(tomlFile, &config)
+	if err != nil {
+		return nil, err
+	}
+	return &config, nil
+}
+
+func (m *JudgeConfigManager) SetConfig(problemId int64, config *JudgeConfig) error {
+	tomlFile, err := toml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	return m.WriteFile(problemId, tomlFile)
 }

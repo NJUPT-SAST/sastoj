@@ -31,7 +31,6 @@ type Data struct {
 	redis *redis.Client
 	ex    *mq.OjExchange
 	jcm   *file.JudgeConfigManager
-	fm    *file.BaseConfigManager[any]
 }
 
 // NewData .
@@ -111,6 +110,5 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		redis: redisClient,
 		ex:    ex,
 		jcm:   file.NewJudgeConfigManager(c.Load.GetProblemCasesLocation()),
-		fm:    file.NewBaseConfigManager(c.Load.GetProblemCasesLocation()),
 	}, cleanup, nil
 }
