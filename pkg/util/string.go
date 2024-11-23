@@ -61,12 +61,32 @@ func StringCompareIgnoreLineEndSpaceAndTextEndEnter(a, b string) bool {
 }
 
 func StringRemoveLineEndSpace(a string) string {
-	for i := len(a) - 1; i >= 0; i-- {
-		if a[i] == '\n' {
-			a = strings.TrimRight(a[:i], " ") + a[i:]
+	// Convert the string to a byte slice to avoid frequent string allocations
+	b := []byte(a)
+	n := len(b)
+	result := make([]byte, 0, n) // Preallocate space to improve performance
+
+	for i := 0; i < n; {
+		// Find the position of the next newline character
+		j := i
+		for j < n && b[j] != '\n' {
+			j++
 		}
+
+		// Remove trailing spaces before the newline
+		end := j
+		for end > i && b[end-1] == ' ' {
+			end--
+		}
+
+		// Append the cleaned line to the result
+		result = append(result, b[i:end]...)
+
+		// Move to the start of the next line
+		i = j + 1
 	}
-	return a
+
+	return string(result)
 }
 
 func Crlf2lf(s string) string {
