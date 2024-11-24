@@ -68,23 +68,33 @@ func (g *GoJudge) Compile(code []byte, language string, requestID string) (strin
 	return result.FileIDs[command.Target], result, nil
 }
 
-func (g *GoJudge) ClassicJudge(input []byte, language string, targetID string, requestID string, cpuTimeLimit uint64, clockTimeLimit uint64, memoryLimit uint64, outputSize int64) (*pb.Response_Result, error) {
+func (g *GoJudge) ClassicJudge(problemId int64, inputStr string, input []byte, language string, targetID string, requestID string, cpuTimeLimit uint64, clockTimeLimit uint64, memoryLimit uint64, outputSize int64) (*pb.Response_Result, error) {
 	//Tips: File should not be larger than Config
 	command, ok := (*g.Commands)[language]
 	if !ok {
 		return nil, errors.New("language not support ")
 	}
+	var f []*pb.Request_File
+	if problemId != -1 {
+		f = []*pb.Request_File{
+			requestLocal(problemId, inputStr),
+			requestPipe("stdout", command.RunConfig.StdoutMaxSize),
+			requestPipe("stderr", command.RunConfig.StderrMaxSize),
+		}
+	} else {
+		f = []*pb.Request_File{
+			requestMemory(input),
+			requestPipe("stdout", command.RunConfig.StdoutMaxSize),
+			requestPipe("stderr", command.RunConfig.StderrMaxSize),
+		}
+	}
 	res, err := (*g.Client).Exec(context.Background(), &pb.Request{
 		RequestID: requestID,
 		Cmd: []*pb.Request_CmdType{
 			{
-				Args: command.Run,
-				Env:  []string{"PATH=/usr/bin:/bin"},
-				Files: []*pb.Request_File{
-					requestMemory(input),
-					requestPipe("stdout", command.RunConfig.StdoutMaxSize),
-					requestPipe("stderr", command.RunConfig.StderrMaxSize),
-				},
+				Args:           command.Run,
+				Env:            []string{"PATH=/usr/bin:/bin"},
+				Files:          f,
 				CpuTimeLimit:   min(command.RunConfig.CpuTimeLimit, cpuTimeLimit) * 1000 * 1000,
 				CpuRateLimit:   command.RunConfig.CpuRateLimit,
 				ClockTimeLimit: min(command.RunConfig.ClockTimeLimit, clockTimeLimit) * 1000 * 1000,
@@ -153,6 +163,10 @@ func requestMemory(content []byte) *pb.Request_File {
 			},
 		},
 	}
+}
+
+func requestLocal(problemId int64, inputStr string) *pb.Request_File {
+	return &pb.Request_File{File: &pb.Request_File_Local{Local: &pb.Request_LocalFile{Src: "/data/cases/" + strconv.FormatInt(problemId, 10) + "/testdata/" + inputStr}}}
 }
 
 func requestPipe(name string, max int64) *pb.Request_File {

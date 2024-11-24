@@ -78,7 +78,7 @@ func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) e
 		}
 	}()
 
-	result, err = r.data.gojudge.ClassicJudge([]byte(test.Input), test.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
+	result, err = r.data.gojudge.ClassicJudge(-1, test.Input, []byte(test.Input), test.Language, fileID, uuid.NewString(), testConfig.CompileConfig.CpuTimeLimit, testConfig.CompileConfig.ClockTimeLimit, testConfig.CompileConfig.MemoryLimit, testConfig.CompileConfig.StdoutMaxSize)
 	if err != nil {
 		return err
 	}
@@ -262,7 +262,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				ans = util.RemoveCr(ans)
 
 				// judge case
-				result, err := r.data.gojudge.ClassicJudge(in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
+				result, err := r.data.gojudge.ClassicJudge(s.ProblemID, c.Input, in, s.Language, fileID, uuid.NewString(), uint64(config.ResourceLimits.Time), uint64(config.ResourceLimits.Time*2), uint64(config.ResourceLimits.Memory), int64(len(ans)))
 				if err != nil {
 					r.log.Infof("submission: %s runtime error: %v", s.ID, err)
 					caseBuilder.SetState(util.RuntimeError)
