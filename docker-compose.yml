@@ -82,9 +82,10 @@ services:
       - redis:rd
       - some-rabbit:mq
       - oj_pg:pg
-      - go-judge:goj
     network_mode: bridge
-
+    privileged: true
+    deploy:
+      replicas: 3
   freshcup:
     image: sastoj/freshcup-server
     build:

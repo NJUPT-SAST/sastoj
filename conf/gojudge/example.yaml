@@ -12,123 +12,124 @@ data:
   load:
     problem_cases_location: /data/cases
 
-judge_middleware:
-  endpoint: goj:5051
-  language:
-    enable:
-      - C
-      - C++
-      - C++98
-      - C++11
-      - C++11(O2)
-      - C++14
-      - C++14(O2)
-      - C++17
-      - C++17(O2)
-      - Bash
-      - Java
-      - Golang
-      - NodeJS
-      - PHP
-      - Python3
-      - Ruby
-    env:
-      "default":
-        - "PATH=/usr/bin"
-      "Golang":
-        - "PATH=/usr/bin:bin"
-        - "GOCACHE=/tmp/"
-    exec_config:
-      default:
-        compile:
-          proc_limit: 50
-          cpu_time_limit: 100000000000000
-          cpu_rate_limit: 10000000000
-          clock_time_limit: 10000000000000
-          memory_limit: 104857600
-          stdout_max_size: 1240000
-          stderr_max_size: 1240000
-        run:
-          proc_limit: 50
-          cpu_time_limit: 100000000000000
-          cpu_rate_limit: 10000000000
-          clock_time_limit: 10000000000000
-          memory_limit: 104857600
-          stdout_max_size: 1240000
-          stderr_max_size: 1240000
-    compile:
-      C: /usr/bin/gcc -Wall --std=c99 -o foo foo.c -lm
-      C++: /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -I/include
-      C++98: /usr/bin/g++ -Wall -std=c++98 -o foo foo.cc -lm -I/include
-      C++11: /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -I/include
-      C++11(O2): /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -O2 -I/include
-      C++14: /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -I/include
-      C++14(O2): /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -O2 -I/include
-      C++17: /usr/bin/g++ -Wall -std=c++17 -o foo foo.cc -lm -I/include
-      C++17(O2): /usr/bin/g++ -Wall -std=c++17 -o foo foo.cc -lm -O2 -I/include
-      Pascal: /usr/bin/fpc -O2 -o /w/foo foo.pas
-      Rust: /usr/bin/rustc -O -o /w/foo /w/foo.rs
-      Haskell: /usr/bin/ghc -O -outputdir /tmp -o foo foo.hs
-      Golang: /usr/bin/go build -o foo foo.go
-#      Java: /usr/bin/bash -c "javac -d /w -encoding utf8 ./Main.java && jar cvf Main.jar *.class >/dev/null"
-      Kotlin/JVM: kotlinc -include-runtime -d foo.jar foo.kt
-      Python: /usr/bin/python -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
-      Python 3: /usr/bin/python3 -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
-      PyPy3: /bin/bash -c "/usr/bin/pypy3 -c \"import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)\" && mv foo.py foo"
-      C#: /usr/bin/mcs -optimize+ -out:/w/foo /w/foo.cs
-    run:
-      default: foo
-      Bash: /bin/bash foo.sh
-      Java: /usr/bin/java -cp Main.java Main
-      Kotlin/JVM: /usr/bin/java -jar foo.jar
-      Python: /usr/bin/python foo
-      Python 3: /usr/bin/python3 foo
-      PyPy3: /bin/bash -c 'mv foo foo.py && /usr/bin/pypy3 -B foo.py'
-      PHP: /usr/bin/php foo.php
-      NodeJS: /usr/bin/node /w/foo.js
-      Ruby: /usr/bin/ruby foo.rb
-      C#: /usr/bin/mono foo
-    source:
-      C: foo.c
-      C++: foo.cc
-      C++98: foo.cc
-      C++11: foo.cc
-      C++11(O2): foo.cc
-      C++14: foo.cc
-      C++14(O2): foo.cc
-      C++17: foo.cc
-      C++17(O2): foo.cc
-      Pascal: foo.pas
-      Rust: foo.rs
-      Haskell: foo.hs
-      Golang: foo.go
-      Java: Main.java
-      Kotlin/JVM: foo.kt
-      Python: foo.py
-      Python 3: foo.py
-      PyPy3: foo.py
-      C#: foo.cs
-    target:
-      Bash: foo.sh
-      C: foo
-      C++: foo
-      C++98: foo
-      C++11: foo
-      C++11(O2): foo
-      C++14: foo
-      C++14(O2): foo
-      C++17: foo
-      C++17(O2): foo
-      Pascal: foo
-      Rust: foo
-      Haskell: foo
-      Golang: foo
-      Java: Main.jar
-      Kotlin/JVM: foo.jar
-      Python: foo
-      Python 3: foo
-      PyPy3: foo.py
-      C#: foo
-      PHP: foo.php
-      NodeJS: foo.js
-      Ruby: foo.rb
+  judge:
+    endpoint: 127.0.0.1:5051
+    language:
+      enable:
+        - C
+        - C++
+        - C++98
+        - C++11
+        - C++11(O2)
+        - C++14
+        - C++14(O2)
+        - C++17
+        - C++17(O2)
+        - Bash
+        - Java
+        - Golang
+        - Python3
+        - PHP
+      env:
+        default:
+          env:
+            - PATH=/usr/bin:/bin
+        Golang:
+          env:
+            - PATH=/usr/bin:/bin
+            - GOROOT=/usr/lib/go
+            - GOCACHE=/tmp/
+      exec_config:
+        default:
+          compile:
+            proc_limit: 50
+            cpu_time_limit: 100000000000000
+            cpu_rate_limit: 10000000000
+            clock_time_limit: 10000000000000
+            memory_limit: 104857600
+            stdout_max_size: 1240000
+            stderr_max_size: 1240000
+          run:
+            proc_limit: 50
+            cpu_time_limit: 100000000000000
+            cpu_rate_limit: 10000000000
+            clock_time_limit: 10000000000000
+            memory_limit: 104857600
+            stdout_max_size: 1240000
+            stderr_max_size: 1240000
+      compile:
+        C: /usr/bin/gcc -Wall --std=c99 -o foo foo.c -lm
+        C++: /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -I/include
+        C++98: /usr/bin/g++ -Wall -std=c++98 -o foo foo.cc -lm -I/include
+        C++11: /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -I/include
+        C++11(O2): /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -O2 -I/include
+        C++14: /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -I/include
+        C++14(O2): /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -O2 -I/include
+        C++17: /usr/bin/g++ -Wall -std=c++17 -o foo foo.cc -lm -I/include
+        C++17(O2): /usr/bin/g++ -Wall -std=c++17 -o foo foo.cc -lm -O2 -I/include
+        Pascal: /usr/bin/fpc -O2 -o /w/foo foo.pas
+        Rust: /usr/bin/rustc -O -o /w/foo /w/foo.rs
+        Haskell: /usr/bin/ghc -O -outputdir /tmp -o/w/foo foo.hs
+        Golang: /usr/bin/go build -o foo foo.go
+        Java: /usr/lib/jvm/java-17-openjdk/bin/javac -encoding utf8 Main.java
+        Kotlin/JVM: kotlinc -include-runtime -d foo.jar foo.kt
+        # Python: /usr/bin/python -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
+        # Python 3: /usr/bin/python3 -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
+        # PyPy3: /bin/bash -c "/usr/bin/pypy3 -c \"import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)\" && mv foo.py foo"
+        C#: /usr/bin/mcs -optimize+ -out:/w/foo /w/foo.cs
+      run:
+        default: foo
+        Bash: /bin/bash foo.sh
+        Java: /usr/bin/java Main
+        Kotlin/JVM: /usr/bin/java -jar foo.jar
+        Python: /usr/bin/python foo.py
+        Python 3: /usr/bin/python3 foo.py
+        PyPy3: /bin/bash -c 'mv foo foo.py && /usr/bin/pypy3 -B foo.py'
+        PHP: /usr/bin/php foo.php
+        NodeJS: /usr/bin/node /w/foo.js
+        Ruby: /usr/bin/ruby foo.rb
+        C#: /usr/bin/mono foo
+      source:
+        C: foo.c
+        C++: foo.cc
+        C++98: foo.cc
+        C++11: foo.cc
+        C++11(O2): foo.cc
+        C++14: foo.cc
+        C++14(O2): foo.cc
+        C++17: foo.cc
+        C++17(O2): foo.cc
+        Pascal: foo.pas
+        Rust: foo.rs
+        Haskell: foo.hs
+        Golang: foo.go
+        Java: Main.java
+        Kotlin/JVM: foo.kt
+        Python: foo.py
+        Python 3: foo.py
+        PyPy3: foo.py
+        C#: foo.cs
+      target:
+        Bash: foo.sh
+        C: foo
+        C++: foo
+        C++98: foo
+        C++11: foo
+        C++11(O2): foo
+        C++14: foo
+        C++14(O2): foo
+        C++17: foo
+        C++17(O2): foo
+        Pascal: foo
+        Rust: foo
+        Haskell: foo
+        Golang: foo
+        Java: Main.class
+        Kotlin/JVM: foo.jar
+        Python: foo
+        Python 3: foo
+        PyPy3: foo.py
+        C#: foo
+        PHP: foo.php
+        NodeJS: foo.js
+        Ruby: foo.rb
