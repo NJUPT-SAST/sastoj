@@ -6,6 +6,7 @@ import (
 	pb "sastoj/api/sastoj/public/auth/service/v1"
 	"sastoj/app/public/auth/internal/conf"
 	"sastoj/pkg/util"
+	"strconv"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -95,8 +96,8 @@ func (uc *AuthUsecase) generateJWT(user *User) (string, error) {
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    uc.jwtConf.issuer,
-		Subject:   "a",
-		ID:        "1",
+		Subject:   user.Username,
+		ID:        strconv.FormatInt(user.ID, 10),
 	}
 	claims := MyCustomClaims{
 		UserId:           user.ID,
