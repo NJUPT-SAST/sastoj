@@ -52,6 +52,8 @@ services:
     external_links:
       - redis:rd
       - some-rabbit:mq
+      - oj_pg:pg
+    network_mode: bridge
 
   contest:
     image: sastoj/contest:${GIT_COMMIT:-latest}
