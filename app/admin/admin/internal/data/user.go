@@ -80,6 +80,15 @@ func (r *userRepo) FindByID(ctx context.Context, id int64) (*biz.User, error) {
 }
 
 func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, groupIDs []int64, username string, state int16) ([]*biz.User, int64, error) {
+	// 确保 current 至少为 1
+	if current < 1 {
+		current = 1
+	}
+	// 确保 size 至少为 1
+	if size < 1 {
+		size = 10 // 设置默认值
+	}
+
 	query := r.data.db.User.Query()
 	if len(groupIDs) > 0 {
 		query = query.Where(user.HasGroupsWith(group.IDIn(groupIDs...)))
@@ -92,15 +101,28 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, gro
 	if username != "" {
 		query = query.Where(user.UsernameContains(username))
 	}
-	res, err := query.Offset(int((current - 1) * size)).Limit(int(size)).WithGroups().All(ctx)
-	if err != nil {
-		log.Debug("err: ", err)
-		return nil, 0, err
-	}
+
+	// 先获取总数，避免在没有数据时出错
 	total, err := query.Count(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
+
+	// 如果没有数据，直接返回空结果
+	if total == 0 {
+		return make([]*biz.User, 0), 0, nil
+	}
+
+	// 计算偏移量
+	offset := int((current - 1) * size)
+
+	// 执行查询
+	res, err := query.Order(ent.Asc(user.FieldID)).Offset(offset).Limit(int(size)).WithGroups().All(ctx)
+	if err != nil {
+		log.Debug("err: ", err)
+		return nil, 0, err
+	}
+
 	rv := make([]*biz.User, 0)
 	for _, u := range res {
 		g := make([]int64, 0, len(u.Edges.Groups))
@@ -116,6 +138,7 @@ func (r *userRepo) ListPages(ctx context.Context, current int64, size int64, gro
 	}
 	return rv, int64(total), nil
 }
+
 func (r *userRepo) BatchSave(ctx context.Context, users []*biz.UserCreate) ([]string, error) {
 	createdUsers, err := r.data.db.User.MapCreateBulk(users, func(c *ent.UserCreate, i int) {
 		c.SetUsername(users[i].Username).

@@ -117,13 +117,11 @@ func (r *problemRepo) FindByID(ctx context.Context, id int64) (*biz.Problem, err
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 	vis := util.VisToPb(p.Visibility)
 	config, err := r.data.jcm.ReadString(p.ID)
 	if err != nil {
-		return nil, err
+		log.Warn("problem config not found: ", p.ID)
+		config = ""
 	}
 
 	return &biz.Problem{
