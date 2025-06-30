@@ -35,11 +35,14 @@ services:
   #    shm_size: 512m
   #    network_mode: bridge
   admin:
-    image: sastoj/admin
+    image: sastoj/admin:${GIT_COMMIT:-latest}
     build:
       context: ./
       dockerfile: ./Dockerfile
       target: admin
+      args:
+        - SERVICE=admin
+        - GIT_COMMIT=${GIT_COMMIT:-unknown}
     ports:
       - "8000:8000"
       - "9000:9000"
@@ -49,15 +52,16 @@ services:
     external_links:
       - redis:rd
       - some-rabbit:mq
-      - oj_pg:pg
-    network_mode: bridge
 
   contest:
-    image: sastoj/contest
+    image: sastoj/contest:${GIT_COMMIT:-latest}
     build:
       context: ./
       dockerfile: ./Dockerfile
       target: contest
+      args:
+        - SERVICE=contest
+        - GIT_COMMIT=${GIT_COMMIT:-unknown}
     ports:
       - "8100:8000"
       - "9100:9000"
@@ -69,12 +73,15 @@ services:
       - oj_pg:pg
     network_mode: bridge
 
-  gojudge:
-    image: sastoj/gojudge-server
+  gojudge-server:
+    image: sastoj/gojudge-server:${GIT_COMMIT:-latest}
     build:
       context: ./
       dockerfile: ./Dockerfile
       target: gojudge-server
+      args:
+        - SERVICE=gojudge
+        - GIT_COMMIT=${GIT_COMMIT:-unknown}
     volumes:
       - ./conf/gojudge:/data/conf
       - ./data/cases:/data/cases
@@ -87,11 +94,14 @@ services:
     deploy:
       replicas: 3
   freshcup:
-    image: sastoj/freshcup-server
+    image: sastoj/freshcup-server:${GIT_COMMIT:-latest}
     build:
       context: ./
       dockerfile: ./Dockerfile
       target: freshcup-server
+      args:
+        - SERVICE=freshcup
+        - GIT_COMMIT=${GIT_COMMIT:-unknown}
     volumes:
       - ./conf/freshcup:/data/conf
       - ./data/cases:/data/cases
@@ -102,11 +112,14 @@ services:
     network_mode: bridge
 
   public-auth:
-    image: sastoj/public-auth
+    image: sastoj/public-auth:${GIT_COMMIT:-latest}
     build:
       context: ./
       dockerfile: ./Dockerfile
       target: public-auth
+      args:
+        - SERVICE=auth
+        - GIT_COMMIT=${GIT_COMMIT:-unknown}
     ports:
       - "8300:8000"
       - "9300:9000"

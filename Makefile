@@ -80,6 +80,37 @@ db:
 docker:
 	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj/$(T):$(VERSION) . ;)
 
+.PHONY: run
+# run a specific service: make run admin [CONF=path/to/config]
+run:
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make run <service-name> [CONF=path/to/config]"; \
+		echo "Available services: admin, contest, auth, gojudge, freshcup"; \
+		exit 1; \
+	fi
+
+	@SERVICE=$(word 2,$(MAKECMDGOALS)); \
+	CONF_PATH=$${CONF:-conf}; \
+	case "$$SERVICE" in \
+		admin|contest|auth|gojudge|freshcup) \
+			echo "Building and running $$SERVICE service..."; \
+			case "$$SERVICE" in \
+				admin) SVC_PATH="admin/admin" ;; \
+				contest) SVC_PATH="user/contest" ;; \
+				auth) SVC_PATH="public/auth" ;; \
+				gojudge) SVC_PATH="judge/gojudge" ;; \
+				freshcup) SVC_PATH="judge/freshcup" ;; \
+			esac; \
+			go build -o bin/$$SERVICE ./app/$$SVC_PATH/cmd/$$SERVICE; \
+			./bin/$$SERVICE -conf $$CONF_PATH/$$SVC_PATH/config.yaml; \
+			;; \
+		*) \
+			echo "Error: Unknown service '$$SERVICE'"; \
+			echo "Available services: admin, contest, auth, gojudge, freshcup"; \
+			exit 1; \
+			;; \
+	esac
+
 # show help
 help:
 	@echo ''
