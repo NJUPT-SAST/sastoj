@@ -50,6 +50,7 @@ const (
 	Admin_DeleteUser_FullMethodName             = "/api.sastoj.admin.admin.service.v1.Admin/DeleteUser"
 	Admin_GetUser_FullMethodName                = "/api.sastoj.admin.admin.service.v1.Admin/GetUser"
 	Admin_ListUser_FullMethodName               = "/api.sastoj.admin.admin.service.v1.Admin/ListUser"
+	Admin_GetMQQueueStats_FullMethodName        = "/api.sastoj.admin.admin.service.v1.Admin/GetMQQueueStats"
 )
 
 // AdminClient is the client API for Admin service.
@@ -87,6 +88,7 @@ type AdminClient interface {
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserReply, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
 	ListUser(ctx context.Context, in *ListUserRequest, opts ...grpc.CallOption) (*ListUserReply, error)
+	GetMQQueueStats(ctx context.Context, in *GetMQQueueStatsRequest, opts ...grpc.CallOption) (*GetMQQueueStatsReply, error)
 }
 
 type adminClient struct {
@@ -407,6 +409,16 @@ func (c *adminClient) ListUser(ctx context.Context, in *ListUserRequest, opts ..
 	return out, nil
 }
 
+func (c *adminClient) GetMQQueueStats(ctx context.Context, in *GetMQQueueStatsRequest, opts ...grpc.CallOption) (*GetMQQueueStatsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMQQueueStatsReply)
+	err := c.cc.Invoke(ctx, Admin_GetMQQueueStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServer is the server API for Admin service.
 // All implementations must embed UnimplementedAdminServer
 // for forward compatibility.
@@ -442,6 +454,7 @@ type AdminServer interface {
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
 	ListUser(context.Context, *ListUserRequest) (*ListUserReply, error)
+	GetMQQueueStats(context.Context, *GetMQQueueStatsRequest) (*GetMQQueueStatsReply, error)
 	mustEmbedUnimplementedAdminServer()
 }
 
@@ -544,6 +557,9 @@ func (UnimplementedAdminServer) GetUser(context.Context, *GetUserRequest) (*GetU
 }
 func (UnimplementedAdminServer) ListUser(context.Context, *ListUserRequest) (*ListUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUser not implemented")
+}
+func (UnimplementedAdminServer) GetMQQueueStats(context.Context, *GetMQQueueStatsRequest) (*GetMQQueueStatsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMQQueueStats not implemented")
 }
 func (UnimplementedAdminServer) mustEmbedUnimplementedAdminServer() {}
 func (UnimplementedAdminServer) testEmbeddedByValue()               {}
@@ -1124,6 +1140,24 @@ func _Admin_ListUser_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Admin_GetMQQueueStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMQQueueStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServer).GetMQQueueStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Admin_GetMQQueueStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServer).GetMQQueueStats(ctx, req.(*GetMQQueueStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Admin_ServiceDesc is the grpc.ServiceDesc for Admin service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1254,6 +1288,10 @@ var Admin_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUser",
 			Handler:    _Admin_ListUser_Handler,
+		},
+		{
+			MethodName: "GetMQQueueStats",
+			Handler:    _Admin_GetMQQueueStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

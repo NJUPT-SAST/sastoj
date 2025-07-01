@@ -23,7 +23,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJudgeRepo, NewAdjudicatorRepo, NewProblemRepo, NewRankRepo, NewUserRepo, NewGroupRepo)
+var ProviderSet = wire.NewSet(NewData, NewProblemCaseRepo, NewContestRepo, NewJudgeRepo, NewAdjudicatorRepo, NewProblemRepo, NewRankRepo, NewUserRepo, NewGroupRepo, NewMqRepo)
 
 // Data .
 type Data struct {
@@ -31,6 +31,7 @@ type Data struct {
 	redis *redis.Client
 	ex    *mq.OjExchange
 	jcm   *file.JudgeConfigManager
+	mqc   *mq.Client
 }
 
 // NewData .
@@ -90,7 +91,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 	// connect to mq
-	conn, err := amqp.Dial(c.Mq)
+	amqpURL := fmt.Sprintf("amqp://%s:%s@%s:%s", c.Mq.User, c.Mq.Passwd, c.Mq.Url, c.Mq.AmqpPort)
+	conn, err := amqp.Dial(amqpURL)
 	if err != nil {
 		log.Errorf("failed connecting to mq: %v", err)
 		return nil, nil, err
@@ -110,5 +112,6 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		redis: redisClient,
 		ex:    ex,
 		jcm:   file.NewJudgeConfigManager(c.Load.GetProblemCasesLocation()),
+		mqc:   mq.NewClient(c.Mq.Url+":"+c.Mq.HttpPort, c.Mq.User, c.Mq.Passwd),
 	}, cleanup, nil
 }

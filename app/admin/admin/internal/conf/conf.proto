@@ -44,11 +44,18 @@ message Data {
   message Load {
     string problem_cases_location = 1;
   }
+  message Mq {
+    string url = 1;
+    string user = 2;
+    string passwd = 3;
+    string amqp_port = 4;
+    string http_port = 5;
+  }
   Database database = 1;
   Redis redis = 2;
   Auth auth = 3;
   Load load = 4;
-  string mq = 5;
+  Mq mq = 5;
 }
 
 message Job {

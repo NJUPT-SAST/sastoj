@@ -17,9 +17,10 @@ type AdminService struct {
 	uc    *biz.UserUsecase
 	gc    *biz.GroupUsecase
 	pc    *biz.ProblemUsecase
+	mqc   *biz.MQUsecase
 }
 
-func NewAdminService(problemCase *biz.CaseUsecase, contest *biz.ContestUsecase, rank *biz.RankUsecase, judge *biz.JudgeUsecase, adjudicator *biz.AdjudicatorUsecase, user *biz.UserUsecase, group *biz.GroupUsecase, problem *biz.ProblemUsecase) *AdminService {
+func NewAdminService(problemCase *biz.CaseUsecase, contest *biz.ContestUsecase, rank *biz.RankUsecase, judge *biz.JudgeUsecase, adjudicator *biz.AdjudicatorUsecase, user *biz.UserUsecase, group *biz.GroupUsecase, problem *biz.ProblemUsecase, mq *biz.MQUsecase) *AdminService {
 	return &AdminService{
 		casec: problemCase,
 		ctsc:  contest,
@@ -29,6 +30,7 @@ func NewAdminService(problemCase *biz.CaseUsecase, contest *biz.ContestUsecase, 
 		uc:    user,
 		gc:    group,
 		pc:    problem,
+		mqc:   mq,
 	}
 }
 

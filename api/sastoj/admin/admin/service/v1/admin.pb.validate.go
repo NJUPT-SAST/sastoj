@@ -77,7 +77,7 @@ type CaseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CaseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -179,7 +179,7 @@ type DeleteCasesByProblemIdRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteCasesByProblemIdRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -282,7 +282,7 @@ type DeleteCasesByProblemIdReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteCasesByProblemIdReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -484,7 +484,7 @@ type CreateContestRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateContestRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -588,7 +588,7 @@ type CreateContestReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateContestReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -791,7 +791,7 @@ type UpdateContestRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateContestRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -895,7 +895,7 @@ type UpdateContestReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateContestReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -999,7 +999,7 @@ type DeleteContestRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteContestRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1103,7 +1103,7 @@ type DeleteContestReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteContestReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1207,7 +1207,7 @@ type GetContestRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetContestRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1410,7 +1410,7 @@ type GetContestReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetContestReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1532,7 +1532,7 @@ type ListContestRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListContestRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1670,7 +1670,7 @@ type ListContestReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListContestReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1785,7 +1785,7 @@ type AddContestantsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContestantsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1894,7 +1894,7 @@ type AddContestantsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContestantsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1998,7 +1998,7 @@ type ManualRankingRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ManualRankingRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2102,7 +2102,7 @@ type ManualRankingReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ManualRankingReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2206,7 +2206,7 @@ type GetRankingRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetRankingRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2342,7 +2342,7 @@ type GetRankingReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetRankingReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2446,7 +2446,7 @@ type CreateGroupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateGroupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2550,7 +2550,7 @@ type CreateGroupReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateGroupReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2656,7 +2656,7 @@ type UpdateGroupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateGroupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2760,7 +2760,7 @@ type UpdateGroupReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateGroupReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2862,7 +2862,7 @@ type DeleteGroupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteGroupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2966,7 +2966,7 @@ type DeleteGroupReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteGroupReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3068,7 +3068,7 @@ type GetGroupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetGroupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3276,7 +3276,7 @@ type GetGroupReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetGroupReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3398,7 +3398,7 @@ type ListGroupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListGroupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3532,7 +3532,7 @@ type ListGroupReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListGroupReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3650,7 +3650,7 @@ type ProblemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProblemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3786,7 +3786,7 @@ type SubmissionMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SubmissionMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3890,7 +3890,7 @@ type SubmitJudgeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SubmitJudgeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3992,7 +3992,7 @@ type SubmitJudgeReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SubmitJudgeReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4092,7 +4092,7 @@ type GetJudgableProblemsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetJudgableProblemsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4228,7 +4228,7 @@ type GetJudgableProblemsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetJudgableProblemsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4334,7 +4334,7 @@ type GetSubmissionsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSubmissionsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4470,7 +4470,7 @@ type GetSubmissionsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSubmissionsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4592,7 +4592,7 @@ type CreateProblemRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateProblemRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4696,7 +4696,7 @@ type CreateProblemReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateProblemReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4822,7 +4822,7 @@ type UpdateProblemRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateProblemRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4926,7 +4926,7 @@ type UpdateProblemReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateProblemReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5030,7 +5030,7 @@ type DeleteProblemRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteProblemRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5134,7 +5134,7 @@ type DeleteProblemReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteProblemReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5238,7 +5238,7 @@ type GetProblemRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetProblemRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5364,7 +5364,7 @@ type GetProblemReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetProblemReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5470,7 +5470,7 @@ type ListProblemRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListProblemRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5608,7 +5608,7 @@ type ListProblemReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListProblemReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5708,7 +5708,7 @@ type GetProblemTypesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetProblemTypesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5844,7 +5844,7 @@ type GetProblemTypesReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetProblemTypesReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5948,7 +5948,7 @@ type UpdateAdjudicatorRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateAdjudicatorRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6052,7 +6052,7 @@ type UpdateAdjudicatorReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateAdjudicatorReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6156,7 +6156,7 @@ type GetAdjudicatorRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAdjudicatorRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6292,7 +6292,7 @@ type GetAdjudicatorReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAdjudicatorReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6398,7 +6398,7 @@ type CreateUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6502,7 +6502,7 @@ type CreateUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreateUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6613,7 +6613,7 @@ type BatchCreateUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BatchCreateUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6749,7 +6749,7 @@ type BatchCreateUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BatchCreateUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6859,7 +6859,7 @@ type UpdateUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6963,7 +6963,7 @@ type UpdateUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7065,7 +7065,7 @@ type DeleteUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7169,7 +7169,7 @@ type DeleteUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7271,7 +7271,7 @@ type GetUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7376,7 +7376,7 @@ type GetUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7484,7 +7484,7 @@ type ListUserRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListUserRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7620,7 +7620,7 @@ type ListUserReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListUserReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7683,6 +7683,244 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListUserReplyValidationError{}
+
+// Validate checks the field values on GetMQQueueStatsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMQQueueStatsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMQQueueStatsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMQQueueStatsRequestMultiError, or nil if none found.
+func (m *GetMQQueueStatsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMQQueueStatsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetMQQueueStatsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMQQueueStatsRequestMultiError is an error wrapping multiple validation
+// errors returned by GetMQQueueStatsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetMQQueueStatsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMQQueueStatsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMQQueueStatsRequestMultiError) AllErrors() []error { return m }
+
+// GetMQQueueStatsRequestValidationError is the validation error returned by
+// GetMQQueueStatsRequest.Validate if the designated constraints aren't met.
+type GetMQQueueStatsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMQQueueStatsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMQQueueStatsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMQQueueStatsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMQQueueStatsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMQQueueStatsRequestValidationError) ErrorName() string {
+	return "GetMQQueueStatsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMQQueueStatsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMQQueueStatsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMQQueueStatsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMQQueueStatsRequestValidationError{}
+
+// Validate checks the field values on GetMQQueueStatsReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMQQueueStatsReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMQQueueStatsReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetMQQueueStatsReplyMultiError, or nil if none found.
+func (m *GetMQQueueStatsReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMQQueueStatsReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetStats() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetMQQueueStatsReplyValidationError{
+						field:  fmt.Sprintf("Stats[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetMQQueueStatsReplyValidationError{
+						field:  fmt.Sprintf("Stats[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetMQQueueStatsReplyValidationError{
+					field:  fmt.Sprintf("Stats[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetMQQueueStatsReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMQQueueStatsReplyMultiError is an error wrapping multiple validation
+// errors returned by GetMQQueueStatsReply.ValidateAll() if the designated
+// constraints aren't met.
+type GetMQQueueStatsReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMQQueueStatsReplyMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMQQueueStatsReplyMultiError) AllErrors() []error { return m }
+
+// GetMQQueueStatsReplyValidationError is the validation error returned by
+// GetMQQueueStatsReply.Validate if the designated constraints aren't met.
+type GetMQQueueStatsReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMQQueueStatsReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMQQueueStatsReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMQQueueStatsReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMQQueueStatsReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMQQueueStatsReplyValidationError) ErrorName() string {
+	return "GetMQQueueStatsReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMQQueueStatsReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMQQueueStatsReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMQQueueStatsReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMQQueueStatsReplyValidationError{}
 
 // Validate checks the field values on ListContestReply_Contest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -7821,7 +8059,7 @@ type ListContestReply_ContestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListContestReply_ContestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7965,7 +8203,7 @@ type GetRankingReply_UserResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetRankingReply_UserResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8107,7 +8345,7 @@ type GetRankingReply_UserResult_ProblemResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetRankingReply_UserResult_ProblemResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8216,7 +8454,7 @@ type ListGroupReply_GroupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListGroupReply_GroupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8342,7 +8580,7 @@ type ListProblemReply_ProblemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListProblemReply_ProblemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8456,7 +8694,7 @@ type GetProblemTypesReply_ProblemTypeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetProblemTypesReply_ProblemTypeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8563,7 +8801,7 @@ type GetAdjudicatorReply_GroupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAdjudicatorReply_GroupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8669,7 +8907,7 @@ type BatchCreateUserReply_UserMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m BatchCreateUserReply_UserMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8777,7 +9015,7 @@ type ListUserReply_UserMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListUserReply_UserMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8842,3 +9080,122 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListUserReply_UserValidationError{}
+
+// Validate checks the field values on GetMQQueueStatsReply_QueueStats with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMQQueueStatsReply_QueueStats) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetMQQueueStatsReply_QueueStats with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetMQQueueStatsReply_QueueStatsMultiError, or nil if none found.
+func (m *GetMQQueueStatsReply_QueueStats) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetMQQueueStatsReply_QueueStats) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for QueueName
+
+	// no validation rules for MessagesReady
+
+	// no validation rules for MessagesUnacked
+
+	// no validation rules for Consumers
+
+	// no validation rules for Memory
+
+	// no validation rules for MessageRateIn
+
+	// no validation rules for MessageRateOut
+
+	// no validation rules for MessageRateAck
+
+	if len(errors) > 0 {
+		return GetMQQueueStatsReply_QueueStatsMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetMQQueueStatsReply_QueueStatsMultiError is an error wrapping multiple
+// validation errors returned by GetMQQueueStatsReply_QueueStats.ValidateAll()
+// if the designated constraints aren't met.
+type GetMQQueueStatsReply_QueueStatsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetMQQueueStatsReply_QueueStatsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetMQQueueStatsReply_QueueStatsMultiError) AllErrors() []error { return m }
+
+// GetMQQueueStatsReply_QueueStatsValidationError is the validation error
+// returned by GetMQQueueStatsReply_QueueStats.Validate if the designated
+// constraints aren't met.
+type GetMQQueueStatsReply_QueueStatsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetMQQueueStatsReply_QueueStatsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetMQQueueStatsReply_QueueStatsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetMQQueueStatsReply_QueueStatsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetMQQueueStatsReply_QueueStatsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetMQQueueStatsReply_QueueStatsValidationError) ErrorName() string {
+	return "GetMQQueueStatsReply_QueueStatsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetMQQueueStatsReply_QueueStatsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetMQQueueStatsReply_QueueStats.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetMQQueueStatsReply_QueueStatsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetMQQueueStatsReply_QueueStatsValidationError{}

@@ -18,6 +18,11 @@ else
 	APP_PROTO_FILES=$(shell find app -name *.proto)
 endif
 
+# Allow module names as targets without defining explicit rules for them
+.PHONY: admin contest auth cases gojudge freshcup
+admin contest auth cases gojudge freshcup:
+	@:
+
 .PHONY: init
 # init env
 init:
@@ -37,10 +42,38 @@ config:
 	       $(APP_PROTO_FILES)
 
 .PHONY: api
-# generate protobuf api go code
+# generate protobuf api go code: make api [module]
 api:
-	@cd api && \
-	buf generate -o sastoj
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		cd api && \
+		buf generate -o sastoj; \
+	else \
+		MODULE=$(word 2,$(MAKECMDGOALS)); \
+		case "$$MODULE" in \
+			admin) \
+				echo "Generating API code for admin module..."; \
+				cd api && buf generate -o sastoj sastoj/admin/admin/service/v1/admin.proto; \
+				;; \
+			contest) \
+				echo "Generating API code for contest module..."; \
+				cd api && buf generate -o sastoj sastoj/user/contest/service/v1/contest.proto; \
+				;; \
+			auth) \
+				echo "Generating API code for auth module..."; \
+				cd api && buf generate -o sastoj sastoj/public/auth/service/v1/auth.proto; \
+				;; \
+			cases) \
+				echo "Generating API code for cases module..."; \
+				cd api && buf generate -o sastoj sastoj/rsjudge/cases/service/v1/cases.proto; \
+				;; \
+			*) \
+				echo "Error: Unknown module '$$MODULE'"; \
+				echo "Available modules: admin, contest, auth, cases"; \
+				exit 1; \
+				;; \
+		esac; \
+	fi
+
 .PHONY: errors
 # generate error proto
 errors:
@@ -102,7 +135,17 @@ run:
 				freshcup) SVC_PATH="judge/freshcup" ;; \
 			esac; \
 			go build -o bin/$$SERVICE ./app/$$SVC_PATH/cmd/$$SERVICE; \
-			./bin/$$SERVICE -conf $$CONF_PATH/$$SVC_PATH/config.yaml; \
+			case "$$SERVICE" in \
+				gojudge) \
+					./bin/$$SERVICE -conf $$CONF_PATH/gojudge/config.yaml; \
+					;; \
+				freshcup) \
+					./bin/$$SERVICE -conf $$CONF_PATH/freshcup/config.yaml; \
+					;; \
+				*) \
+					./bin/$$SERVICE -conf $$CONF_PATH/$$SVC_PATH/config.yaml; \
+					;; \
+			esac; \
 			;; \
 		*) \
 			echo "Error: Unknown service '$$SERVICE'"; \
@@ -127,5 +170,13 @@ help:
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+	@echo ''
+	@echo 'Module-specific commands:'
+	@echo ' make api <module>      Generate API code for a specific module'
+	@echo ' make errors <module>   Generate error code for a specific module'
+	@echo ' make validate <module> Generate validate code for a specific module'
+	@echo ''
+	@echo 'Available modules: admin, contest, auth, cases'
+	@echo 'Available services: admin, contest, auth, gojudge, freshcup'
 
 .DEFAULT_GOAL := help

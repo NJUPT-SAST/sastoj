@@ -176,6 +176,12 @@ service Admin {
       get: "/users"
     };
   };
+
+  rpc GetMQQueueStats (GetMQQueueStatsRequest) returns (GetMQQueueStatsReply){
+    option (google.api.http) = {
+      get: "/mq/queue-stats"
+    };
+  };
 }
 enum ErrorReason {
   // 设置缺省错误码
@@ -598,4 +604,19 @@ message ListUserReply {
   }
   repeated User users = 1;
   int64 total = 2;
+}
+
+message GetMQQueueStatsRequest {}
+message GetMQQueueStatsReply {
+  message QueueStats {
+    string queue_name = 1;
+    int64 messages_ready = 2;
+    int64 messages_unacked = 3;
+    int64 consumers = 4;
+    int64 memory = 5;
+    int64 message_rate_in = 6;
+    int64 message_rate_out = 7;
+    int64 message_rate_ack = 8;
+  }
+  repeated QueueStats stats = 1;
 }
