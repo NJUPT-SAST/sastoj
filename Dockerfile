@@ -3,7 +3,8 @@ FROM golang:1.22-alpine AS base
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download
-RUN apk add --no-cache make git
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
+    apk add --no-cache make git
 
 # Define build arguments
 ARG GIT_COMMIT=unknown

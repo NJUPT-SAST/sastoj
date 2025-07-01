@@ -66,15 +66,8 @@ type RabbitMQOverview struct {
 func (c *Client) GetQueueStats(ctx context.Context) ([]QueueStats, error) {
 	logger := log.NewHelper(log.With(log.GetLogger(), "module", "mq"))
 
-	// Parse the MQ URL from the configuration
-	parsedURL, err := url.Parse(c.URL)
-	if err != nil {
-		logger.Errorf("failed to parse MQ URL: %v", err)
-		return nil, fmt.Errorf("failed to parse MQ URL: %w", err)
-	}
-
 	// Construct the management API URL for queues
-	apiURL := fmt.Sprintf("http://%s:15672/api/queues", parsedURL.Hostname())
+	apiURL := fmt.Sprintf("http://%s/api/queues", c.URL)
 
 	// Create a new request
 	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
@@ -173,15 +166,8 @@ func (c *Client) GetQueueStats(ctx context.Context) ([]QueueStats, error) {
 func (c *Client) GetMQOverview(ctx context.Context) (*RabbitMQOverview, error) {
 	logger := log.NewHelper(log.With(log.GetLogger(), "module", "mq"))
 
-	// Parse the MQ URL from the configuration
-	parsedURL, err := url.Parse(c.URL)
-	if err != nil {
-		logger.Errorf("failed to parse MQ URL: %v", err)
-		return nil, fmt.Errorf("failed to parse MQ URL: %w", err)
-	}
-
 	// Construct the management API URL for overview
-	apiURL := fmt.Sprintf("http://%s:15672/api/overview", parsedURL.Hostname())
+	apiURL := fmt.Sprintf("http://%s/api/overview", c.URL)
 
 	// Create a new request
 	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
@@ -230,18 +216,8 @@ func (c *Client) GetMQOverview(ctx context.Context) (*RabbitMQOverview, error) {
 func (c *Client) GetQueueStatsForVHost(ctx context.Context, vhost string) ([]QueueStats, error) {
 	logger := log.NewHelper(log.With(log.GetLogger(), "module", "mq"))
 
-	// Parse the MQ URL from the configuration
-	parsedURL, err := url.Parse(c.URL)
-	if err != nil {
-		logger.Errorf("failed to parse MQ URL: %v", err)
-		return nil, fmt.Errorf("failed to parse MQ URL: %w", err)
-	}
-
-	// URL encode the vhost name since it might contain special characters
-	encodedVHost := url.PathEscape(vhost)
-
 	// Construct the management API URL for queues in the specific vhost
-	apiURL := fmt.Sprintf("http://%s:15672/api/queues/%s", parsedURL.Hostname(), encodedVHost)
+	apiURL := fmt.Sprintf("http://%s/api/queues/%s", c.URL, vhost)
 
 	// Create a new request
 	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
