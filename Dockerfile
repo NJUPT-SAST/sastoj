@@ -121,7 +121,7 @@ WORKDIR /go/judge
 RUN if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "gojudge" ]; then \
       apk update && apk add git bash && \
       git clone https://ghfast.top/https://github.com/criyle/go-judge.git . && \
-      git checkout v1.8.0 && \
+      git checkout v1.11.3 && \
       go mod download -x && \
       go generate ./cmd/go-judge/version && \
       CGO_ENABLE=0 go build -v -tags grpcnotrace,nomsgpack -o go-judge ./cmd/go-judge; \

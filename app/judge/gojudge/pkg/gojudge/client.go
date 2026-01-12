@@ -32,40 +32,41 @@ func (g *GoJudge) Compile(code []byte, language string, requestID string) (strin
 		}
 		return fileID, nil, nil
 	}
-	res, err := (*g.Client).Exec(context.Background(), &pb.Request{
-		RequestID: requestID,
-		Cmd: []*pb.Request_CmdType{
-			{
-				Args: command.Compile,
-				Env:  command.Env,
-				Files: []*pb.Request_File{
-					requestMemory([]byte{}),
-					requestPipe("stdout", command.CompileConfig.StdoutMaxSize),
-					requestPipe("stderr", command.CompileConfig.StderrMaxSize),
-				},
-				CpuTimeLimit:   command.CompileConfig.CpuTimeLimit * 1000 * 1000,
-				CpuRateLimit:   command.CompileConfig.CpuRateLimit,
-				ClockTimeLimit: command.CompileConfig.ClockTimeLimit * 1000 * 1000,
-				MemoryLimit:    command.CompileConfig.MemoryLimit * 1024 * 1024,
-				ProcLimit:      command.CompileConfig.ProcLimit,
-				CopyIn: map[string]*pb.Request_File{
-					command.Source: requestMemory(code),
-				},
-				CopyOut: []*pb.Request_CmdCopyOutFile{
-					requestCopyOutFile("stdout"),
-					requestCopyOutFile("stderr"),
-				},
-				CopyOutCached: []*pb.Request_CmdCopyOutFile{
-					requestCopyOutFile(command.Target),
-				},
-			},
-		},
+
+	cmd := &pb.Request_CmdType{}
+	cmd.SetArgs(command.Compile)
+	cmd.SetEnv(command.Env)
+	cmd.SetFiles([]*pb.Request_File{
+		requestMemory([]byte{}),
+		requestPipe("stdout", command.CompileConfig.StdoutMaxSize),
+		requestPipe("stderr", command.CompileConfig.StderrMaxSize),
 	})
+	cmd.SetCpuTimeLimit(command.CompileConfig.CpuTimeLimit * 1000 * 1000)
+	cmd.SetCpuRateLimit(command.CompileConfig.CpuRateLimit)
+	cmd.SetClockTimeLimit(command.CompileConfig.ClockTimeLimit * 1000 * 1000)
+	cmd.SetMemoryLimit(command.CompileConfig.MemoryLimit * 1024 * 1024)
+	cmd.SetProcLimit(command.CompileConfig.ProcLimit)
+	cmd.SetCopyIn(map[string]*pb.Request_File{
+		command.Source: requestMemory(code),
+	})
+	cmd.SetCopyOut([]*pb.Request_CmdCopyOutFile{
+		requestCopyOutFile("stdout"),
+		requestCopyOutFile("stderr"),
+	})
+	cmd.SetCopyOutCached([]*pb.Request_CmdCopyOutFile{
+		requestCopyOutFile(command.Target),
+	})
+
+	req := &pb.Request{}
+	req.SetRequestID(requestID)
+	req.SetCmd([]*pb.Request_CmdType{cmd})
+
+	res, err := (*g.Client).Exec(context.Background(), req)
 	result, err := handleExecError(requestID, res, err)
 	if err != nil {
 		return "", result, err
 	}
-	return result.FileIDs[command.Target], result, nil
+	return result.GetFileIDs()[command.Target], result, nil
 }
 
 func (g *GoJudge) ClassicJudge(problemId int64, inputStr string, input []byte, language string, targetID string, requestID string, cpuTimeLimit uint64, clockTimeLimit uint64, memoryLimit uint64, outputSize int64) (*pb.Response_Result, error) {
@@ -88,24 +89,25 @@ func (g *GoJudge) ClassicJudge(problemId int64, inputStr string, input []byte, l
 			requestPipe("stderr", command.RunConfig.StderrMaxSize),
 		}
 	}
-	res, err := (*g.Client).Exec(context.Background(), &pb.Request{
-		RequestID: requestID,
-		Cmd: []*pb.Request_CmdType{
-			{
-				Args:           command.Run,
-				Env:            []string{"PATH=/usr/bin:/bin"},
-				Files:          f,
-				CpuTimeLimit:   min(command.RunConfig.CpuTimeLimit, cpuTimeLimit) * 1000 * 1000,
-				CpuRateLimit:   command.RunConfig.CpuRateLimit,
-				ClockTimeLimit: min(command.RunConfig.ClockTimeLimit, clockTimeLimit) * 1000 * 1000,
-				MemoryLimit:    min(command.RunConfig.MemoryLimit, memoryLimit) * 1024 * 1024,
-				ProcLimit:      command.RunConfig.ProcLimit,
-				CopyIn: map[string]*pb.Request_File{
-					command.Target: requestCached(targetID),
-				},
-			},
-		},
+
+	cmd := &pb.Request_CmdType{}
+	cmd.SetArgs(command.Run)
+	cmd.SetEnv([]string{"PATH=/usr/bin:/bin"})
+	cmd.SetFiles(f)
+	cmd.SetCpuTimeLimit(min(command.RunConfig.CpuTimeLimit, cpuTimeLimit) * 1000 * 1000)
+	cmd.SetCpuRateLimit(command.RunConfig.CpuRateLimit)
+	cmd.SetClockTimeLimit(min(command.RunConfig.ClockTimeLimit, clockTimeLimit) * 1000 * 1000)
+	cmd.SetMemoryLimit(min(command.RunConfig.MemoryLimit, memoryLimit) * 1024 * 1024)
+	cmd.SetProcLimit(command.RunConfig.ProcLimit)
+	cmd.SetCopyIn(map[string]*pb.Request_File{
+		command.Target: requestCached(targetID),
 	})
+
+	req := &pb.Request{}
+	req.SetRequestID(requestID)
+	req.SetCmd([]*pb.Request_CmdType{cmd})
+
+	res, err := (*g.Client).Exec(context.Background(), req)
 	result, err := handleExecError(requestID, res, err)
 	if err != nil {
 		return result, err
@@ -114,20 +116,20 @@ func (g *GoJudge) ClassicJudge(problemId int64, inputStr string, input []byte, l
 }
 
 func (g *GoJudge) AddFile(file string, content []byte) (fileID string, err error) {
-	id, err := (*g.Client).FileAdd(context.Background(), &pb.FileContent{
-		Name:    file,
-		Content: content,
-	})
+	fc := &pb.FileContent{}
+	fc.SetName(file)
+	fc.SetContent(content)
+	id, err := (*g.Client).FileAdd(context.Background(), fc)
 	if err != nil {
 		return "", err
 	}
-	return id.FileID, nil
+	return id.GetFileID(), nil
 }
 
 func (g *GoJudge) DeleteFile(fileID string) error {
-	_, err := (*g.Client).FileDelete(context.Background(), &pb.FileID{
-		FileID: fileID,
-	})
+	fid := &pb.FileID{}
+	fid.SetFileID(fileID)
+	_, err := (*g.Client).FileDelete(context.Background(), fid)
 	return err
 }
 
@@ -135,63 +137,62 @@ func handleExecError(requestID string, response *pb.Response, err error) (*pb.Re
 	if err != nil {
 		return nil, err
 	}
-	if len(response.Results) == 0 {
+	results := response.GetResults()
+	if len(results) == 0 {
 		return nil, errors.New("request=" + requestID + ": no result")
 	}
-	result := response.Results[0]
-	if result.Error != "" {
-		return result, errors.New("request=" + requestID + ": " + result.Error)
+	result := results[0]
+	if result.GetError() != "" {
+		return result, errors.New("request=" + requestID + ": " + result.GetError())
 	}
-	if result.FileError != nil {
+	if result.GetFileError() != nil {
 		message := "request=" + requestID + ":\n"
-		for _, fileError := range result.FileError {
-			message += "file error: " + fileError.Message + ",\n"
+		for _, fileError := range result.GetFileError() {
+			message += "file error: " + fileError.GetMessage() + ",\n"
 		}
 		return result, errors.New(message)
 	}
-	if result.ExitStatus != 0 && result.ExitStatus < 32 {
-		return result, errors.New("request=" + requestID + ": exit status=" + strconv.Itoa(int(result.ExitStatus)))
+	if result.GetExitStatus() != 0 && result.GetExitStatus() < 32 {
+		return result, errors.New("request=" + requestID + ": exit status=" + strconv.Itoa(int(result.GetExitStatus())))
 	}
 	return result, nil
 }
 
 func requestMemory(content []byte) *pb.Request_File {
-	return &pb.Request_File{
-		File: &pb.Request_File_Memory{
-			Memory: &pb.Request_MemoryFile{
-				Content: content,
-			},
-		},
-	}
+	mem := &pb.Request_MemoryFile{}
+	mem.SetContent(content)
+	f := &pb.Request_File{}
+	f.SetMemory(mem)
+	return f
 }
 
 func requestLocal(problemId int64, inputStr string) *pb.Request_File {
-	return &pb.Request_File{File: &pb.Request_File_Local{Local: &pb.Request_LocalFile{Src: "/data/cases/" + strconv.FormatInt(problemId, 10) + "/testdata/" + inputStr}}}
+	local := &pb.Request_LocalFile{}
+	local.SetSrc("/data/cases/" + strconv.FormatInt(problemId, 10) + "/testdata/" + inputStr)
+	f := &pb.Request_File{}
+	f.SetLocal(local)
+	return f
 }
 
 func requestPipe(name string, max int64) *pb.Request_File {
-	return &pb.Request_File{
-		File: &pb.Request_File_Pipe{
-			Pipe: &pb.Request_PipeCollector{
-				Name: name,
-				Max:  max,
-			},
-		},
-	}
+	pipe := &pb.Request_PipeCollector{}
+	pipe.SetName(name)
+	pipe.SetMax(max)
+	f := &pb.Request_File{}
+	f.SetPipe(pipe)
+	return f
 }
 
 func requestCached(fileID string) *pb.Request_File {
-	return &pb.Request_File{
-		File: &pb.Request_File_Cached{
-			Cached: &pb.Request_CachedFile{
-				FileID: fileID,
-			},
-		},
-	}
+	cached := &pb.Request_CachedFile{}
+	cached.SetFileID(fileID)
+	f := &pb.Request_File{}
+	f.SetCached(cached)
+	return f
 }
 
 func requestCopyOutFile(name string) *pb.Request_CmdCopyOutFile {
-	return &pb.Request_CmdCopyOutFile{
-		Name: name,
-	}
+	cof := &pb.Request_CmdCopyOutFile{}
+	cof.SetName(name)
+	return cof
 }

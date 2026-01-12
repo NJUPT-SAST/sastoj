@@ -27,7 +27,7 @@ services:
   #        - ./data/pg:/var/lib/postgresql/data
   #    network_mode: bridge
   #  go-judge:
-  #    image: criyle/go-judge:v1.8.0
+  #    image: criyle/go-judge:v1.11.3
   #    restart: always
   #    ports:
   #      - "5051:5051"
