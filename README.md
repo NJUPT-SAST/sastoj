@@ -9,7 +9,7 @@ SASTOJ is a microservice online judge system based on Kratos, aiming to provide 
 ### Environment
 
 ```plaintext
-go version: 1.22
+go version: 1.24
 kratos version: v2.7
 ```
 

@@ -202,7 +202,7 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 			s.Status = util.CompileError
 			s.Stderr = "Compile error without stderr"
 			stderr, ok := result.GetFiles()["stderr"]
-			if ok {
+			if ok && len(stderr) > 0 {
 				s.Stderr = string(stderr)
 			}
 		}

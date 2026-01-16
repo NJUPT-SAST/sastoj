@@ -25,7 +25,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 30,
 							},
@@ -52,7 +52,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 10,
 							},
@@ -79,7 +79,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -106,7 +106,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 0,
 							},
@@ -133,7 +133,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases:    []file.Cases{},
+						Subtasks: []file.Subtasks{},
 					},
 				},
 			},
@@ -150,7 +150,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 0,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -171,7 +171,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 2,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 20,
 							},
@@ -198,7 +198,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 					Score: 100,
 					Task: file.Task{
 						TaskType: "simple",
-						Cases: []file.Cases{
+						Subtasks: []file.Subtasks{
 							{
 								Score: 0,
 							},
@@ -221,7 +221,7 @@ func TestCalculateSimpleScores(t *testing.T) {
 			if err := CalculateScores(tt.args.config); (err != nil) != tt.wantErr {
 				t.Errorf("CalculateScores() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			for i, c := range tt.args.config.Task.Cases {
+			for i, c := range tt.args.config.Task.Subtasks {
 				if c.Score != tt.wantRes[i] {
 					t.Errorf("CalculateScores() = %v, want %v", c.Score, tt.wantRes[i])
 				}

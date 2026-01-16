@@ -1,5 +1,5 @@
 # Build base with dependencies
-FROM golang:1.22-alpine AS base
+FROM golang:1.24-alpine AS base
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN GOPROXY=https://goproxy.cn GO111MODULE=on go mod download
@@ -115,7 +115,7 @@ VOLUME /data/conf
 CMD ["/freshcup", "-conf", "/data/conf/config.yaml"]
 
 # Go-judge builder
-FROM golang:alpine AS go-judge-build
+FROM golang:1.24-alpine AS go-judge-build
 ARG SERVICE
 WORKDIR /go/judge
 RUN if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "gojudge" ]; then \

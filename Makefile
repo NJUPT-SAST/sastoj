@@ -19,8 +19,8 @@ else
 endif
 
 # Allow module names as targets without defining explicit rules for them
-.PHONY: admin contest auth cases gojudge freshcup
-admin contest auth cases gojudge freshcup:
+.PHONY: admin contest auth cases gojudge freshcup gojudge-server user-contest public-auth
+admin contest auth cases gojudge freshcup gojudge-server user-contest public-auth:
 	@:
 
 .PHONY: init
@@ -109,9 +109,14 @@ db:
 	go generate ./ent/
 
 .PHONY: docker
-# build docker image
+# build docker image: make docker [target]
 docker:
-	$(foreach T, $(PROJECTS), sudo docker build --target $(T) -t sastoj/$(T):$(VERSION) . ;)
+	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
+		$(foreach T, $(PROJECTS), docker build --target $(T) -t sastoj/$(T):$(VERSION) . ;) \
+	else \
+		TARGET=$(word 2,$(MAKECMDGOALS)); \
+		docker build --target $$TARGET -t sastoj/$$TARGET:$(VERSION) . ; \
+	fi
 
 .PHONY: run
 # run a specific service: make run admin [CONF=path/to/config]
@@ -154,6 +159,27 @@ run:
 			;; \
 	esac
 
+.PHONY: run-sandbox
+# run standalone go-judge sandbox for local debugging
+run-sandbox:
+	docker run -d \
+		--name go-judge-standalone \
+		--privileged \
+		--shm-size=256m \
+		-p 5050:5050 \
+		-p 5051:5051 \
+		-v $(shell pwd)/data:/data \
+		criyle/go-judge:v1.11.3 \
+		-enable-grpc
+
+.PHONY: init-sandbox
+# install toolchain in the standalone sandbox
+init-sandbox:
+	docker exec -i go-judge-standalone sh -c "cat > /tmp/init_sandbox.sh" < scripts/init_sandbox.sh
+	docker exec go-judge-standalone chmod +x /tmp/init_sandbox.sh
+	docker exec go-judge-standalone /tmp/init_sandbox.sh
+
+.PHONY: help
 # show help
 help:
 	@echo ''

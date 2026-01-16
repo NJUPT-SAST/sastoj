@@ -41,10 +41,10 @@ func (g *GoJudge) Compile(code []byte, language string, requestID string) (strin
 		requestPipe("stdout", command.CompileConfig.StdoutMaxSize),
 		requestPipe("stderr", command.CompileConfig.StderrMaxSize),
 	})
-	cmd.SetCpuTimeLimit(command.CompileConfig.CpuTimeLimit * 1000 * 1000)
+	cmd.SetCpuTimeLimit(command.CompileConfig.CpuTimeLimit)
 	cmd.SetCpuRateLimit(command.CompileConfig.CpuRateLimit)
-	cmd.SetClockTimeLimit(command.CompileConfig.ClockTimeLimit * 1000 * 1000)
-	cmd.SetMemoryLimit(command.CompileConfig.MemoryLimit * 1024 * 1024)
+	cmd.SetClockTimeLimit(command.CompileConfig.ClockTimeLimit)
+	cmd.SetMemoryLimit(command.CompileConfig.MemoryLimit)
 	cmd.SetProcLimit(command.CompileConfig.ProcLimit)
 	cmd.SetCopyIn(map[string]*pb.Request_File{
 		command.Source: requestMemory(code),
@@ -54,7 +54,7 @@ func (g *GoJudge) Compile(code []byte, language string, requestID string) (strin
 		requestCopyOutFile("stderr"),
 	})
 	cmd.SetCopyOutCached([]*pb.Request_CmdCopyOutFile{
-		requestCopyOutFile(command.Target),
+		requestCopyOutFileOptional(command.Target),
 	})
 
 	req := &pb.Request{}
@@ -94,10 +94,10 @@ func (g *GoJudge) ClassicJudge(problemId int64, inputStr string, input []byte, l
 	cmd.SetArgs(command.Run)
 	cmd.SetEnv([]string{"PATH=/usr/bin:/bin"})
 	cmd.SetFiles(f)
-	cmd.SetCpuTimeLimit(min(command.RunConfig.CpuTimeLimit, cpuTimeLimit) * 1000 * 1000)
+	cmd.SetCpuTimeLimit(min(command.RunConfig.CpuTimeLimit, cpuTimeLimit*1000*1000))
 	cmd.SetCpuRateLimit(command.RunConfig.CpuRateLimit)
-	cmd.SetClockTimeLimit(min(command.RunConfig.ClockTimeLimit, clockTimeLimit) * 1000 * 1000)
-	cmd.SetMemoryLimit(min(command.RunConfig.MemoryLimit, memoryLimit) * 1024 * 1024)
+	cmd.SetClockTimeLimit(min(command.RunConfig.ClockTimeLimit, clockTimeLimit*1000*1000))
+	cmd.SetMemoryLimit(min(command.RunConfig.MemoryLimit, memoryLimit*1024*1024))
 	cmd.SetProcLimit(command.RunConfig.ProcLimit)
 	cmd.SetCopyIn(map[string]*pb.Request_File{
 		command.Target: requestCached(targetID),
@@ -194,5 +194,12 @@ func requestCached(fileID string) *pb.Request_File {
 func requestCopyOutFile(name string) *pb.Request_CmdCopyOutFile {
 	cof := &pb.Request_CmdCopyOutFile{}
 	cof.SetName(name)
+	return cof
+}
+
+func requestCopyOutFileOptional(name string) *pb.Request_CmdCopyOutFile {
+	cof := &pb.Request_CmdCopyOutFile{}
+	cof.SetName(name)
+	cof.SetOptional(true)
 	return cof
 }
