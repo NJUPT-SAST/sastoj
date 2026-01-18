@@ -62,7 +62,7 @@ func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) e
 	if err != nil {
 		if result != nil {
 			test.Stderr = "compile error"
-			stderr, ok := result.Files["stderr"]
+			stderr, ok := result.GetFiles()["stderr"]
 			if ok {
 				test.Stderr = string(stderr)
 			}
@@ -83,10 +83,10 @@ func (r *submissionRepo) JudgeSelfTest(ctx context.Context, test *mq.SelfTest) e
 		return err
 	}
 
-	test.Time = result.Time
-	test.Memory = result.Memory
-	test.Stderr = string(result.Files["stderr"])
-	test.Stdout = string(result.Files["stdout"])
+	test.Time = result.GetTime()
+	test.Memory = result.GetMemory()
+	test.Stderr = string(result.GetFiles()["stderr"])
+	test.Stdout = string(result.GetFiles()["stdout"])
 	return nil
 }
 
@@ -201,8 +201,8 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 		if result != nil {
 			s.Status = util.CompileError
 			s.Stderr = "Compile error without stderr"
-			stderr, ok := result.Files["stderr"]
-			if ok {
+			stderr, ok := result.GetFiles()["stderr"]
+			if ok && len(stderr) > 0 {
 				s.Stderr = string(stderr)
 			}
 		}
@@ -266,15 +266,15 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 				if err != nil {
 					r.log.Infof("submission: %s runtime error: %v", s.ID, err)
 					caseBuilder.SetState(util.RuntimeError)
-					caseBuilder.SetStderr(util.GetSignalMean(result.ExitStatus))
+					caseBuilder.SetStderr(util.GetSignalMean(result.GetExitStatus()))
 					subtaskState = util.RuntimeError
 					return nil
 				}
 				r.log.Infof("submission: %s result: %+v", s.ID, result)
 
 				// get result state
-				state := gojudge.Convert(result.Status)
-				if out := result.Files["stdout"]; state == util.Accepted && out != nil {
+				state := gojudge.Convert(result.GetStatus())
+				if out := result.GetFiles()["stdout"]; state == util.Accepted && out != nil {
 					switch p.CompareType {
 					case problem.CompareTypeIGNORE_LINE_END_SPACE_AND_TEXT_END_ENTER:
 						if !util.StringCompareIgnoreLineEndSpaceAndTextEndEnter(string(out), string(ans)) {
@@ -296,17 +296,17 @@ func (r *submissionRepo) JudgeSubmission(ctx context.Context, s *mq.Submission) 
 
 				// set submission case
 				caseBuilder.SetState(state)
-				caseBuilder.SetTime(result.Time)
-				caseBuilder.SetMemory(result.Memory)
+				caseBuilder.SetTime(result.GetTime())
+				caseBuilder.SetMemory(result.GetMemory())
 				// TODO: support more contest type
 
 				// update subtask info
-				totalTime += result.Time
-				maxMemory = max(maxMemory, result.Memory)
+				totalTime += result.GetTime()
+				maxMemory = max(maxMemory, result.GetMemory())
 
 				// update submission info
-				s.TotalTime += result.Time
-				s.MaxMemory = max(s.MaxMemory, result.Memory)
+				s.TotalTime += result.GetTime()
+				s.MaxMemory = max(s.MaxMemory, result.GetMemory())
 
 				// set status and point
 				if state != util.Accepted {

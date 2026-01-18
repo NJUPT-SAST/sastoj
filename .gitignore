@@ -32,6 +32,7 @@ Thumbs.db
 *.log
 config.yaml
 bin/
+data/cases/**/*/
 
 # Develop tools
 .vscode/
